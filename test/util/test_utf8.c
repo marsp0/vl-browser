@@ -80,6 +80,156 @@ static void test_when_buffer_contains_value_greater_than_max_allowed_then_raise(
     ASSERT_FALSE(is_valid);
 }
 
+static void test_when_code_point_is_ascii_then_read_one_byte()
+{
+    uint32_t result;
+    unsigned char buffer[]  = { 0x30, 0x44 };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, 1);
+    ASSERT_EQUAL(result, '0');
+}
+
+static void test_when_code_point_is_2_bytes_then_read_2_bytes()
+{
+    uint32_t result;
+    unsigned char buffer[]  = { 0xc3, 0x87 };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, 2);
+    ASSERT_EQUAL(result, 0x00c7);
+}
+
+static void test_when_code_point_is_3_bytes_then_read_3_bytes()
+{
+    uint32_t result;
+    unsigned char buffer[]  = { 0xe0, 0xb3, 0xa9 };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, 3);
+    ASSERT_EQUAL(result, 0x0ce9);
+}
+
+static void test_when_code_point_is_4_bytes_then_read_4_bytes()
+{
+    uint32_t result;
+    unsigned char buffer[]  = { 0xf0, 0x90, 0x8d, 0x83 };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, 4);
+    ASSERT_EQUAL(result, 0x010343);
+}
+
+static void test_when_2_byte_code_point_is_not_full_then_error()
+{
+    uint32_t result = 0;
+    unsigned char buffer[]  = { 0xc3 };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
+static void test_when_3_byte_code_point_is_not_full_then_error()
+{
+    uint32_t result = 0;
+    unsigned char buffer[]  = { 0xe0, 0xa9 };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
+static void test_when_4_byte_code_point_is_not_full_then_error()
+{
+    uint32_t result = 0;
+    unsigned char buffer[]  = { 0xf0, 0x90, 0x8d };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
+static void test_when_cursor_higher_than_size_then_error()
+{
+    uint32_t result = 0;
+    unsigned char buffer[]  = { 0xf0, 0x90, 0x8d };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 5, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
+static void test_when_passing_invalid_start_byte_then_raise()
+{
+    uint32_t result = 0;
+    unsigned char buffer[]  = { 0xff, 0x90, 0x8d, 0x83 };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
+static void test_when_2nd_byte_in_2byte_code_point_is_invalid_then_raise()
+{
+    uint32_t result         = 0;
+    unsigned char buffer[]  = { 0xc3, 0x7f };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
+static void test_when_2nd_byte_in_3byte_code_point_is_invalid_then_raise()
+{
+    uint32_t result         = 0;
+    unsigned char buffer[]  = { 0xe0, 0x7f, 0xa9 };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
+static void test_when_3nd_byte_in_3byte_code_point_is_invalid_then_raise()
+{
+    uint32_t result         = 0;
+    unsigned char buffer[]  = { 0xe0, 0xb3, 0x7f };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
+static void test_when_2nd_byte_in_4byte_code_point_is_invalid_then_raise()
+{
+    uint32_t result         = 0;
+    unsigned char buffer[]  = { 0xf0, 0x7f, 0x8d, 0x83 };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
+static void test_when_3nd_byte_in_4byte_code_point_is_invalid_then_raise()
+{
+    uint32_t result         = 0;
+    unsigned char buffer[]  = { 0xf0, 0x90, 0x7f, 0x83 };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
+static void test_when_4th_byte_in_4byte_code_point_is_invalid_then_raise()
+{
+    uint32_t result         = 0;
+    unsigned char buffer[]  = { 0xf0, 0x90, 0x8d, 0x7f };
+    int32_t bytes_read      = utf8_code_point(buffer, sizeof(buffer), 0, &result);
+
+    ASSERT_EQUAL(bytes_read, -1);
+    ASSERT_EQUAL(result, 0);
+}
+
 void test_utf8()
 {
     TEST_CASE(test_when_buffer_is_valid_then_return_normally);
@@ -88,4 +238,19 @@ void test_utf8()
     TEST_CASE(test_when_buffer_contains_non_cont_byte_before_end_then_raise);
     TEST_CASE(test_when_buffer_contains_overlong_encoding_then_raise);
     TEST_CASE(test_when_buffer_contains_value_greater_than_max_allowed_then_raise);
+    TEST_CASE(test_when_code_point_is_ascii_then_read_one_byte);
+    TEST_CASE(test_when_code_point_is_2_bytes_then_read_2_bytes);
+    TEST_CASE(test_when_code_point_is_3_bytes_then_read_3_bytes);
+    TEST_CASE(test_when_code_point_is_4_bytes_then_read_4_bytes);
+    TEST_CASE(test_when_2_byte_code_point_is_not_full_then_error);
+    TEST_CASE(test_when_3_byte_code_point_is_not_full_then_error);
+    TEST_CASE(test_when_4_byte_code_point_is_not_full_then_error);
+    TEST_CASE(test_when_cursor_higher_than_size_then_error);
+    TEST_CASE(test_when_passing_invalid_start_byte_then_raise);
+    TEST_CASE(test_when_2nd_byte_in_2byte_code_point_is_invalid_then_raise);
+    TEST_CASE(test_when_2nd_byte_in_3byte_code_point_is_invalid_then_raise);
+    TEST_CASE(test_when_3nd_byte_in_3byte_code_point_is_invalid_then_raise);
+    TEST_CASE(test_when_2nd_byte_in_4byte_code_point_is_invalid_then_raise);
+    TEST_CASE(test_when_3nd_byte_in_4byte_code_point_is_invalid_then_raise);
+    TEST_CASE(test_when_4th_byte_in_4byte_code_point_is_invalid_then_raise);
 }

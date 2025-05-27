@@ -98,3 +98,58 @@ bool utf8_validate(unsigned char* buffer, uint32_t size)
 
     return is_valid;
 }
+
+int32_t utf8_code_point(unsigned char* buf, uint32_t size, uint32_t cur, uint32_t* val)
+{
+    if (cur >= size) { return -1; }
+
+    uint32_t c = (uint32_t)buf[cur];
+    if (c < 0x80)
+    {
+        *val = c;
+        return 1;
+    }
+    else if ((c & 0xE0) == 0xC0)                                        // ensure prefix of 110 - 2 byte codepoint
+    {
+        if (cur + 1 >= size) { return -1; }
+
+        uint32_t c1 = buf[cur + 1];
+        if ((c1 & 0xC0) != 0x80) { return -1; }                         // ensure 2nd byte prefix
+
+        *val = ((c & 0x1F) << 6) |                                      // remove prefix -> shift left to make space for second byte -> 
+                (c1 & 0x3f);                                            // remove prefix from second byte -> add together
+        return 2;
+    }
+    else if ((c & 0xF0) == 0xE0)                                        // 1110 - 3 byte codepoint
+    {
+        if (cur + 2 >= size) { return -1; }
+
+        uint32_t c1 = buf[cur + 1];
+        uint32_t c2 = buf[cur + 2];
+        if (((c1 & 0xC0) != 0x80) || ((c2 & 0xC0) != 0x80)) { return -1; } // ensure 2nd and 3rd byte prefix
+
+        *val =  ((c & 0x0F) << 12) |                                    // remove prefix -> shift left
+                ((c1 & 0x3f) << 6) |                                    // remove prefix -> shift left -> add to first byte
+                 (c2 & 0x3f);                                           // remove prefix -> shift left -> add to total
+        return 3;
+    }
+    else if ((c & 0xF8) == 0xF0)                                        // 11110 - 4 byte codepoint
+    {
+        if (cur + 3 >= size) { return -1; }
+
+        uint32_t c1 = buf[cur + 1];
+        uint32_t c2 = buf[cur + 2];
+        uint32_t c3 = buf[cur + 3];
+        if (((c1 & 0xC0) != 0x80) || ((c2 & 0xC0) != 0x80) || ((c3 & 0xC0) != 0x80)) { return -1; } // ensure 2nd, 3rd and 4th byte prefix
+
+        *val =  ((c & 0x0F) << 18) |                                    // remove prefix -> shift left
+                ((c1 & 0x3f) << 12) |                                   // remove prefix -> shift left -> add to first byte
+                ((c2 & 0x3f) << 6) |                                    // remove prefix -> shift left -> add to total
+                 (c3 & 0x3f);                                           // remove prefix -> shift left -> add to total
+        return 4;
+    }
+    else
+    {
+        return -1;
+    }
+}
