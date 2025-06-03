@@ -36,7 +36,7 @@ typedef enum
 /********************/
 
 // http://unicode.org/mail-arch/unicode-ml/y2003-m02/att-0467/01-The_Algorithm_to_Valide_an_UTF-8_String
-bool utf8_validate(unsigned char* buffer, uint32_t size)
+bool utf8_validate(const unsigned char* buffer, const uint32_t size)
 {
     unsigned char c;
     bool is_valid   = true;
@@ -99,7 +99,7 @@ bool utf8_validate(unsigned char* buffer, uint32_t size)
     return is_valid;
 }
 
-int32_t utf8_code_point(unsigned char* buf, uint32_t size, uint32_t cur, uint32_t* val)
+int32_t utf8_code_point(const unsigned char* buf, const uint32_t size, const uint32_t cur, uint32_t* val)
 {
     if (cur >= size) { return -1; }
 
@@ -152,4 +152,19 @@ int32_t utf8_code_point(unsigned char* buf, uint32_t size, uint32_t cur, uint32_
     {
         return -1;
     }
+}
+
+bool utf8_is_alpha(uint32_t code_point)
+{
+    return utf8_is_lower_alpha(code_point) || utf8_is_upper_alpha(code_point);
+}
+
+bool utf8_is_lower_alpha(uint32_t code_point)
+{
+    return code_point >= 'a' && code_point <= 'z';
+}
+
+bool utf8_is_upper_alpha(uint32_t code_point)
+{
+    return code_point >= 'A' && code_point <= 'Z';
 }

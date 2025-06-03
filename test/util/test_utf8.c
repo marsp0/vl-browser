@@ -230,6 +230,28 @@ static void test_when_4th_byte_in_4byte_code_point_is_invalid_then_raise()
     ASSERT_EQUAL(result, 0);
 }
 
+static void test_when_code_point_isalpha_then_return_true()
+{
+    uint32_t code_point = 'G';
+    bool is_alpha       = utf8_is_alpha(code_point);
+    ASSERT_TRUE(is_alpha);
+
+    code_point          = 'h';
+    is_alpha            = utf8_is_alpha(code_point);
+    ASSERT_TRUE(is_alpha);
+}
+
+static void test_when_code_point_is_not_alpha_then_return_false()
+{
+    uint32_t code_point = '/';
+    bool is_alpha       = utf8_is_alpha(code_point);
+    ASSERT_FALSE(is_alpha);
+
+    code_point          = 3200;
+    is_alpha            = utf8_is_alpha(code_point);
+    ASSERT_FALSE(is_alpha);
+}
+
 void test_utf8()
 {
     TEST_CASE(test_when_buffer_is_valid_then_return_normally);
@@ -253,4 +275,6 @@ void test_utf8()
     TEST_CASE(test_when_2nd_byte_in_4byte_code_point_is_invalid_then_raise);
     TEST_CASE(test_when_3nd_byte_in_4byte_code_point_is_invalid_then_raise);
     TEST_CASE(test_when_4th_byte_in_4byte_code_point_is_invalid_then_raise);
+    TEST_CASE(test_when_code_point_isalpha_then_return_true);
+    TEST_CASE(test_when_code_point_is_not_alpha_then_return_false);
 }

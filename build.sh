@@ -17,7 +17,7 @@ if [ -v debug ]; then gcc_compile=${gcc_debug}; fi
 
 # ----- src files
 main_file="./src/main.c"
-html_files="./src/html/parser.c"
+html_files="./src/html/tokenizer.c"
 util_files="./src/util/utf8.c"
 
 src_files="${html_files} ${util_files}"
@@ -25,8 +25,9 @@ src_files="${html_files} ${util_files}"
 # ----- test files
 test_main_file="./test/test_main.c ./test/test_utils.c"
 test_util_files="./test/util/test_utf8.c"
+test_html_files="./test/html/test_tokenizer.c"
 
-test_files="${test_util_files}"
+test_files="${test_util_files} ${test_html_files}"
 
 # ----- build
 mkdir -p out
@@ -36,6 +37,8 @@ echo "Compile tests"
 files="${test_main_file} ${src_files} ${test_files}";
 ${gcc_compile} -I./test ${files} ${gcc_link} -o ./out/test_vl;
 
-echo "Compile browser"
-files="${main_file} ${src_files}";
-${gcc_compile} ${files} ${gcc_link} -o ./out/vl;
+if [ $? -eq 0 ]; then
+    echo "Compile browser"
+    files="${main_file} ${src_files}";
+    ${gcc_compile} ${files} ${gcc_link} -o ./out/vl;
+fi
