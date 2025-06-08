@@ -1,12 +1,14 @@
 #include "test_utils.h"
 
 #include "util/test_utf8.h"
+#include "html/test_tokenizer.h"
 
 int32_t main()
 {
     TESTS_INIT();
 
     TEST_GROUP(test_utf8);
+    TEST_GROUP(test_html_tokenizer);
 
     TESTS_SUMMARY();
 
