@@ -74,9 +74,9 @@ uint32_t    TESTS_FAIL_COUNT();
 
 #define ASSERT_STRING(a, b, size)   do \
                                     { \
-                                        for (uint32_t i = 0; i < size; i++) \
+                                        for (uint32_t tst_str_idx = 0; tst_str_idx < size; tst_str_idx++) \
                                         { \
-                                            ASSERT_EQUAL(a[i], b[i]); \
+                                            ASSERT_EQUAL(a[tst_str_idx], b[tst_str_idx]); \
                                         } \
                                     } while(0);
 

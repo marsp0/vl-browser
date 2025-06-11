@@ -10,7 +10,7 @@ if [ ! -v debug ];      then release=1; fi
 gcc_include="-I./src/"
 gcc_flags="-std=gnu11 -Wall -Wextra -Werror -Wshadow -Wpedantic -Wnull-dereference -Wunused -Wconversion -Wno-pointer-sign"
 gcc_compile="gcc -O2 ${gcc_include} ${gcc_flags}"
-gcc_debug="gcc -g -O0 ${gcc_include} ${gcc_flags}"
+gcc_debug="gcc -g -O0 -fprofile-arcs -ftest-coverage ${gcc_include} ${gcc_flags}"
 gcc_link="-lpthread -lm -lrt -ldl"
 
 if [ -v debug ]; then gcc_compile=${gcc_debug}; fi
