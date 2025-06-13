@@ -73,6 +73,16 @@
                                     ASSERT_STRING((char)a.data, (char)b.data, a.data_size);     \
                                 } while (0);
 
+#define ASSERT_TOKEN(a, b)  do                                                                  \
+                            {                                                                   \
+                                if (a.type == HTML_DOCTYPE_TOKEN) { ASSERT_DOCTYPE(a, b); }     \
+                                if (a.type == HTML_START_TOKEN) { ASSERT_TAG(a, b); }           \
+                                if (a.type == HTML_END_TOKEN) { ASSERT_TAG(a, b); }             \
+                                if (a.type == HTML_COMMENT_TOKEN) { ASSERT_COMMENT(a, b); }     \
+                                if (a.type == HTML_CHARACTER_TOKEN) { ASSERT_CHARACTER(a, b); } \
+                                if (a.type == HTML_EOF_TOKEN) { ASSERT_EOF(a, b); }             \
+                            } while (0);                                                        \
+
 static const html_token_t eof_token = {.is_valid = true, .type = HTML_EOF_TOKEN };
 
 static void correct_doctype_lowercase()
@@ -2790,6 +2800,1043 @@ static void open_angle_bracked_in_attribute_value()
     }
 }
 
+static void doctype_without_name()
+{
+    // {"description":"DOCTYPE without name",
+    // "input":"<!DOCTYPE>",
+    // "output":[["DOCTYPE", null, null, null, false]],
+    // "errors":[
+    //     { "code": "missing-doctype-name", "line": 1, "col": 10 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++)
+    {
+        ASSERT_FALSE(tokens[i].is_valid);
+    }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_MISSING_DOCTYPE_NAME,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void doctype_without_space_before_name()
+{
+    // {"description":"DOCTYPE without space before name",
+    // "input":"<!DOCTYPEhtml>",
+    // "output":[["DOCTYPE", "html", null, null, true]],
+    // "errors":[
+    //     { "code": "missing-whitespace-before-doctype-name", "line": 1, "col": 10 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPEhtml>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++)
+    {
+        ASSERT_FALSE(tokens[i].is_valid);
+    }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_MISSING_WHITESPACE_BEFORE_DOCTYPE_NAME,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = false, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void incorrect_doctype_without_space_before_name()
+{
+    // {"description":"Incorrect DOCTYPE without a space before name",
+    // "input":"<!DOCTYPEfoo>",
+    // "output":[["DOCTYPE", "foo", null, null, true]],
+    // "errors":[
+    //     { "code": "missing-whitespace-before-doctype-name", "line": 1, "col": 10 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPEfoo>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++)
+    {
+        ASSERT_FALSE(tokens[i].is_valid);
+    }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_MISSING_WHITESPACE_BEFORE_DOCTYPE_NAME,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = false, .name_size = 3,
+                                      .name = { [0] = 'f', [1] = 'o', [2] = 'o' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void doctype_with_public_id()
+{
+    // {"description":"DOCTYPE with publicId",
+    // "input":"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML Transitional 4.01//EN\">",
+    // "output":[["DOCTYPE", "html", "-//W3C//DTD HTML Transitional 4.01//EN", null, true]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML Transitional 4.01//EN\">";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = false, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' },
+                                      .public_id_size =  38,
+                                      .public_id = { [0] = '-', [1] = '/', [2] = '/', [3] = 'W', [4] = '3', [5] = 'C', [6] = '/', [7] = '/',
+                                                     [8] = 'D', [9] = 'T', [10] = 'D', [11] = ' ', [12] = 'H', [13] = 'T', [14] = 'M', [15] = 'L',
+                                                     [16] = ' ', [17] = 'T', [18] = 'r', [19] = 'a', [20] = 'n', [21] = 's', [22] = 'i', [23] = 't',
+                                                     [24] = 'i', [25] = 'o', [26] = 'n', [27] = 'a', [28] = 'l', [29] = ' ', [30] = '4', [31] = '.',
+                                                     [32] = '0', [33] = '1', [34] = '/', [35] = '/', [36] = 'E', [37] = 'N' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void doctype_with_eof_after_public()
+{
+    // {"description":"DOCTYPE with EOF after PUBLIC",
+    // "input":"<!DOCTYPE html PUBLIC",
+    // "output":[["DOCTYPE", "html", null, null, false]],
+    // "errors": [
+    //     { "code": "eof-in-doctype", "col": 22, "line": 1 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html PUBLIC";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 2 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_EOF_IN_DOCTYPE };
+
+    html_token_t tokens_e[][2] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } },
+                                     {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 2;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void doctype_with_eof_after_public_two()
+{
+    // {"description":"DOCTYPE with EOF after PUBLIC '",
+    // "input":"<!DOCTYPE html PUBLIC '",
+    // "output":[["DOCTYPE", "html", "", null, false]],
+    // "errors": [
+    //     { "code": "eof-in-doctype", "col": 24, "line": 1 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html PUBLIC '";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 2 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_EOF_IN_DOCTYPE };
+
+    html_token_t tokens_e[][2] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } },
+                                     {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 2;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void doctype_with_eof_after_public_three()
+{
+    // {"description":"DOCTYPE with EOF after PUBLIC 'x",
+    // "input":"<!DOCTYPE html PUBLIC 'x",
+    // "output":[["DOCTYPE", "html", "x", null, false]],
+    // "errors": [
+    //     { "code": "eof-in-doctype", "col": 25, "line": 1 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html PUBLIC 'x";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 2 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_EOF_IN_DOCTYPE };
+
+    html_token_t tokens_e[][2] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' },
+                                      .public_id_size = 1,
+                                      .public_id = { [0] = 'x' } },
+                                     {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 2;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void doctype_with_system_id()
+{
+    // {"description":"DOCTYPE with systemId",
+    // "input":"<!DOCTYPE html SYSTEM \"-//W3C//DTD HTML Transitional 4.01//EN\">",
+    // "output":[["DOCTYPE", "html", null, "-//W3C//DTD HTML Transitional 4.01//EN", true]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html SYSTEM \"-//W3C//DTD HTML Transitional 4.01//EN\">";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = false, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' },
+                                      .system_id_size =  38,
+                                      .system_id = { [0] = '-', [1] = '/', [2] = '/', [3] = 'W', [4] = '3', [5] = 'C', [6] = '/', [7] = '/',
+                                                     [8] = 'D', [9] = 'T', [10] = 'D', [11] = ' ', [12] = 'H', [13] = 'T', [14] = 'M', [15] = 'L',
+                                                     [16] = ' ', [17] = 'T', [18] = 'r', [19] = 'a', [20] = 'n', [21] = 's', [22] = 'i', [23] = 't',
+                                                     [24] = 'i', [25] = 'o', [26] = 'n', [27] = 'a', [28] = 'l', [29] = ' ', [30] = '4', [31] = '.',
+                                                     [32] = '0', [33] = '1', [34] = '/', [35] = '/', [36] = 'E', [37] = 'N' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void doctype_with_system_id_single_quoted()
+{
+    // {"description":"DOCTYPE with single-quoted systemId",
+    // "input":"<!DOCTYPE html SYSTEM '-//W3C//DTD HTML Transitional 4.01//EN'>",
+    // "output":[["DOCTYPE", "html", null, "-//W3C//DTD HTML Transitional 4.01//EN", true]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html SYSTEM \"-//W3C//DTD HTML Transitional 4.01//EN\">";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = false, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' },
+                                      .system_id_size =  38,
+                                      .system_id = { [0] = '-', [1] = '/', [2] = '/', [3] = 'W', [4] = '3', [5] = 'C', [6] = '/', [7] = '/',
+                                                     [8] = 'D', [9] = 'T', [10] = 'D', [11] = ' ', [12] = 'H', [13] = 'T', [14] = 'M', [15] = 'L',
+                                                     [16] = ' ', [17] = 'T', [18] = 'r', [19] = 'a', [20] = 'n', [21] = 's', [22] = 'i', [23] = 't',
+                                                     [24] = 'i', [25] = 'o', [26] = 'n', [27] = 'a', [28] = 'l', [29] = ' ', [30] = '4', [31] = '.',
+                                                     [32] = '0', [33] = '1', [34] = '/', [35] = '/', [36] = 'E', [37] = 'N' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void doctype_with_system_id_and_public_id()
+{
+    // {"description":"DOCTYPE with publicId and systemId",
+    // "input":"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML Transitional 4.01//EN\" \"-//W3C//DTD HTML Transitional 4.01//EN\">",
+    // "output":[["DOCTYPE", "html", "-//W3C//DTD HTML Transitional 4.01//EN", "-//W3C//DTD HTML Transitional 4.01//EN", true]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML Transitional 4.01//EN\" \"-//W3C//DTD HTML Transitional 4.01//EN\">";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = false, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' },
+                                      .system_id_size =  38,
+                                      .system_id = { [0] = '-', [1] = '/', [2] = '/', [3] = 'W', [4] = '3', [5] = 'C', [6] = '/', [7] = '/',
+                                                     [8] = 'D', [9] = 'T', [10] = 'D', [11] = ' ', [12] = 'H', [13] = 'T', [14] = 'M', [15] = 'L',
+                                                     [16] = ' ', [17] = 'T', [18] = 'r', [19] = 'a', [20] = 'n', [21] = 's', [22] = 'i', [23] = 't',
+                                                     [24] = 'i', [25] = 'o', [26] = 'n', [27] = 'a', [28] = 'l', [29] = ' ', [30] = '4', [31] = '.',
+                                                     [32] = '0', [33] = '1', [34] = '/', [35] = '/', [36] = 'E', [37] = 'N' },
+                                      .public_id_size =  38,
+                                      .public_id = { [0] = '-', [1] = '/', [2] = '/', [3] = 'W', [4] = '3', [5] = 'C', [6] = '/', [7] = '/',
+                                                     [8] = 'D', [9] = 'T', [10] = 'D', [11] = ' ', [12] = 'H', [13] = 'T', [14] = 'M', [15] = 'L',
+                                                     [16] = ' ', [17] = 'T', [18] = 'r', [19] = 'a', [20] = 'n', [21] = 's', [22] = 'i', [23] = 't',
+                                                     [24] = 'i', [25] = 'o', [26] = 'n', [27] = 'a', [28] = 'l', [29] = ' ', [30] = '4', [31] = '.',
+                                                     [32] = '0', [33] = '1', [34] = '/', [35] = '/', [36] = 'E', [37] = 'N' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void angle_bracket_in_doctype_public_id()
+{
+    // {"description":"DOCTYPE with > in double-quoted publicId",
+    // "input":"<!DOCTYPE html PUBLIC \">x",
+    // "output":[["DOCTYPE", "html", "", null, false], ["Character", "x"]],
+    // "errors": [
+    //     { "code": "abrupt-doctype-public-identifier", "col": 24, "line": 1 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html PUBLIC \">x";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_ABRUPT_DOCTYPE_PUBLIC_IDENTIFIER,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'x' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void angle_bracket_in_doctype_public_id_single_quoted()
+{
+    // {"description":"DOCTYPE with > in single-quoted publicId",
+    // "input":"<!DOCTYPE html PUBLIC '>x",
+    // "output":[["DOCTYPE", "html", "", null, false], ["Character", "x"]],
+    // "errors": [
+    //     { "code": "abrupt-doctype-public-identifier", "col": 24, "line": 1 }
+    // ]},
+
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html PUBLIC '>x";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_ABRUPT_DOCTYPE_PUBLIC_IDENTIFIER,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'x' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void angle_bracket_in_doctype_system_id_double_quoted()
+{
+    // {"description":"DOCTYPE with > in double-quoted systemId",
+    // "input":"<!DOCTYPE html PUBLIC \"foo\" \">x",
+    // "output":[["DOCTYPE", "html", "foo", "", false], ["Character", "x"]],
+    // "errors": [
+    //     { "code": "abrupt-doctype-system-identifier", "col": 30, "line": 1 }
+    // ]},
+
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html PUBLIC \"foo\" \">x";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_ABRUPT_DOCTYPE_SYSTEM_IDENTIFIER,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' },
+                                      .public_id_size = 3,
+                                      .public_id = { [0] = 'f', [1] = 'o', [2] = 'o' } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'x' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void angle_bracket_in_doctype_system_id_single_quoted()
+{
+    // {"description":"DOCTYPE with > in single-quoted systemId",
+    // "input":"<!DOCTYPE html PUBLIC 'foo' '>x",
+    // "output":[["DOCTYPE", "html", "foo", "", false], ["Character", "x"]],
+    // "errors": [
+    //     { "code": "abrupt-doctype-system-identifier", "col": 30, "line": 1 }
+    // ]},
+
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html PUBLIC 'foo' '>x";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_ABRUPT_DOCTYPE_SYSTEM_IDENTIFIER,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' },
+                                      .public_id_size = 3,
+                                      .public_id = { [0] = 'f', [1] = 'o', [2] = 'o' } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'x' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void incomplete_doctype()
+{
+    // {"description":"Incomplete doctype",
+    // "input":"<!DOCTYPE html ",
+    // "output":[["DOCTYPE", "html", null, null, false]],
+    // "errors":[
+    //     { "code": "eof-in-doctype", "line": 1, "col": 16 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!DOCTYPE html ";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 2 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_EOF_IN_DOCTYPE };
+
+    html_token_t tokens_e[][2] = { { {.is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true, .name_size = 4,
+                                      .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } },
+                                     {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 2;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void numeric_entity_representing_the_null_character()
+{
+    // {"description":"Numeric entity representing the NUL character",
+    // "input":"&#0000;",
+    // "output":[["Character", "\uFFFD"]],
+    // "errors":[
+    //     { "code": "null-character-reference", "line": 1, "col": 8 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "&#0000;";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_NULL_CHARACTER_REFERENCE,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 3, .data = { [0] = 0xef, [1] = 0xbf, [2] = 0xbd } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void hexadecimal_entity_representing_the_null_character()
+{
+    // {"description":"Hexadecimal entity representing the NUL character",
+    // "input":"&#x0000;",
+    // "output":[["Character", "\uFFFD"]],
+    // "errors":[
+    //     { "code": "null-character-reference", "line": 1, "col": 9 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "&#x0000;";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_NULL_CHARACTER_REFERENCE,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 3, .data = { [0] = 0xef, [1] = 0xbf, [2] = 0xbd } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void numeric_entity_represeting_10FFFF()
+{
+    // {"description":"Numeric entity representing a codepoint after 1114111 (U+10FFFF)",
+    // "input":"&#2225222;",
+    // "output":[["Character", "\uFFFD"]],
+    // "errors":[
+    //     { "code": "character-reference-outside-unicode-range", "line": 1, "col": 11 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "&#2225222;";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_CHARACTER_REFERENCE_OUTSIDE_UNICODE_RANGE,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 3, .data = { [0] = 0xef, [1] = 0xbf, [2] = 0xbd } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void hexadecimal_entity_represeting_10FFFF()
+{
+    // {"description":"Hexadecimal entity representing a codepoint after 1114111 (U+10FFFF)",
+    // "input":"&#x1010FFFF;",
+    // "output":[["Character", "\uFFFD"]],
+    // "errors":[
+    //     { "code": "character-reference-outside-unicode-range", "line": 1, "col": 13 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "&#2225222;";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_CHARACTER_REFERENCE_OUTSIDE_UNICODE_RANGE,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 3, .data = { [0] = 0xef, [1] = 0xbf, [2] = 0xbd } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void hexadecimal_entity_pair_representing_surrogate_pair()
+{
+    // {"description":"Hexadecimal entity pair representing a surrogate pair",
+    // "input":"&#xD869;&#xDED6;",
+    // "output":[["Character", "\uFFFD\uFFFD"]],
+    // "errors":[
+    //     { "code": "surrogate-character-reference", "line": 1, "col": 9 },
+    //     { "code": "surrogate-character-reference", "line": 1, "col": 17 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "&#xD869;&#xDED6;";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_SURROGATE_CHARACTER_REFERENCE,
+                                        HTML_TOKENIZER_SURROGATE_CHARACTER_REFERENCE,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 3, .data = { [0] = 0xef, [1] = 0xbf, [2] = 0xbd } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 3, .data = { [0] = 0xef, [1] = 0xbf, [2] = 0xbd } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
 void test_html_tokenizer()
 {
     TEST_CASE(correct_doctype_lowercase);
@@ -2861,5 +3908,173 @@ void test_html_tokenizer()
     TEST_CASE(unquoted_attribute_at_end_of_tag_with_final_char_ampersand);
     TEST_CASE(plaintext_element);
     TEST_CASE(open_angle_bracked_in_attribute_value);
-
+    TEST_CASE(doctype_without_name);
+    TEST_CASE(doctype_without_space_before_name);
+    TEST_CASE(incorrect_doctype_without_space_before_name);
+    TEST_CASE(doctype_with_public_id);
+    TEST_CASE(doctype_with_eof_after_public);
+    TEST_CASE(doctype_with_eof_after_public_two);
+    TEST_CASE(doctype_with_eof_after_public_three);
+    TEST_CASE(doctype_with_system_id);
+    TEST_CASE(doctype_with_system_id_single_quoted);
+    TEST_CASE(doctype_with_system_id_and_public_id);
+    TEST_CASE(angle_bracket_in_doctype_public_id);
+    TEST_CASE(angle_bracket_in_doctype_public_id_single_quoted);
+    TEST_CASE(angle_bracket_in_doctype_system_id_double_quoted);
+    TEST_CASE(angle_bracket_in_doctype_system_id_single_quoted);
+    TEST_CASE(incomplete_doctype);
+    TEST_CASE(numeric_entity_representing_the_null_character);
+    TEST_CASE(hexadecimal_entity_representing_the_null_character);
+    TEST_CASE(numeric_entity_represeting_10FFFF);
+    TEST_CASE(hexadecimal_entity_represeting_10FFFF);
+    TEST_CASE(hexadecimal_entity_pair_representing_surrogate_pair);
 }
+
+
+
+
+
+// {"description":"Hexadecimal entity with mixed uppercase and lowercase",
+// "input":"&#xaBcD;",
+// "output":[["Character", "\uABCD"]]},
+
+// {"description":"Entity without a name",
+// "input":"&;",
+// "output":[["Character", "&;"]]},
+
+// {"description":"Unescaped ampersand in attribute value",
+// "input":"<h a='&'>",
+// "output":[["StartTag", "h", { "a":"&" }]]},
+
+
+// {"description":"StartTag containing <",
+// "input":"<a<b>",
+// "output":[["StartTag", "a<b", { }]]},
+
+// {"description":"Non-void element containing trailing /",
+// "input":"<h/>",
+// "output":[["StartTag","h",{},true]]},
+
+// {"description":"Void element with permitted slash",
+// "input":"<br/>",
+// "output":[["StartTag","br",{},true]]},
+
+// {"description":"Void element with permitted slash (with attribute)",
+// "input":"<br foo='bar'/>",
+// "output":[["StartTag","br",{"foo":"bar"},true]]},
+
+// {"description":"StartTag containing /",
+// "input":"<h/a='b'>",
+// "output":[["StartTag", "h", { "a":"b" }]],
+// "errors":[
+//     { "code": "unexpected-solidus-in-tag", "line": 1, "col": 4 }
+// ]},
+
+// {"description":"Double-quoted attribute value",
+// "input":"<h a=\"b\">",
+// "output":[["StartTag", "h", { "a":"b" }]]},
+
+// {"description":"Unescaped </",
+// "input":"</",
+// "output":[["Character", "</"]],
+// "errors":[
+//     { "code": "eof-before-tag-name", "line": 1, "col": 3 }
+// ]},
+
+// {"description":"Illegal end tag name",
+// "input":"</1>",
+// "output":[["Comment", "1"]],
+// "errors":[
+//     { "code": "invalid-first-character-of-tag-name", "line": 1, "col": 3 }
+// ]},
+
+// {"description":"Simili processing instruction",
+// "input":"<?namespace>",
+// "output":[["Comment", "?namespace"]],
+// "errors":[
+//     { "code": "unexpected-question-mark-instead-of-tag-name", "line": 1, "col": 2 }
+// ]},
+
+// {"description":"A bogus comment stops at >, even if preceded by two dashes",
+// "input":"<?foo-->",
+// "output":[["Comment", "?foo--"]],
+// "errors":[
+//     { "code": "unexpected-question-mark-instead-of-tag-name", "line": 1, "col": 2 }
+// ]},
+
+// {"description":"Unescaped <",
+// "input":"foo < bar",
+// "output":[["Character", "foo < bar"]],
+// "errors":[
+//     { "code": "invalid-first-character-of-tag-name", "line": 1, "col": 6 }
+// ]},
+
+// {"description":"Null Byte Replacement",
+// "input":"\u0000",
+// "output":[["Character", "\u0000"]],
+// "errors":[
+//     { "code": "unexpected-null-character", "line": 1, "col": 1 }
+// ]},
+
+// {"description":"Comment with dash",
+// "input":"<!---x",
+// "output":[["Comment", "-x"]],
+// "errors":[
+//     { "code": "eof-in-comment", "line": 1, "col": 7 }
+// ]},
+
+// {"description":"Entity + newline",
+// "input":"\nx\n&gt;\n",
+// "output":[["Character","\nx\n>\n"]]},
+
+// {"description":"Start tag with no attributes but space before the greater-than sign",
+// "input":"<h >",
+// "output":[["StartTag", "h", {}]]},
+
+// {"description":"Empty attribute followed by uppercase attribute",
+// "input":"<h a B=''>",
+// "output":[["StartTag", "h", {"a":"", "b":""}]]},
+
+// {"description":"Double-quote after attribute name",
+// "input":"<h a \">",
+// "output":[["StartTag", "h", {"a":"", "\"":""}]],
+// "errors":[
+//     { "code": "unexpected-character-in-attribute-name", "line": 1, "col": 6 }
+// ]},
+
+// {"description":"Single-quote after attribute name",
+// "input":"<h a '>",
+// "output":[["StartTag", "h", {"a":"", "'":""}]],
+// "errors":[
+//     { "code": "unexpected-character-in-attribute-name", "line": 1, "col": 6 }
+// ]},
+
+// {"description":"Empty end tag with following characters",
+// "input":"a</>bc",
+// "output":[["Character", "abc"]],
+// "errors":[
+//     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
+// ]},
+
+// {"description":"Empty end tag with following tag",
+// "input":"a</><b>c",
+// "output":[["Character", "a"], ["StartTag", "b", {}], ["Character", "c"]],
+// "errors":[
+//     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
+// ]},
+
+// {"description":"Empty end tag with following comment",
+// "input":"a</><!--b-->c",
+// "output":[["Character", "a"], ["Comment", "b"], ["Character", "c"]],
+// "errors":[
+//     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
+// ]},
+
+// {"description":"Empty end tag with following end tag",
+// "input":"a</></b>c",
+// "output":[["Character", "a"], ["EndTag", "b"], ["Character", "c"]],
+// "errors":[
+//     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
+// ]}
+
+// ]}
