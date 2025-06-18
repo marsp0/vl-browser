@@ -149,13 +149,7 @@ static void clear_temp_buffer()
 static void clear_tokens()
 {
     token_idx = 0;
-
-    for (uint32_t i = 0; i < max_tokens; i++)
-    {
-        tokens[i].is_valid = false;
-    }
-
-    // note: should we clear the rest of the attributes here?
+    memset(tokens, 0, max_tokens * sizeof(html_token_t));
 }
 
 static void init_char_token()
@@ -557,11 +551,8 @@ static void emit_attribute()
         }
     }
 
-    if (is_duplicate)
-    {
-        init_attribute();
-        return;
-    }
+    if (is_duplicate)           { init_attribute(); return; }
+    if (attr.name_size == 0)    { return; }
 
     tokens[token_idx].attributes_size++;
 }
@@ -864,7 +855,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_BEFORE_TAG_NAME;
                 break;
             }
 
@@ -887,6 +878,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 create_comment_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_BOGUS_COMMENT_STATE;
+                status                          = HTML_TOKENIZER_UNEXPECTED_QUOESTION_MARK_INSTEAD_OF_TAG_NAME;
             }
             else
             {
@@ -908,7 +900,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_BEFORE_TAG_NAME;
                 break;
             }
 
@@ -1654,12 +1646,14 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                // todo: parser error
+                if (code_point == '"' || code_point == '\'' || code_point == '<')
+                {
+                    status                      = HTML_TOKENIZER_UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME;
+                }
                 update_attribute_name_from_buffer();
             }
 
-            // todo: parser error
-
+            // todo: parser error - duplicate err that we are not handling atm
             break;
 
         // https://html.spec.whatwg.org/multipage/parsing.html#after-attribute-name-state
@@ -1693,6 +1687,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
+                emit_attribute();
                 init_attribute();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_ATTRIBUTE_NAME_STATE;
@@ -1886,9 +1881,9 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                // todo: parse error
                 consume                         = false;
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
+                status                          = HTML_TOKENIZER_UNEXPECTED_SOLIDUS_IN_TAG;
             }
             break;
 

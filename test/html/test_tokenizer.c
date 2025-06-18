@@ -3837,6 +3837,1265 @@ static void hexadecimal_entity_pair_representing_surrogate_pair()
     }
 }
 
+static void hexadecimal_entity_with_mixed_case()
+{
+    // {"description":"Hexadecimal entity with mixed uppercase and lowercase",
+    // "input":"&#xaBcD;",
+    // "output":[["Character", "\uABCD"]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "&#xaBcD;";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 3, .data = { [0] = 0xea, [1] = 0xaf, [2] = 0x8d } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void entity_without_name()
+{
+    // {"description":"Entity without a name",
+    // "input":"&;",
+    // "output":[["Character", "&;"]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "&;";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '&' } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = ';' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void unescaped_ampersand_in_attribute_value()
+{
+    // {"description":"Unescaped ampersand in attribute value",
+    // "input":"<h a='&'>",
+    // "output":[["StartTag", "h", { "a":"&" }]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<h a='&'>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    
+    html_token_t tokens_e[][1] = { { {  .is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' }, .attributes_size = 1,
+                                        .attributes = { [0] = { .name = { [0] = 'a' }, 
+                                                                .name_size = 1,
+                                                                .value = { [0] = '&' },
+                                                                .value_size = 1 } } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void start_tag_containing_less_than()
+{
+    // {"description":"StartTag containing <",
+    // "input":"<a<b>",
+    // "output":[["StartTag", "a<b", { }]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<a<b>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    
+    html_token_t tokens_e[][1] = { { {  .is_valid = true, .type = HTML_START_TOKEN, .name_size = 3, .name = { [0] = 'a', [1] = '<', [2] = 'b' }, } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void non_void_element_containing_trailing_forward_slash()
+{
+    // {"description":"Non-void element containing trailing /",
+    // "input":"<h/>",
+    // "output":[["StartTag","h",{},true]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<h/>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    
+    html_token_t tokens_e[][1] = { { {  .is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' }, .self_closing = true } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void void_element_with_permitted_slash()
+{
+    // {"description":"Void element with permitted slash",
+    // "input":"<br/>",
+    // "output":[["StartTag","br",{},true]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<br/>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    
+    html_token_t tokens_e[][1] = { { {  .is_valid = true, .type = HTML_START_TOKEN, .name_size = 2, .name = { [0] = 'b', [1] = 'r' }, .self_closing = true } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void void_element_with_permitted_slash_and_attribute()
+{
+    // {"description":"Void element with permitted slash (with attribute)",
+    // "input":"<br foo='bar'/>",
+    // "output":[["StartTag","br",{"foo":"bar"},true]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<br foo='bar'/>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 2, .name = { [0] = 'b', [1] = 'r' }, .self_closing = true,
+                                      .attributes_size = 1,
+                                      .attributes = { [0] = { .name = { [0] = 'f', [1] = 'o', [2] = 'o' },
+                                                              .name_size = 3,
+                                                              .value = { [0] = 'b', [1] = 'a', [2] = 'r' },
+                                                              .value_size = 3 } } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void start_tag_with_forward_slash()
+{
+    // {"description":"StartTag containing /",
+    // "input":"<h/a='b'>",
+    // "output":[["StartTag", "h", { "a":"b" }]],
+    // "errors":[
+    //     { "code": "unexpected-solidus-in-tag", "line": 1, "col": 4 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<h/a='b'>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_UNEXPECTED_SOLIDUS_IN_TAG,
+                                        HTML_TOKENIZER_OK };
+
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' }, .self_closing = true,
+                                      .attributes_size = 1,
+                                      .attributes = { [0] = { .name = { [0] = 'a' },
+                                                              .name_size = 1,
+                                                              .value = { [0] = 'b' },
+                                                              .value_size = 1 } } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void double_quoted_attribute_value()
+{
+    // {"description":"Double-quoted attribute value",
+    // "input":"<h a=\"b\">",
+    // "output":[["StartTag", "h", { "a":"b" }]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<h a=\"b\">";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' }, .self_closing = true,
+                                      .attributes_size = 1,
+                                      .attributes = { [0] = { .name = { [0] = 'a' },
+                                                              .name_size = 1,
+                                                              .value = { [0] = 'b' },
+                                                              .value_size = 1 } } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void unescaped_forward_slash()
+{
+    // {"description":"Unescaped </",
+    // "input":"</",
+    // "output":[["Character", "</"]],
+    // "errors":[
+    //     { "code": "eof-before-tag-name", "line": 1, "col": 3 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "</";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 3 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_EOF_BEFORE_TAG_NAME };
+    
+    html_token_t tokens_e[][3] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
+                                     {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '/' } },
+                                     {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 3;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void illegal_end_tag_name()
+{
+    // {"description":"Illegal end tag name",
+    // "input":"</1>",
+    // "output":[["Comment", "1"]],
+    // "errors":[
+    //     { "code": "invalid-first-character-of-tag-name", "line": 1, "col": 3 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "</1>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_INVALID_FIRST_CHARACTER_OF_TAG_NAME, HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][3] = { { {.is_valid = true, .type = HTML_COMMENT_TOKEN, .data_size = 1, .data = { [0] = '1' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 3;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void simili_processing_instruction()
+{
+    // {"description":"Simili processing instruction",
+    // "input":"<?namespace>",
+    // "output":[["Comment", "?namespace"]],
+    // "errors":[
+    //     { "code": "unexpected-question-mark-instead-of-tag-name", "line": 1, "col": 2 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<?namespace>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_UNEXPECTED_QUOESTION_MARK_INSTEAD_OF_TAG_NAME, HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][3] = { { {.is_valid = true, .type = HTML_COMMENT_TOKEN, .data_size = 10, 
+                                      .data = { [0] = '?', [1] = 'n', [2] = 'a', [3] = 'm', [4] = 'e', [5] = 's', [6] = 'p',
+                                                [7] = 'a', [8] = 'c', [9] = 'e' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 3;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void bogus_comment_stops_at_triangle_bracket_even_if_preceded_by_dashes()
+{
+    // {"description":"A bogus comment stops at >, even if preceded by two dashes",
+    // "input":"<?foo-->",
+    // "output":[["Comment", "?foo--"]],
+    // "errors":[
+    //     { "code": "unexpected-question-mark-instead-of-tag-name", "line": 1, "col": 2 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<?foo-->";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_UNEXPECTED_QUOESTION_MARK_INSTEAD_OF_TAG_NAME, HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][3] = { { {.is_valid = true, .type = HTML_COMMENT_TOKEN, .data_size = 6, 
+                                      .data = { [0] = '?', [1] = 'f', [2] = 'o', [3] = 'o', [4] = '-', [5] = '-' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 3;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void unexpected_triangle_bracket()
+{
+    // {"description":"Unescaped <",
+    // "input":"foo < bar",
+    // "output":[["Character", "foo < bar"]],
+    // "errors":[
+    //     { "code": "invalid-first-character-of-tag-name", "line": 1, "col": 6 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "foo < bar";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_INVALID_FIRST_CHARACTER_OF_TAG_NAME,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][3] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'f', } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'o', } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'o', } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = ' ', } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<', } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = ' ', } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'b', } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'a', } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'r', } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 3;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void null_byte_replacement()
+{
+    // {"description":"Null Byte Replacement",
+    // "input":"\u0000",
+    // "output":[["Character", "\u0000"]],
+    // "errors":[
+    //     { "code": "unexpected-null-character", "line": 1, "col": 1 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "\0";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER,
+                                        HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][3] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '\0', } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 3;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void comment_with_dash()
+{
+    // {"description":"Comment with dash",
+    // "input":"<!---x",
+    // "output":[["Comment", "-x"]],
+    // "errors":[
+    //     { "code": "eof-in-comment", "line": 1, "col": 7 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<!---x";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 2 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_EOF_IN_COMMENT };
+    
+    html_token_t tokens_e[][2] = { { {.is_valid = true, .type = HTML_COMMENT_TOKEN, .data_size = 2, .data = { [0] = '-', [1] = 'x' } },
+                                     {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 2;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+// static void named_entity_with_newline()
+// {
+//     // {"description":"Entity + newline",
+//     // "input":"\nx\n&gt;\n",
+//     // "output":[["Character","\nx\n>\n"]]},
+
+//     html_token_t tokens[SIZE_TEN] = { 0 };
+
+//     const char buffer[] = "<!---x";
+//     const uint32_t buffer_size = sizeof(buffer) - 1;
+//     html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+//     for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+//     uint32_t return_sizes[]         = { 2 };
+//     html_tokenizer_error_e errors[] = { HTML_TOKENIZER_EOF_IN_COMMENT };
+    
+//     html_token_t tokens_e[][2] = { { {.is_valid = true, .type = HTML_COMMENT_TOKEN, .data_size = 2, .data = { [0] = '-', [1] = 'x' } },
+//                                      {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+//     uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+//     uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+//     uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 2;
+//     ASSERT_EQUAL(return_sizes_len, errors_len);
+//     ASSERT_EQUAL(tokens_e_len, errors_len);
+
+//     uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+//     for (uint32_t i = 0; i < tests; i++)
+//     {
+//         uint32_t size_e = return_sizes[i];
+//         html_tokenizer_error_e err_e    = errors[i];
+//         html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+//         ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+//         ASSERT_EQUAL(err_a, err_e);
+
+//         for (uint32_t j = 0; j < size_e; j++)
+//         {
+//             html_token_t token_e = tokens_e[i][j];
+//             if (!token_e.is_valid) { continue; }
+//             ASSERT_TOKEN(tokens[j], token_e);
+//         }
+//     }
+// }
+
+static void start_tag_with_no_attributes_but_with_space_before_end()
+{
+    // {"description":"Start tag with no attributes but space before the greater-than sign",
+    // "input":"<h >",
+    // "output":[["StartTag", "h", {}]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<h >";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void empty_attribute_followed_by_uppercase_attribute()
+{
+    // {"description":"Empty attribute followed by uppercase attribute",
+    // "input":"<h a B=''>",
+    // "output":[["StartTag", "h", {"a":"", "b":""}]]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<h a B=''>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
+                                      .attributes_size = 2,
+                                      .attributes = { [0] = { .name_size = 1, .name = { [0] = 'a' } },
+                                                      [1] = { .name_size = 1, .name = { [0] = 'b' } } } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void double_quote_after_attribute_name()
+{
+    // {"description":"Double-quote after attribute name",
+    // "input":"<h a \">",
+    // "output":[["StartTag", "h", {"a":"", "\"":""}]],
+    // "errors":[
+    //     { "code": "unexpected-character-in-attribute-name", "line": 1, "col": 6 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<h a \">";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME,
+                                        HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
+                                      .attributes_size = 2,
+                                      .attributes = { [0] = { .name_size = 1, .name = { [0] = 'a' } },
+                                                      [1] = { .name_size = 1, .name = { [0] = '"' } } } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void single_quote_after_attribute_name()
+{
+    // {"description":"Single-quote after attribute name",
+    // "input":"<h a '>",
+    // "output":[["StartTag", "h", {"a":"", "'":""}]],
+    // "errors":[
+    //     { "code": "unexpected-character-in-attribute-name", "line": 1, "col": 6 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "<h a '>";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME,
+                                        HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
+                                      .attributes_size = 2,
+                                      .attributes = { [0] = { .name_size = 1, .name = { [0] = 'a' } },
+                                                      [1] = { .name_size = 1, .name = { [0] = '\'' } } } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void empty_end_tag_with_following_characters()
+{
+    // {"description":"Empty end tag with following characters",
+    // "input":"a</>bc",
+    // "output":[["Character", "abc"]],
+    // "errors":[
+    //     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "a</>bc";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_MISSING_END_TAG_NAME,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'a' } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'b' } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'c' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void empty_end_tag_with_following_tag()
+{
+    // {"description":"Empty end tag with following tag",
+    // "input":"a</><b>c",
+    // "output":[["Character", "a"], ["StartTag", "b", {}], ["Character", "c"]],
+    // "errors":[
+    //     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "a</><b>c";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_MISSING_END_TAG_NAME,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'a' } } },
+                                   { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'b' } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'c' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void empty_end_tag_with_following_comment()
+{
+    // {"description":"Empty end tag with following comment",
+    // "input":"a</><!--b-->c",
+    // "output":[["Character", "a"], ["Comment", "b"], ["Character", "c"]],
+    // "errors":[
+    //     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
+    // ]},
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "a</><!--b-->c";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_MISSING_END_TAG_NAME,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'a' } } },
+                                   { {.is_valid = true, .type = HTML_COMMENT_TOKEN, .data_size = 1, .data = { [0] = 'b' } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'c' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
+static void empty_end_tag_with_following_end_tag()
+{
+    // {"description":"Empty end tag with following end tag",
+    // "input":"a</></b>c",
+    // "output":[["Character", "a"], ["EndTag", "b"], ["Character", "c"]],
+    // "errors":[
+    //     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
+    // ]}
+
+    html_token_t tokens[SIZE_TEN] = { 0 };
+
+    const char buffer[] = "a</></b>c";
+    const uint32_t buffer_size = sizeof(buffer) - 1;
+    html_tokenizer_init(buffer, buffer_size, tokens, SIZE_TEN);
+
+    for (uint32_t i = 0; i < SIZE_TEN; i++) { ASSERT_FALSE(tokens[i].is_valid); }
+
+    uint32_t return_sizes[]         = { 1, 1, 1, 1 };
+    html_tokenizer_error_e errors[] = { HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_MISSING_END_TAG_NAME,
+                                        HTML_TOKENIZER_OK,
+                                        HTML_TOKENIZER_OK };
+    
+    html_token_t tokens_e[][1] = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'a' } } },
+                                   { {.is_valid = true, .type = HTML_END_TOKEN, .name_size = 1, .name = { [0] = 'b' } } },
+                                   { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'c' } } },
+                                   { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    uint32_t return_sizes_len = sizeof(return_sizes) / sizeof(uint32_t);
+    uint32_t errors_len = sizeof(errors) / sizeof(html_tokenizer_error_e);
+    uint32_t tokens_e_len = sizeof(tokens_e) / sizeof(html_token_t) / 1;
+    ASSERT_EQUAL(return_sizes_len, errors_len);
+    ASSERT_EQUAL(tokens_e_len, errors_len);
+
+    uint32_t tests = sizeof(return_sizes) / sizeof(uint32_t);
+    for (uint32_t i = 0; i < tests; i++)
+    {
+        uint32_t size_e = return_sizes[i];
+        html_tokenizer_error_e err_e    = errors[i];
+        html_tokenizer_error_e err_a    = html_tokenizer_next();
+
+        ASSERT_TOKENS_SIZE(size_e, SIZE_TEN);
+        ASSERT_EQUAL(err_a, err_e);
+
+        for (uint32_t j = 0; j < size_e; j++)
+        {
+            html_token_t token_e = tokens_e[i][j];
+            if (!token_e.is_valid) { continue; }
+            ASSERT_TOKEN(tokens[j], token_e);
+        }
+    }
+}
+
 void test_html_tokenizer()
 {
     TEST_CASE(correct_doctype_lowercase);
@@ -3928,153 +5187,29 @@ void test_html_tokenizer()
     TEST_CASE(numeric_entity_represeting_10FFFF);
     TEST_CASE(hexadecimal_entity_represeting_10FFFF);
     TEST_CASE(hexadecimal_entity_pair_representing_surrogate_pair);
+    TEST_CASE(hexadecimal_entity_with_mixed_case);
+    TEST_CASE(entity_without_name);
+    TEST_CASE(unescaped_ampersand_in_attribute_value);
+    TEST_CASE(start_tag_containing_less_than);
+    TEST_CASE(non_void_element_containing_trailing_forward_slash);
+    TEST_CASE(void_element_with_permitted_slash);
+    TEST_CASE(void_element_with_permitted_slash_and_attribute);
+    TEST_CASE(start_tag_with_forward_slash);
+    TEST_CASE(double_quoted_attribute_value);
+    TEST_CASE(unescaped_forward_slash);
+    TEST_CASE(illegal_end_tag_name);
+    TEST_CASE(simili_processing_instruction);
+    TEST_CASE(bogus_comment_stops_at_triangle_bracket_even_if_preceded_by_dashes);
+    TEST_CASE(unexpected_triangle_bracket);
+    TEST_CASE(null_byte_replacement);
+    TEST_CASE(comment_with_dash);
+    // TEST_CASE(named_entity_with_newline);
+    TEST_CASE(start_tag_with_no_attributes_but_with_space_before_end);
+    TEST_CASE(empty_attribute_followed_by_uppercase_attribute);
+    TEST_CASE(double_quote_after_attribute_name);
+    TEST_CASE(single_quote_after_attribute_name);
+    TEST_CASE(empty_end_tag_with_following_characters);
+    TEST_CASE(empty_end_tag_with_following_tag);
+    TEST_CASE(empty_end_tag_with_following_comment);
+    TEST_CASE(empty_end_tag_with_following_end_tag);
 }
-
-
-
-
-
-// {"description":"Hexadecimal entity with mixed uppercase and lowercase",
-// "input":"&#xaBcD;",
-// "output":[["Character", "\uABCD"]]},
-
-// {"description":"Entity without a name",
-// "input":"&;",
-// "output":[["Character", "&;"]]},
-
-// {"description":"Unescaped ampersand in attribute value",
-// "input":"<h a='&'>",
-// "output":[["StartTag", "h", { "a":"&" }]]},
-
-
-// {"description":"StartTag containing <",
-// "input":"<a<b>",
-// "output":[["StartTag", "a<b", { }]]},
-
-// {"description":"Non-void element containing trailing /",
-// "input":"<h/>",
-// "output":[["StartTag","h",{},true]]},
-
-// {"description":"Void element with permitted slash",
-// "input":"<br/>",
-// "output":[["StartTag","br",{},true]]},
-
-// {"description":"Void element with permitted slash (with attribute)",
-// "input":"<br foo='bar'/>",
-// "output":[["StartTag","br",{"foo":"bar"},true]]},
-
-// {"description":"StartTag containing /",
-// "input":"<h/a='b'>",
-// "output":[["StartTag", "h", { "a":"b" }]],
-// "errors":[
-//     { "code": "unexpected-solidus-in-tag", "line": 1, "col": 4 }
-// ]},
-
-// {"description":"Double-quoted attribute value",
-// "input":"<h a=\"b\">",
-// "output":[["StartTag", "h", { "a":"b" }]]},
-
-// {"description":"Unescaped </",
-// "input":"</",
-// "output":[["Character", "</"]],
-// "errors":[
-//     { "code": "eof-before-tag-name", "line": 1, "col": 3 }
-// ]},
-
-// {"description":"Illegal end tag name",
-// "input":"</1>",
-// "output":[["Comment", "1"]],
-// "errors":[
-//     { "code": "invalid-first-character-of-tag-name", "line": 1, "col": 3 }
-// ]},
-
-// {"description":"Simili processing instruction",
-// "input":"<?namespace>",
-// "output":[["Comment", "?namespace"]],
-// "errors":[
-//     { "code": "unexpected-question-mark-instead-of-tag-name", "line": 1, "col": 2 }
-// ]},
-
-// {"description":"A bogus comment stops at >, even if preceded by two dashes",
-// "input":"<?foo-->",
-// "output":[["Comment", "?foo--"]],
-// "errors":[
-//     { "code": "unexpected-question-mark-instead-of-tag-name", "line": 1, "col": 2 }
-// ]},
-
-// {"description":"Unescaped <",
-// "input":"foo < bar",
-// "output":[["Character", "foo < bar"]],
-// "errors":[
-//     { "code": "invalid-first-character-of-tag-name", "line": 1, "col": 6 }
-// ]},
-
-// {"description":"Null Byte Replacement",
-// "input":"\u0000",
-// "output":[["Character", "\u0000"]],
-// "errors":[
-//     { "code": "unexpected-null-character", "line": 1, "col": 1 }
-// ]},
-
-// {"description":"Comment with dash",
-// "input":"<!---x",
-// "output":[["Comment", "-x"]],
-// "errors":[
-//     { "code": "eof-in-comment", "line": 1, "col": 7 }
-// ]},
-
-// {"description":"Entity + newline",
-// "input":"\nx\n&gt;\n",
-// "output":[["Character","\nx\n>\n"]]},
-
-// {"description":"Start tag with no attributes but space before the greater-than sign",
-// "input":"<h >",
-// "output":[["StartTag", "h", {}]]},
-
-// {"description":"Empty attribute followed by uppercase attribute",
-// "input":"<h a B=''>",
-// "output":[["StartTag", "h", {"a":"", "b":""}]]},
-
-// {"description":"Double-quote after attribute name",
-// "input":"<h a \">",
-// "output":[["StartTag", "h", {"a":"", "\"":""}]],
-// "errors":[
-//     { "code": "unexpected-character-in-attribute-name", "line": 1, "col": 6 }
-// ]},
-
-// {"description":"Single-quote after attribute name",
-// "input":"<h a '>",
-// "output":[["StartTag", "h", {"a":"", "'":""}]],
-// "errors":[
-//     { "code": "unexpected-character-in-attribute-name", "line": 1, "col": 6 }
-// ]},
-
-// {"description":"Empty end tag with following characters",
-// "input":"a</>bc",
-// "output":[["Character", "abc"]],
-// "errors":[
-//     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
-// ]},
-
-// {"description":"Empty end tag with following tag",
-// "input":"a</><b>c",
-// "output":[["Character", "a"], ["StartTag", "b", {}], ["Character", "c"]],
-// "errors":[
-//     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
-// ]},
-
-// {"description":"Empty end tag with following comment",
-// "input":"a</><!--b-->c",
-// "output":[["Character", "a"], ["Comment", "b"], ["Character", "c"]],
-// "errors":[
-//     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
-// ]},
-
-// {"description":"Empty end tag with following end tag",
-// "input":"a</></b>c",
-// "output":[["Character", "a"], ["EndTag", "b"], ["Character", "c"]],
-// "errors":[
-//     { "code": "missing-end-tag-name", "line": 1, "col": 4 }
-// ]}
-
-// ]}
