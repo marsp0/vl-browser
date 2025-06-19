@@ -3,18 +3,7 @@
 #include "test_utils.h"
 #include "html/tokenizer.h"
 
-#define SIZE_TEN 10
 #define MAX_TOKENS 10
-
-#define ASSERT_TOKENS_SIZE(expected, max_size)  do                                              \
-                                                {                                               \
-                                                    uint32_t actual = 0;                        \
-                                                    for (uint32_t k = 0; k < max_size; k++)     \
-                                                    {                                           \
-                                                        if (tokens[k].is_valid) { actual++; }   \
-                                                    }                                           \
-                                                    ASSERT_EQUAL(actual, expected);             \
-                                                } while (0);
 
 #define ASSERT_DOCTYPE(a, b)    do                                                                          \
                                 {                                                                           \
@@ -97,6 +86,7 @@ do                                                                              
                                                                                         \
     for (uint32_t s = 0; s < states_size; s++)                                          \
     {                                                                                   \
+        memset(tokens, 0, sizeof(tokens));                                              \
         html_tokenizer_init(buffer, buffer_size, tokens, MAX_TOKENS);                   \
         html_tokenizer_set_state(states[s]);                                            \
                                                                                         \
@@ -122,7 +112,6 @@ do                                                                              
             for (uint32_t j = 0; j < size_e; j++)                                       \
             {                                                                           \
                 html_token_t token_e = tokens_e[i][j];                                  \
-                if (!token_e.is_valid) { continue; }                                    \
                 ASSERT_TOKEN(tokens[j], token_e);                                       \
             }                                                                           \
         }                                                                               \

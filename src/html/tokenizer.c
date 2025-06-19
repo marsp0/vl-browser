@@ -2777,10 +2777,9 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_CDATA_SECTION_STATE:
             if (is_eof)
             {
-                // todo: parse error
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                              = HTML_TOKENIZER_EOF_IN_CDATA;
                 break;
             }
 
