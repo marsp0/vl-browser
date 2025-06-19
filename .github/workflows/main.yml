@@ -13,6 +13,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Install
+      shell: bash
+      run: apt install lcov
+
     - name: Build
       shell: bash
       run: ./build.sh debug
@@ -26,8 +30,15 @@ jobs:
       run: |
         for full_path in `find ./src -name "*.c"`; 
         do 
-          echo $full_path
           filename=$(basename $full_path)
           gcov -pb -r -o ./out test_vl-$filename
+          echo
         done
         ls -la
+
+    - name: Run lcov
+      shell: bash
+      run: |
+        lcov --capture --directory . --output-file coverage.info
+        genhtml coverage.info --output-directory out
+        cat ./out/index.html
