@@ -24,9 +24,10 @@ jobs:
     - name: Run gcov
       shell: bash
       run: |
-        for filename in `find ./src -name "*.c"`; 
+        for full_path in `find ./src -name "*.c"`; 
         do 
-          echo $filename
+          echo $full_path
+          filename=$(basename $full_path)
           gcov -pb -r -o ./out test_vl-$filename
         done
         ls -la
