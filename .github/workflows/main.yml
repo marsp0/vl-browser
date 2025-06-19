@@ -42,3 +42,5 @@ jobs:
         lcov --capture --directory . --output-file coverage.info
         genhtml coverage.info --output-directory out
         ls -la
+        echo
+        ls -la ./out
