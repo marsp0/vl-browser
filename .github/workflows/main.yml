@@ -27,6 +27,6 @@ jobs:
         for filename in `find ./src -name "*.c"`; 
         do 
           echo $filename
-          gcov -pb -r -o ./out $filename
+          gcov -pb -r -o ./out test_vl-$filename
         done
         ls -la
