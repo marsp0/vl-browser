@@ -15,7 +15,7 @@ jobs:
 
     - name: Install
       shell: bash
-      run: apt install lcov
+      run: sudo apt install lcov
 
     - name: Build
       shell: bash
