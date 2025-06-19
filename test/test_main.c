@@ -8,7 +8,9 @@ int32_t main()
     TESTS_INIT();
 
     TEST_GROUP(test_utf8);
-    TEST_GROUP(test_html_tokenizer);
+    TEST_GROUP(test_html_tokenizer_test1);
+    TEST_GROUP(test_html_tokenizer_test2);
+    TEST_GROUP(test_html_tokenizer_test3);
 
     TESTS_SUMMARY();
 
