@@ -4,8 +4,6 @@
 # VL Browser
 Browser with minimal set of dependencies and no bloat.
 
-Work tracker - [Current Sprint](https://trello.com/b/a7SdZYpL/current) / [Completed Sprints](https://trello.com/b/njBlWiV7/sprints)
-
 Overall goals for this project:
 - [ ] [HTML5](https://html.spec.whatwg.org/multipage/)
 - [ ] [CSS](https://www.w3.org/TR/css-2024/)
