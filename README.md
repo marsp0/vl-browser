@@ -1,5 +1,5 @@
 [![codecov](https://codecov.io/github/marsp0/vl-browser/graph/badge.svg?token=8MV8HANFE2)](https://codecov.io/github/marsp0/vl-browser) 
-![Static Badge](https://img.shields.io/badge/Trello-0052CC?logo=trello&logoColor=white&link=https%3A%2F%2Ftrello.com%2Fb%2Fa7SdZYpL%2Fcurrent)
+![Static Badge](https://img.shields.io/badge/Trello-blue?label=Board&link=https%3A%2F%2Ftrello.com%2Fb%2Fa7SdZYpL%2Fcurrent)
 
 # VL Browser
 Browser with minimal set of dependencies and no bloat.
