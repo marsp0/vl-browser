@@ -599,6 +599,216 @@ static void eof_in_script_data_double_escaped_state()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void cr_eof_in_tag_name()
+{
+    // {"description":"CR EOF in tag name",
+    // "input":"<z\r",
+    // "output":[],
+    // "errors":[
+    //     { "code": "eof-in-tag", "line": 2, "col": 1 }
+    // ]},
+
+    const char buffer[]                         = "<z\r";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_TAG };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void slash_eof_in_tag_name()
+{
+    // {"description":"Slash EOF in tag name",
+    // "input":"<z/",
+    // "output":[],
+    // "errors":[
+    //     { "code": "eof-in-tag", "line": 1, "col": 4 }
+    // ]},
+
+    const char buffer[]                         = "<z/";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_TAG };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void incorrectly_closed_comment()
+{
+    const char buffer[]                         = "<!----!>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_INCORRECTLY_CLOSED_COMMENT, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_COMMENT_TOKEN } }, 
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void invalid_chars_after_doctype_name()
+{
+    // {"description":"Doctype publik",
+    // "input":"<!DOCTYPE html PUBLIK \"AbC\" \"XyZ\">",
+    // "output":[["DOCTYPE", "html", null, null, false]],
+    // "errors":[
+    //     { "code": "invalid-character-sequence-after-doctype-name", "line": 1, "col": 16 }
+    // ]},
+
+    const char buffer[]                         = "<!DOCTYPE html PUBLIK \"AbC\" \"XyZ\">";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_INVALID_CHARACTER_SEQUENCE_AFTER_DOCTYPE_NAME, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 4, .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_attribute_value_error()
+{
+    // {"description":"<a a =>",
+    // "input":"<a a =>",
+    // "output":[["StartTag", "a", {"a":""}]],
+    // "errors":[
+    //     { "code": "missing-attribute-value", "line": 1, "col": 7 }
+    // ]},
+
+    const char buffer[]                         = "<a a =>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_ATTRIBUTE_VALUE, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'a' },
+                                                        .attributes_size = 1,
+                                                        .attributes = { {   .name_size = 1,
+                                                                            .name = { [0] = 'a' } } } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_doctype_public_identifier_after_doctype_public_keyword()
+{
+    // {"description":"<!DOCTYPE html PUBLIC>",
+    // "input":"<!DOCTYPE a PUBLIC>",
+    // "output":[["DOCTYPE", "a", null, null, false]],
+    // "errors": [
+    //     { "code": "missing-doctype-public-identifier", "col": 19, "line": 1 }
+    // ]},
+
+    const char buffer[]                         = "<!DOCTYPE html PUBLIC>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_DOCTYPE_PUBLIC_IDENTIFIER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 4, .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_doctype_public_identifier_before_doctype_public_identifier()
+{
+    // {"description":"<!DOCTYPE html PUBLIC>",
+    // "input":"<!DOCTYPE a PUBLIC>",
+    // "output":[["DOCTYPE", "a", null, null, false]],
+    // "errors": [
+    //     { "code": "missing-doctype-public-identifier", "col": 19, "line": 1 }
+    // ]},
+
+    const char buffer[]                         = "<!DOCTYPE html PUBLIC >";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_DOCTYPE_PUBLIC_IDENTIFIER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 4, .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_doctype_system_identifier_after_doctype_public_keyword()
+{
+    // {"description":"<!DOCTYPE html SYSTEM>",
+    // "input":"<!DOCTYPE a SYSTEM>",
+    // "output":[["DOCTYPE", "a", null, null, false]],
+    // "errors": [
+    //     { "code": "missing-doctype-system-identifier", "col": 19, "line": 1 }
+    // ]},
+
+    const char buffer[]                         = "<!DOCTYPE html SYSTEM>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_DOCTYPE_SYSTEM_IDENTIFIER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 4, .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_doctype_system_identifier_before_doctype_public_identifier()
+{
+    // {"description":"<!DOCTYPE html SYSTEM>",
+    // "input":"<!DOCTYPE a SYSTEM>",
+    // "output":[["DOCTYPE", "a", null, null, false]],
+    // "errors": [
+    //     { "code": "missing-doctype-system-identifier", "col": 19, "line": 1 }
+    // ]},
+
+    const char buffer[]                         = "<!DOCTYPE html SYSTEM >";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_DOCTYPE_SYSTEM_IDENTIFIER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 4, .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_quote_after_doctype_public_keyword()
+{
+    // {"description":"<!DOCTYPE a PUBLIC!",
+    // "input":"<!DOCTYPE a PUBLIC!",
+    // "output":[["DOCTYPE", "a", null, null, false]],
+    // "errors": [
+    //     { "code": "missing-quote-before-doctype-public-identifier", "col": 19, "line": 1 }
+    // ]},
+
+    const char buffer[]                         = "<!DOCTYPE a PUBLIC!";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_PUBLIC_IDENTIFIER  };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 1, .name = { [0] = 'a' } },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_quote_before_doctype_public_identifier()
+{
+    // {"description":"<!DOCTYPE a PUBLIC!",
+    // "input":"<!DOCTYPE a PUBLIC!",
+    // "output":[["DOCTYPE", "a", null, null, false]],
+    // "errors": [
+    //     { "code": "missing-quote-before-doctype-public-identifier", "col": 19, "line": 1 }
+    // ]},
+
+    const char buffer[]                         = "<!DOCTYPE a PUBLIC !";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_PUBLIC_IDENTIFIER  };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 1, .name = { [0] = 'a' } },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 void test_html_tokenizer_test3()
 {
     TEST_CASE(test_empty_buffer);
@@ -629,4 +839,15 @@ void test_html_tokenizer_test3()
     TEST_CASE(eof_in_script_data_double_escaped_dash_state);
     TEST_CASE(eof_in_script_data_double_escaped_dash_dash_state);
     TEST_CASE(eof_in_script_data_double_escaped_state);
+    TEST_CASE(cr_eof_in_tag_name);
+    TEST_CASE(slash_eof_in_tag_name);
+    TEST_CASE(incorrectly_closed_comment);
+    TEST_CASE(invalid_chars_after_doctype_name);
+    TEST_CASE(missing_attribute_value_error);
+    TEST_CASE(missing_doctype_public_identifier_after_doctype_public_keyword);
+    TEST_CASE(missing_doctype_public_identifier_before_doctype_public_identifier);
+    TEST_CASE(missing_doctype_system_identifier_after_doctype_public_keyword);
+    TEST_CASE(missing_doctype_system_identifier_before_doctype_public_identifier);
+    TEST_CASE(missing_quote_after_doctype_public_keyword);
+    TEST_CASE(missing_quote_before_doctype_public_identifier);
 }

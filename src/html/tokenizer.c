@@ -931,7 +931,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
             }
 
@@ -1663,7 +1663,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 // todo: parse error
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
             }
 
@@ -1710,8 +1710,9 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '>')
             {
-                // todo: parse error
                 state                           = HTML_TOKENIZER_DATA_STATE;
+                status                          = HTML_TOKENIZER_MISSING_ATTRIBUTE_VALUE;
+                emit_attribute();
                 emit_token();
             }
             else
@@ -1725,10 +1726,9 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE:
             if (is_eof)
             {
-                // todo: parse error
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
             }
 
@@ -1756,10 +1756,9 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE:
             if (is_eof)
             {
-                // todo: parse error
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
             }
 
@@ -1788,10 +1787,9 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE:
             if (is_eof)
             {
-                // todo: parse error
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
             }
 
@@ -1830,10 +1828,9 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_AFTER_ATTRIBUTE_VALUE_QUOTED_STATE:
             if (is_eof)
             {
-                // todo: parse error
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
             }
 
@@ -1866,10 +1863,9 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SELF_CLOSING_START_TAG_STATE:
             if (is_eof)
             {
-                // todo: parse error
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
             }
 
@@ -2147,9 +2143,9 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                           = HTML_TOKENIZER_COMMENT_END_DASH_STATE;
                 break;
             case '>':
-                // todo: parse error
                 emit_token();
                 state                           = HTML_TOKENIZER_DATA_STATE;
+                status                          = HTML_TOKENIZER_INCORRECTLY_CLOSED_COMMENT;
                 break;
             default:
                 update_comment_token('-');
@@ -2315,10 +2311,10 @@ html_tokenizer_error_e html_tokenizer_next()
                 }
                 else
                 {
-                    // todo: parse error
                     tokens[token_idx].force_quirks  = true;
                     consume                         = false;
                     state                           = HTML_TOKENIZER_BOGUS_DOCTYPE_STATE;
+                    status                          = HTML_TOKENIZER_INVALID_CHARACTER_SEQUENCE_AFTER_DOCTYPE_NAME;
                 }
             }
             break;
@@ -2353,17 +2349,17 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '>')
             {
-                // todo: parse error
                 tokens[token_idx].force_quirks      = true;
                 state                               = HTML_TOKENIZER_DATA_STATE;
+                status                              = HTML_TOKENIZER_MISSING_DOCTYPE_PUBLIC_IDENTIFIER;
                 emit_token();
             }
             else
             {
-                // todo: parse error
                 tokens[token_idx].force_quirks      = true;
                 consume                             = false;
                 state                               = HTML_TOKENIZER_BOGUS_DOCTYPE_STATE;
+                status                              = HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_PUBLIC_IDENTIFIER;
             }
             break;
 
@@ -2397,17 +2393,17 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '>')
             {
-                // todo: parse error
                 tokens[token_idx].force_quirks      = true;
                 state                               = HTML_TOKENIZER_DATA_STATE;
+                status                              = HTML_TOKENIZER_MISSING_DOCTYPE_PUBLIC_IDENTIFIER;
                 emit_token();
             }
             else
             {
-                // todo: parse error
                 tokens[token_idx].force_quirks      = true;
                 consume                             = false;
                 state                               = HTML_TOKENIZER_BOGUS_DOCTYPE_STATE;
+                status                              = HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_PUBLIC_IDENTIFIER;
             }
             break;
 
@@ -2595,9 +2591,9 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '>')
             {
-                // todo: parse error
                 tokens[token_idx].force_quirks      = true;
                 state                               = HTML_TOKENIZER_DATA_STATE;
+                status                              = HTML_TOKENIZER_MISSING_DOCTYPE_SYSTEM_IDENTIFIER;
                 emit_token();
             }
             else
@@ -2640,9 +2636,9 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '>')
             {
-                // todo: parse error
                 tokens[token_idx].force_quirks      = true;
                 state                               = HTML_TOKENIZER_DATA_STATE;
+                status                              = HTML_TOKENIZER_MISSING_DOCTYPE_SYSTEM_IDENTIFIER;
                 emit_token();
             }
             else
@@ -2755,7 +2751,6 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
                 break;
             }
 
