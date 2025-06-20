@@ -2573,7 +2573,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
+                status                              = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
             }
 
