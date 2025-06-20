@@ -199,14 +199,104 @@ static void eof_in_comment_start_end_dash_state()
 
 static void eof_in_comment_start_end_bang_state()
 {
-    
-
     const char buffer[]                         = "<!----!";
     const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
     const uint32_t sizes[]                      = { 2 };
     const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_COMMENT };
     const html_token_t tokens_e[][MAX_TOKENS]   = { {   { .is_valid = true, .type = HTML_COMMENT_TOKEN }, 
                                                         { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_in_doctype_state()
+{
+    // {"description":"<!DOCTYPE",
+    // "input":"<!DOCTYPE",
+    // "output":[["DOCTYPE", null, null, null, false]],
+    // "errors":[
+    //     { "code": "eof-in-doctype", "line": 1, "col": 10 }
+    // ]},
+
+    const char buffer[]                         = "<!DOCTYPE";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_DOCTYPE };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_in_before_doctype_name_state()
+{
+    // {"description":"<!DOCTYPE ",
+    // "input":"<!DOCTYPE",
+    // "output":[["DOCTYPE", null, null, null, false]],
+    // "errors":[
+    //     { "code": "eof-in-doctype", "line": 1, "col": 10 }
+    // ]},
+
+    const char buffer[]                         = "<!DOCTYPE ";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_DOCTYPE };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_before_doctype_public_identifier_state()
+{
+    const char buffer[]                         = "<!DOCTYPE html PUBLIC ";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_DOCTYPE };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 4, .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_doctype_public_identifier_double_quoted_state()
+{
+    const char buffer[]                         = "<!DOCTYPE html PUBLIC \"";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_DOCTYPE };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 4, .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_doctype_public_identifier_single_quoted_state()
+{
+    const char buffer[]                         = "<!DOCTYPE html PUBLIC '";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_DOCTYPE };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 4, .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' } },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_after_doctype_public_identifier_state()
+{
+    const char buffer[]                         = "<!DOCTYPE html PUBLIC 'dsa'";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_DOCTYPE };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 4, .name = { [0] = 'h', [1] = 't', [2] = 'm', [3] = 'l' },
+                                                        .public_id_size = 3,
+                                                        .public_id = { [0] = 'd', [1] = 's', [2] = 'a' } },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
 
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
@@ -224,4 +314,10 @@ void test_html_tokenizer_test3()
     TEST_CASE(eof_in_comment_start_dash_state);
     TEST_CASE(eof_in_comment_start_end_dash_state);
     TEST_CASE(eof_in_comment_start_end_bang_state);
+    TEST_CASE(eof_in_doctype_state);
+    TEST_CASE(eof_in_before_doctype_name_state);
+    TEST_CASE(eof_before_doctype_public_identifier_state);
+    TEST_CASE(eof_doctype_public_identifier_double_quoted_state);
+    TEST_CASE(eof_doctype_public_identifier_single_quoted_state);
+    TEST_CASE(eof_after_doctype_public_identifier_state);
 }
