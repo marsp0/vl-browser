@@ -568,7 +568,7 @@ static void escaped_script_data()
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
-                                                    HTML_TOKENIZER_OK };
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT };
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
                                                       {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
                                                     { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
@@ -604,7 +604,7 @@ static void less_than_in_script_html_comment()
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
-                                                    HTML_TOKENIZER_OK };
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT };
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
                                                       {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
                                                     { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
@@ -644,7 +644,7 @@ static void less_than_solidus_in_script_html_comment()
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
-                                                    HTML_TOKENIZER_OK };
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT };
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
                                                       {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
                                                     { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
@@ -685,7 +685,7 @@ static void start_tag_in_script_html_comment()
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
-                                                    HTML_TOKENIZER_OK };
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT };
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
                                                       {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
                                                     { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
@@ -721,7 +721,7 @@ static void end_tag_in_script_html_comment()
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
-                                                    HTML_TOKENIZER_OK };
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT };
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
                                                       {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
                                                     { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
@@ -772,7 +772,7 @@ static void dash_in_script_html_comment_double_escaped()
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
-                                                    HTML_TOKENIZER_OK};
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT};
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
                                                       {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
                                                     { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
@@ -833,7 +833,7 @@ static void dash_dash_in_script_html_comment_double_escaped()
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
-                                                    HTML_TOKENIZER_OK};
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT};
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
                                                       {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
                                                     { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
@@ -896,7 +896,7 @@ static void dash_dash_dash_in_script_html_comment_double_escaped()
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
-                                                    HTML_TOKENIZER_OK};
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT};
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
                                                       {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
                                                     { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
@@ -960,7 +960,7 @@ static void dash_spaced_in_script_html_comment_double_escaped()
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
-                                                    HTML_TOKENIZER_OK};
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT};
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
                                                       {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
                                                     { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
@@ -1025,7 +1025,7 @@ static void dash_dash_spaced_in_script_html_comment_double_escaped()
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK,
-                                                    HTML_TOKENIZER_OK};
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT};
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
                                                       {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
                                                     { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },

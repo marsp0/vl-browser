@@ -383,6 +383,222 @@ static void eof_after_system_identifier()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void eof_in_script_data_escaped_dash_state()
+{
+    // {
+    //    "description":"EOF in script HTML comment after dash",
+    //    "initialStates":["Script data state"],
+    //    "input":"<!--test-",
+    //    "output":[["Character", "<!--test-"]],
+    //    "errors":[
+    //        { "code": "eof-in-script-html-comment-like-text", "line": 1, "col": 10 }
+    //    ]
+    // },
+
+    const char buffer[]                         = "<!--test-";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_SCRIPT_DATA_STATE };
+    const uint32_t sizes[]                      = { 2, 1, 1, 1, 1, 1, 1, 1, 1};
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
+                                                      {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 't' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'e' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 's' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 't' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_in_script_data_escaped_dash_dash_state()
+{
+    // {
+    //    "description":"EOF in script HTML comment after dash dash",
+    //    "initialStates":["Script data state"],
+    //    "input":"<!--test--",
+    //    "output":[["Character", "<!--test--"]],
+    //    "errors":[
+    //        { "code": "eof-in-script-html-comment-like-text", "line": 1, "col": 11 }
+    //    ]
+    // },
+
+    const char buffer[]                         = "<!--test--";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_SCRIPT_DATA_STATE };
+    const uint32_t sizes[]                      = { 2, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
+                                                      {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 't' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'e' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 's' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 't' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_in_script_data_double_escaped_dash_state()
+{
+    // {
+    //    "description":"EOF in script HTML comment double escaped after dash",
+    //    "initialStates":["Script data state"],
+    //    "input":"<!--<script>-",
+    //    "output":[["Character", "<!--<script>-"]],
+    //    "errors":[
+    //        { "code": "eof-in-script-html-comment-like-text", "line": 1, "col": 14 }
+    //    ]
+    // },
+
+    const char buffer[]                         = "<!--<script>-";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_SCRIPT_DATA_STATE };
+    const uint32_t sizes[]                      = { 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
+                                                      {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 's' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'c' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'r' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'i' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'p' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 't' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '>' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_in_script_data_double_escaped_dash_dash_state()
+{
+    // {
+    //    "description":"EOF in script HTML comment double escaped after dash dash",
+    //    "initialStates":["Script data state"],
+    //    "input":"<!--<script>--",
+    //    "output":[["Character", "<!--<script>--"]],
+    //    "errors":[
+    //        { "code": "eof-in-script-html-comment-like-text", "line": 1, "col": 15 }
+    //    ]
+    // },
+
+    const char buffer[]                         = "<!--<script>--";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_SCRIPT_DATA_STATE };
+    const uint32_t sizes[]                      = { 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
+                                                      {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 's' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'c' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'r' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'i' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'p' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 't' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '>' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_in_script_data_double_escaped_state()
+{
+    // {
+    //    "description":"EOF in script HTML comment - double escaped",
+    //    "initialStates":["Script data state"],
+    //    "input":"<!--<script>",
+    //    "output":[["Character", "<!--<script>"]],
+    //    "errors":[
+    //        { "code": "eof-in-script-html-comment-like-text", "line": 1, "col": 13 }
+    //    ]
+    // },
+
+    const char buffer[]                         = "<!--<script>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_SCRIPT_DATA_STATE };
+    const uint32_t sizes[]                      = { 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
+                                                      {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '-' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 's' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'c' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'r' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'i' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'p' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 't' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '>' } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 void test_html_tokenizer_test3()
 {
     TEST_CASE(test_empty_buffer);
@@ -408,4 +624,9 @@ void test_html_tokenizer_test3()
     TEST_CASE(eof_system_identifier_single_quoted);
     TEST_CASE(eof_system_identifier_double_quoted);
     TEST_CASE(eof_after_system_identifier);
+    TEST_CASE(eof_in_script_data_escaped_dash_state);
+    TEST_CASE(eof_in_script_data_escaped_dash_dash_state);
+    TEST_CASE(eof_in_script_data_double_escaped_dash_state);
+    TEST_CASE(eof_in_script_data_double_escaped_dash_dash_state);
+    TEST_CASE(eof_in_script_data_double_escaped_state);
 }

@@ -1229,7 +1229,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
             }
             switch (code_point)
@@ -1258,7 +1258,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
             }
 
@@ -1291,7 +1291,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
             }
 
@@ -1443,7 +1443,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
             }
 
@@ -1476,7 +1476,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
             }
 
@@ -1511,7 +1511,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
             }
 
