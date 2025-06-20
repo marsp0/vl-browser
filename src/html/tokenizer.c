@@ -1653,7 +1653,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 update_attribute_name_from_buffer();
             }
 
-            // todo: parser error - duplicate err that we are not handling atm
+            // todo: parser error - duplicate-attribute that we are not handling atm
             break;
 
         // https://html.spec.whatwg.org/multipage/parsing.html#after-attribute-name-state
@@ -1969,7 +1969,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_EOF_IN_COMMENT;
+                status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
                 break;
             }
 
@@ -1997,7 +1997,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_EOF_IN_COMMENT;
+                status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
                 break;
             }
 
@@ -2079,7 +2079,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_EOF_IN_COMMENT;
+                status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
                 break;
             }
 
@@ -2134,7 +2134,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 create_eof_token();
                 emit_token();
-                status = HTML_TOKENIZER_OK;
+                status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
                 break;
             }
 
@@ -3038,11 +3038,11 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 // todo: parse error
             }
-            else if (code_point == 0x0d || (utf8_is_control(code_point) && !utf8_is_whitespace(code_point)))
+            else if (character_reference_code == 0x0d || (utf8_is_control(character_reference_code) && !utf8_is_whitespace(character_reference_code)))
             {
-                // todo: parse error
-                uint32_t result     = 0;
-                int32_t char_idx    = find_numeric_char_ref(code_point, &result);
+                status                              = HTML_TOKENIZER_CONTROL_CHARACTER_REFERENCE;
+                uint32_t result                     = 0;
+                int32_t char_idx                    = find_numeric_char_ref(character_reference_code, &result);
                 if (char_idx != -1) { character_reference_code = result; }
             }
 
