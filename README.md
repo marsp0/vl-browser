@@ -1,3 +1,4 @@
+[![Build](https://github.com/marsp0/vl-browser/actions/workflows/main.yml/badge.svg)](https://github.com/marsp0/vl-browser/actions/workflows/main.yml)
 [![codecov](https://codecov.io/github/marsp0/vl-browser/graph/badge.svg?token=8MV8HANFE2)](https://codecov.io/github/marsp0/vl-browser)
 [![Badge](https://img.shields.io/badge/Trello-blue?label=Board)](https://trello.com/b/a7SdZYpL/current)
 
