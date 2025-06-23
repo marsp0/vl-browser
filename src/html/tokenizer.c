@@ -2793,7 +2793,7 @@ html_tokenizer_error_e html_tokenizer_next()
             default:
                 create_char_token(']');
                 emit_token();
-                state                               = HTML_TOKENIZER_CDATA_SECTION_STATE;
+                state                               = HTML_TOKENIZER_CDATA_SECTION_END_STATE;
                 consume                             = false;
             }
             break;
