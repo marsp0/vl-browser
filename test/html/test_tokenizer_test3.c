@@ -949,6 +949,64 @@ static void missing_space_between_doctype_public_and_system_identifiers_double_q
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void invalid_numeric_character_u_fdd2()
+{
+    // {"description": "Invalid numeric entity character U+FDD2",
+    // "input": "&#xfdd2;",
+    // "output": [["Character", "\ufdd2"]],
+    // "errors":[
+    //     { "code": "noncharacter-character-reference", "line": 1, "col": 9 }
+    // ]},
+
+    const char buffer[]                         = "&#xfdd2;";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_NONCHARACTER_CHARACTER_REFERENCE, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 3, 
+                                                        .data = { [0] = 0xef, [1] = 0xb7, [2] = 0x92 } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void unexpected_char_after_system_identifier()
+{
+    const char buffer[]                         = "<!DOCTYPE a SYSTEM \"a\" d>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_UNEXPECTED_CHARACTER_AFTER_DOCTYPE_SYSTEM_IDENTIFIER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN,
+                                                        .name_size = 1, .name = { [0] = 'a' },
+                                                        .system_id_size = 1, .system_id = { [0] = 'a' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void unexpected_equals_sign_before_attribute_name()
+{
+    // {"description":"<a =>",
+    // "input":"<a =>",
+    // "output":[["StartTag", "a", {"=":""}]],
+    // "errors":[
+    //     { "code": "unexpected-equals-sign-before-attribute-name", "line": 1, "col": 4 }
+    // ]},
+
+    const char buffer[]                         = "<a =>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, 
+                                                        .type = HTML_START_TOKEN,
+                                                        .name_size = 1,
+                                                        .name = { [0] = 'a' },
+                                                        .attributes_size = 1,
+                                                        .attributes = { [0] = { .name_size = 1, .name = { [0] = '=' } } } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 void test_html_tokenizer_test3()
 {
     TEST_CASE(test_empty_buffer);
@@ -1000,4 +1058,7 @@ void test_html_tokenizer_test3()
     TEST_CASE(missing_space_after_doctype_system_keyword_state_double_quote);
     TEST_CASE(missing_space_between_doctype_public_and_system_identifiers_single_quote);
     TEST_CASE(missing_space_between_doctype_public_and_system_identifiers_double_quote);
+    TEST_CASE(invalid_numeric_character_u_fdd2);
+    TEST_CASE(unexpected_char_after_system_identifier);
+    TEST_CASE(unexpected_equals_sign_before_attribute_name);
 }

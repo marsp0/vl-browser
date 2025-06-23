@@ -1613,6 +1613,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 create_attribute_from_buffer();
                 state                           = HTML_TOKENIZER_ATTRIBUTE_NAME_STATE;
+                status                          = HTML_TOKENIZER_UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME;
             }
             else
             {
@@ -2728,8 +2729,8 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                // todo: parse error
                 state                               = HTML_TOKENIZER_BOGUS_DOCTYPE_STATE;
+                status                              = HTML_TOKENIZER_UNEXPECTED_CHARACTER_AFTER_DOCTYPE_SYSTEM_IDENTIFIER;
                 consume                             = false;
             }
             break;
@@ -2956,6 +2957,12 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#hexadecimal-character-reference-state
         case HTML_TOKENIZER_HEXADECIMAL_CHARACTER_REFERENCE_STATE:
+            if (is_eof)
+            {
+                state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
+                status                              = HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE;
+            }
+
             if (utf8_is_digit(code_point))
             {
                 character_reference_code            *= 16;
@@ -2977,14 +2984,20 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                // todo: parse error
                 consume                             = false;
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
+                status                              = HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE;
             }
             break;
 
         // https://html.spec.whatwg.org/multipage/parsing.html#decimal-character-reference-state
         case HTML_TOKENIZER_DECIMAL_CHARACTER_REFERENCE_STATE:
+            if (is_eof)
+            {
+                state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
+                status                              = HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE;
+            }
+
             if (utf8_is_digit(code_point))
             {
                 character_reference_code           *= 10;
@@ -2996,9 +3009,9 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                // todo: parse error
                 consume                             = false;
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
+                status                              = HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE;
             }
             break;
 
@@ -3021,7 +3034,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (is_noncharacter(character_reference_code))
             {
-                // todo: parse error
+                status                              = HTML_TOKENIZER_NONCHARACTER_CHARACTER_REFERENCE;
             }
             else if (character_reference_code == 0x0d || (utf8_is_control(character_reference_code) && !utf8_is_whitespace(character_reference_code)))
             {
