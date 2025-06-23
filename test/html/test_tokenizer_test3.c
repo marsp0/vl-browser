@@ -809,6 +809,146 @@ static void missing_quote_before_doctype_public_identifier()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void no_quote_after_doctype_public_identifier_state()
+{
+    const char buffer[]                         = "<!DOCTYPE a PUBLIC 'a'd";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_SYSTEM_IDENTIFIER };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 1, .name = { [0] = 'a' },
+                                                        .public_id_size = 1, .public_id = { [0] = 'a' } },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void no_quote_between_doctype_public_and_system_identifier_state()
+{
+    const char buffer[]                         = "<!DOCTYPE a PUBLIC 'a' d";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_SYSTEM_IDENTIFIER };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 1, .name = { [0] = 'a' },
+                                                        .public_id_size = 1, .public_id = { [0] = 'a' } },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void no_quote_after_doctype_system_keyword_state()
+{
+    const char buffer[]                         = "<!DOCTYPE a SYSTEMa";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_SYSTEM_IDENTIFIER };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 1, .name = { [0] = 'a' } },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void no_quote_before_doctype_system_keyword_state()
+{
+    const char buffer[]                         = "<!DOCTYPE a SYSTEM a";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 2 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_SYSTEM_IDENTIFIER };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN, .force_quirks = true,
+                                                        .name_size = 1, .name = { [0] = 'a' } },
+                                                      { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_space_after_doctype_public_keyword_state_single_quote()
+{
+    const char buffer[]                         = "<!DOCTYPE a PUBLIC'a'>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_PUBLIC_KEYWORD, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN,
+                                                        .name_size = 1, .name = { [0] = 'a' },
+                                                        .public_id_size = 1, .public_id = { [0] = 'a' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_space_after_doctype_public_keyword_state_double_quote()
+{
+    const char buffer[]                         = "<!DOCTYPE a PUBLIC\"a\">";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_PUBLIC_KEYWORD, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN,
+                                                        .name_size = 1, .name = { [0] = 'a' },
+                                                        .public_id_size = 1, .public_id = { [0] = 'a' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_space_after_doctype_system_keyword_state_single_quote()
+{
+    const char buffer[]                         = "<!DOCTYPE a SYSTEM'a'>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_SYSTEM_KEYWORD, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN,
+                                                        .name_size = 1, .name = { [0] = 'a' },
+                                                        .system_id_size = 1, .system_id = { [0] = 'a' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_space_after_doctype_system_keyword_state_double_quote()
+{
+    const char buffer[]                         = "<!DOCTYPE a SYSTEM\"a\">";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_SYSTEM_KEYWORD, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN,
+                                                        .name_size = 1, .name = { [0] = 'a' },
+                                                        .system_id_size = 1, .system_id = { [0] = 'a' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_space_between_doctype_public_and_system_identifiers_single_quote()
+{
+    const char buffer[]                         = "<!DOCTYPE a PUBLIC 'a''b'>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_WHITESPACE_BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN,
+                                                        .name_size = 1, .name = { [0] = 'a' },
+                                                        .public_id_size = 1, .public_id = { [0] = 'a' },
+                                                        .system_id_size = 1, .system_id = { [0] = 'b' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void missing_space_between_doctype_public_and_system_identifiers_double_quote()
+{
+    const char buffer[]                         = "<!DOCTYPE a PUBLIC \"a\"\"b\">";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_WHITESPACE_BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_DOCTYPE_TOKEN,
+                                                        .name_size = 1, .name = { [0] = 'a' },
+                                                        .public_id_size = 1, .public_id = { [0] = 'a' },
+                                                        .system_id_size = 1, .system_id = { [0] = 'b' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 void test_html_tokenizer_test3()
 {
     TEST_CASE(test_empty_buffer);
@@ -850,4 +990,14 @@ void test_html_tokenizer_test3()
     TEST_CASE(missing_doctype_system_identifier_before_doctype_public_identifier);
     TEST_CASE(missing_quote_after_doctype_public_keyword);
     TEST_CASE(missing_quote_before_doctype_public_identifier);
+    TEST_CASE(no_quote_after_doctype_public_identifier_state);
+    TEST_CASE(no_quote_between_doctype_public_and_system_identifier_state);
+    TEST_CASE(no_quote_after_doctype_system_keyword_state);
+    TEST_CASE(no_quote_before_doctype_system_keyword_state);
+    TEST_CASE(missing_space_after_doctype_public_keyword_state_single_quote);
+    TEST_CASE(missing_space_after_doctype_public_keyword_state_double_quote);
+    TEST_CASE(missing_space_after_doctype_system_keyword_state_single_quote);
+    TEST_CASE(missing_space_after_doctype_system_keyword_state_double_quote);
+    TEST_CASE(missing_space_between_doctype_public_and_system_identifiers_single_quote);
+    TEST_CASE(missing_space_between_doctype_public_and_system_identifiers_double_quote);
 }

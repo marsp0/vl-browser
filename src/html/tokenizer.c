@@ -2337,15 +2337,15 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '"')
             {
-                // todo: parse error
                 // todo: missing vs empty identifier
                 state                               = HTML_TOKENIZER_DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE;
+                status                              = HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_PUBLIC_KEYWORD;
             }
             else if (code_point == '\'')
             {
-                // todo: parse error
                 // todo: missing vs empty identifier
                 state                               = HTML_TOKENIZER_DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE;
+                status                              = HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_PUBLIC_KEYWORD;
             }
             else if (code_point == '>')
             {
@@ -2381,13 +2381,11 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '"')
             {
-                // todo: parse error
                 // todo: missing vs empty identifier
                 state                               = HTML_TOKENIZER_DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE;
             }
             else if (code_point == '\'')
             {
-                // todo: parse error
                 // todo: missing vs empty identifier
                 state                               = HTML_TOKENIZER_DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE;
             }
@@ -2498,23 +2496,22 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '"')
             {
-                // todo: parse error
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
+                status                              = HTML_TOKENIZER_MISSING_WHITESPACE_BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS;
             }
             else if (code_point == '\'')
             {
-                // todo: parse error
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
+                status                              = HTML_TOKENIZER_MISSING_WHITESPACE_BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS;
             }
             else
             {
-                // todo: parse error
                 tokens[token_idx].force_quirks      = true;
                 consume                             = false;
                 state                               = HTML_TOKENIZER_BOGUS_DOCTYPE_STATE;
-                emit_token();
+                status                              = HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_SYSTEM_IDENTIFIER;
             }
             break;
 
@@ -2541,23 +2538,20 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '"')
             {
-                // todo: parse error
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
             }
             else if (code_point == '\'')
             {
-                // todo: parse error
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
             }
             else
             {
-                // todo: parse error
                 tokens[token_idx].force_quirks      = true;
                 consume                             = false;
                 state                               = HTML_TOKENIZER_BOGUS_DOCTYPE_STATE;
-                emit_token();
+                status                              = HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_SYSTEM_IDENTIFIER;
             }
             break;
 
@@ -2579,15 +2573,15 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '"')
             {
-                // todo: parse error
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
+                status                              = HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_SYSTEM_KEYWORD;
             }
             else if (code_point == '\'')
             {
-                // todo: parse error
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
+                status                              = HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_SYSTEM_KEYWORD;
             }
             else if (code_point == '>')
             {
@@ -2598,11 +2592,10 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                // todo: parse error
                 tokens[token_idx].force_quirks      = true;
                 consume                             = false;
                 state                               = HTML_TOKENIZER_BOGUS_DOCTYPE_STATE;
-                emit_token();
+                status                              = HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_SYSTEM_IDENTIFIER;
             }
             break;
 
@@ -2624,13 +2617,11 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (code_point == '"')
             {
-                // todo: parse error
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
             }
             else if (code_point == '\'')
             {
-                // todo: parse error
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
             }
@@ -2643,11 +2634,10 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                // todo: parse error
                 tokens[token_idx].force_quirks      = true;
                 consume                             = false;
                 state                               = HTML_TOKENIZER_BOGUS_DOCTYPE_STATE;
-                emit_token();
+                status                              = HTML_TOKENIZER_MISSING_QUOTE_BEFORE_DOCTYPE_SYSTEM_IDENTIFIER;
             }
             break;
 
