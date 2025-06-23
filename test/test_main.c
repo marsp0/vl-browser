@@ -11,6 +11,7 @@ int32_t main()
     TEST_GROUP(test_html_tokenizer_test1);
     TEST_GROUP(test_html_tokenizer_test2);
     TEST_GROUP(test_html_tokenizer_test3);
+    TEST_GROUP(test_html_tokenizer_rcdata);
 
     TESTS_SUMMARY();
 

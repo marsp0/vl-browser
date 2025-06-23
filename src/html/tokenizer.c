@@ -1661,7 +1661,6 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_AFTER_ATTRIBUTE_NAME_STATE:
             if (is_eof)
             {
-                // todo: parse error
                 create_eof_token();
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_TAG;
