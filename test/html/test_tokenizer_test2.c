@@ -678,6 +678,27 @@ static void illegal_end_tag_name()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void null_character_in_bogus_comment_state()
+{
+    // {"description":"Illegal end tag name",
+    // "input":"</1>",
+    // "output":[["Comment", "1"]],
+    // "errors":[
+    //     { "code": "invalid-first-character-of-tag-name", "line": 1, "col": 3 }
+    // ]},
+
+    const char buffer[]                         = "<!temp\0>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_COMMENT_TOKEN, 
+                                                        .data_size = 7, 
+                                                        .data = {   [0] = 't', [1] = 'e', [2] = 'm', [3] = 'p',
+                                                                    [4] = 0xef, [5] = 0xbf, [6] = 0xbd } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 static void simili_processing_instruction()
 {
     // {"description":"Simili processing instruction",
@@ -964,6 +985,23 @@ static void empty_end_tag_with_following_comment()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void empty_end_tag_with_following_comment_with_null()
+{
+    const char buffer[]                         = "a</><!--b\0-->c";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1, 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER,
+                                                    HTML_TOKENIZER_OK,
+                                                    HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'a' } } },
+                                                    { { .is_valid = true, .type = HTML_COMMENT_TOKEN, .data_size = 4, 
+                                                        .data = { [0] = 'b', [1] = 0xef , [2] = 0xbf , [3] = 0xbd } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'c' } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 static void empty_end_tag_with_following_end_tag()
 {
     // {"description":"Empty end tag with following end tag",
@@ -1025,6 +1063,7 @@ void test_html_tokenizer_test2()
     TEST_CASE(null_char_ref_in_double_quoted_attribute_value);
     TEST_CASE(unescaped_forward_slash);
     TEST_CASE(illegal_end_tag_name);
+    TEST_CASE(null_character_in_bogus_comment_state);
     TEST_CASE(simili_processing_instruction);
     TEST_CASE(bogus_comment_stops_at_triangle_bracket_even_if_preceded_by_dashes);
     TEST_CASE(unexpected_triangle_bracket);
@@ -1040,5 +1079,6 @@ void test_html_tokenizer_test2()
     TEST_CASE(empty_end_tag_with_following_characters);
     TEST_CASE(empty_end_tag_with_following_tag);
     TEST_CASE(empty_end_tag_with_following_comment);
+    TEST_CASE(empty_end_tag_with_following_comment_with_null);
     TEST_CASE(empty_end_tag_with_following_end_tag);
 }

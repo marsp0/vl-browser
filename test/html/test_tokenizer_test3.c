@@ -647,6 +647,31 @@ static void incorrectly_closed_comment()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void dash_in_end_bang_state()
+{
+    const char buffer[]                         = "<!----!-->";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_COMMENT_TOKEN, .data_size = 3, .data = { [0] = '-', [1] = '-', [2] = '!' } } }, 
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void random_char_in_end_bang_state()
+{
+    const char buffer[]                         = "<!----!a-->";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_COMMENT_TOKEN, .data_size = 4,
+                                                        .data = { [0] = '-', [1] = '-', [2] = '!', [3] = 'a' } } }, 
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 static void invalid_chars_after_doctype_name()
 {
     // {"description":"Doctype publik",
@@ -1040,6 +1065,8 @@ void test_html_tokenizer_test3()
     TEST_CASE(cr_eof_in_tag_name);
     TEST_CASE(slash_eof_in_tag_name);
     TEST_CASE(incorrectly_closed_comment);
+    TEST_CASE(dash_in_end_bang_state);
+    TEST_CASE(random_char_in_end_bang_state);
     TEST_CASE(invalid_chars_after_doctype_name);
     TEST_CASE(missing_attribute_value_error);
     TEST_CASE(missing_doctype_public_identifier_after_doctype_public_keyword);

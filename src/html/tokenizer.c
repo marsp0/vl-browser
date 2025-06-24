@@ -2265,7 +2265,6 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (code_point == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                create_doctype_token();
                 update_doctype_token_name_replacement_char();
             }
             else
