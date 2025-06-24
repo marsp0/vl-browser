@@ -36,7 +36,7 @@ typedef enum
 /********************/
 
 // http://unicode.org/mail-arch/unicode-ml/y2003-m02/att-0467/01-The_Algorithm_to_Valide_an_UTF-8_String
-bool utf8_validate(unsigned char* buffer, uint32_t size)
+bool utf8_validate(const unsigned char* buffer, const uint32_t size)
 {
     unsigned char c;
     bool is_valid   = true;
@@ -99,7 +99,7 @@ bool utf8_validate(unsigned char* buffer, uint32_t size)
     return is_valid;
 }
 
-int32_t utf8_code_point(unsigned char* buf, uint32_t size, uint32_t cur, uint32_t* val)
+int32_t utf8_decode(const unsigned char* buf, const uint32_t size, const uint32_t cur, uint32_t* val)
 {
     if (cur >= size) { return -1; }
 
@@ -152,4 +152,90 @@ int32_t utf8_code_point(unsigned char* buf, uint32_t size, uint32_t cur, uint32_
     {
         return -1;
     }
+}
+
+int32_t utf8_encode(uint32_t code_point, unsigned char* buf)
+{
+    if (code_point <= 0x7f)
+    {
+        buf[0] = (unsigned char)code_point;
+        return 1;
+    }
+    else if (code_point <= 0x07ff)
+    {
+        buf[0] = 0xc0 | ((unsigned char)(code_point >> 6)   & 0x1f);
+        buf[1] = 0x80 | ((unsigned char)(code_point)        & 0x3f);
+        return 2;
+    }
+    else if (code_point <= 0xffff)
+    {
+        buf[0] = 0xe0 | ((unsigned char)(code_point >> 12)  & 0x0f);
+        buf[1] = 0x80 | ((unsigned char)(code_point >> 6)   & 0x3f);
+        buf[2] = 0x80 | ((unsigned char)(code_point)        & 0x3f);
+        return 3;
+    }
+    else if (code_point <= 0x10ffff)
+    {
+        buf[0] = 0xf0 | ((unsigned char)(code_point >> 18)  & 0x07);
+        buf[1] = 0x80 | ((unsigned char)(code_point >> 12)  & 0x3f);
+        buf[2] = 0x80 | ((unsigned char)(code_point >> 6)   & 0x3f);
+        buf[3] = 0x80 | ((unsigned char)(code_point)        & 0x3f);
+        return 4;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+bool utf8_is_alpha(uint32_t code_point)
+{
+    return utf8_is_lower_alpha(code_point) || utf8_is_upper_alpha(code_point);
+}
+
+bool utf8_is_lower_alpha(uint32_t code_point)
+{
+    return code_point >= 'a' && code_point <= 'z';
+}
+
+bool utf8_is_upper_alpha(uint32_t code_point)
+{
+    return code_point >= 'A' && code_point <= 'Z';
+}
+
+bool utf8_is_digit(uint32_t code_point)
+{
+    return code_point >= 0x30 && code_point <= 0x39;
+}
+
+bool utf8_is_alphanumeric(uint32_t code_point)
+{
+    return utf8_is_alpha(code_point) || utf8_is_digit(code_point);
+}
+
+bool utf8_is_lower_hex(uint32_t code_point)
+{
+    return code_point >= 'a' && code_point <= 'f';
+}
+
+bool utf8_is_upper_hex(uint32_t code_point)
+{
+    return code_point >= 'A' && code_point <= 'F';
+}
+
+bool utf8_is_hex(uint32_t code_point)
+{
+    return utf8_is_digit(code_point) || utf8_is_lower_hex(code_point) || utf8_is_upper_hex(code_point);
+}
+
+bool utf8_is_control(uint32_t code_point)
+{
+    bool c0 = code_point <= 0x1f;
+    bool c1 = code_point >= 0x7f && code_point <= 0x9f;
+    return c0 || c1;
+}
+
+bool utf8_is_whitespace(uint32_t code_point)
+{
+    return code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == 0x0d || code_point == ' ';
 }
