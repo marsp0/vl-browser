@@ -551,7 +551,7 @@ static void start_tag_with_forward_slash()
     const uint32_t sizes[]                      = { 1, 1 };
     const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_UNEXPECTED_SOLIDUS_IN_TAG,
                                                     HTML_TOKENIZER_OK };
-    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' }, .self_closing = true,
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
                                                         .attributes_size = 1,
                                                         .attributes = { [0] = { .name = { [0] = 'a' }, .name_size = 1, .value = { [0] = 'b' }, .value_size = 1 } } } },
                                                     { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
@@ -569,7 +569,7 @@ static void double_quoted_attribute_value()
     const uint32_t sizes[]                      = { 1, 1 };
     const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK,
                                                     HTML_TOKENIZER_OK };
-    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' }, .self_closing = true,
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
                                                         .attributes_size = 1,
                                                         .attributes = { [0] = { .name = { [0] = 'a' }, .name_size = 1, .value = { [0] = 'b' }, .value_size = 1 } } } },
                                                     { {.is_valid = true, .type = HTML_EOF_TOKEN } } };

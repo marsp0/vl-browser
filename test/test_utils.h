@@ -48,7 +48,8 @@ uint32_t    TESTS_FAIL_COUNT();
                                         } \
                                         if (fail && get_test_assert_counter() <= 10) \
                                         { \
-                                            printf("    [" ANSI_COLOR_RED "FAIL" ANSI_COLOR_RESET "]: "); \
+                                            printf("    [%u]", __LINE__); \
+                                            printf("[" ANSI_COLOR_RED "FAIL" ANSI_COLOR_RESET "]: "); \
                                             printf(GET_FORMAT(a), a, b, #a, #b); \
                                         } \
                                     } while(0);

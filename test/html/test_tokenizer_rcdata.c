@@ -52,15 +52,30 @@ static void test_4()
 
 static void test_5()
 {
-    // const char buffer[]                         = "<a></a >";
-    // const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_RCDATA_STATE };
-    // const uint32_t sizes[]                      = { 1, 1, 1};
-    // const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK, HTML_TOKENIZER_OK, HTML_TOKENIZER_OK };
-    // const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'a' } } },
-    //                                                 { { .is_valid = true, .type = HTML_END_TOKEN, .name_size = 1, .name = { [0] = 'a' } } },
-    //                                                 { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+    const char buffer[]                         = "<";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_RCDATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1};
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
 
-    // RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void test_6()
+{
+    const char buffer[]                         = "</Aa!";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_RCDATA_STATE };
+    const uint32_t sizes[]                      = { 4, 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK, HTML_TOKENIZER_OK, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '<' } },
+                                                      { .is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '/' } },
+                                                      { .is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'A' } },
+                                                      { .is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'a' } } },
+                                                    { { .is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = '!' } } },
+                                                    { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
 void test_html_tokenizer_rcdata()
@@ -70,4 +85,5 @@ void test_html_tokenizer_rcdata()
     TEST_CASE(test_3);
     TEST_CASE(test_4);
     TEST_CASE(test_5);
+    TEST_CASE(test_6);
 }

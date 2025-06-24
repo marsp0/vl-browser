@@ -36,6 +36,7 @@
                                     ASSERT_EQUAL(a.name_size, b.name_size);                     \
                                     ASSERT_STRING((char)a.name, (char)b.name, a.name_size);     \
                                     ASSERT_EQUAL(a.attributes_size, b.attributes_size);         \
+                                    ASSERT_EQUAL(a.self_closing, b.self_closing);               \
                                     for (uint32_t k = 0; k < a.attributes_size; k++)            \
                                     {                                                           \
                                         html_token_attribute_t a_attr = a.attributes[k];        \
@@ -124,3 +125,5 @@ void test_html_tokenizer_test1();
 void test_html_tokenizer_test2();
 void test_html_tokenizer_test3();
 void test_html_tokenizer_rcdata();
+void test_html_tokenizer_rawtext();
+void test_html_tokenizer_script_data();

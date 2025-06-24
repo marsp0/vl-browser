@@ -25,7 +25,8 @@ src_files="${html_files} ${util_files}"
 # ----- test files
 test_main_file="./test/test_main.c ./test/test_utils.c"
 test_util_files="./test/util/test_utf8.c"
-test_html_files="./test/html/test_tokenizer_test1.c ./test/html/test_tokenizer_test2.c ./test/html/test_tokenizer_test3.c ./test/html/test_tokenizer_rcdata.c"
+test_html_files=" ./test/html/test_tokenizer_test1.c ./test/html/test_tokenizer_test2.c ./test/html/test_tokenizer_test3.c ./test/html/test_tokenizer_rcdata.c "
+test_html_files+=" ./test/html/test_tokenizer_rawtext.c ./test/html/test_tokenizer_script_data.c"
 
 test_files="${test_util_files} ${test_html_files}"
 
