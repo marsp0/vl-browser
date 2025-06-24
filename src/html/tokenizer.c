@@ -2957,11 +2957,11 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_HEXADECIMAL_CHARACTER_REFERENCE_STATE:
             if (is_eof)
             {
+                consume                             = false;
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
                 status                              = HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE;
             }
-
-            if (utf8_is_digit(code_point))
+            else if (utf8_is_digit(code_point))
             {
                 character_reference_code            *= 16;
                 character_reference_code            += code_point - 0x30;
@@ -2992,11 +2992,11 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_DECIMAL_CHARACTER_REFERENCE_STATE:
             if (is_eof)
             {
+                consume                             = false;
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
                 status                              = HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE;
             }
-
-            if (utf8_is_digit(code_point))
+            else if (utf8_is_digit(code_point))
             {
                 character_reference_code           *= 10;
                 character_reference_code           += code_point - 0x30;

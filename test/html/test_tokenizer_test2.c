@@ -435,6 +435,52 @@ static void hexadecimal_entity_with_mixed_case()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void hexadecimal_entity_with_eof()
+{
+    const char buffer[]                         = "&#xaB";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 2, .data = { [0] = 0xc2, [1] = 0xab } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void decimal_entity_with_eof()
+{
+    const char buffer[]                         = "&#66";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'B' } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void hexadecimal_entity_with_non_hex_char()
+{
+    const char buffer[]                         = "&#xaBz";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE, HTML_TOKENIZER_OK, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 2, .data = { [0] = 0xc2, [1] = 0xab } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'z' } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void decimal_entity_with_non_decimal_char()
+{
+    const char buffer[]                         = "&#66a";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE, HTML_TOKENIZER_OK, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'B' } } },
+                                                    { {.is_valid = true, .type = HTML_CHARACTER_TOKEN, .data_size = 1, .data = { [0] = 'a' } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 static void entity_without_name()
 {
     // {"description":"Entity without a name",
@@ -636,6 +682,46 @@ static void null_char_ref_in_double_quoted_attribute_value()
                                                         .attributes_size = 1,
                                                         .attributes = { [0] = { .name = { [0] = 'a' }, .name_size = 1, 
                                                                                 .value = { [0] = 'b', [1] = 0xef, [2] = 0xbf, [3] = 0xbd }, 
+                                                                                .value_size = 4 } } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void char_that_starts_like_hex_numeric_entity_but_is_not_inside_an_attribute_value()
+{
+    // {"description":"Double-quoted attribute value",
+    // "input":"<h a=\"b\">",
+    // "output":[["StartTag", "h", { "a":"b" }]]},
+
+    const char buffer[]                         = "<h a='b&#xg'>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_ABSENCE_OF_DIGITS_IN_NUMERIC_CHARACTER_REFERENCE,
+                                                    HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
+                                                        .attributes_size = 1,
+                                                        .attributes = { [0] = { .name = { [0] = 'a' }, .name_size = 1, 
+                                                                                .value = { [0] = 'b', [1] = '&', [2] = '#', [3] = 'x', [4] = 'g' }, 
+                                                                                .value_size = 5 } } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void char_that_starts_like_decimal_numeric_entity_but_is_not_inside_an_attribute_value()
+{
+    // {"description":"Double-quoted attribute value",
+    // "input":"<h a=\"b\">",
+    // "output":[["StartTag", "h", { "a":"b" }]]},
+
+    const char buffer[]                         = "<h a='b&#g'>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_ABSENCE_OF_DIGITS_IN_NUMERIC_CHARACTER_REFERENCE,
+                                                    HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
+                                                        .attributes_size = 1,
+                                                        .attributes = { [0] = { .name = { [0] = 'a' }, .name_size = 1, 
+                                                                                .value = { [0] = 'b', [1] = '&', [2] = '#', [3] = 'g'}, 
                                                                                 .value_size = 4 } } } },
                                                     { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
@@ -1048,6 +1134,10 @@ void test_html_tokenizer_test2()
     TEST_CASE(hexadecimal_entity_represeting_10FFFF);
     TEST_CASE(hexadecimal_entity_pair_representing_surrogate_pair);
     TEST_CASE(hexadecimal_entity_with_mixed_case);
+    TEST_CASE(hexadecimal_entity_with_eof);
+    TEST_CASE(decimal_entity_with_eof);
+    TEST_CASE(hexadecimal_entity_with_non_hex_char);
+    TEST_CASE(decimal_entity_with_non_decimal_char);
     TEST_CASE(entity_without_name);
     TEST_CASE(unescaped_ampersand_in_attribute_value);
     TEST_CASE(start_tag_containing_less_than);
@@ -1058,6 +1148,8 @@ void test_html_tokenizer_test2()
     TEST_CASE(eof_in_single_quoted_attribute_value);
     TEST_CASE(null_in_single_quoted_attribute_value);
     TEST_CASE(double_quoted_attribute_value);
+    TEST_CASE(char_that_starts_like_hex_numeric_entity_but_is_not_inside_an_attribute_value);
+    TEST_CASE(char_that_starts_like_decimal_numeric_entity_but_is_not_inside_an_attribute_value);
     TEST_CASE(eof_double_quoted_attribute_value);
     TEST_CASE(numeric_char_ref_in_double_quoted_attribute_value);
     TEST_CASE(null_char_ref_in_double_quoted_attribute_value);
