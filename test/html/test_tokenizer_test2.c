@@ -558,6 +558,31 @@ static void start_tag_with_forward_slash()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void eof_in_single_quoted_attribute_value()
+{
+    const char buffer[]                         = "<h/a='b";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_TAG };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void null_in_single_quoted_attribute_value()
+{
+    const char buffer[]                         = "<h/a='b\0'>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
+                                                        .attributes_size = 1,
+                                                        .attributes = { [0] = { .name = { [0] = 'a' }, .name_size = 1, 
+                                                                                .value = { [0] = 'b', [1] = 0xef, [2] = 0xbf, [3] = 0xbd }, 
+                                                                                .value_size = 4 } } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 static void double_quoted_attribute_value()
 {
     // {"description":"Double-quoted attribute value",
@@ -572,6 +597,46 @@ static void double_quoted_attribute_value()
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
                                                         .attributes_size = 1,
                                                         .attributes = { [0] = { .name = { [0] = 'a' }, .name_size = 1, .value = { [0] = 'b' }, .value_size = 1 } } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_double_quoted_attribute_value()
+{
+    const char buffer[]                         = "<h a=\"b";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_TAG };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void numeric_char_ref_in_double_quoted_attribute_value()
+{
+    const char buffer[]                         = "<h a=\"b&#0000;\">";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_NULL_CHARACTER_REFERENCE, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
+                                                        .attributes_size = 1,
+                                                        .attributes = { [0] = { .name = { [0] = 'a' }, .name_size = 1, 
+                                                                                .value = { [0] = 'b', [1] = 0xef, [2] = 0xbf, [3] = 0xbd }, 
+                                                                                .value_size = 4 } } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void null_char_ref_in_double_quoted_attribute_value()
+{
+    const char buffer[]                         = "<h a=\"b\0\">";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
+                                                        .attributes_size = 1,
+                                                        .attributes = { [0] = { .name = { [0] = 'a' }, .name_size = 1, 
+                                                                                .value = { [0] = 'b', [1] = 0xef, [2] = 0xbf, [3] = 0xbd }, 
+                                                                                .value_size = 4 } } } },
                                                     { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
@@ -952,7 +1017,12 @@ void test_html_tokenizer_test2()
     TEST_CASE(void_element_with_permitted_slash);
     TEST_CASE(void_element_with_permitted_slash_and_attribute);
     TEST_CASE(start_tag_with_forward_slash);
+    TEST_CASE(eof_in_single_quoted_attribute_value);
+    TEST_CASE(null_in_single_quoted_attribute_value);
     TEST_CASE(double_quoted_attribute_value);
+    TEST_CASE(eof_double_quoted_attribute_value);
+    TEST_CASE(numeric_char_ref_in_double_quoted_attribute_value);
+    TEST_CASE(null_char_ref_in_double_quoted_attribute_value);
     TEST_CASE(unescaped_forward_slash);
     TEST_CASE(illegal_end_tag_name);
     TEST_CASE(simili_processing_instruction);

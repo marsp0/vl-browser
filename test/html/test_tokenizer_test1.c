@@ -1329,6 +1329,42 @@ static void open_angle_bracked_in_attribute_value()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void eof_in_attribute_value_unquoted()
+{
+    const char buffer[]                         = "<a a=f";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_TAG };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void null_in_unquoted_quoted_attribute_value()
+{
+    const char buffer[]                         = "<h a=b\0>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
+                                                        .attributes_size = 1,
+                                                        .attributes = { [0] = { .name = { [0] = 'a' }, .name_size = 1, 
+                                                                                .value = { [0] = 'b', [1] = 0xef, [2] = 0xbf, [3] = 0xbd }, 
+                                                                                .value_size = 4 } } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void eof_after_attribute_value_quoted_state()
+{
+    const char buffer[]                         = "<h a='b'";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_TAG };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 void test_html_tokenizer_test1()
 {
     TEST_CASE(correct_doctype_lowercase);
@@ -1400,4 +1436,7 @@ void test_html_tokenizer_test1()
     TEST_CASE(unquoted_attribute_at_end_of_tag_with_final_char_ampersand);
     TEST_CASE(plaintext_element);
     TEST_CASE(open_angle_bracked_in_attribute_value);
+    TEST_CASE(eof_in_attribute_value_unquoted);
+    TEST_CASE(null_in_unquoted_quoted_attribute_value);
+    TEST_CASE(eof_after_attribute_value_quoted_state);
 }
