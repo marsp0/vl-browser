@@ -1600,14 +1600,14 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#before-attribute-name-state
         case HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE:
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
-            {
-                // ignore
-            }
-            else if (code_point == '/'  || code_point == '>' || is_eof)
+            if (is_eof || code_point == '/'  || code_point == '>')
             {
                 consume                         = false;
                 state                           = HTML_TOKENIZER_AFTER_ATTRIBUTE_NAME_STATE;
+            }
+            else if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            {
+                // ignore
             }
             else if (code_point == '=')
             {

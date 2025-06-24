@@ -746,6 +746,16 @@ static void start_tag_with_no_attributes_but_with_space_before_end()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
+static void eof_after_attribute_name_state()
+{
+    const char buffer[]                         = "<h ";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_EOF_IN_TAG };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
 static void empty_attribute_followed_by_uppercase_attribute()
 {
     // {"description":"Empty attribute followed by uppercase attribute",
@@ -759,6 +769,20 @@ static void empty_attribute_followed_by_uppercase_attribute()
     const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
                                                         .attributes_size = 2,
                                                         .attributes = { [0] = { .name_size = 1, .name = { [0] = 'a' } },
+                                                                        [1] = { .name_size = 1, .name = { [0] = 'b' } } } } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
+
+static void null_char_in_attribute_name()
+{
+    const char buffer[]                         = "<h a\0 B=''>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { {.is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' },
+                                                        .attributes_size = 2,
+                                                        .attributes = { [0] = { .name_size = 4, .name = { [0] = 'a', [1] = 0xef, [2] = 0xbf, [3] = 0xbd } },
                                                                         [1] = { .name_size = 1, .name = { [0] = 'b' } } } } },
                                                     { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
@@ -938,7 +962,9 @@ void test_html_tokenizer_test2()
     TEST_CASE(comment_with_dash);
     // TEST_CASE(named_entity_with_newline);
     TEST_CASE(start_tag_with_no_attributes_but_with_space_before_end);
+    TEST_CASE(eof_after_attribute_name_state);
     TEST_CASE(empty_attribute_followed_by_uppercase_attribute);
+    TEST_CASE(null_char_in_attribute_name);
     TEST_CASE(double_quote_after_attribute_name);
     TEST_CASE(single_quote_after_attribute_name);
     TEST_CASE(empty_end_tag_with_following_characters);
