@@ -39,4 +39,5 @@ jobs:
         disable_telem: true
         disable_search: true
         files: tokenizer.c.gcov
+        working-directory: ${{ github.workspace }}
         token: ${{ secrets.CODECOV_TOKEN }}
