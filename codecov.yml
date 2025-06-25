@@ -2,5 +2,4 @@ comment: false
 coverage:
     status:
         project:
-            test:
-                paths: "test/"
+            paths: "src/"
