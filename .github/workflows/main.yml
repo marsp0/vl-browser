@@ -38,5 +38,5 @@ jobs:
         fail_ci_if_error: true
         disable_telem: true
         disable_search: true
-        files: ${{ github.workspace }}/tokenizer.c.gcov
+        files: src#html#tokenizer.c.gcov
         token: ${{ secrets.CODECOV_TOKEN }}
