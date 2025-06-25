@@ -13,18 +13,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install
-      shell: bash
-      run: sudo apt install lcov
-
     - name: Build
       shell: bash
       run: ./build.sh debug
-    
+
     - name: Run Tests
       shell: bash
       run: ./out/test_vl
-    
+
     - name: Run gcov
       shell: bash
       run: |
@@ -35,7 +31,6 @@ jobs:
           echo
         done
         ls -la
-
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
       with:
