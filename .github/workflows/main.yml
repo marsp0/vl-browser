@@ -31,6 +31,8 @@ jobs:
           echo
         done
         ls -la
+        echo "Base branch: ${{github.base_ref}}"
+        echo "Current branch: ${{github.head_ref}}"
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
       with:
