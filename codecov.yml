@@ -4,3 +4,6 @@ coverage:
         patch: off
         project:
             default: false
+            browser:
+                target: auto
+                paths: "src/"
