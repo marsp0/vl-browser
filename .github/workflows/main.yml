@@ -24,17 +24,36 @@ jobs:
     - name: Run gcov
       shell: bash
       run: |
-        for full_path in `find ./src -name "*.c"`; 
+        echo "## Automated gcov report" >> comment-body.md
+        for full_path in `git diff ${{github.base_ref}} ${{github.head_ref}} --name-only | grep '\.c$'`; 
         do 
           filename=$(basename $full_path)
-          gcov -pb -r -o ./out test_vl-$filename
-          echo
+          echo "### ${filename}" >> comment-body.md
+          echo "```" >> comment-body.md
+          gcov -n -o ./out test_vl-$filename >> comment-body.md
+          echo "```" >> comment-body.md
+          echo >> comment-body.md
         done
-        ls -la
-        echo "Base branch: ${{github.base_ref}}"
-        echo "Current branch: ${{github.head_ref}}"
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v5
+        cat comment-body.md
+
+    - name: Find Comment
+      uses: peter-evans/find-comment@v3
+      id: fc
       with:
-        fail_ci_if_error: true
-        token: ${{ secrets.CODECOV_TOKEN }}
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: 'github-actions[bot]'
+        body-includes: Automated gcov report
+
+    - name: Create comment
+      if: steps.fc.outputs.comment-id == ''
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        body: 'comment-body.md'
+
+    - name: Update comment
+      if: steps.fc.outputs.comment-id != ''
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        comment-id: ${{ steps.fc.outputs.comment-id }}
+        body: 'comment-body.md'
