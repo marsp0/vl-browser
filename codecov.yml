@@ -1,8 +1,6 @@
 comment: false
 coverage:
     status:
-        patch: off
         project:
-            default: false
             test:
                 paths: "test/"
