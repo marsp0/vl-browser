@@ -1511,22 +1511,22 @@ static void null_character_in_single_quoted_system_identifier()
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
 }
 
-// static void null_character_in_bogus_doctype_state()
-// {
-//     const char buffer[]                         = "<!DOCTYPE a SYSTEM 'a' !\0>";
-//     const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
-//     const uint32_t sizes[]                      = { 1, 1 };
-//     const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER, HTML_TOKENIZER_OK };
-//     const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, 
-//                                                         .type = HTML_DOCTYPE_TOKEN,
-//                                                         .name_size = 1,
-//                                                         .name = { [0] = 'a' },
-//                                                         .system_id_size = 1,
-//                                                         .system_id = { [0] = 'a' }, 
-//                                                         .force_quirks = false } },
-//                                                     { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
-//     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
-// }
+static void null_character_in_bogus_doctype_state()
+{
+    const char buffer[]                         = "<!DOCTYPE a SYSTEM 'a' !\0>";
+    const html_tokenizer_state_e states[]       = { HTML_TOKENIZER_DATA_STATE };
+    const uint32_t sizes[]                      = { 1, 1 };
+    const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER, HTML_TOKENIZER_OK };
+    const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, 
+                                                        .type = HTML_DOCTYPE_TOKEN,
+                                                        .name_size = 1,
+                                                        .name = { [0] = 'a' },
+                                                        .system_id_size = 1,
+                                                        .system_id = { [0] = 'a' }, 
+                                                        .force_quirks = false } },
+                                                    { {.is_valid = true, .type = HTML_EOF_TOKEN } } };
+    RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);
+}
 
 void test_html_tokenizer_test1()
 {
@@ -1610,5 +1610,5 @@ void test_html_tokenizer_test1()
     TEST_CASE(end_doctype_token_when_between_public_and_system_identifiers);
     TEST_CASE(null_character_in_double_quoted_system_identifier);
     TEST_CASE(null_character_in_single_quoted_system_identifier);
-    // TEST_CASE(null_character_in_bogus_doctype_state);
+    TEST_CASE(null_character_in_bogus_doctype_state);
 }
