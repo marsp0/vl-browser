@@ -21,19 +21,13 @@ jobs:
       shell: bash
       run: ./out/test_vl
 
-    - name: Run gcov
+    - name: Remove test coverage files
       shell: bash
-      run: |
-        for full_path in `find ./src -name "*.c"`; 
-        do 
-          filename=$(basename $full_path)
-          gcov -pb -r -o ./out test_vl-$filename
-          echo
-        done
-        ls -la
+      run: find ./out/ -name "test_vl-test_*" -type f -delete
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
       with:
         fail_ci_if_error: true
+        disable_telem: true
         token: ${{ secrets.CODECOV_TOKEN }}
