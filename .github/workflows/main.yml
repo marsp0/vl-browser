@@ -16,17 +16,23 @@ jobs:
     - name: Build
       shell: bash
       run: ./build.sh debug
-    
+
     - name: Run Tests
       shell: bash
       run: ./out/test_vl
-    
+
     - name: Run gcov
       shell: bash
       run: |
-        for filename in `find ./src -name "*.c"`; 
+        for full_path in `find ./src -name "*.c"`; 
         do 
-          echo $filename
-          gcov -pb -r -o ./out $filename
+          filename=$(basename $full_path)
+          gcov -pb -r -o ./out test_vl-$filename
+          echo
         done
         ls -la
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
