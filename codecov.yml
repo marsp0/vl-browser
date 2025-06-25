@@ -1,0 +1,10 @@
+comment: false
+coverage:
+    status:
+        patch: off
+        project:
+            default:
+                informational: true
+                only_pulls: true
+                paths:
+                    - src
