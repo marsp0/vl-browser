@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-int main(int32_t argc, char** argv)
+int main()
 {
-    printf("Browser compiled%d - %s\n", argc, argv[0]);
+    unsigned char buf[] = { 0xd0, 0x96, 0x00 };
+    printf("Browser compiled - %s - Ж\n", buf);
 }
