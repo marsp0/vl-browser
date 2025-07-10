@@ -239,3 +239,22 @@ bool utf8_is_whitespace(uint32_t code_point)
 {
     return code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == 0x0d || code_point == ' ';
 }
+
+uint32_t utf8_get_len(const unsigned char* buffer, const uint32_t size)
+{
+    utf8_validate(buffer, size);
+
+    uint32_t cursor = 0;
+    uint32_t code_point = 0;
+    uint32_t len = 0;
+
+    while (cursor < size)
+    {
+        int32_t bytes = utf8_decode(buffer, size, cursor, &code_point);
+        if (bytes == -1) { return 0; }
+        cursor += (uint32_t)bytes;
+        len++;
+    }
+
+    return len;
+}

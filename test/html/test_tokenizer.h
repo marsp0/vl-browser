@@ -119,8 +119,6 @@ do                                                                              
     }                                                                                   \
 } while (0);                                                                            \
 
-static const html_token_t eof_token = {.is_valid = true, .type = HTML_EOF_TOKEN };
-
 void test_html_tokenizer_test1();
 void test_html_tokenizer_test2();
 void test_html_tokenizer_test3();

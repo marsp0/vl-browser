@@ -3,17 +3,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct
-{
-    const unsigned char* data;
-    uint32_t index;
-    uint32_t size;
-} utf8_view_t;
-
-// utf_view_t  utf8_new_view(const unsigned char* buffer, const uint32_t size);
 bool        utf8_validate(const unsigned char* buffer, const uint32_t size);
 int32_t     utf8_encode(uint32_t code_point, unsigned char* buf);
 int32_t     utf8_decode(const unsigned char* buf, const uint32_t size, const uint32_t cur, uint32_t* val);
+uint32_t    utf8_get_len(const unsigned char* buffer, const uint32_t size);
 // note: should below be taking code_point as input???
 bool        utf8_is_upper_alpha(uint32_t code_point);
 bool        utf8_is_lower_alpha(uint32_t code_point);
