@@ -25,6 +25,7 @@ static html_token_t tokens[MAX_TOKENS]              = { 0 };
 static html_node_t* stack[OPEN_STACK_MAX_SIZE]      = { 0 };
 static uint32_t stack_idx                           = 0;
 static uint32_t stack_size                          = 0;
+static html_node_t* document                        = NULL;
 
 /********************/
 /* static functions */
@@ -69,6 +70,37 @@ static bool stack_contains_element(string_t name)
 }
 
 
+static html_node_t* get_appropriate_insertion_location(html_node_t* override)
+{
+    html_node_t* location   = NULL
+    html_node_t* target     = stack[stack_idx];
+
+    if (override) { target = override; }
+
+    if (false) // foster parenting
+    {
+    
+    }
+    else
+    {
+        location = target;
+    }
+
+    if (false) // inside template element
+    {
+    
+    }
+
+    return location;
+}
+
+
+static void insert_comment(html_token_t* token, html_node_t* position)
+{
+    html_node_t* location = get_appropriate_insertion_location(position);
+    html_node_t* comment = html_comment_new(token.data, token.data_size, document);
+    html_node_append(location, comment);
+}
 
 /********************/
 /* public functions */
@@ -80,7 +112,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
 
     mode                        = HTML_PARSER_MODE_INITIAL;
 
-    html_node_t* document       = html_document_new();
+    document                    = html_document_new();
     string_t html_string        = string_new("html", 4);
     string_t head_string        = string_new("head", 4);
     string_t body_string        = string_new("body", 4);
@@ -221,7 +253,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                
+                    insert_comment(&t, document);
                 }
                 else if (is_doctype)
                 {
@@ -241,7 +273,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                    
+                    insert_comment(&t, document);
                 }
                 else if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
                 {
@@ -265,7 +297,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                    
+                    insert_comment(&t, NULL);
                 }
                 else if (is_doctype)
                 {
@@ -296,7 +328,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                    
+                    insert_comment(&t, NULL);
                 }
                 else if (is_doctype)
                 {
@@ -391,7 +423,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                    
+                    insert_comment(&t, NULL);
                 }
                 else if (is_doctype)
                 {
@@ -448,7 +480,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                    
+                    insert_comment(&t, NULL);
                 }
                 else if (is_doctype)
                 {
@@ -710,7 +742,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                
+                    insert_comment(&t, NULL);
                 }
                 else if (is_doctype)
                 {
@@ -829,7 +861,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                
+                    insert_comment(&t, NULL);
                 }
                 else if (is_doctype)
                 {
@@ -978,7 +1010,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                
+                    insert_comment(&t, NULL);
                 }
                 else if (is_doctype)
                 {
@@ -1112,7 +1144,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                
+                    insert_comment(&t, stack[0]);
                 }
                 else if (is_doctype)
                 {
@@ -1144,7 +1176,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                
+                    insert_comment(&t, NULL);
                 }
                 else if (is_doctype)
                 {
@@ -1188,7 +1220,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_comment)
                 {
-                
+                    insert_comment(&t, NULL);
                 }
                 else if (is_doctype)
                 {
@@ -1220,7 +1252,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
             case HTML_PARSER_MODE_AFTER_AFTER_BODY:
                 if (is_comment)
                 {
-                
+                    insert_comment(&t, document);
                 }
                 else if ((is_doctype) ||
                          (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' ')) ||
@@ -1242,7 +1274,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
             case HTML_PARSER_MODE_AFTER_AFTER_FRAMESET:
                 if (is_comment)
                 {
-                
+                    insert_comment(&t, document);
                 }
                 else if ((is_doctype) ||
                          (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' ')) ||
