@@ -356,6 +356,45 @@ static html_node_doctype_t* html_node_doctype_new(unsigned char* name, uint32_t 
     return doctype;
 }
 
+
+static html_node_element_t* html_node_element_new_internal(html_node_t* document, string_t local_name, string_t namespace)
+{
+    html_node_element_t* element = malloc(sizeof(html_node_element_t));
+    element->local_name = local_name;
+    element->namespace = namespace;
+
+    // step 1 - finish
+    // step 2
+
+    return element;
+}
+
+
+static html_node_element_t* html_node_element_new(html_node_t* document, string_t local_name, string_t namespace)
+{
+    html_node_t* result = NULL;
+
+    // todo: step 2
+    // todo: step 3
+    // todo: step 4
+    // todo: step 5
+
+    result = html_node_element_new_internal(document, local_name, namespace);
+
+    // todo: step 6.3 - finish
+
+    return result;
+}
+
+
+static html_node_text_t* html_node_text_new(html_node_t* document, string_t data)
+{
+    html_node_text_t* text = malloc(sizeof(html_node_text_t));
+    text->data = data;
+
+    return text;
+}
+
 /********************/
 /* public functions */
 /********************/
@@ -390,6 +429,7 @@ html_node_t* html_document_new()
     html_node_t* node = html_node_new();
     node->type = HTML_NODE_DOCUMENT;
     node->document = html_node_document_new();
+    node->owner = node;
 
     return node;
 }
@@ -419,5 +459,43 @@ void html_doctype_free(html_node_t* node)
     assert(node->type == HTML_NODE_DOCUMENT_TYPE);
 
     free(node->doctype);
+    html_node_free(node);
+}
+
+
+html_node_t* html_element_new(html_node_t* document, string_t local_name, string_t namespace)
+{
+    html_node_t* node = html_node_new(document);
+    node->type = HTML_NODE_ELEMENT;
+    node->element = html_node_element_new(document, local_name, namespace);
+
+    return node;
+}
+
+
+void html_element_free(html_node_t* node)
+{
+    assert(node->type == HTML_NODE_ELEMENT);
+
+    free(node->doctype);
+    html_node_free(node);
+}
+
+
+html_node_t* html_text_new(html_node_t* document, string_t data)
+{
+    html_node_t* node = html_node_new(document);
+    node->type = HTML_NODE_TEXT;
+    node->text = html_node_text_new(document, data);
+
+    return node;
+}
+
+
+void html_text_free(html_node_t* node)
+{
+    assert(node->type == HTML_NODE_TEXT);
+
+    free(node->text);
     html_node_free(node);
 }

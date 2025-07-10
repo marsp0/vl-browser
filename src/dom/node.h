@@ -64,12 +64,31 @@ typedef struct
     html_node_t* doctype;
 } html_node_document_t;
 
+// https://dom.spec.whatwg.org/#element
+typedef struct
+{
+    string_t namespace;
+    string_t prefix;
+    string_t local_name;
+    string_t tag_name;
+
+    string_t id;
+    string_t class_name;
+} html_node_element_t;
+
+
+// https://dom.spec.whatwg.org/#interface-text
+typedef struct
+{
+    string_t data;
+} html_node_text_t*;
+
 
 // https://dom.spec.whatwg.org/#interface-node
 typedef struct html_node_t
 {
     html_node_type_e    type;
-    char                name[MAX_HTML_NAME_LEN];
+    string_t            name;
 
     char                base_uri[MAX_HTML_NAME_LEN];
 
@@ -93,9 +112,9 @@ typedef struct html_node_t
         html_node_doctype_t*                    doctype;
         // html_node_doc_frag_t*                   document_fragment;
         // html_node_shadow_root_t*                shadow_root;
-        // html_node_element_t*                    element;
+        html_node_element_t*                    element;
         // html_node_character_data_t*             character_data;
-        // html_node_text_t*                       text;
+        html_node_text_t*                       text;
         // html_node_cdata_section_t*              cdata_section;
         // html_node_processing_instruction_t*     processing_instruction;
         html_node_comment_t*                    comment;
@@ -126,3 +145,11 @@ void                        html_document_free(html_node_t* node);
 // doctype
 html_node_t*                html_doctype_new();
 void                        html_doctype_free(html_node_t* node);
+
+// element
+html_node_t*                html_element_new(html_node_t* document, string_t local_name, string_t namespace);
+void                        html_element_free(html_node_t* node);
+
+// text
+html_node_t*                html_text_new(html_node_t* document, string_t data);
+void                        html_text_free(html_node_t* node);
