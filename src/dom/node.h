@@ -1,9 +1,9 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "html/constants.h"
-#include "core/string.h"
 #include "dom/exception.h"
 
 typedef enum
@@ -39,29 +39,39 @@ typedef enum
 // https://dom.spec.whatwg.org/#interface-comment
 typedef struct
 {
-    string_t data;
+    unsigned char   data[MAX_HTML_NAME_LEN];
+    uint32_t        data_size;
 } html_node_comment_t;
 
 
 // https://dom.spec.whatwg.org/#documenttype
 typedef struct
 {
-    string_t name;
-    string_t public_id;
-    string_t system_id;
+    unsigned char   name[MAX_HTML_NAME_LEN];
+    uint32_t        name_size;
+    unsigned char   public_id[MAX_HTML_NAME_LEN];
+    uint32_t        public_id_size;
+    unsigned char   system_id[MAX_HTML_NAME_LEN];
+    uint32_t        system_id_size;
 } html_node_doctype_t;
 
 
+struct html_node_t;
 // https://dom.spec.whatwg.org/#interface-document
 typedef struct
 {
-    string_t url;
-    string_t uri;
-    string_t compat_mode;
-    string_t character_set;
-    string_t content_type;
+    unsigned char url[MAX_HTML_NAME_LEN];
+    uint32_t        url_size;
+    unsigned char uri[MAX_HTML_NAME_LEN];
+    uint32_t        uri_size;
+    unsigned char compat_mode[MAX_HTML_NAME_LEN];
+    uint32_t        compat_mode_size;
+    unsigned char character_set[MAX_HTML_NAME_LEN];
+    uint32_t        character_set_size;
+    unsigned char content_type[MAX_HTML_NAME_LEN];
+    uint32_t        content_type_size;
 
-    html_node_t* doctype;
+    struct html_node_t* doctype;
 
     bool parser_cannot_change_mode;
 } html_node_document_t;
@@ -69,33 +79,42 @@ typedef struct
 // https://dom.spec.whatwg.org/#element
 typedef struct
 {
-    string_t namespace;
-    string_t prefix;
-    string_t local_name;
-    string_t tag_name;
+    unsigned char namespace[MAX_HTML_NAME_LEN];
+    uint32_t        namespace_size;
+    unsigned char prefix[MAX_HTML_NAME_LEN];
+    uint32_t        prefix_size;
+    unsigned char local_name[MAX_HTML_NAME_LEN];
+    uint32_t        local_name_size;
+    unsigned char tag_name[MAX_HTML_NAME_LEN];
+    uint32_t        tag_name_size;
 
-    string_t id;
-    string_t class_name;
+    unsigned char id[MAX_HTML_NAME_LEN];
+    uint32_t        id_size;
+    unsigned char class_name[MAX_HTML_NAME_LEN];
+    uint32_t        class_name_size;
 } html_node_element_t;
 
 
 // https://dom.spec.whatwg.org/#interface-text
 typedef struct
 {
-    string_t data;
-} html_node_text_t*;
+    unsigned char data[MAX_HTML_NAME_LEN];
+    uint32_t data_size;
+} html_node_text_t;
 
 
 // https://dom.spec.whatwg.org/#interface-node
 typedef struct html_node_t
 {
     html_node_type_e    type;
-    string_t            name;
+    unsigned char            name[MAX_HTML_NAME_LEN];
+    uint32_t            name_size;
 
-    char                base_uri[MAX_HTML_NAME_LEN];
+    unsigned char       base_uri[MAX_HTML_NAME_LEN];
+    uint32_t            base_uri_size;
 
     bool                is_connected;
-    struct html_node_t* owner;
+    struct html_node_t* document;
     struct html_node_t* parent; // also used for parent_element
 
     struct html_node_t* children;
@@ -110,16 +129,16 @@ typedef struct html_node_t
 
     union
     {
-        html_node_document_t*                   document;
-        html_node_doctype_t*                    doctype;
+        html_node_document_t*                   document_data;
+        html_node_doctype_t*                    doctype_data;
         // html_node_doc_frag_t*                   document_fragment;
         // html_node_shadow_root_t*                shadow_root;
-        html_node_element_t*                    element;
+        html_node_element_t*                    element_data;
         // html_node_character_data_t*             character_data;
-        html_node_text_t*                       text;
+        html_node_text_t*                       text_data;
         // html_node_cdata_section_t*              cdata_section;
         // html_node_processing_instruction_t*     processing_instruction;
-        html_node_comment_t*                    comment;
+        html_node_comment_t*                    comment_data;
     };
 
 } html_node_t;
@@ -149,9 +168,9 @@ html_node_t*                html_doctype_new();
 void                        html_doctype_free(html_node_t* node);
 
 // element
-html_node_t*                html_element_new(html_node_t* document, string_t local_name, string_t namespace);
+html_node_t*                html_element_new(html_node_t* document, unsigned char* local_name, uint32_t local_name_size);
 void                        html_element_free(html_node_t* node);
 
 // text
-html_node_t*                html_text_new(html_node_t* document, string_t data);
+html_node_t*                html_text_new(html_node_t* document, unsigned char* data, uint32_t data_size);
 void                        html_text_free(html_node_t* node);

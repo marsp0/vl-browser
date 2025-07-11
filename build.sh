@@ -18,13 +18,13 @@ if [ -v debug ]; then gcc_compile=${gcc_debug}; fi
 # ----- src files
 main_file="./src/main.c"
 
-html_files="./src/html/tokenizer.c ./src/html/parser.c"
+html_files="./src/html/tokenizer.c"
 
 dom_files="./src/dom/node.c"
 
 util_files="./src/util/utf8.c"
 
-core_files="./src/core/string.c"
+core_files=" "
 
 src_files="${html_files} ${util_files} ${core_files} ${dom_files}"
 
@@ -36,7 +36,7 @@ test_util_files="./test/util/test_utf8.c"
 test_html_files=" ./test/html/test_tokenizer_test1.c ./test/html/test_tokenizer_test2.c ./test/html/test_tokenizer_test3.c ./test/html/test_tokenizer_rcdata.c "
 test_html_files+=" ./test/html/test_tokenizer_rawtext.c ./test/html/test_tokenizer_script_data.c"
 
-test_core_files=" ./test/core/test_string.c"
+test_core_files=" "
 
 test_files="${test_util_files} ${test_html_files} ${test_core_files}"
 

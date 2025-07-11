@@ -1,5 +1,7 @@
 #include "parser.h"
 
+#include <stddef.h>
+
 #include "html/tokenizer.h"
 #include "dom/node.h"
 
@@ -217,6 +219,8 @@
 #define COL_SIZE            3
 #define COLGROUP            "colgroup"
 #define COLGROUP_SIZE       8
+#define HTML_NAMESPACE      "http://www.w3.org/1999/xhtml"
+#define HTML_NAMESPACE_SIZE 28
 
 /********************/
 /* static variables */
@@ -229,7 +233,6 @@ static html_node_t* stack[OPEN_STACK_MAX_SIZE]      = { 0 };
 static uint32_t stack_idx                           = 0;
 static uint32_t stack_size                          = 0;
 static html_node_t* document                        = NULL;
-static string_new html_namespace                    = strin_new("http://www.w3.org/1999/xhtml", 28);
 
 /********************/
 /* static functions */
@@ -313,20 +316,20 @@ static void insert_comment(html_token_t* token, html_node_t* position)
 }
 
 
-static html_node_t* create_element(string_t name, string_t namespace, html_node_t* parent)
+static html_node_t* create_element(string_t name, html_node_t* parent)
 {
     html_node_t* doc = parent->owner;
-    html_node_t* element = html_element_new(doc, name, namespace);
+    html_node_t* element = html_element_new(doc, name);
 }
 
 
-static html_node_t* create_element_from_buffer(string_t name, string_t namespace, html_node_t* parent)
+static html_node_t* create_element_from_buffer(string_t name, html_node_t* parent)
 {
     
 }
 
 
-static html_node_t* create_element_from_token(html_token_t* token, string_t namespace, html_node_t* parent)
+static html_node_t* create_element_from_token(html_token_t* token, html_node_t* parent)
 {
     // todo: step 1
     // todo: step 2
@@ -340,7 +343,7 @@ static html_node_t* create_element_from_token(html_token_t* token, string_t name
     // todo: step 8
     // todo: step 9
 
-    html_node_t* element = create_element(local_name, namespace, parent);
+    html_node_t* element = create_element(local_name, parent);
 
     // todo: step 11
     // todo: step 12
@@ -478,7 +481,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                     }
                     else
                     {
-                        html_node_t* element = create_element_from_buffer(string_new("html", 4), html_namespace, document);
+                        html_node_t* element = create_element_from_buffer(string_new("html", 4), document);
                         html_node_append(document, element);
                         stack_push(element);
     

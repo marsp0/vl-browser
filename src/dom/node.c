@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 /*
  * Notes
@@ -26,15 +27,13 @@ static uint32_t html_count_children_of_type(html_node_t* node, html_node_type_e 
 {
     uint32_t result = 0;
 
-    if (!child) { return result; }
-
     html_node_t* child = node->children;
     while (child)
     {
         if (child->type == type) { result++; }
         child = child->next_sibling;
     }
-    return result
+    return result;
 }
 
 static uint32_t html_count_following_children_of_type(html_node_t* node, html_node_type_e type)
@@ -69,7 +68,7 @@ static uint32_t html_count_preceding_children_of_type(html_node_t* node, html_no
 
 static html_node_t* html_get_host(html_node_t* node)
 {
-    if (node == HTML_NODE_DOCUMENT_FRAGMENT) { return node->document_fragment->host; }
+    if (node->type == HTML_NODE_DOCUMENT_FRAGMENT) { return NULL; }
     return NULL;
 }
 
@@ -117,7 +116,7 @@ static bool html_is_host_including_inclusive_ancestor(html_node_t* a, html_node_
     html_node_t* b_root_host    = html_get_host(b_root);
     if (!b_root_host) { return false; }
 
-    return is_host_including_inclusive_ancestor(a, b_root_host);
+    return html_is_host_including_inclusive_ancestor(a, b_root_host);
 }
 
 // https://dom.spec.whatwg.org/#concept-node-ensure-pre-insertion-validity
@@ -141,12 +140,18 @@ static html_dom_exception_e html_check_pre_insert_validity(html_node_t* parent, 
         return HTML_DOM_ERR_NOT_FOUND;
     }
 
-    if (n_type != HTML_NODE_DOCUMENT_FRAGMENT && n_type != HTML_NODE_DOCUMENT_TYPE && n_type != HTML_NODE_ELEMENT && n_type != HTML_NODE_CHARACTER_DATA)
+    if (n_type != HTML_NODE_DOCUMENT_FRAGMENT && 
+        n_type != HTML_NODE_DOCUMENT_TYPE && 
+        n_type != HTML_NODE_ELEMENT && 
+        n_type != HTML_NODE_TEXT &&
+        n_type != HTML_NODE_PROCESSING_INSTRUCTION &&
+        n_type != HTML_NODE_COMMENT)
     {
         return HTML_DOM_ERR_HIERARCHY_REQUEST;
     }
 
-    if ((n_type == HTML_NODE_TEXT && p_type == HTML_NODE_DOCUMENT) || (n_type == HTML_NODE_DOCUMENT_TYPE && p_type != HTML_NODE_DOCUMENT)
+    if ((n_type == HTML_NODE_TEXT && p_type == HTML_NODE_DOCUMENT) ||
+        (n_type == HTML_NODE_DOCUMENT_TYPE && p_type != HTML_NODE_DOCUMENT))
     {
         return HTML_DOM_ERR_HIERARCHY_REQUEST;
     }
@@ -197,109 +202,17 @@ static html_dom_exception_e html_check_pre_insert_validity(html_node_t* parent, 
 
         if (raise) { return HTML_DOM_ERR_HIERARCHY_REQUEST; }
     }
-}
 
-
-static void run_live_range_pre_remove_steps(html_node_t* node)
-{
-    html_node_t* parent = node->parent;
-    assert(parent);
-
-    // uint32_t index = get_node_index(node);
-
-}
-
-
-static void html_remove_node(html_node_t* node, bool suppress_observers)
-{
-    html_node_t* parent = node->parent;
-    if (!parent) { return; }
-
-    run_live_range_pre_remove_steps(node);
-}
-
-
-static void html_adopt_node(html_node_t* node, html_node_t* document)
-{
-    assert(document->type == HTML_NODE_DOCUMENT);
+    return HTML_DOM_ERR_OK;
 }
 
 
 static void html_insert_node(html_node_t* parent, html_node_t* node, html_node_t* child, bool suppress_observers)
 {
-    html_node_t* nodes = node;
-    uint32_t count = 1;
-
-    if (node->type == HTML_NODE_DOCUMENT_FRAGMENT)
-    {
-        nodes = node->children;
-        count = node->children_size;
-    }
-
-    if (count == 0) { return; }
-
-    if (node->type == HTML_NODE_DOCUMENT_FRAGMENT)
-    {
-        // remove children with supress flag on
-        // queue tree mutation record
-        assert(false);
-    }
-
-    if (child)
-    {
-        // For each live range whose start node is parent and start offset is greater than child’s index, increase its start offset by count.
-        // For each live range whose end node is parent and end offset is greater than child’s index, increase its end offset by count.
-    }
-
-    html_node_t* prev_sibling = child ? child->prev_sibling : parent->last_child;
-
-    for (uint32_t i = 0; i < count; i++)
-    {
-        html_node_t* current = nodes[i];
-
-        html_adopt_node(current, parent->document);
-        if (!child)
-        {
-            bool insert = true;
-            html_node_t* temp = parent->first_child;
-            while (temp)
-            {
-                if (temp == current) { insert = false; }
-                temp = temp->next_sibling;
-            }
-
-            html_node_t* last_child = parent->last_child;
-            if (last_child)
-            {
-                last_child->next_sibling = current;
-                node->prev_sibling = last_child;
-            }
-            else
-            {
-                parent->first_child = current;
-                parent->children = current;
-            }
-            parent->last_child = current;
-            parent->children_size++;
-        }
-        else
-        {
-            html_node_t* c_prev_sibling = child->prev_sibling;
-            child->prev_sibling = current;
-            current->next_sibling = child;
-            if (c_prev_sibling)
-            {
-                c_prev_sibling->next_sibling = current;
-                current->prev_sibling = c_prev_sibling;
-            }
-            else
-            {
-                parent->children = current;
-                parent->first_child = current;
-            }
-            parent->children_size++;
-        }
-    }
+    assert(parent);
+    assert(node);
+    assert(child);
+    assert(suppress_observers);
 }
 
 
@@ -313,10 +226,17 @@ static void html_pre_insert_node(html_node_t* parent, html_node_t* node, html_no
     html_insert_node(parent, node, ref_child, false);
 }
 
-static html_node_t* html_node_new(html_node_t* document)
+
+static html_node_t* html_node_new_internal()
 {
     html_node_t* node = malloc(sizeof(html_node_t));
+    return node;
+}
 
+
+static html_node_t* html_node_new(html_node_t* document)
+{
+    html_node_t* node = html_node_new_internal();
     node->document = document;
 
     return node;
@@ -330,7 +250,7 @@ static void html_node_free(html_node_t* node)
 static html_node_comment_t* html_node_comment_new(unsigned char* buffer, uint32_t size)
 {
     html_node_comment_t* comment = malloc(sizeof(html_node_comment_t));
-    comment->data = string_new(buffer, size);
+    memcpy(comment->data, buffer, size);
 
     return comment;
 }
@@ -351,37 +271,33 @@ static html_node_doctype_t* html_node_doctype_new(unsigned char* name, uint32_t 
                                                   unsigned char* system_id, uint32_t system_id_size)
 {
     html_node_doctype_t* doctype = malloc(sizeof(html_node_doctype_t));
-    doctype->name = string_new(name, name_size);
-    doctype->public_id = string_new(public_id, public_id_size);
-    doctype->system_id = string_new(system_id, system_id_size);
+    memcpy(doctype->name, name, name_size);
+    memcpy(doctype->public_id, public_id, public_id_size);
+    memcpy(doctype->system_id, system_id, system_id_size);
 
     return doctype;
 }
 
 
-static html_node_element_t* html_node_element_new_internal(html_node_t* document, string_t local_name, string_t namespace)
+static html_node_element_t* html_node_element_new_internal(unsigned char* local_name, uint32_t local_name_size)
 {
     html_node_element_t* element = malloc(sizeof(html_node_element_t));
-    element->local_name = local_name;
-    element->namespace = namespace;
-
-    // step 1 - finish
-    // step 2
+    memcpy(element->local_name, local_name, local_name_size);
 
     return element;
 }
 
 
-static html_node_element_t* html_node_element_new(html_node_t* document, string_t local_name, string_t namespace)
+static html_node_element_t* html_node_element_new(unsigned char* local_name, uint32_t local_name_size)
 {
-    html_node_t* result = NULL;
+    html_node_element_t* result = NULL;
 
     // todo: step 2
     // todo: step 3
     // todo: step 4
     // todo: step 5
 
-    result = html_node_element_new_internal(document, local_name, namespace);
+    result = html_node_element_new_internal(local_name, local_name_size);
 
     // todo: step 6.3 - finish
 
@@ -389,10 +305,10 @@ static html_node_element_t* html_node_element_new(html_node_t* document, string_
 }
 
 
-static html_node_text_t* html_node_text_new(html_node_t* document, string_t data)
+static html_node_text_t* html_node_text_new(unsigned char* data, uint32_t data_size)
 {
     html_node_text_t* text = malloc(sizeof(html_node_text_t));
-    text->data = data;
+    memcpy(text->data, data, data_size);
 
     return text;
 }
@@ -411,7 +327,7 @@ html_node_t* html_comment_new(unsigned char* buffer, uint32_t size, html_node_t*
 {
     html_node_t* node = html_node_new(document);
     node->type = HTML_NODE_COMMENT;
-    node->comment = html_node_comment_new(buffer, size);
+    node->comment_data = html_node_comment_new(buffer, size);
 
     return node;
 }
@@ -421,17 +337,18 @@ void html_comment_free(html_node_t* node)
 {
     assert(node->type == HTML_NODE_COMMENT);
 
-    free(node->comment);
+    free(node->comment_data);
     html_node_free(node);
 }
 
 
 html_node_t* html_document_new()
 {
-    html_node_t* node = html_node_new();
+    html_node_t* node = html_node_new_internal();
+    node->document = node;
+
     node->type = HTML_NODE_DOCUMENT;
-    node->document = html_node_document_new();
-    node->owner = node;
+    node->document_data = html_node_document_new();
 
     return node;
 }
@@ -441,18 +358,21 @@ void html_document_free(html_node_t* node)
 {
     assert(node->type == HTML_NODE_DOCUMENT);
 
-    free(node->document);
+    free(node->document_data);
     html_node_free(node);
 }
 
 
-html_node_t* html_doctype_new(unsigned char* name, uint32_t name_size, 
+html_node_t* html_doctype_new(html_node_t* document,
+                              unsigned char* name, uint32_t name_size, 
                               unsigned char* public_id, uint32_t public_id_size, 
                               unsigned char* system_id, uint32_t system_id_size)
 {
     html_node_t* node = html_node_new(document);
     node->type = HTML_NODE_DOCUMENT_TYPE;
-    node->doctype = html_node_doctype_new();
+    node->doctype_data = html_node_doctype_new(name, name_size, public_id, public_id_size, system_id, system_id_size);
+
+    return node;
 }
 
 
@@ -460,16 +380,16 @@ void html_doctype_free(html_node_t* node)
 {
     assert(node->type == HTML_NODE_DOCUMENT_TYPE);
 
-    free(node->doctype);
+    free(node->doctype_data);
     html_node_free(node);
 }
 
 
-html_node_t* html_element_new(html_node_t* document, string_t local_name, string_t namespace)
+html_node_t* html_element_new(html_node_t* document, unsigned char* local_name, uint32_t local_name_size)
 {
     html_node_t* node = html_node_new(document);
     node->type = HTML_NODE_ELEMENT;
-    node->element = html_node_element_new(document, local_name, namespace);
+    node->element_data = html_node_element_new(local_name, local_name_size);
 
     return node;
 }
@@ -479,16 +399,16 @@ void html_element_free(html_node_t* node)
 {
     assert(node->type == HTML_NODE_ELEMENT);
 
-    free(node->doctype);
+    free(node->doctype_data);
     html_node_free(node);
 }
 
 
-html_node_t* html_text_new(html_node_t* document, string_t data)
+html_node_t* html_text_new(html_node_t* document, unsigned char* data, uint32_t data_size)
 {
     html_node_t* node = html_node_new(document);
     node->type = HTML_NODE_TEXT;
-    node->text = html_node_text_new(document, data);
+    node->text_data = html_node_text_new(data, data_size);
 
     return node;
 }
@@ -498,6 +418,6 @@ void html_text_free(html_node_t* node)
 {
     assert(node->type == HTML_NODE_TEXT);
 
-    free(node->text);
+    free(node->text_data);
     html_node_free(node);
 }
