@@ -62,6 +62,8 @@ typedef struct
     string_t content_type;
 
     html_node_t* doctype;
+
+    bool parser_cannot_change_mode;
 } html_node_document_t;
 
 // https://dom.spec.whatwg.org/#element

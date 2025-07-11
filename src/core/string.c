@@ -62,5 +62,7 @@ bool string_compare_buffer(const string_t first, unsigned char* buffer, uint32_t
 
 void string_free(string_t str)
 {
+    if (str.size == 0) { return; }
+
     free(str.data);
 }

@@ -340,6 +340,8 @@ static html_node_document_t* html_node_document_new()
 {
     html_node_document_t* document = malloc(sizeof(html_node_document_t));
 
+    document->parser_cannot_change_mode = false;
+
     return document;
 }
 
