@@ -2,7 +2,6 @@
 
 #include "util/test_utf8.h"
 #include "html/test_tokenizer.h"
-#include "core/test_string.h"
 
 int32_t main()
 {

@@ -18,7 +18,7 @@ if [ -v debug ]; then gcc_compile=${gcc_debug}; fi
 # ----- src files
 main_file="./src/main.c"
 
-html_files="./src/html/tokenizer.c"
+html_files="./src/html/tokenizer.c ./src/html/parser.c"
 
 dom_files="./src/dom/node.c"
 

@@ -1,6 +1,8 @@
 #include "parser.h"
 
 #include <stddef.h>
+#include <string.h>
+#include <assert.h>
 
 #include "html/tokenizer.h"
 #include "dom/node.h"
@@ -47,6 +49,8 @@
 #define STYLE_SIZE          5
 #define TEMPLATE            "template"
 #define TEMPLATE_SIZE       8
+#define FRAME               "frame"
+#define FRAME_SIZE          5
 #define FRAMESET            "frameset"
 #define FRAMESET_SIZE       8
 #define DD                  "dd"
@@ -69,6 +73,8 @@
 #define RT_SIZE             2
 #define RTC                 "rtc"
 #define RTC_SIZE            3
+#define SVG                 "svg"
+#define SVG_SIZE            3
 #define TBODY               "tbody"
 #define TBODY_SIZE          5
 #define TD                  "td"
@@ -79,6 +85,8 @@
 #define TH_SIZE             2
 #define THEAD               "thead"
 #define THEAD_SIZE          5
+#define TABLE               "table"
+#define TABLE_SIZE          5
 #define TR                  "tr"
 #define TR_SIZE             2
 #define ADDRESS             "address"
@@ -147,6 +155,8 @@
 #define LISTING_SIZE        7
 #define FORM                "form"
 #define FORM_SIZE           4
+#define FONT                "font"
+#define FONT_SIZE           4
 #define BUTTON              "button"
 #define BUTTON_SIZE         6
 #define PLAINTEXT           "plaintext"
@@ -181,6 +191,8 @@
 #define APPLET_SIZE         6
 #define MARQUEE             "marquee"
 #define MARQUEE_SIZE        7
+#define MATH                "math"
+#define MATH_SIZE           4
 #define OBJECT              "object"
 #define OBJECT_SIZE         6
 #define AREA                "area"
@@ -219,6 +231,8 @@
 #define COL_SIZE            3
 #define COLGROUP            "colgroup"
 #define COLGROUP_SIZE       8
+#define CAPTION             "caption"
+#define CAPTION_SIZE        7
 #define HTML_NAMESPACE      "http://www.w3.org/1999/xhtml"
 #define HTML_NAMESPACE_SIZE 28
 
@@ -256,12 +270,12 @@ static void stack_push(html_node_t* node)
 }
 
 
-static void stack_pop()
-{
-    stack[stack_idx] = NULL;
-    stack_idx = stack_idx > 0 ? stack_idx - 1 : 0
-    stack_size--;
-}
+// static void stack_pop()
+// {
+//     stack[stack_idx] = NULL;
+//     stack_idx = stack_idx > 0 ? stack_idx - 1 : 0;
+//     stack_size--;
+// }
 
 
 static bool name_is(unsigned char* name, uint32_t name_size, html_token_t* token)
@@ -270,22 +284,23 @@ static bool name_is(unsigned char* name, uint32_t name_size, html_token_t* token
 }
 
 
-static bool stack_contains_element(string_t name)
-{
-    for (uint32_t i = 0; i < stack_size; i++)
-    {
-        if (!stack[i])                              { return false; }
-        if (stack[i]->type != HTML_NODE_ELEMENT)    { continue; }
-        if (string_compare(stack[i]->name, name))   { return true; }
-    }
+// static bool stack_contains_element(unsigned char* name, uint32_t name_size)
+// {
+//     for (uint32_t i = 0; i < stack_size; i++)
+//     {
+//         html_node_t* current = stack[i];
+//         if (!current)                                       { return false; }
+//         if (current->type != HTML_NODE_ELEMENT)             { continue; }
+//         if (strncmp(current->name, name, name_size) == 0)   { return true; }
+//     }
 
-    return false;
-}
+//     return false;
+// }
 
 
 static html_node_t* get_appropriate_insertion_location(html_node_t* override)
 {
-    html_node_t* location   = NULL
+    html_node_t* location   = NULL;
     html_node_t* target     = stack[stack_idx];
 
     if (override) { target = override; }
@@ -311,21 +326,23 @@ static html_node_t* get_appropriate_insertion_location(html_node_t* override)
 static void insert_comment(html_token_t* token, html_node_t* position)
 {
     html_node_t* location = get_appropriate_insertion_location(position);
-    html_node_t* comment = html_comment_new(token.data, token.data_size, document);
+    html_node_t* comment = html_comment_new(token->data, token->data_size, document);
     html_node_append(location, comment);
 }
 
 
-static html_node_t* create_element(string_t name, html_node_t* parent)
+static html_node_t* create_element(unsigned char* name, uint32_t name_size, html_node_t* parent)
 {
-    html_node_t* doc = parent->owner;
-    html_node_t* element = html_element_new(doc, name);
+    html_node_t* doc = parent->document;
+    html_node_t* element = html_element_new(doc, name, name_size);
+
+    return element;
 }
 
 
-static html_node_t* create_element_from_buffer(string_t name, html_node_t* parent)
+static html_node_t* create_element_from_buffer(unsigned char* name, uint32_t name_size, html_node_t* parent)
 {
-    
+    return create_element(name, name_size, parent);
 }
 
 
@@ -334,8 +351,7 @@ static html_node_t* create_element_from_token(html_token_t* token, html_node_t* 
     // todo: step 1
     // todo: step 2
 
-    html_node_t* doc = parent->owner;
-    string_t local_name = string_new(token->name, token->name_size);
+    // html_node_t* doc = parent->document;
 
     // todo: step 5
     // todo: step 6
@@ -343,7 +359,7 @@ static html_node_t* create_element_from_token(html_token_t* token, html_node_t* 
     // todo: step 8
     // todo: step 9
 
-    html_node_t* element = create_element(local_name, parent);
+    html_node_t* element = create_element(token->name, token->name_size, parent);
 
     // todo: step 11
     // todo: step 12
@@ -368,8 +384,8 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
     
     bool will_use_rules_for     = false;
     bool use_rules_for          = false;
-    html_node_t* head_element   = NULL;
-    html_node_t* form_element   = NULL;
+    // html_node_t* head_element   = NULL;
+    // html_node_t* form_element   = NULL;
     bool scripting_enabled      = false;
 
     while (true)
@@ -383,7 +399,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
 
         while (i < tokens_size)
         {
-            consume = true;
+            bool consume = true;
             html_token_t t = tokens[i];
 
             bool is_doctype     = t.type == HTML_DOCTYPE_TOKEN;
@@ -408,14 +424,12 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_doctype)
                 {
-                    string_t name           = string_new(t.name, t.name_size);
-                    string_t public_id      = string_new(t.public_id, t.public_id_size);
-                    string_t system_id      = string_new(t.system_id, t.system_id_size);
-                    string_t legacy_compat  = string_new("about:legacy-compat", 19);
-                    bool name_is_html       = string_compare_buffer(name, "html", 4);
-                    bool is_legacy_compat   = string_compare(system_id, legacy_compat);
-                    bool public_id_missing  = public_id.size == 0;
-                    bool system_id_missing  = system_id.size == 0;
+                    unsigned char compat[]  = "about:legacy-compat";
+                    uint32_t compat_size    = sizeof(compat) - 1;
+                    bool name_is_html       = t.name_size == 4 && strncmp(t.name, "html", 4) == 0;
+                    bool public_id_missing  = t.public_id_size == 0;
+                    bool system_id_missing  = t.system_id_size == 0;
+                    bool is_legacy_compat   = t.system_id_size == compat_size && strncmp(t.system_id, compat, compat_size);
 
                     if (!name_is_html || !public_id_missing || !system_id_missing || !is_legacy_compat)
                     {
@@ -426,23 +440,18 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                         // todo: implement
                     }
 
-                    string_free(name);
-                    string_free(public_id);
-                    string_free(system_id);
-                    string_free(legacy_compat);
-
                     mode = HTML_PARSER_MODE_BEFORE_HTML;
                 }
                 else
                 {
                     // todo: If the document is not an iframe srcdoc document, then this is a parse error; 
 
-                    html_node_document_t* document_data = document->document;
+                    // html_node_document_t* document_data = document->document_data;
 
-                    if (!document_data->parser_cannot_change_mode)
-                    {
-                        document_data->compat_mode = string_new("quirks", 6);
-                    }
+                    // if (!document_data->parser_cannot_change_mode)
+                    // {
+                    //     document_data->compat_mode = string_new("quirks", 6);
+                    // }
 
                     mode = HTML_PARSER_MODE_BEFORE_HTML;
                 }
@@ -464,7 +473,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(HTML, HTML_SIZE, &t))
                 {
-                    html_node_t* element = create_element_from_token(t, html_namespace, document);
+                    html_node_t* element = create_element_from_token(&t, document);
                     html_node_append(document, element);
                     stack_push(element);
 
@@ -481,7 +490,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                     }
                     else
                     {
-                        html_node_t* element = create_element_from_buffer(string_new("html", 4), document);
+                        html_node_t* element = create_element_from_buffer("html", 4, document);
                         html_node_append(document, element);
                         stack_push(element);
     
@@ -543,7 +552,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 else if (is_start && (name_is(BASE, BASE_SIZE, &t) ||
                                       name_is(BASEFONT, BASEFONT_SIZE, &t) ||
                                       name_is(BGSOUND, BGSOUND_SIZE, &t) ||
-                                      name_is(LINK, LINK_SIZE, &t))
+                                      name_is(LINK, LINK_SIZE, &t)))
                 {
                     
                 }
@@ -556,7 +565,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                     
                 }
                 else if ((is_start && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t) && scripting_enabled) || 
-                         (is_start && (name_is(NOFRAMES, NOFRAMES_SIZE, &t) || name_is(STYLE, STYLE_SIZE, &t)))
+                         (is_start && (name_is(NOFRAMES, NOFRAMES_SIZE, &t) || name_is(STYLE, STYLE_SIZE, &t))))
                 {
                     
                 }
@@ -574,7 +583,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(TEMPLATE, TEMPLATE_SIZE, &t))
                 {
-                    assert(false)
+                    assert(false);
                 }
                 else if (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t))
                 {
@@ -596,7 +605,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     
                 }
-                else if (t.type == HTML_END_TAG && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t))
+                else if (is_end && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t))
                 {
                     
                 }
@@ -607,11 +616,11 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                        name_is(LINK, LINK_SIZE, &t)         ||
                                        name_is(META, META_SIZE, &t)         ||
                                        name_is(NOFRAMES, NOFRAMES_SIZE, &t) ||
-                                       name_is(STYLE, STYLE_SIZE, &t))
+                                       name_is(STYLE, STYLE_SIZE, &t))))
                 {
                     
                 }
-                else if (is_start && (name_is(HEAD, HEAD_SIZE, &t) || name_is(NOSCRIPT, NOSCRIPT_SIZE, &t))
+                else if (is_start && (name_is(HEAD, HEAD_SIZE, &t) || name_is(NOSCRIPT, NOSCRIPT_SIZE, &t)))
                 {
                     // todo: parse error
                 }
@@ -657,7 +666,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(SCRIPT, SCRIPT_SIZE, &t)      || 
                                       name_is(TEMPLATE, TEMPLATE_SIZE, &t)  ||
                                       name_is(TITLE, TITLE_SIZE, &t)        ||
-                                      name_is(STYLE, STYLE_SIZE, &t))
+                                      name_is(STYLE, STYLE_SIZE, &t)))
                 {
                     // todo: parse error
                     
@@ -666,8 +675,10 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     
                 }
-                else if ( (is_start && name_is(HEAD, HEAD_SIZE, &t) ||
-                          (is_end && !(name_is(BODY, BODY_SIZE, &t) || name_is(HTML, HTML_SIZE, &t) || name_is(BR, BR_SIZE, &t)))
+                else if ( (is_start && name_is(HEAD, HEAD_SIZE, &t))||
+                          (is_end && !(name_is(BODY, BODY_SIZE, &t) ||
+                                       name_is(HTML, HTML_SIZE, &t) ||
+                                       name_is(BR, BR_SIZE, &t))))
                 {
                     // todo: parse error
                 }
@@ -713,8 +724,8 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                        name_is(SCRIPT, SCRIPT_SIZE, &t)     ||
                                        name_is(TEMPLATE, TEMPLATE_SIZE, &t) ||
                                        name_is(TITLE, TITLE_SIZE, &t)       ||
-                                       name_is(STYLE, STYLE_SIZE, &t))      ||
-                        (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t))
+                                       name_is(STYLE, STYLE_SIZE, &t)))     ||
+                        (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t)))
                 {
                     
                 }
@@ -779,7 +790,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     
                 }
-                else if (is_start && name_is(FORM, FORM_SIZE, &t)
+                else if (is_start && name_is(FORM, FORM_SIZE, &t))
                 {
                     
                 }
@@ -796,7 +807,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                     // todo: handle scope logic - If the stack of open elements has a p element in button scope, then close a p element.
                     
                 }
-                else if (is_start && name_is(button_text, &t))
+                else if (is_start && name_is(BUTTON, BUTTON_SIZE, &t))
                 {
                     
                 }
@@ -894,7 +905,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                 
                 }
-                else if (is_start && name_is(TABLE, TABLE_SIZE, &t)
+                else if (is_start && name_is(TABLE, TABLE_SIZE, &t))
                 {
                 
                 }
@@ -942,7 +953,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 
                 }
                 else if ( (is_start && name_is(NOEMBED, NOEMBED_SIZE, &t) ) ||
-                          (is_start && name_is(NOSCRIPT, NOSCRIPT_SIZE) && scripting_enabled) )
+                          (is_start && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t) && scripting_enabled) )
                 {
                 
                 }
@@ -1019,13 +1030,15 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
 
             // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable
             case HTML_PARSER_MODE_IN_TABLE:
-                string_t current = stack[stack_idx]->name;
-                if (is_character && (string_compare_buffer(current, TABLE, TABLE_SIZE)      ||
-                                     string_compare_buffer(current, TBODY, TBODY_SIZE)      ||
-                                     string_compare_buffer(current, TEMPLATE, TEMPLATE_SIZE)||
-                                     string_compare_buffer(current, TFOOT, TFOOT_SIZE)      ||
-                                     string_compare_buffer(current, THEAD, THEAD_SIZE)      ||
-                                     string_compare_buffer(current, TR, TR_SIZE)))
+                ;
+                unsigned char* name = stack[stack_idx]->name;
+                uint32_t name_size = stack[stack_idx]->name_size;
+                if (is_character && ((name_size == TABLE_SIZE && strncmp(name, TABLE, name_size))        ||
+                                     (name_size == TBODY_SIZE && strncmp(name, TBODY, name_size))        ||
+                                     (name_size == TEMPLATE_SIZE && strncmp(name, TEMPLATE, name_size))  ||
+                                     (name_size == TFOOT_SIZE && strncmp(name, TFOOT, name_size))        ||
+                                     (name_size == THEAD_SIZE && strncmp(name, THEAD, name_size))        ||
+                                     (name_size == TR_SIZE && strncmp(name, TR, name_size))))
                 {
                 
                 }
@@ -1057,7 +1070,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && (name_is(TD, TD_SIZE, &t) ||
                                       name_is(TH, TH_SIZE, &t) ||
-                                      name_is(TR, TR_SIZE)))
+                                      name_is(TR, TR_SIZE, &t)))
                 {
                 
                 }
@@ -1083,10 +1096,10 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                 
                 }
-                else if ((is_start && (name_is(STYLE, STYLE_SIZE, &t)       ||
-                                       name_is(SCRIPT, SCRIPT_SIZE, &t)     ||
-                                       name_is(TEMPLATE, TEMPLATE_SIZE)))   ||
-                         (is_end && name_is(TEMPLATE, TEMPLATE_SIZE)))
+                else if ((is_start && (name_is(STYLE, STYLE_SIZE, &t)           ||
+                                       name_is(SCRIPT, SCRIPT_SIZE, &t)         ||
+                                       name_is(TEMPLATE, TEMPLATE_SIZE, &t)))   ||
+                         (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t)))
                 {
                 
                 }
@@ -1208,7 +1221,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
 
             // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intbody
             case HTML_PARSER_MODE_IN_TABLE_BODY:
-                if (is_start && name_is(TR, TR_SIZE))
+                if (is_start && name_is(TR, TR_SIZE, &t))
                 {
                 
                 }
@@ -1233,14 +1246,14 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                 
                 }
-                else if (is_end && && (name_is(BODY, BODY_SIZE, &t)         ||
-                                       name_is(CAPTION, CAPTION_SIZE, &t)   ||
-                                       name_is(COL, COL_SIZE, &t)           ||
-                                       name_is(COLGROUP, COLGROUP_SIZE, &t) ||
-                                       name_is(HTML, HTML_SIZE, &t)         ||
-                                       name_is(TD, TD_SIZE, &t)             ||
-                                       name_is(TH, TH_SIZE, &t)             ||
-                                       name_is(TR, TR_SIZE, &t)))
+                else if (is_end && (name_is(BODY, BODY_SIZE, &t)         ||
+                                    name_is(CAPTION, CAPTION_SIZE, &t)   ||
+                                    name_is(COL, COL_SIZE, &t)           ||
+                                    name_is(COLGROUP, COLGROUP_SIZE, &t) ||
+                                    name_is(HTML, HTML_SIZE, &t)         ||
+                                    name_is(TD, TD_SIZE, &t)             ||
+                                    name_is(TH, TH_SIZE, &t)             ||
+                                    name_is(TR, TR_SIZE, &t)))
                 {
                 
                 }
@@ -1266,7 +1279,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                        name_is(COLGROUP, COLGROUP_SIZE, &t) ||
                                        name_is(TBODY, TBODY_SIZE, &t)       ||
                                        name_is(TFOOT, TFOOT_SIZE, &t)       ||
-                                       name_is(THEAD, THEAD_SIZE, &t))      ||
+                                       name_is(THEAD, THEAD_SIZE, &t)       ||
                                        name_is(TR, TR_SIZE, &t)))           ||
                          (is_end && name_is(TABLE, TABLE_SIZE, &t)))
                 {
@@ -1306,7 +1319,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(COLGROUP, COLGROUP_SIZE, &t)  ||
                                       name_is(TBODY, TBODY_SIZE, &t)        ||
                                       name_is(TFOOT, TFOOT_SIZE, &t)        ||
-                                      name_is(THEAD, THEAD_SIZE, &t))       ||
+                                      name_is(THEAD, THEAD_SIZE, &t)        ||
                                       name_is(TR, TR_SIZE, &t)              ||
                                       name_is(TH, TH_SIZE, &t)              ||
                                       name_is(TD, TD_SIZE, &t)))
@@ -1391,8 +1404,8 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                 
                 }
-                else if ((is_start && (name_is(SCRIPT, SCRIPT_SIZE, &t)     ||
-                                       name_is(TEMPLATE, TEMPLATE_SIZE, &t))||
+                else if ((is_start && (name_is(SCRIPT, SCRIPT_SIZE, &t)         ||
+                                       name_is(TEMPLATE, TEMPLATE_SIZE, &t)))   ||
                          (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t)))
                 {
                 
@@ -1652,11 +1665,11 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 break;
             }
-        }
 
-        if (use_rules_for)      { use_rules_for = false; mode = original_mode; }
-        if (will_use_rules_for) { will_use_rules_for = false; use_rules_for = true; }
-        if (consume)            { i++; }
+            if (use_rules_for)      { use_rules_for = false; mode = original_mode; }
+            if (will_use_rules_for) { will_use_rules_for = false; use_rules_for = true; }
+            if (consume)            { i++; }
+        }
     }
 
     html_tokenizer_free();
