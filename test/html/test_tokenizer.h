@@ -5,74 +5,86 @@
 
 #define MAX_TOKENS 10
 
-#define ASSERT_DOCTYPE(a, b)    do                                                                          \
-                                {                                                                           \
-                                    ASSERT_TRUE(a.is_valid);                                                \
-                                    ASSERT_EQUAL(a.is_valid, b.is_valid);                                   \
-                                    ASSERT_EQUAL(a.type, b.type);                                           \
-                                    ASSERT_EQUAL(a.name_size, b.name_size);                                 \
-                                    ASSERT_STRING((char)a.name, (char)b.name, a.name_size);                 \
-                                    ASSERT_EQUAL(a.public_id_size, b.public_id_size);                       \
-                                    ASSERT_STRING((char)a.public_id, (char)b.public_id, a.public_id_size);  \
-                                    ASSERT_EQUAL(a.system_id_size, b.system_id_size);                       \
-                                    ASSERT_STRING((char)a.system_id, (char)b.system_id, a.system_id_size);  \
-                                    ASSERT_EQUAL(a.force_quirks, b.force_quirks);                           \
-                                } while (0);
+#define ASSERT_DOCTYPE(a, b)                                                \
+do                                                                          \
+{                                                                           \
+    ASSERT_TRUE(a.is_valid);                                                \
+    ASSERT_EQUAL(a.is_valid, b.is_valid);                                   \
+    ASSERT_EQUAL(a.type, b.type);                                           \
+    ASSERT_EQUAL(a.name_size, b.name_size);                                 \
+    ASSERT_STRING((char)a.name, (char)b.name, a.name_size);                 \
+    ASSERT_EQUAL(a.public_id_size, b.public_id_size);                       \
+    ASSERT_STRING((char)a.public_id, (char)b.public_id, a.public_id_size);  \
+    ASSERT_EQUAL(a.system_id_size, b.system_id_size);                       \
+    ASSERT_STRING((char)a.system_id, (char)b.system_id, a.system_id_size);  \
+    ASSERT_EQUAL(a.force_quirks, b.force_quirks);                           \
+} while (0);
 
-#define ASSERT_COMMENT(a, b)    do                                                              \
-                                {                                                               \
-                                    ASSERT_TRUE(a.is_valid);                                    \
-                                    ASSERT_EQUAL(a.is_valid, b.is_valid);                       \
-                                    ASSERT_EQUAL(a.type, b.type);                               \
-                                    ASSERT_EQUAL(a.data_size, b.data_size);                     \
-                                    ASSERT_STRING((char)a.data, (char)b.data, a.data_size);     \
-                                } while (0);
 
-#define ASSERT_TAG(a, b)        do                                                              \
-                                {                                                               \
-                                    ASSERT_TRUE(a.is_valid);                                    \
-                                    ASSERT_EQUAL(a.is_valid, b.is_valid);                       \
-                                    ASSERT_EQUAL(a.type, b.type);                               \
-                                    ASSERT_EQUAL(a.name_size, b.name_size);                     \
-                                    ASSERT_STRING((char)a.name, (char)b.name, a.name_size);     \
-                                    ASSERT_EQUAL(a.attributes_size, b.attributes_size);         \
-                                    ASSERT_EQUAL(a.self_closing, b.self_closing);               \
-                                    for (uint32_t k = 0; k < a.attributes_size; k++)            \
-                                    {                                                           \
-                                        html_token_attribute_t a_attr = a.attributes[k];        \
-                                        html_token_attribute_t b_attr = b.attributes[k];        \
-                                        ASSERT_EQUAL(a_attr.name_size, b_attr.name_size);       \
-                                        ASSERT_EQUAL(a_attr.value_size, b_attr.value_size);     \
-                                        ASSERT_STRING((char)a_attr.name, (char)b_attr.name, a_attr.name_size); \
-                                        ASSERT_STRING((char)a_attr.value, (char)b_attr.value, a_attr.value_size); \
-                                    }                                                           \
-                                } while (0);
+#define ASSERT_COMMENT(a, b)                                    \
+do                                                              \
+{                                                               \
+    ASSERT_TRUE(a.is_valid);                                    \
+    ASSERT_EQUAL(a.is_valid, b.is_valid);                       \
+    ASSERT_EQUAL(a.type, b.type);                               \
+    ASSERT_EQUAL(a.data_size, b.data_size);                     \
+    ASSERT_STRING((char)a.data, (char)b.data, a.data_size);     \
+} while (0);
 
-#define ASSERT_EOF(a, b)        do                                                              \
-                                {                                                               \
-                                    ASSERT_TRUE(a.is_valid);                                    \
-                                    ASSERT_EQUAL(a.is_valid, b.is_valid);                       \
-                                    ASSERT_EQUAL(a.type, b.type);                               \
-                                } while (0);
 
-#define ASSERT_CHARACTER(a, b)  do                                                              \
-                                {                                                               \
-                                    ASSERT_TRUE(a.is_valid);                                    \
-                                    ASSERT_EQUAL(a.is_valid, b.is_valid);                       \
-                                    ASSERT_EQUAL(a.type, b.type);                               \
-                                    ASSERT_EQUAL(a.data_size, b.data_size);                     \
-                                    ASSERT_STRING((char)a.data, (char)b.data, a.data_size);     \
-                                } while (0);
+#define ASSERT_TAG(a, b)                                        \
+do                                                              \
+{                                                               \
+    ASSERT_TRUE(a.is_valid);                                    \
+    ASSERT_EQUAL(a.is_valid, b.is_valid);                       \
+    ASSERT_EQUAL(a.type, b.type);                               \
+    ASSERT_EQUAL(a.name_size, b.name_size);                     \
+    ASSERT_STRING((char)a.name, (char)b.name, a.name_size);     \
+    ASSERT_EQUAL(a.attributes_size, b.attributes_size);         \
+    ASSERT_EQUAL(a.self_closing, b.self_closing);               \
+    for (uint32_t k = 0; k < a.attributes_size; k++)            \
+    {                                                           \
+        html_token_attribute_t a_attr = a.attributes[k];        \
+        html_token_attribute_t b_attr = b.attributes[k];        \
+        ASSERT_EQUAL(a_attr.name_size, b_attr.name_size);       \
+        ASSERT_EQUAL(a_attr.value_size, b_attr.value_size);     \
+        ASSERT_STRING((char)a_attr.name, (char)b_attr.name, a_attr.name_size); \
+        ASSERT_STRING((char)a_attr.value, (char)b_attr.value, a_attr.value_size); \
+    }                                                           \
+} while (0);
 
-#define ASSERT_TOKEN(a, b)  do                                                                  \
-                            {                                                                   \
-                                if (a.type == HTML_DOCTYPE_TOKEN)   { ASSERT_DOCTYPE(a, b); }   \
-                                if (a.type == HTML_START_TOKEN)     { ASSERT_TAG(a, b); }       \
-                                if (a.type == HTML_END_TOKEN)       { ASSERT_TAG(a, b); }       \
-                                if (a.type == HTML_COMMENT_TOKEN)   { ASSERT_COMMENT(a, b); }   \
-                                if (a.type == HTML_CHARACTER_TOKEN) { ASSERT_CHARACTER(a, b); } \
-                                if (a.type == HTML_EOF_TOKEN)       { ASSERT_EOF(a, b); }       \
-                            } while (0);                                                        \
+
+#define ASSERT_EOF(a, b)                                        \
+do                                                              \
+{                                                               \
+    ASSERT_TRUE(a.is_valid);                                    \
+    ASSERT_EQUAL(a.is_valid, b.is_valid);                       \
+    ASSERT_EQUAL(a.type, b.type);                               \
+} while (0);
+
+
+#define ASSERT_CHARACTER(a, b)                                  \
+do                                                              \
+{                                                               \
+    ASSERT_TRUE(a.is_valid);                                    \
+    ASSERT_EQUAL(a.is_valid, b.is_valid);                       \
+    ASSERT_EQUAL(a.type, b.type);                               \
+    ASSERT_EQUAL(a.data_size, b.data_size);                     \
+    ASSERT_STRING((char)a.data, (char)b.data, a.data_size);     \
+} while (0);
+
+
+#define ASSERT_TOKEN(a, b)                                          \
+do                                                                  \
+{                                                                   \
+    if (a.type == HTML_DOCTYPE_TOKEN)   { ASSERT_DOCTYPE(a, b); }   \
+    if (a.type == HTML_START_TOKEN)     { ASSERT_TAG(a, b); }       \
+    if (a.type == HTML_END_TOKEN)       { ASSERT_TAG(a, b); }       \
+    if (a.type == HTML_COMMENT_TOKEN)   { ASSERT_COMMENT(a, b); }   \
+    if (a.type == HTML_CHARACTER_TOKEN) { ASSERT_CHARACTER(a, b); } \
+    if (a.type == HTML_EOF_TOKEN)       { ASSERT_EOF(a, b); }       \
+} while (0);                                                        \
+
 
 #define RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e)             \
 do                                                                                      \
