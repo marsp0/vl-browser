@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include "html/tokenizer.h"
 #include "dom/node.h"
@@ -15,6 +16,12 @@
 /********************/
 /*      defines     */
 /********************/
+
+#define NOT_IMPLEMENTED     do                                                              \
+                            {                                                               \
+                                printf("Section not implemented: parser.c:%d\n", __LINE__); \
+                                assert(false);                                              \
+                            } while(0);                                                     \
 
 #define MAX_TOKENS          10
 #define OPEN_STACK_MAX_SIZE 500
@@ -252,6 +259,13 @@ static html_node_t* document                        = NULL;
 /* static functions */
 /********************/
 
+static bool string_compare(unsigned char* first, uint32_t first_size, unsigned char* second, uint32_t second_size)
+{
+    if (first_size != second_size) { return false; }
+
+    return strncmp(first, second, first_size);
+}
+
 static uint32_t get_tokens_size()
 {
     uint32_t result = 0;
@@ -270,12 +284,28 @@ static void stack_push(html_node_t* node)
 }
 
 
-// static void stack_pop()
-// {
-//     stack[stack_idx] = NULL;
-//     stack_idx = stack_idx > 0 ? stack_idx - 1 : 0;
-//     stack_size--;
-// }
+static void stack_pop()
+{
+    stack[stack_idx] = NULL;
+    stack_idx = stack_idx > 0 ? stack_idx - 1 : 0;
+    stack_size--;
+}
+
+static void remove_from_stack(html_node_t* node)
+{
+    for (uint32_t i = 0; i < stack_size; i++)
+    {
+        if (node != stack[i]) { continue; }
+
+        for (uint32_t j = i; j < stack_size - 1; j++)
+        {
+            stack[j] = stack[j + 1];
+        }
+
+        stack_size--;
+        return;
+    }
+}
 
 
 static bool name_is(unsigned char* name, uint32_t name_size, html_token_t* token)
@@ -284,18 +314,18 @@ static bool name_is(unsigned char* name, uint32_t name_size, html_token_t* token
 }
 
 
-// static bool stack_contains_element(unsigned char* name, uint32_t name_size)
-// {
-//     for (uint32_t i = 0; i < stack_size; i++)
-//     {
-//         html_node_t* current = stack[i];
-//         if (!current)                                       { return false; }
-//         if (current->type != HTML_NODE_ELEMENT)             { continue; }
-//         if (strncmp(current->name, name, name_size) == 0)   { return true; }
-//     }
+static bool stack_contains_element(unsigned char* name, uint32_t name_size)
+{
+    for (uint32_t i = 0; i < stack_size; i++)
+    {
+        html_node_t* current = stack[i];
+        if (!current)                                       { return false; }
+        if (current->type != HTML_NODE_ELEMENT)             { continue; }
+        if (strncmp(current->name, name, name_size) == 0)   { return true; }
+    }
 
-//     return false;
-// }
+    return false;
+}
 
 
 static html_node_t* get_appropriate_insertion_location(html_node_t* override)
@@ -325,28 +355,14 @@ static html_node_t* get_appropriate_insertion_location(html_node_t* override)
 
 static void insert_comment(html_token_t* token, html_node_t* position)
 {
-    html_node_t* location = get_appropriate_insertion_location(position);
-    html_node_t* comment = html_comment_new(token->data, token->data_size, document);
+    html_node_t* location   = get_appropriate_insertion_location(position);
+    html_node_t* comment    = html_comment_new(token->data, token->data_size, document);
+
     html_node_append(location, comment);
 }
 
 
 static html_node_t* create_element(unsigned char* name, uint32_t name_size, html_node_t* parent)
-{
-    html_node_t* doc = parent->document;
-    html_node_t* element = html_element_new(doc, name, name_size);
-
-    return element;
-}
-
-
-static html_node_t* create_element_from_buffer(unsigned char* name, uint32_t name_size, html_node_t* parent)
-{
-    return create_element(name, name_size, parent);
-}
-
-
-static html_node_t* create_element_from_token(html_token_t* token, html_node_t* parent)
 {
     // todo: step 1
     // todo: step 2
@@ -359,7 +375,8 @@ static html_node_t* create_element_from_token(html_token_t* token, html_node_t* 
     // todo: step 8
     // todo: step 9
 
-    html_node_t* element = create_element(token->name, token->name_size, parent);
+    html_node_t* doc        = parent->document;
+    html_node_t* element    = html_element_new(doc, name, name_size);
 
     // todo: step 11
     // todo: step 12
@@ -368,6 +385,38 @@ static html_node_t* create_element_from_token(html_token_t* token, html_node_t* 
     // todo: step 15
 
     return element;
+}
+
+
+static html_node_t* insert_foreign_element(unsigned char* name, uint32_t name_size, bool only_add_to_stack)
+{
+    html_node_t* location = get_appropriate_insertion_location(NULL);
+    html_node_t* element = create_element(name, name_size, location);
+
+    if (!only_add_to_stack)
+    {
+        // todo: step 2
+        // todo: step 3
+        html_node_append(location, element);
+        // todo: step 5
+    }
+
+    stack_push(element);
+
+    return element;
+}
+
+
+static html_node_t* insert_html_element(unsigned char* name, uint32_t name_size)
+{
+    return insert_foreign_element(name, name_size, false);
+}
+
+
+static void insert_character(html_token_t* token)
+{
+    assert(token);
+    return;
 }
 
 /********************/
@@ -384,8 +433,8 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
     
     bool will_use_rules_for     = false;
     bool use_rules_for          = false;
-    // html_node_t* head_element   = NULL;
-    // html_node_t* form_element   = NULL;
+    html_node_t* head_element   = NULL;
+    html_node_t* form_element   = NULL;
     bool scripting_enabled      = false;
 
     while (true)
@@ -473,30 +522,27 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(HTML, HTML_SIZE, &t))
                 {
-                    html_node_t* element = create_element_from_token(&t, document);
+                    html_node_t* element = create_element(t.name, t.name_size, document);
                     html_node_append(document, element);
                     stack_push(element);
 
                     mode = HTML_PARSER_MODE_BEFORE_HEAD;
                 }
+                else if (is_end && !(name_is(HTML, HTML_SIZE, &t) ||
+                                     name_is(HEAD, HEAD_SIZE, &t) ||
+                                     name_is(BODY, BODY_SIZE, &t) ||
+                                     name_is(BR, BR_SIZE, &t)))
+                {
+                    // todo: parse error, ignore token
+                }
                 else
                 {
-                    if (is_end && !(name_is(HTML, HTML_SIZE, &t) ||
-                                    name_is(HEAD, HEAD_SIZE, &t) ||
-                                    name_is(BODY, BODY_SIZE, &t) ||
-                                    name_is(BR, BR_SIZE, &t)))
-                    {
-                        // todo: parse error
-                    }
-                    else
-                    {
-                        html_node_t* element = create_element_from_buffer("html", 4, document);
-                        html_node_append(document, element);
-                        stack_push(element);
-    
-                        mode = HTML_PARSER_MODE_BEFORE_HEAD;
-                        consume = false;
-                    }
+                    html_node_t* element = create_element("html", 4, document);
+                    html_node_append(document, element);
+                    stack_push(element);
+
+                    mode                = HTML_PARSER_MODE_BEFORE_HEAD;
+                    consume             = false;
                 }
                 break;
 
@@ -523,11 +569,21 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(HEAD, HEAD_SIZE, &t))
                 {
-                    
+                    head_element        = insert_html_element(t.name, t.name_size);
+                    mode                = HTML_PARSER_MODE_IN_HEAD;
+                }
+                else if (is_end && !(name_is(HTML, HTML_SIZE, &t) ||
+                                     name_is(HEAD, HEAD_SIZE, &t) ||
+                                     name_is(BODY, BODY_SIZE, &t) ||
+                                     name_is(BR, BR_SIZE, &t)))
+                {
+                    // todo: parse error
                 }
                 else
                 {
-                    
+                    head_element        = insert_html_element(HEAD, HEAD_SIZE);
+                    mode                = HTML_PARSER_MODE_IN_HEAD;
+                    consume             = false;
                 }
                 break;
 
@@ -535,7 +591,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
             case HTML_PARSER_MODE_IN_HEAD:
                 if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
                 {
-                    
+                    insert_character(&t);
                 }
                 else if (is_comment)
                 {
@@ -547,51 +603,80 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(HTML, HTML_SIZE, &t))
                 {
-                    
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_IN_BODY;
+                    original_mode       = HTML_PARSER_MODE_IN_HEAD;
+                    will_use_rules_for  = true;
                 }
                 else if (is_start && (name_is(BASE, BASE_SIZE, &t) ||
                                       name_is(BASEFONT, BASEFONT_SIZE, &t) ||
                                       name_is(BGSOUND, BGSOUND_SIZE, &t) ||
                                       name_is(LINK, LINK_SIZE, &t)))
                 {
-                    
+                    insert_html_element(t.name, t.name_size);
+                    stack_pop();
+
+                    // todo: ack self closing tag
                 }
                 else if (is_start && name_is(META, META_SIZE, &t))
                 {
-                    
+                    insert_html_element(t.name, t.name_size);
+                    stack_pop();
+
+                    // todo: ack self closing tag
+                    // todo: speculative parsing logic
                 }
                 else if (is_start && name_is(TITLE, TITLE_SIZE, &t))
                 {
-                    
+                    insert_html_element(t.name, t.name_size);
+                    html_tokenizer_set_state(HTML_TOKENIZER_RCDATA_STATE);
+
+                    original_mode       = mode;
+                    mode                = HTML_PARSER_MODE_TEXT;
                 }
                 else if ((is_start && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t) && scripting_enabled) || 
                          (is_start && (name_is(NOFRAMES, NOFRAMES_SIZE, &t) || name_is(STYLE, STYLE_SIZE, &t))))
                 {
-                    
+                    insert_html_element(t.name, t.name_size);
+                    html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
+
+                    original_mode       = mode;
+                    mode                = HTML_PARSER_MODE_TEXT;
                 }
                 else if (is_start && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t) && !scripting_enabled)
                 {
-                    
+                    insert_html_element(t.name, t.name_size);
+                    mode                = HTML_PARSER_MODE_IN_HEAD_NOSCRIPT;
                 }
                 else if (is_start && name_is(SCRIPT, SCRIPT_SIZE, &t))
                 {
-                    assert(false);
+                    NOT_IMPLEMENTED
                 }
                 else if (is_end && name_is(HEAD, HEAD_SIZE, &t))
                 {
-                    
+                    stack_pop();
+                    mode                = HTML_PARSER_MODE_AFTER_HEAD;
                 }
                 else if (is_start && name_is(TEMPLATE, TEMPLATE_SIZE, &t))
                 {
-                    assert(false);
+                    NOT_IMPLEMENTED
                 }
                 else if (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t))
                 {
-                    assert(false);
+                    NOT_IMPLEMENTED
+                }
+                else if ((is_start && name_is(HEAD, HEAD_SIZE, &t)) ||
+                         (is_end && !(name_is(BODY, BODY_SIZE, &t) ||
+                                      name_is(HTML, HTML_SIZE, &t) ||
+                                      name_is(BR, BR_SIZE, &t))))
+                {
+                    // todo: parse error
                 }
                 else
                 {
-                    
+                    stack_pop();
+                    mode                = HTML_PARSER_MODE_AFTER_HEAD;
+                    consume             = false; 
                 }
                 break;
 
@@ -603,11 +688,15 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(HTML, HTML_SIZE, &t))
                 {
-                    
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_IN_BODY;
+                    original_mode       = HTML_PARSER_MODE_IN_HEAD_NOSCRIPT;
+                    will_use_rules_for  = true;
                 }
                 else if (is_end && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t))
                 {
-                    
+                    stack_pop();
+                    mode                = HTML_PARSER_MODE_IN_HEAD;
                 }
                 else if ((is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' ') ) ||
                          (is_comment) ||
@@ -618,16 +707,23 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                        name_is(NOFRAMES, NOFRAMES_SIZE, &t) ||
                                        name_is(STYLE, STYLE_SIZE, &t))))
                 {
-                    
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_IN_HEAD;
+                    original_mode       = HTML_PARSER_MODE_IN_HEAD_NOSCRIPT;
+                    will_use_rules_for  = true;
                 }
-                else if (is_start && (name_is(HEAD, HEAD_SIZE, &t) || name_is(NOSCRIPT, NOSCRIPT_SIZE, &t)))
+                else if ((is_start && (name_is(HEAD, HEAD_SIZE, &t) ||
+                                       name_is(NOSCRIPT, NOSCRIPT_SIZE, &t))) ||
+                        (is_end && !(name_is(BR, BR_SIZE, &t))))
                 {
-                    // todo: parse error
+                    // todo: parse error, ignore token
                 }
                 else
                 {
                     // todo: parse error
-                    
+                    stack_pop();
+                    mode                = HTML_PARSER_MODE_IN_HEAD;
+                    consume             = false; 
                 }
                 break;
 
@@ -635,7 +731,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
             case HTML_PARSER_MODE_AFTER_HEAD:
                 if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
                 {
-                    
+                    insert_character(&t);
                 }
                 else if (is_comment)
                 {
@@ -643,19 +739,25 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_doctype)
                 {
-                    // todo: parse error
+                    // todo: parse error, ignore token
                 }
                 else if (is_start && name_is(HTML, HTML_SIZE, &t))
                 {
-                    
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_IN_BODY;
+                    original_mode       = HTML_PARSER_MODE_AFTER_HEAD;
+                    will_use_rules_for  = true;
                 }
                 else if (is_start && name_is(BODY, BODY_SIZE, &t))
                 {
-                    
+                    insert_html_element(t.name, t.name_size);
+                    mode                = HTML_PARSER_MODE_IN_BODY;
+                    // todo: self-closing tag ack
                 }
                 else if (is_start && name_is(FRAMESET, FRAMESET_SIZE, &t))
                 {
-                    
+                    insert_html_element(t.name, t.name_size);
+                    mode                = HTML_PARSER_MODE_IN_FRAMESET;
                 }
                 else if (is_start && (name_is(BASE, BASE_SIZE, &t)          ||
                                       name_is(BASEFONT, BASEFONT_SIZE, &t)  ||
@@ -669,11 +771,22 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(STYLE, STYLE_SIZE, &t)))
                 {
                     // todo: parse error
-                    
+                    assert(head_element);
+                    stack_push(head_element);
+
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_IN_HEAD;
+                    original_mode       = HTML_PARSER_MODE_AFTER_HEAD;
+                    will_use_rules_for  = true;
+
+                    remove_from_stack(head_element);
                 }
                 else if (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t))
                 {
-                    
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_IN_HEAD;
+                    original_mode       = HTML_PARSER_MODE_AFTER_HEAD;
+                    will_use_rules_for  = true;
                 }
                 else if ( (is_start && name_is(HEAD, HEAD_SIZE, &t))||
                           (is_end && !(name_is(BODY, BODY_SIZE, &t) ||
@@ -684,7 +797,9 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else
                 {
-                    
+                    insert_html_element(BODY, BODY_SIZE);
+                    mode                = HTML_PARSER_MODE_IN_BODY;
+                    consume             = false;
                 }
                 break;
 
@@ -692,15 +807,18 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
             case HTML_PARSER_MODE_IN_BODY:
                 if (is_character && t.data[0] == '\0')
                 {
-                    // todo: parse error
+                    // todo: parse error, ignore token
                 }
                 else if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
                 {
-                    
+                    // todo: reconstruct active formatting elements
+                    insert_character(&t);
                 }
                 else if (is_character)
                 {
-                    
+                    // todo: reconstruct active formatting elements
+                    insert_character(&t);
+                    // todo: frameset-ok flag
                 }
                 else if (is_comment)
                 {
@@ -713,7 +831,8 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 else if (is_start && name_is(HTML, HTML_SIZE, &t))
                 {
                     // todo: parse error
-                    
+                    if (stack_contains_element(TEMPLATE, TEMPLATE_SIZE)) { break; }
+                    // todo: handle attributes logic
                 }
                 else if ((is_start && (name_is(BASE, BASE_SIZE, &t)         ||
                                        name_is(BASEFONT, BASEFONT_SIZE, &t) ||
@@ -727,27 +846,134 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                        name_is(STYLE, STYLE_SIZE, &t)))     ||
                         (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t)))
                 {
-                    
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_IN_HEAD;
+                    original_mode       = HTML_PARSER_MODE_IN_BODY;
+                    will_use_rules_for  = true;
                 }
                 else if (is_start && name_is(BODY, BODY_SIZE, &t))
                 {
                     // todo: parse error
+
+                    // If the stack of open elements has only one node on it, 
+                    // or if the second element on the stack of open elements is not a body element, 
+                    // or if there is a template element on the stack of open elements, 
+                    // then ignore the token. (fragment case or there is a template element on the stack)
+
+                    if ((stack_size == 0) ||
+                        (stack_size > 1 && !string_compare(stack[1]->name, stack[1]->name_size, BODY, BODY_SIZE)) ||
+                        (stack_contains_element(TEMPLATE, TEMPLATE_SIZE)))
+                    {
+                        // ignore
+                    }
+                    else
+                    {
+                        // todo: frameset-ok 
+                        // todo: handle attribute logic
+                    }
                 }
                 else if (is_start && name_is(FRAMESET, FRAMESET_SIZE, &t))
                 {
                     // todo: parse error
+
+                    if ((stack_size == 1) ||
+                        (stack_size > 1 && !string_compare(BODY, BODY_SIZE,  stack[1]->name, stack[1]->name_size)))
+                    {
+                        // ignore token
+                    }
+
+                    // todo: frameset-ok flag logic
+
+                    // todo: step 1 
+                    // todo: step 2
+                    insert_html_element(t.name, t.name_size);
+                    mode            = HTML_PARSER_MODE_IN_FRAMESET;
                 }
                 else if (is_eof)
                 {
+                    // todo: handle stack of open template insertion modes
+                    if (false)
+                    {
                     
+                    }
+                    else
+                    {
+                        if (!(stack_contains_element(DD, DD_SIZE)               ||
+                              stack_contains_element(DT, DT_SIZE)               ||
+                              stack_contains_element(LI, LI_SIZE)               ||
+                              stack_contains_element(OPTGROUP, OPTGROUP_SIZE)   ||
+                              stack_contains_element(OPTION, OPTION_SIZE)       ||
+                              stack_contains_element(P, P_SIZE)                 ||
+                              stack_contains_element(RB, RP_SIZE)               ||
+                              stack_contains_element(RT, RT_SIZE)               ||
+                              stack_contains_element(RTC, RTC_SIZE)             ||
+                              stack_contains_element(TBODY, TBODY_SIZE)         ||
+                              stack_contains_element(TD, TD_SIZE)               ||
+                              stack_contains_element(TFOOT, TFOOT_SIZE)         ||
+                              stack_contains_element(TH, TH_SIZE)               ||
+                              stack_contains_element(THEAD, THEAD_SIZE)         ||
+                              stack_contains_element(TR, TR_SIZE)               ||
+                              stack_contains_element(BODY, BODY_SIZE)           ||
+                              stack_contains_element(HTML, HTML_SIZE)))
+                        {
+                            // todo: parse error
+                        }
+                        // todo: Stop Parsing
+                    }
                 }
                 else if (is_end && name_is(BODY, BODY_SIZE, &t))
                 {
-                    
+                    // todo: handle scope logic
+                    if (!(stack_contains_element(DD, DD_SIZE)               ||
+                          stack_contains_element(DT, DT_SIZE)               ||
+                          stack_contains_element(LI, LI_SIZE)               ||
+                          stack_contains_element(OPTGROUP, OPTGROUP_SIZE)   ||
+                          stack_contains_element(OPTION, OPTION_SIZE)       ||
+                          stack_contains_element(P, P_SIZE)                 ||
+                          stack_contains_element(RB, RP_SIZE)               ||
+                          stack_contains_element(RT, RT_SIZE)               ||
+                          stack_contains_element(RTC, RTC_SIZE)             ||
+                          stack_contains_element(TBODY, TBODY_SIZE)         ||
+                          stack_contains_element(TD, TD_SIZE)               ||
+                          stack_contains_element(TFOOT, TFOOT_SIZE)         ||
+                          stack_contains_element(TH, TH_SIZE)               ||
+                          stack_contains_element(THEAD, THEAD_SIZE)         ||
+                          stack_contains_element(TR, TR_SIZE)               ||
+                          stack_contains_element(BODY, BODY_SIZE)           ||
+                          stack_contains_element(HTML, HTML_SIZE)))
+                    {
+                        // todo: parse error
+                    }
+
+                    mode                = HTML_PARSER_MODE_AFTER_BODY;
+                    consume             = false;
                 }
-                else if (is_end && name_is(BODY, BODY_SIZE, &t))
+                else if (is_end && name_is(HTML, HTML_SIZE, &t))
                 {
-                    
+                    // todo: handle scope logic
+                    if (!(stack_contains_element(DD, DD_SIZE)               ||
+                          stack_contains_element(DT, DT_SIZE)               ||
+                          stack_contains_element(LI, LI_SIZE)               ||
+                          stack_contains_element(OPTGROUP, OPTGROUP_SIZE)   ||
+                          stack_contains_element(OPTION, OPTION_SIZE)       ||
+                          stack_contains_element(P, P_SIZE)                 ||
+                          stack_contains_element(RB, RP_SIZE)               ||
+                          stack_contains_element(RT, RT_SIZE)               ||
+                          stack_contains_element(RTC, RTC_SIZE)             ||
+                          stack_contains_element(TBODY, TBODY_SIZE)         ||
+                          stack_contains_element(TD, TD_SIZE)               ||
+                          stack_contains_element(TFOOT, TFOOT_SIZE)         ||
+                          stack_contains_element(TH, TH_SIZE)               ||
+                          stack_contains_element(THEAD, THEAD_SIZE)         ||
+                          stack_contains_element(TR, TR_SIZE)               ||
+                          stack_contains_element(BODY, BODY_SIZE)           ||
+                          stack_contains_element(HTML, HTML_SIZE)))
+                    {
+                        // todo: parse error
+                    }
+
+                    mode                = HTML_PARSER_MODE_AFTER_BODY;
+                    consume             = false;
                 }
                 else if (is_start && (name_is(ADDRESS, ADDRESS_SIZE, &t)        ||
                                       name_is(ARTICLE, ARTICLE_SIZE, &t)        ||
@@ -775,7 +1001,9 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(SUMMARY, SUMMARY_SIZE, &t)        ||
                                       name_is(UL, UL_SIZE, &t)))
                 {
-                    
+                    // todo: scope logic
+
+                    insert_html_element(t.name, t.name_size);
                 }
                 else if (is_start && (name_is(H1, H1_SIZE, &t)  ||
                                       name_is(H2, H2_SIZE, &t)  ||
@@ -784,32 +1012,64 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(H5, H5_SIZE, &t)  ||
                                       name_is(H6, H6_SIZE, &t)))
                 {
-                    
+                    // todo: scope logic
+
+                    html_node_t* current = stack[stack_idx];
+                    if (string_compare(H1, H1_SIZE, current->name, current->name_size) ||
+                        string_compare(H2, H2_SIZE, current->name, current->name_size) ||
+                        string_compare(H3, H3_SIZE, current->name, current->name_size) ||
+                        string_compare(H4, H4_SIZE, current->name, current->name_size) ||
+                        string_compare(H5, H5_SIZE, current->name, current->name_size) ||
+                        string_compare(H6, H6_SIZE, current->name, current->name_size))
+                    {
+                        // todo: parse error
+                        stack_pop();
+                    }
+                    insert_html_element(t.name, t.name_size);
                 }
-                else if (is_start && (name_is(PRE, PRE_SIZE, &t) || name_is(LISTING, LISTING_SIZE, &t)))
+                else if (is_start && (name_is(PRE, PRE_SIZE, &t) || 
+                                      name_is(LISTING, LISTING_SIZE, &t)))
                 {
-                    
+                    // todo: scope logic
+                    insert_html_element(t.name, t.name_size);
+                    // todo: check if next token is \n
+                    // todo: frameset-ok flag
                 }
                 else if (is_start && name_is(FORM, FORM_SIZE, &t))
                 {
-                    
+                    if (form_element && !stack_contains_element(TEMPLATE, TEMPLATE_SIZE))
+                    {
+                        // todo: parse error
+                        // ignore token
+                    }
+                    else
+                    {
+                        // todo: scope logic
+                        html_node_t* element = insert_html_element(t.name, t.name_size);
+                        if (!stack_contains_element(TEMPLATE, TEMPLATE_SIZE))
+                        {
+                            form_element = element;
+                        }
+                    }
                 }
                 else if (is_start && name_is(LI, LI_SIZE, &t))
                 {
-                
+                    // todo: implement
+                    NOT_IMPLEMENTED
                 }
                 else if (is_start && (name_is(DT, DT_SIZE, &t) || name_is(DD, DD_SIZE, &t)))
                 {
                     // todo: implement
+                    NOT_IMPLEMENTED
                 }
                 else if (is_start && name_is(PLAINTEXT, PLAINTEXT_SIZE, &t))
                 {
                     // todo: handle scope logic - If the stack of open elements has a p element in button scope, then close a p element.
-                    
+                    NOT_IMPLEMENTED
                 }
                 else if (is_start && name_is(BUTTON, BUTTON_SIZE, &t))
                 {
-                    
+                    NOT_IMPLEMENTED
                 }
                 else if (is_end && (name_is(ADDRESS, ADDRESS_SIZE, &t)      || name_is(ARTICLE, ARTICLE_SIZE, &t)       || 
                                     name_is(ASIDE, ASIDE_SIZE, &t)          || name_is(BLOCKQUOTE, BLOCKQUOTE_SIZE, &t) ||
@@ -826,7 +1086,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                                     name_is(SECTION, SECTION_SIZE, &t)      || name_is(SUMMARY, SUMMARY_SIZE, &t)       ||
                                     name_is(UL, UL_SIZE, &t) ))
                 {
-                    
+                    NOT_IMPLEMENTED
                 }
                 else if (is_end && name_is(FORM, FORM_SIZE, &t))
                 {
