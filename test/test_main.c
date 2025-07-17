@@ -2,6 +2,7 @@
 
 #include "util/test_utf8.h"
 #include "html/test_tokenizer.h"
+#include "html/test_parser.h"
 
 int32_t main()
 {
@@ -14,6 +15,7 @@ int32_t main()
     TEST_GROUP(test_html_tokenizer_rcdata);
     TEST_GROUP(test_html_tokenizer_rawtext);
     TEST_GROUP(test_html_tokenizer_script_data);
+    TEST_GROUP(test_html_parser_test1);
 
     TESTS_SUMMARY();
 

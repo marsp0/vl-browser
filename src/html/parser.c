@@ -240,8 +240,7 @@
 #define COLGROUP_SIZE       8
 #define CAPTION             "caption"
 #define CAPTION_SIZE        7
-#define HTML_NAMESPACE      "http://www.w3.org/1999/xhtml"
-#define HTML_NAMESPACE_SIZE 28
+
 
 /********************/
 /* static variables */
@@ -254,6 +253,7 @@ static html_node_t* stack[OPEN_STACK_MAX_SIZE]      = { 0 };
 static uint32_t stack_idx                           = 0;
 static uint32_t stack_size                          = 0;
 static html_node_t* document                        = NULL;
+static bool stop                                    = false;
 
 /********************/
 /* static functions */
@@ -277,7 +277,7 @@ static uint32_t get_tokens_size()
 
 static void stack_push(html_node_t* node)
 {
-    if (stack_idx > 0) { stack_idx++; }
+    if (stack_size > 0) { stack_idx++; }
     stack[stack_idx] = node;
 
     stack_size++;
@@ -415,15 +415,55 @@ static html_node_t* insert_html_element(unsigned char* name, uint32_t name_size)
 
 static void insert_character(html_token_t* token)
 {
-    assert(token);
+    
+    html_node_t* location = get_appropriate_insertion_location(NULL);
+    if (location->type == HTML_NODE_DOCUMENT) { return; }
+
+    html_node_t* last_child = location->last_child;
+    if (last_child && last_child->type == HTML_NODE_TEXT)
+    {
+        html_text_append_data(last_child, token->data, token->data_size);
+    }
+    else
+    {
+        html_node_t* node = html_text_new(document, token->data, token->data_size);
+        html_node_append(location, node);
+    }
+    
     return;
+}
+
+
+static void stop_parsing()
+{
+    // todo: step 1
+    // todo: step 2
+    // todo: step 3
+
+    while (stack_size > 0) { stack_pop(); }
+    stop = true;
+
+    // todo: step 5
+    // todo: step 6
+    // todo: step 7
+    // todo: step 8
+    // todo: step 9
+    // todo: step 10
+    // todo: step 11
 }
 
 /********************/
 /* public functions */
 /********************/
 
-void html_parser_run(const unsigned char* buffer, const uint32_t size)
+
+void html_parser_initialize()
+{
+
+}
+
+
+html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 {
     html_tokenizer_init(buffer, size, tokens, MAX_TOKENS);
 
@@ -437,7 +477,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
     html_node_t* form_element   = NULL;
     bool scripting_enabled      = false;
 
-    while (true)
+    while (!stop)
     {
         html_tokenizer_error_e err  = html_tokenizer_next();
         uint32_t tokens_size        = get_tokens_size();
@@ -502,7 +542,8 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                     //     document_data->compat_mode = string_new("quirks", 6);
                     // }
 
-                    mode = HTML_PARSER_MODE_BEFORE_HTML;
+                    consume                 = false;
+                    mode                    = HTML_PARSER_MODE_BEFORE_HTML;
                 }
                 break;
 
@@ -537,12 +578,13 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else
                 {
-                    html_node_t* element = create_element("html", 4, document);
+                    html_node_t* element    = create_element(HTML, HTML_SIZE, document);
+
                     html_node_append(document, element);
                     stack_push(element);
 
-                    mode                = HTML_PARSER_MODE_BEFORE_HEAD;
-                    consume             = false;
+                    mode                    = HTML_PARSER_MODE_BEFORE_HEAD;
+                    consume                 = false;
                 }
                 break;
 
@@ -918,7 +960,7 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
                         {
                             // todo: parse error
                         }
-                        // todo: Stop Parsing
+                        stop_parsing();
                     }
                 }
                 else if (is_end && name_is(BODY, BODY_SIZE, &t))
@@ -1933,6 +1975,8 @@ void html_parser_run(const unsigned char* buffer, const uint32_t size)
     }
 
     html_tokenizer_free();
+
+    return document;
 }
 
 void html_parser_free()

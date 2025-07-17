@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#include "dom/node.h"
+
 // https://html.spec.whatwg.org/multipage/parsing.html#the-insertion-mode
 typedef enum
 {
@@ -30,6 +32,6 @@ typedef enum
     HTML_PARSER_MODE_AFTER_AFTER_FRAMESET,
 } html_parser_mode_e;
 
-void html_parser_initialize();
-void html_parser_run(const unsigned char* buffer, const uint32_t size);
-void html_parser_free();
+void            html_parser_initialize();
+html_node_t*    html_parser_run(const unsigned char* buffer, const uint32_t size);
+void            html_parser_free();

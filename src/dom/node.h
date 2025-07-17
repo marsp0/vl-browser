@@ -60,15 +60,15 @@ struct html_node_t;
 // https://dom.spec.whatwg.org/#interface-document
 typedef struct
 {
-    unsigned char url[MAX_HTML_NAME_LEN];
+    unsigned char   url[MAX_HTML_NAME_LEN];
     uint32_t        url_size;
-    unsigned char uri[MAX_HTML_NAME_LEN];
+    unsigned char   uri[MAX_HTML_NAME_LEN];
     uint32_t        uri_size;
-    unsigned char compat_mode[MAX_HTML_NAME_LEN];
+    unsigned char   compat_mode[MAX_HTML_NAME_LEN];
     uint32_t        compat_mode_size;
-    unsigned char character_set[MAX_HTML_NAME_LEN];
+    unsigned char   character_set[MAX_HTML_NAME_LEN];
     uint32_t        character_set_size;
-    unsigned char content_type[MAX_HTML_NAME_LEN];
+    unsigned char   content_type[MAX_HTML_NAME_LEN];
     uint32_t        content_type_size;
 
     struct html_node_t* doctype;
@@ -79,18 +79,18 @@ typedef struct
 // https://dom.spec.whatwg.org/#element
 typedef struct
 {
-    unsigned char namespace[MAX_HTML_NAME_LEN];
+    unsigned char   namespace[MAX_HTML_NAME_LEN];
     uint32_t        namespace_size;
-    unsigned char prefix[MAX_HTML_NAME_LEN];
+    unsigned char   prefix[MAX_HTML_NAME_LEN];
     uint32_t        prefix_size;
-    unsigned char local_name[MAX_HTML_NAME_LEN];
+    unsigned char   local_name[MAX_HTML_NAME_LEN];
     uint32_t        local_name_size;
-    unsigned char tag_name[MAX_HTML_NAME_LEN];
+    unsigned char   tag_name[MAX_HTML_NAME_LEN];
     uint32_t        tag_name_size;
 
-    unsigned char id[MAX_HTML_NAME_LEN];
+    unsigned char   id[MAX_HTML_NAME_LEN];
     uint32_t        id_size;
-    unsigned char class_name[MAX_HTML_NAME_LEN];
+    unsigned char   class_name[MAX_HTML_NAME_LEN];
     uint32_t        class_name_size;
 } html_node_element_t;
 
@@ -107,7 +107,7 @@ typedef struct
 typedef struct html_node_t
 {
     html_node_type_e    type;
-    unsigned char            name[MAX_HTML_NAME_LEN];
+    unsigned char       name[MAX_HTML_NAME_LEN];
     uint32_t            name_size;
 
     unsigned char       base_uri[MAX_HTML_NAME_LEN];
@@ -117,8 +117,8 @@ typedef struct html_node_t
     struct html_node_t* document;
     struct html_node_t* parent; // also used for parent_element
 
-    struct html_node_t* children;
-    uint32_t            children_size;
+    // struct html_node_t* children[MAX_HTML_NODE_CHILDREN];
+    // uint32_t            children_size;
     struct html_node_t* first_child;
     struct html_node_t* last_child;
     struct html_node_t* prev_sibling;
@@ -151,7 +151,7 @@ bool                        html_node_is_same(html_node_t* node, html_node_t* ot
 bool                        html_node_contains(html_node_t* node, html_node_t* other);
 html_document_position_e    html_node_compare_document_position(html_node_t* node, html_node_t* other);
 bool                        html_node_insert_before(html_node_t* node, html_node_t* new_node, html_node_t* child);
-void                        html_node_append(html_node_t* node, html_node_t* new_node);
+html_node_t*                html_node_append(html_node_t* node, html_node_t* new_node);
 bool                        html_node_replace(html_node_t* node, html_node_t* new_node, html_node_t* child);
 bool                        html_node_remove(html_node_t* node, html_node_t* child);
 
@@ -173,4 +173,5 @@ void                        html_element_free(html_node_t* node);
 
 // text
 html_node_t*                html_text_new(html_node_t* document, unsigned char* data, uint32_t data_size);
+void                        html_text_append_data(html_node_t* node, unsigned char* data, uint32_t data_size);
 void                        html_text_free(html_node_t* node);
