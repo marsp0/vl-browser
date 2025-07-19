@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <string.h>
 
+#include <stdio.h>
+
 /*
  * Notes
  * 
@@ -284,97 +286,23 @@ static html_node_t* html_pre_insert_node(html_node_t* parent, html_node_t* node,
     return html_insert_node(parent, node, ref_child, false);
 }
 
-
-static html_node_t* html_node_new_internal()
-{
-    html_node_t* node = malloc(sizeof(html_node_t));
-    return node;
-}
-
-
-static html_node_t* html_node_new(html_node_t* document)
-{
-    html_node_t* node = html_node_new_internal();
-    node->document = document;
-
-    return node;
-}
-
-static void html_node_free(html_node_t* node)
-{
-    free(node);
-}
-
-static html_node_comment_t* html_node_comment_new(unsigned char* buffer, uint32_t size)
-{
-    html_node_comment_t* comment = malloc(sizeof(html_node_comment_t));
-    memcpy(comment->data, buffer, size);
-
-    return comment;
-}
-
-
-static html_node_document_t* html_node_document_new()
-{
-    html_node_document_t* document = malloc(sizeof(html_node_document_t));
-
-    document->parser_cannot_change_mode = false;
-
-    return document;
-}
-
-
-static html_node_doctype_t* html_node_doctype_new(unsigned char* name, uint32_t name_size,
-                                                  unsigned char* public_id, uint32_t public_id_size,
-                                                  unsigned char* system_id, uint32_t system_id_size)
-{
-    html_node_doctype_t* doctype = malloc(sizeof(html_node_doctype_t));
-    memcpy(doctype->name, name, name_size);
-    memcpy(doctype->public_id, public_id, public_id_size);
-    memcpy(doctype->system_id, system_id, system_id_size);
-
-    return doctype;
-}
-
-
-static html_node_element_t* html_node_element_new_internal(unsigned char* local_name, uint32_t local_name_size)
-{
-    html_node_element_t* element = malloc(sizeof(html_node_element_t));
-    memcpy(element->local_name, local_name, local_name_size);
-
-    return element;
-}
-
-
-static html_node_element_t* html_node_element_new(unsigned char* local_name, uint32_t local_name_size)
-{
-    html_node_element_t* result = NULL;
-
-    // todo: step 2
-    // todo: step 3
-    // todo: step 4
-    // todo: step 5
-
-    result = html_node_element_new_internal(local_name, local_name_size);
-
-    // todo: step 6.3 - finish
-
-    return result;
-}
-
-
-static html_node_text_t* html_node_text_new(unsigned char* data, uint32_t data_size)
-{
-    html_node_text_t* text = malloc(sizeof(html_node_text_t));
-    text->data_size = data_size;
-    memcpy(text->data, data, data_size);
-
-    return text;
-}
-
 /********************/
 /* public functions */
 /********************/
+
+
+html_node_t* html_node_new(html_node_type_e type, html_node_t* document)
+{
+    html_node_t* node = malloc(sizeof(html_node_t));
+
+    node->type          = type;
+    node->document      = document;
+
+    assert(node->type != HTML_NODE_INVALID);
+
+    return node;
+}
+
 
 html_node_t* html_node_append(html_node_t* node, html_node_t* new_node)
 {
@@ -382,119 +310,7 @@ html_node_t* html_node_append(html_node_t* node, html_node_t* new_node)
 }
 
 
-html_node_t* html_comment_new(unsigned char* buffer, uint32_t size, html_node_t* document)
+void html_node_free(html_node_t* node)
 {
-    html_node_t* node = html_node_new(document);
-    node->type = HTML_NODE_COMMENT;
-    node->comment_data = html_node_comment_new(buffer, size);
-
-    return node;
-}
-
-
-void html_comment_free(html_node_t* node)
-{
-    assert(node->type == HTML_NODE_COMMENT);
-
-    free(node->comment_data);
-    html_node_free(node);
-}
-
-
-html_node_t* html_document_new()
-{
-    html_node_t* node = html_node_new_internal();
-    node->document = node;
-
-    node->type = HTML_NODE_DOCUMENT;
-    node->document_data = html_node_document_new();
-
-    return node;
-}
-
-
-void html_document_free(html_node_t* node)
-{
-    assert(node->type == HTML_NODE_DOCUMENT);
-
-    free(node->document_data);
-    html_node_free(node);
-}
-
-
-html_node_t* html_doctype_new(html_node_t* document,
-                              unsigned char* name, uint32_t name_size, 
-                              unsigned char* public_id, uint32_t public_id_size, 
-                              unsigned char* system_id, uint32_t system_id_size)
-{
-    html_node_t* node = html_node_new(document);
-    node->type = HTML_NODE_DOCUMENT_TYPE;
-    node->doctype_data = html_node_doctype_new(name, name_size, public_id, public_id_size, system_id, system_id_size);
-
-    return node;
-}
-
-
-void html_doctype_free(html_node_t* node)
-{
-    assert(node->type == HTML_NODE_DOCUMENT_TYPE);
-
-    free(node->doctype_data);
-    html_node_free(node);
-}
-
-
-html_node_t* html_element_new(html_node_t* document, unsigned char* local_name, uint32_t local_name_size)
-{
-    html_node_t* node = html_node_new(document);
-    node->type = HTML_NODE_ELEMENT;
-    memcpy(node->name, local_name, local_name_size);
-    node->element_data = html_node_element_new(local_name, local_name_size);
-
-    return node;
-}
-
-
-void html_element_free(html_node_t* node)
-{
-    assert(node->type == HTML_NODE_ELEMENT);
-
-    free(node->doctype_data);
-    html_node_free(node);
-}
-
-
-html_node_t* html_text_new(html_node_t* document, unsigned char* data, uint32_t data_size)
-{
-    html_node_t* node = html_node_new(document);
-    node->type = HTML_NODE_TEXT;
-    node->text_data = html_node_text_new(data, data_size);
-
-    return node;
-}
-
-
-void html_text_append_data(html_node_t* node, unsigned char* data, uint32_t data_size)
-{
-    if (node->type != HTML_NODE_TEXT) { return; }
-    
-    html_node_text_t* text = node->text_data;
-
-    for (uint32_t i = 0; i < data_size; i++)
-    {
-        if (text->data_size >= MAX_HTML_NAME_LEN) { break; }
-
-        text->data[text->data_size] = data[i];
-        text->data_size++;
-
-    }
-}
-
-
-void html_text_free(html_node_t* node)
-{
-    assert(node->type == HTML_NODE_TEXT);
-
-    free(node->text_data);
-    html_node_free(node);
+    free(node);
 }
