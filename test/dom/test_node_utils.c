@@ -9,14 +9,13 @@ void ASSERT_NODE(html_node_t* a, html_node_t* e)
     {
         if (!a && !e) { return; }
 
-        ASSERT_POINTER(e, a);
+        ASSERT_POINTER(a, e);
         return;
     }
 
     ASSERT_EQUAL(a->type, e->type);
     ASSERT_EQUAL(a->name_size, e->name_size);
     ASSERT_STRING((char)a->name, (char)e->name, e->name_size);
-    printf("%s\n", a->name);
 
     if (a->type == e->type && a->type == HTML_NODE_DOCUMENT)
     {
@@ -43,6 +42,8 @@ void ASSERT_NODE(html_node_t* a, html_node_t* e)
     while (a_child || e_child)
     {
         ASSERT_NODE(a_child, e_child);
+
+        if (!a_child || !e_child) { break; }
 
         a_child = a_child->next_sibling;
         e_child = e_child->next_sibling;

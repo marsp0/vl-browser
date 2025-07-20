@@ -327,6 +327,7 @@ static bool stack_contains_element(unsigned char* name, uint32_t name_size)
         if (!current)                                       { return false; }
         if (current->type != HTML_NODE_ELEMENT)             { continue; }
         if (strncmp(current->name, name, name_size) == 0)   { return true; }
+        // todo: figure out which name to use and perform case insensitive comparison
     }
 
     return false;
@@ -462,9 +463,14 @@ static void stop_parsing()
 /********************/
 
 
-void html_parser_initialize()
+void html_parser_init()
 {
-
+    mode            = HTML_PARSER_MODE_INITIAL;
+    original_mode   = HTML_PARSER_MODE_INITIAL;
+    stack_idx       = 0;
+    stack_size      = 0;
+    document        = NULL;
+    stop            = false;
 }
 
 

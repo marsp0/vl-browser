@@ -319,5 +319,12 @@ html_node_t* html_node_append(html_node_t* node, html_node_t* new_node)
 
 void html_node_free(html_node_t* node)
 {
+    html_node_t* child = node->last_child;
+    while (child)
+    {
+        html_node_t* prev = child->prev_sibling;
+        html_node_free(child);
+        child = prev;
+    }
     free(node);
 }
