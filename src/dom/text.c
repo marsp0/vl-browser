@@ -13,6 +13,7 @@ html_node_t* html_text_new(html_node_t* document, unsigned char* data, uint32_t 
     memcpy(text->data, data, data_size);
 
     node->data              = (void*)text;
+    memcpy(node->name, "#text", sizeof("#text") - 1);
 
     return node;
 }

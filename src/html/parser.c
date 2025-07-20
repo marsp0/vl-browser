@@ -7,6 +7,11 @@
 
 #include "html/tokenizer.h"
 #include "dom/node.h"
+#include "dom/comment.h"
+#include "dom/document.h"
+#include "dom/doctype.h"
+#include "dom/element.h"
+#include "dom/text.h"
 
 /*
  * Notes

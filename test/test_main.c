@@ -16,8 +16,8 @@ int32_t main()
     // TEST_GROUP(test_html_tokenizer_rcdata);
     // TEST_GROUP(test_html_tokenizer_rawtext);
     // TEST_GROUP(test_html_tokenizer_script_data);
-    // TEST_GROUP(test_html_parser_test1);
     TEST_GROUP(test_html_node);
+    TEST_GROUP(test_html_parser_test1);
 
     TESTS_SUMMARY();
 

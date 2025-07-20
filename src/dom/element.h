@@ -1,6 +1,9 @@
 #pragma once
 
-#include "dom/element.h"
+#include <stdint.h>
+
+#include "dom/node.h"
+#include "html/constants.h"
 
 // https://dom.spec.whatwg.org/#element
 typedef struct

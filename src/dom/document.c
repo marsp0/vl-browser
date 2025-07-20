@@ -18,6 +18,7 @@ html_node_t* html_document_new()
     document->parser_cannot_change_mode = false;
 
     node->data                          = (void*)document;
+    memcpy(node->name, "#document", sizeof("#document") - 1);
 
     return node;
 }

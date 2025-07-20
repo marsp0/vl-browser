@@ -3,7 +3,6 @@
 
 #include "test_parser_utils.h"
 
-
 static void test_when_input_is_pure_text_then_add_missing_nodes()
 {
     // #data

@@ -297,6 +297,13 @@ html_node_t* html_node_new(html_node_type_e type, html_node_t* document)
 
     node->type          = type;
     node->document      = document;
+    node->name_size     = 0;
+    node->base_uri_size = 0;
+    node->is_connected  = false;
+    node->first_child   = NULL;
+    node->last_child    = NULL;
+    node->next_sibling  = NULL;
+    node->prev_sibling  = NULL;
 
     assert(node->type != HTML_NODE_INVALID);
 

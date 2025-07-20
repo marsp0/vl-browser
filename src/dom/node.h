@@ -62,13 +62,6 @@ typedef struct html_node_t
 
 
 html_node_t*                html_node_new(html_node_type_e type, html_node_t* document);
-bool                        html_node_has_children(html_node_t* node);
-void                        html_node_normalize(html_node_t* node);
-html_node_t*                html_node_clone(html_node_t* node, bool subtree);
-bool                        html_node_is_equal(html_node_t* node, html_node_t* other);
-bool                        html_node_is_same(html_node_t* node, html_node_t* other);
-bool                        html_node_contains(html_node_t* node, html_node_t* other);
-html_document_position_e    html_node_compare_document_position(html_node_t* node, html_node_t* other);
 bool                        html_node_insert_before(html_node_t* node, html_node_t* new_node, html_node_t* child);
 html_node_t*                html_node_append(html_node_t* node, html_node_t* new_node);
 bool                        html_node_replace(html_node_t* node, html_node_t* new_node, html_node_t* child);

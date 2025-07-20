@@ -2,55 +2,51 @@
 
 #include <stdlib.h>
 
-static void ASSERT_NODE_ELEMENT(html_element_t* a, html_element_t* e)
+
+void ASSERT_NODE(html_node_t* a, html_node_t* e)
 {
-    ASSERT_EQUAL(a->namespace_size, e->namespace_size);
-    ASSERT_STRING((char)a->namespace, (char)e->namespace, a->namespace_size);
+    if (!a || !e)
+    {
+        if (!a && !e) { return; }
 
-    ASSERT_EQUAL(a->prefix_size, e->prefix_size);
-    ASSERT_STRING((char)a->prefix, (char)e->prefix, a->prefix_size);
+        ASSERT_POINTER(e, a);
+        return;
+    }
 
-    ASSERT_EQUAL(a->local_name_size, e->local_name_size);
-    ASSERT_STRING((char)a->local_name, (char)e->local_name, a->local_name_size);
+    ASSERT_EQUAL(a->type, e->type);
+    ASSERT_EQUAL(a->name_size, e->name_size);
+    ASSERT_STRING((char)a->name, (char)e->name, e->name_size);
+    printf("%s\n", a->name);
 
-    ASSERT_EQUAL(a->tag_name_size, e->tag_name_size);
-    ASSERT_STRING((char)a->tag_name, (char)e->tag_name, a->tag_name_size);
+    if (a->type == e->type && a->type == HTML_NODE_DOCUMENT)
+    {
+        html_document_t* a_data = (html_document_t*)a->data;
+        html_document_t* e_data = (html_document_t*)e->data;
+        ASSERT_NODE_DOCUMENT(a_data, e_data);
+    }
+    if (a->type == e->type && a->type == HTML_NODE_ELEMENT)
+    {
+        html_element_t* a_data = (html_element_t*)a->data;
+        html_element_t* e_data = (html_element_t*)e->data;
+        ASSERT_NODE_ELEMENT(a_data, e_data);
+    }
+    if (a->type == e->type && a->type == HTML_NODE_TEXT)
+    {
+        html_text_t* a_data = (html_text_t*)a->data;
+        html_text_t* e_data = (html_text_t*)e->data;
+        ASSERT_NODE_TEXT(a_data, e_data);
+    }
 
-    ASSERT_EQUAL(a->id_size, e->id_size);
-    ASSERT_STRING((char)a->id, (char)e->id, a->id_size);
+    html_node_t* a_child = a->first_child;
+    html_node_t* e_child = e->first_child;
 
-    ASSERT_EQUAL(a->class_name_size, e->class_name_size);
-    ASSERT_STRING((char)a->class_name, (char)e->class_name, a->class_name_size);
-}
+    while (a_child || e_child)
+    {
+        ASSERT_NODE(a_child, e_child);
 
-
-static void ASSERT_NODE_TEXT(html_text_t* a, html_text_t* e)
-{
-    ASSERT_EQUAL(a->data_size, e->data_size);
-    ASSERT_STRING((char)a->data, (char)e->data, a->data_size);
-}
-
-
-static void ASSERT_NODE_DOCUMENT(html_document_t* a, html_document_t* e)
-{
-    ASSERT_EQUAL(a->parser_cannot_change_mode, e->parser_cannot_change_mode);
-
-    ASSERT_EQUAL(a->url_size, e->url_size);
-    ASSERT_STRING((char)a->url, (char)e->url, a->url_size);
-
-    ASSERT_EQUAL(a->uri_size, e->uri_size);
-    ASSERT_STRING((char)a->uri, (char)e->uri, a->uri_size);
-
-    ASSERT_EQUAL(a->compat_mode_size, e->compat_mode_size);
-    ASSERT_STRING((char)a->compat_mode, (char)e->compat_mode, a->compat_mode_size);
-
-    ASSERT_EQUAL(a->character_set_size, e->character_set_size);
-    ASSERT_STRING((char)a->character_set, (char)e->character_set, a->character_set_size);
-
-    ASSERT_EQUAL(a->content_type_size, e->content_type_size);
-    ASSERT_STRING((char)a->content_type, (char)e->content_type, a->content_type_size);
-
-    // ASSERT_NODE_DOCTYPE(a->doctype, e->doctype);
+        a_child = a_child->next_sibling;
+        e_child = e_child->next_sibling;
+    }
 }
 
 
@@ -104,60 +100,4 @@ html_element_t create_element_node(unsigned char* name, uint32_t name_size)
     memcpy(node.local_name, name, name_size);
 
     return node;
-}
-
-
-void ASSERT_NODE(html_node_t* a, html_node_t* e)
-{
-    ASSERT_EQUAL(a->type, e->type);
-    ASSERT_EQUAL(a->name_size, e->name_size);
-    ASSERT_STRING((char)a->name, (char)e->name, e->name_size);
-
-    if (a->type == e->type && a->type == HTML_NODE_DOCUMENT)
-    {
-        html_document_t* a_doc = (html_document_t*)a->data;
-        html_document_t* e_doc = (html_document_t*)e->data;
-        ASSERT_NODE_DOCUMENT(a_doc, e_doc);
-    }
-    if (a->type == e->type && a->type == HTML_NODE_ELEMENT)
-    {
-        html_element_t* a_element = (html_element_t*)a->data;
-        html_element_t* e_element = (html_element_t*)e->data;
-        ASSERT_NODE_ELEMENT(a_element, e_element);
-    }
-    if (a->type == e->type && a->type == HTML_NODE_TEXT)
-    {
-        html_text_t* a_text = (html_text_t*)a->data;
-        html_text_t* e_text = (html_text_t*)e->data;
-        ASSERT_NODE_TEXT(a_text, e_text);
-    }
-
-    html_node_t* a_child = a->first_child;
-    html_node_t* e_child = e->first_child;
-    while (a_child || e_child)
-    {
-        ASSERT_NODE(a_child, e_child);
-
-        if (a_child->type == HTML_NODE_DOCUMENT)
-        {
-            html_document_t* a_doc = (html_document_t*)a_child->data;
-            html_document_t* e_doc = (html_document_t*)e_child->data;
-            ASSERT_NODE_DOCUMENT(a_doc, e_doc);
-        }
-        if (a_child->type == HTML_NODE_ELEMENT)
-        {
-            html_element_t* a_element = (html_element_t*)a_child->data;
-            html_element_t* e_element = (html_element_t*)e_child->data;
-            ASSERT_NODE_ELEMENT(a_element, e_element);
-        }
-        if (a_child->type == HTML_NODE_TEXT)
-        {
-            html_text_t* a_text = (html_text_t*)a_child->data;
-            html_text_t* e_text = (html_text_t*)e_child->data;
-            ASSERT_NODE_TEXT(a_text, e_text);
-        }
-
-        a_child = a_child->next_sibling;
-        e_child = e_child->next_sibling;
-    }
 }
