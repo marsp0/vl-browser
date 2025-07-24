@@ -12,6 +12,7 @@
 #include "dom/doctype.h"
 #include "dom/element.h"
 #include "dom/text.h"
+#include "util/not_implemented.h"
 
 /*
  * Notes
@@ -21,12 +22,6 @@
 /********************/
 /*      defines     */
 /********************/
-
-#define NOT_IMPLEMENTED     do                                                              \
-                            {                                                               \
-                                printf("Section not implemented: parser.c:%d\n", __LINE__); \
-                                assert(false);                                              \
-                            } while(0);                                                     \
 
 #define MAX_TOKENS          10
 #define OPEN_STACK_MAX_SIZE 500
@@ -255,6 +250,7 @@ typedef enum
 {
     GENERIC_SCOPE,
     BUTTON_SCOPE,
+    TABLE_SCOPE,
 } html_element_scope_e;
 
 static html_parser_mode_e mode                      = HTML_PARSER_MODE_INITIAL;
@@ -319,7 +315,7 @@ static void remove_from_stack(html_node_t* node)
 }
 
 
-static bool name_is(unsigned char* name, uint32_t name_size, html_token_t* token)
+static bool name_is(const unsigned char* name, const uint32_t name_size, const html_token_t* token)
 {
     if (token->name_size != name_size) { return false; }
 
@@ -352,17 +348,23 @@ static bool in_scope(unsigned char* name, uint32_t name_size, html_element_scope
 
     while (i >= 0)
     {
-        if (strncmp(name, element->local_name, name_size) == 0) { return true; }
+        const unsigned char* local_name = element->local_name;
 
-        if (strncmp(APPLET, element->local_name, APPLET_SIZE) == 0   ||
-            strncmp(CAPTION, element->local_name, CAPTION_SIZE) == 0 ||
-            strncmp(HTML, element->local_name, HTML_SIZE) == 0       ||
-            strncmp(TABLE, element->local_name, TABLE_SIZE) == 0     ||
-            strncmp(TD, element->local_name, TD_SIZE) == 0           ||
-            strncmp(TH, element->local_name, TH_SIZE) == 0           ||
-            strncmp(MARQUEE, element->local_name, MARQUEE_SIZE) == 0 ||
-            strncmp(OBJECT, element->local_name, OBJECT_SIZE) == 0   ||
-            strncmp(TEMPLATE, element->local_name, TEMPLATE_SIZE) == 0)
+        if (strncmp(name, local_name, name_size) == 0) { return true; }
+
+        if (strncmp(HTML, local_name, HTML_SIZE) == 0       ||
+            strncmp(TABLE, local_name, TABLE_SIZE) == 0     ||
+            strncmp(TEMPLATE, local_name, TEMPLATE_SIZE) == 0)
+        {
+            return false;
+        }
+
+        if ((scope != TABLE_SCOPE) && (strncmp(APPLET, local_name, APPLET_SIZE) == 0   ||
+                                       strncmp(CAPTION, local_name, CAPTION_SIZE) == 0 ||
+                                       strncmp(TD, local_name, TD_SIZE) == 0           ||
+                                       strncmp(TH, local_name, TH_SIZE) == 0           ||
+                                       strncmp(MARQUEE, local_name, MARQUEE_SIZE) == 0 ||
+                                       strncmp(OBJECT, local_name, OBJECT_SIZE) == 0))
         {
             return false;
         }
@@ -512,22 +514,23 @@ static void generate_implied_end_tags(unsigned char* name, uint32_t name_size)
     {
         html_node_t* node = stack[stack_idx];
         html_element_t* element = (html_element_t*)node->data;
+        const unsigned char* local_name = element->local_name;
 
-        if (strncmp(element->local_name, name, name_size) == 0)
+        if (name_size > 0 && strncmp(local_name, name, name_size) == 0)
         {
             return;
         }
 
-        if (strncmp(element->local_name, DD, DD_SIZE) == 0              ||
-            strncmp(element->local_name, DT, DT_SIZE) == 0              ||
-            strncmp(element->local_name, LI, LI_SIZE) == 0              ||
-            strncmp(element->local_name, OPTGROUP, OPTGROUP_SIZE) == 0  ||
-            strncmp(element->local_name, OPTION, OPTION_SIZE) == 0      ||
-            strncmp(element->local_name, P, P_SIZE) == 0                ||
-            strncmp(element->local_name, RB, RB_SIZE) == 0              ||
-            strncmp(element->local_name, RP, RP_SIZE) == 0              ||
-            strncmp(element->local_name, RT, RT_SIZE) == 0              ||
-            strncmp(element->local_name, RTC, RTC_SIZE) == 0)
+        if (strncmp(local_name, DD, DD_SIZE) == 0              ||
+            strncmp(local_name, DT, DT_SIZE) == 0              ||
+            strncmp(local_name, LI, LI_SIZE) == 0              ||
+            strncmp(local_name, OPTGROUP, OPTGROUP_SIZE) == 0  ||
+            strncmp(local_name, OPTION, OPTION_SIZE) == 0      ||
+            strncmp(local_name, P, P_SIZE) == 0                ||
+            strncmp(local_name, RB, RB_SIZE) == 0              ||
+            strncmp(local_name, RP, RP_SIZE) == 0              ||
+            strncmp(local_name, RT, RT_SIZE) == 0              ||
+            strncmp(local_name, RTC, RTC_SIZE) == 0)
         {
             stack_pop();
         }
@@ -558,6 +561,31 @@ static void close_p_element()
         stack_pop();
     }
 }
+
+
+static void close_cell()
+{
+    generate_implied_end_tags(NULL, 0);
+
+    html_node_t* node = stack[stack_idx];
+    html_element_t* element = (html_element_t*)(node->data);
+    if (strncmp(element->local_name, TD, TD_SIZE) != 0 && strncmp(element->local_name, TH, TH_SIZE) != 0)
+    {
+        // todo: parse errors
+    }
+
+    while (stack_size > 0 && strncmp(element->local_name, TH, TH_SIZE) != 0 && strncmp(element->local_name, TD, TD_SIZE))
+    {
+        stack_pop();
+        node = stack[stack_idx];
+        element = (html_element_t*)node->data;
+    }
+
+    // todo: Clear the list of active formatting elements up to the last marker.
+
+    mode = HTML_PARSER_MODE_IN_ROW;
+}
+
 
 /********************/
 /* public functions */
@@ -825,6 +853,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(BR, BR_SIZE, &t))))
                 {
                     // todo: parse error
+                    NOT_IMPLEMENTED
                 }
                 else
                 {
@@ -1295,7 +1324,9 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(TT, TT_SIZE, &t)          ||
                                       name_is(U, U_SIZE, &t)) )
                 {
-                    NOT_IMPLEMENTED
+                    // reconstruct active formatting elements
+                    insert_html_element(t.name, t.name_size);
+                    // push element onto list of active formatting elements
                 }
                 else if (is_start && name_is(NOBR, NOBR_SIZE, &t))
                 {
@@ -1332,7 +1363,11 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(TABLE, TABLE_SIZE, &t))
                 {
-                    NOT_IMPLEMENTED
+                    // todo: If the Document is not set to quirks mode, and the stack of open elements has a p element in button scope, then close a p element.
+                    insert_html_element(t.name, t.name_size);
+                    // Set the frameset-ok flag to "not ok".
+
+                    mode                = HTML_PARSER_MODE_IN_TABLE;
                 }
                 else if (is_end && name_is(BR, BR_SIZE, &t))
                 {
@@ -1503,7 +1538,11 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(TH, TH_SIZE, &t) ||
                                       name_is(TR, TR_SIZE, &t)))
                 {
-                    NOT_IMPLEMENTED
+                    // Clear the stack back to a table context. (See below.)
+                    insert_html_element(TBODY, TBODY_SIZE);
+
+                    mode                = HTML_PARSER_MODE_IN_TABLE_BODY;
+                    consume             = false;
                 }
                 else if (is_start && name_is(TABLE, TABLE_SIZE, &t))
                 {
@@ -1659,7 +1698,13 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 else if (is_start && (name_is(TH, TH_SIZE, &t) ||
                                       name_is(TD, TD_SIZE, &t)))
                 {
-                    NOT_IMPLEMENTED
+                    // todo: parse error
+                    // todo: Clear the stack back to a table body context. (See below.)
+
+                    insert_html_element(TR, TR_SIZE);
+
+                    mode                = HTML_PARSER_MODE_IN_ROW;
+                    consume             = false;
                 }
                 else if (is_end && (name_is(TBODY, TBODY_SIZE, &t) ||
                                     name_is(TFOOT, TFOOT_SIZE, &t) ||
@@ -1699,7 +1744,10 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 if (is_start && (name_is(TH, TH_SIZE, &t) ||
                                  name_is(TD, TD_SIZE, &t)))
                 {
-                    NOT_IMPLEMENTED
+                    // todo: Clear the stack back to a table row context. (See below.)
+                    insert_html_element(t.name, t.name_size);
+                    // todo: Insert a marker at the end of the list of active formatting elements.
+                    mode                = HTML_PARSER_MODE_IN_CELL;
                 }
                 else if (is_end && name_is(TR, TR_SIZE, &t))
                 {
@@ -1771,11 +1819,23 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                     name_is(TBODY, TBODY_SIZE, &t) ||
                                     name_is(TR, TR_SIZE, &t)))
                 {
-                    NOT_IMPLEMENTED
+                    if (in_scope(t.name, t.name_size, TABLE_SCOPE))
+                    {
+                        // todo: parse error
+                    }
+                    else
+                    {
+                        close_cell();
+                        printf("here\n");
+                        consume                 = false;
+                    }
                 }
                 else
                 {
-                    NOT_IMPLEMENTED
+                    consume                 = false;
+                    mode                    = HTML_PARSER_MODE_IN_BODY;
+                    original_mode           = HTML_PARSER_MODE_IN_CELL;
+                    will_use_rules_for      = true;
                 }
                 break;
 
