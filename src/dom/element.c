@@ -28,8 +28,8 @@ html_node_t* html_element_new(html_node_t* document, unsigned char* local_name, 
         element_name[i]         = local_name[i];
         tag_name[i]             = local_name[i];
 
-        if (local_name[i] < 'a')    { element_name[i] += 0x20; }
-        if (local_name[i] >= 'a')   { tag_name[i] -= 0x20; }
+        if (local_name[i] < 'a' && local_name[i] >= 'A')    { element_name[i] += 0x20; }
+        if (local_name[i] >= 'a' && local_name[i] <= 'z')   { tag_name[i] -= 0x20; }
     }
 
     element->namespace_size     = HTML_NAMESPACE_SIZE;

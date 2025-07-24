@@ -535,6 +535,96 @@ static void missing_tags_1()
 }
 
 
+// static void missing_tags_2()
+// {
+//     // #data
+//     // <b><table><td></b><i></table>X
+//     // #errors
+//     // (1,3): expected-doctype-but-got-start-tag
+//     // (1,14): unexpected-cell-in-table-body
+//     // (1,18): unexpected-end-tag
+//     // (1,29): unexpected-cell-end-tag
+//     // (1,30): expected-closing-tag-but-got-eof
+//     // #document
+//     // | <html>
+//     // |   <head>
+//     // |   <body>
+//     // |     <b>
+//     // |       <table>
+//     // |         <tbody>
+//     // |           <tr>
+//     // |             <td>
+//     // |               <i>
+//     // |       "X"
+
+//     unsigned char buffer[] = "<b><table><td></b><i></table>X";
+//     html_node_t* document   = html_document_new();
+//     html_node_t* html       = html_element_new(document, "html", 4);
+//     html_node_t* head       = html_element_new(document, "head", 4);
+//     html_node_t* body       = html_element_new(document, "body", 4);
+//     html_node_t* b          = html_element_new(document, "b", 1);
+//     html_node_t* table      = html_element_new(document, "table", 5);
+//     html_node_t* tbody      = html_element_new(document, "tbody", 5);
+//     html_node_t* tr         = html_element_new(document, "tr", 2);
+//     html_node_t* td         = html_element_new(document, "td", 2);
+//     html_node_t* i          = html_element_new(document, "i", 1);
+//     html_node_t* text       = html_text_new(document, "X", 1);
+    
+
+//     APPEND_TO_TREE(document, html);
+//     APPEND_TO_TREE(html, head);
+//     APPEND_TO_TREE(html, body);
+//     APPEND_TO_TREE(body, b);
+//     APPEND_TO_TREE(b, table);
+//     APPEND_TO_TREE(table, tbody);
+//     APPEND_TO_TREE(tbody, tr);
+//     APPEND_TO_TREE(tr, td);
+//     APPEND_TO_TREE(td, i);
+//     APPEND_TO_TREE(b, text);
+
+//     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+// }
+
+
+static void test_parser_1()
+{
+    // #data
+    // <h1>Hello<h2>World
+    // #errors
+    // (1,4): expected-doctype-but-got-start-tag
+    // (1,13): unexpected-start-tag
+    // (1,18): expected-closing-tag-but-got-eof
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <h1>
+    // |       "Hello"
+    // |     <h2>
+    // |       "World"
+
+    unsigned char buffer[] = "<h1>Hello<h2>World";
+    html_node_t* document   = html_document_new();
+    html_node_t* html       = html_element_new(document, "html", 4);
+    html_node_t* head       = html_element_new(document, "head", 4);
+    html_node_t* body       = html_element_new(document, "body", 4);
+    html_node_t* h1         = html_element_new(document, "h1", 2);
+    html_node_t* h2         = html_element_new(document, "h2", 2);
+    html_node_t* t1         = html_text_new(document, "Hello", 5);
+    html_node_t* t2         = html_text_new(document, "World", 5);
+
+    APPEND_TO_TREE(document, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, h1);
+    APPEND_TO_TREE(body, h2);
+    APPEND_TO_TREE(h1, t1);
+    APPEND_TO_TREE(h2, t2);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+}
+
+
 void test_html_parser_test1()
 {
     TEST_CASE(test_when_input_is_pure_text_then_add_missing_nodes);
@@ -556,4 +646,6 @@ void test_html_parser_test1()
     TEST_CASE(test_when_only_closed_body_tag_is_provided_then_we_add_missing_html_and_head_tags);
     TEST_CASE(test_when_only_closed_html_tag_is_provided_then_we_add_missing_body_and_head_tags);
     TEST_CASE(missing_tags_1);
+    // TEST_CASE(missing_tags_2);
+    TEST_CASE(test_parser_1);
 }

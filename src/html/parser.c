@@ -266,11 +266,11 @@ static bool stop                                    = false;
 /* static functions */
 /********************/
 
-static bool string_compare(unsigned char* first, uint32_t first_size, unsigned char* second, uint32_t second_size)
+static bool string_compare(const unsigned char* first, const uint32_t first_size, const unsigned char* second, const uint32_t second_size)
 {
     if (first_size != second_size) { return false; }
 
-    return strncmp(first, second, first_size);
+    return strncmp(first, second, first_size) == 0;
 }
 
 static uint32_t get_tokens_size()
@@ -319,7 +319,7 @@ static bool name_is(const unsigned char* name, const uint32_t name_size, const h
 {
     if (token->name_size != name_size) { return false; }
 
-    return strncmp(name, token->name, name_size) == 0;
+    return string_compare(name, name_size, token->name, token->name_size);
 }
 
 
@@ -1208,13 +1208,17 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     // todo: scope logic
 
-                    html_node_t* current = stack[stack_idx];
-                    if (string_compare(H1, H1_SIZE, current->name, current->name_size) ||
-                        string_compare(H2, H2_SIZE, current->name, current->name_size) ||
-                        string_compare(H3, H3_SIZE, current->name, current->name_size) ||
-                        string_compare(H4, H4_SIZE, current->name, current->name_size) ||
-                        string_compare(H5, H5_SIZE, current->name, current->name_size) ||
-                        string_compare(H6, H6_SIZE, current->name, current->name_size))
+                    html_node_t* node = stack[stack_idx];
+                    html_element_t* element = (html_element_t*)node->data;
+                    const unsigned char* local_name = element->local_name;
+                    const uint32_t local_name_size = element->local_name_size;
+
+                    if (string_compare(H1, H1_SIZE, local_name, local_name_size) ||
+                        string_compare(H2, H2_SIZE, local_name, local_name_size) ||
+                        string_compare(H3, H3_SIZE, local_name, local_name_size) ||
+                        string_compare(H4, H4_SIZE, local_name, local_name_size) ||
+                        string_compare(H5, H5_SIZE, local_name, local_name_size) ||
+                        string_compare(H6, H6_SIZE, local_name, local_name_size))
                     {
                         // todo: parse error
                         stack_pop();
@@ -1347,7 +1351,8 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                     name_is(TT, TT_SIZE, &t)        ||
                                     name_is(U, U_SIZE, &t)))
                 {
-                    NOT_IMPLEMENTED
+                    // todo: adoption agency algorithm
+                    // run_agency_adoption();
                 }
                 else if (is_start && (name_is(APPLET, APPLET_SIZE, &t)  ||
                                       name_is(MARQUEE, MARQUEE_SIZE, &t)||
@@ -1826,7 +1831,6 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     else
                     {
                         close_cell();
-                        printf("here\n");
                         consume                 = false;
                     }
                 }
