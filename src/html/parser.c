@@ -587,6 +587,68 @@ static void close_cell()
 }
 
 
+static void pop_all_including(html_node_t* node)
+{
+    html_node_t* current = stack[stack_idx];
+    while (current != node)
+    {
+        stack_pop();
+        current = stack[stack_idx];
+    }
+
+    stack_pop();
+}
+
+
+static bool is_special(html_node_t* node)
+{
+    html_element_t* element = (html_element_t*)node->data;
+    const unsigned char* name = element->local_name;
+    const uint32_t name_size = element->local_name_size;
+
+    return  string_compare(name, name_size, ADDRESS, ADDRESS_SIZE)      || string_compare(name, name_size, APPLET, APPLET_SIZE) ||
+            string_compare(name, name_size, AREA, AREA_SIZE)            || string_compare(name, name_size, ARTICLE, ARTICLE_SIZE) ||
+            string_compare(name, name_size, ASIDE, ASIDE_SIZE)          || string_compare(name, name_size, BASE, BASE_SIZE) ||
+            string_compare(name, name_size, BASEFONT, BASEFONT_SIZE)    || string_compare(name, name_size, BGSOUND, BGSOUND_SIZE) ||
+            string_compare(name, name_size, BLOCKQUOTE, BLOCKQUOTE_SIZE)|| string_compare(name, name_size, BODY, BODY_SIZE) ||
+            string_compare(name, name_size, BR, BR_SIZE)                || string_compare(name, name_size, BUTTON, BUTTON_SIZE) ||
+            string_compare(name, name_size, CAPTION, CAPTION_SIZE)      || string_compare(name, name_size, CENTER, CENTER_SIZE) ||
+            string_compare(name, name_size, COL, COL_SIZE)              || string_compare(name, name_size, COLGROUP, COLGROUP_SIZE) ||
+            string_compare(name, name_size, DD, DD_SIZE)                || string_compare(name, name_size, DETAILS, DETAILS_SIZE) ||
+            string_compare(name, name_size, DIR, DIR_SIZE)              || string_compare(name, name_size, DIV, DIV_SIZE) ||
+            string_compare(name, name_size, DL, DL_SIZE)                || string_compare(name, name_size, DT, DT_SIZE) ||
+            string_compare(name, name_size, EMBED, EMBED_SIZE)          || string_compare(name, name_size, FIELDSET, FIELDSET_SIZE) ||
+            string_compare(name, name_size, FIGCAPTION, FIGCAPTION_SIZE)|| string_compare(name, name_size, FIGURE, FIGURE_SIZE) ||
+            string_compare(name, name_size, FOOTER, FOOTER_SIZE)        || string_compare(name, name_size, FORM, FORM_SIZE) ||
+            string_compare(name, name_size, FRAME, FRAME_SIZE)          || string_compare(name, name_size, FRAMESET, FRAMESET_SIZE) ||
+            string_compare(name, name_size, H1, H1_SIZE)                || string_compare(name, name_size, H2, H2_SIZE) ||
+            string_compare(name, name_size, H3, H3_SIZE)                || string_compare(name, name_size, H4, H4_SIZE) ||
+            string_compare(name, name_size, H5, H5_SIZE)                || string_compare(name, name_size, H6, H6_SIZE) ||
+            string_compare(name, name_size, HEAD, HEAD_SIZE)            || string_compare(name, name_size, HEADER, HEADER_SIZE) ||
+            string_compare(name, name_size, HGROUP, HGROUP_SIZE)        || string_compare(name, name_size, HR, HR_SIZE) ||
+            string_compare(name, name_size, HTML, HTML_SIZE)            || string_compare(name, name_size, IFRAME, IFRAME_SIZE) ||
+            string_compare(name, name_size, IMG, IMG_SIZE)              || string_compare(name, name_size, INPUT, INPUT_SIZE) ||
+            string_compare(name, name_size, KEYGEN, KEYGEN_SIZE)        || string_compare(name, name_size, LI, LI_SIZE) ||
+            string_compare(name, name_size, LINK, LINK_SIZE)            || string_compare(name, name_size, LISTING, LISTING_SIZE) ||
+            string_compare(name, name_size, MAIN, MAIN_SIZE)            || string_compare(name, name_size, MARQUEE, MARQUEE_SIZE) ||
+            string_compare(name, name_size, MENU, MENU_SIZE)            || string_compare(name, name_size, META, META_SIZE) ||
+            string_compare(name, name_size, NAV, NAV_SIZE)              || string_compare(name, name_size, NOEMBED, NOEMBED_SIZE) ||
+            string_compare(name, name_size, NOFRAMES, NOFRAMES_SIZE)    || string_compare(name, name_size, NOSCRIPT, NOSCRIPT_SIZE) ||
+            string_compare(name, name_size, OBJECT, OBJECT_SIZE)        || string_compare(name, name_size, OL, OL_SIZE) ||
+            string_compare(name, name_size, P, P_SIZE)                  || string_compare(name, name_size, PARAM, PARAM_SIZE) ||
+            string_compare(name, name_size, PLAINTEXT, PLAINTEXT_SIZE)  || string_compare(name, name_size, PRE, PRE_SIZE) ||
+            string_compare(name, name_size, SCRIPT, SCRIPT_SIZE)        || string_compare(name, name_size, SEARCH, SEARCH_SIZE) ||
+            string_compare(name, name_size, SECTION, SECTION_SIZE)      || string_compare(name, name_size, SELECT, SELECT_SIZE) ||
+            string_compare(name, name_size, SOURCE, SOURCE_SIZE)        || string_compare(name, name_size, STYLE, STYLE_SIZE) ||
+            string_compare(name, name_size, SUMMARY, SUMMARY_SIZE)      || string_compare(name, name_size, TABLE, TABLE_SIZE) ||
+            string_compare(name, name_size, TBODY, TBODY_SIZE)          || string_compare(name, name_size, TD, TD_SIZE) ||
+            string_compare(name, name_size, TEMPLATE, TEMPLATE_SIZE)    || string_compare(name, name_size, TEXTAREA, TEXTAREA_SIZE) ||
+            string_compare(name, name_size, TFOOT, TFOOT_SIZE)          || string_compare(name, name_size, TH, TH_SIZE) ||
+            string_compare(name, name_size, THEAD, THEAD_SIZE)          || string_compare(name, name_size, TITLE, TITLE_SIZE) ||
+            string_compare(name, name_size, TR, TR_SIZE)                || string_compare(name, name_size, TRACK, TRACK_SIZE) ||
+            string_compare(name, name_size, UL, UL_SIZE)                || string_compare(name, name_size, WBR, WBR_SIZE);
+}
+
 /********************/
 /* public functions */
 /********************/
@@ -1267,7 +1329,26 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(BUTTON, BUTTON_SIZE, &t))
                 {
-                    NOT_IMPLEMENTED
+                    if (in_scope(BUTTON, BUTTON_SIZE, BUTTON_SCOPE))
+                    {
+                        generate_implied_end_tags(NULL, 0);
+
+                        html_node_t* node = stack[stack_idx];
+                        html_element_t* element = (html_element_t*)node->data;
+
+                        while (!string_compare(element->local_name, element->local_name_size, BUTTON, BUTTON_SIZE))
+                        {
+                            stack_pop();
+                            node = stack[stack_idx];
+                            element = (html_element_t*)node->data;
+                        }
+
+                        stack_pop();
+                    }
+
+                    // todo: reconstruct the active formatting elements
+                    insert_html_element(t.name, t.name_size);
+                    // set frameset-ok flag to not ok
                 }
                 else if (is_end && (name_is(ADDRESS, ADDRESS_SIZE, &t)      || name_is(ARTICLE, ARTICLE_SIZE, &t)       || 
                                     name_is(ASIDE, ASIDE_SIZE, &t)          || name_is(BLOCKQUOTE, BLOCKQUOTE_SIZE, &t) ||
@@ -1471,11 +1552,38 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start)
                 {
-                    NOT_IMPLEMENTED
+                    // todo: Reconstruct the active formatting elements, if any.
+                    insert_html_element(t.name, t.name_size);
                 }
                 else if (is_end)
                 {
-                    NOT_IMPLEMENTED
+                    uint32_t idx = stack_idx;
+                    html_node_t* node = stack[idx];
+                    html_element_t* element = (html_element_t*)node->data;
+
+                    while (true)
+                    {
+                        if (string_compare(element->local_name, element->local_name_size, t.name, t.name_size))
+                        {
+                            generate_implied_end_tags(t.name, t.name_size);
+                            if (node == stack[stack_idx])
+                            {
+                                // todo: parse error
+                            }
+
+                            pop_all_including(node);
+                            break;
+                        }
+                        else if (is_special(node))
+                        {
+                            // todo: parse error
+                            break;
+                        }
+
+                        idx--;
+                        node = stack[idx];
+                        element = (html_element_t*)node->data;
+                    }
                 }
                 break;
 
