@@ -559,6 +559,9 @@ static void close_p_element()
     {
         if (strncmp(element->local_name, P, P_SIZE) == 0) { run = false; }
         stack_pop();
+
+        node = stack[stack_idx];
+        element = (html_element_t*)node->data;
     }
 }
 
@@ -596,6 +599,24 @@ static void pop_all_including(html_node_t* node)
         current = stack[stack_idx];
     }
 
+    stack_pop();
+}
+
+
+static void pop_elements_until_name_included(const unsigned char* name, const uint32_t name_size)
+{
+    html_node_t* current = stack[stack_idx];
+    html_element_t* element = (html_element_t*)current->data;
+    while (true)
+    {
+        if (string_compare(element->local_name, element->local_name_size, name, name_size))
+        {
+            break;
+        }
+        stack_pop();
+        current = stack[stack_idx];
+        element = (html_element_t*)current->data;
+    }
     stack_pop();
 }
 
@@ -1253,7 +1274,6 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(SUMMARY, SUMMARY_SIZE, &t)        ||
                                       name_is(UL, UL_SIZE, &t)))
                 {
-                    // todo: scope logic
                     if (in_scope(P, P_SIZE, BUTTON_SCOPE))
                     {
                         close_p_element();
@@ -1365,7 +1385,24 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                     name_is(SECTION, SECTION_SIZE, &t)      || name_is(SUMMARY, SUMMARY_SIZE, &t)       ||
                                     name_is(UL, UL_SIZE, &t) ))
                 {
-                    NOT_IMPLEMENTED
+                    if (!in_scope(t.name, t.name_size, GENERIC_SCOPE))
+                    {
+                        // todo: parse error
+                        printf("d\n");
+                    }
+                    else
+                    {
+                        generate_implied_end_tags(NULL, 0);
+
+                        html_node_t* node = stack[stack_idx];
+                        html_element_t* element = (html_element_t*)node->data;
+                        if (!string_compare(element->local_name, element->local_name_size, t.name, t.name_size))
+                        {
+                            // todo: parse error
+                        }
+
+                        pop_elements_until_name_included(t.name, t.name_size);
+                    }
                 }
                 else if (is_end && name_is(FORM, FORM_SIZE, &t))
                 {
@@ -1373,7 +1410,13 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_end && name_is(P, P_SIZE, &t))
                 {
-                    NOT_IMPLEMENTED
+                    if (!in_scope(P, P_SIZE, BUTTON_SCOPE))
+                    {
+                        // todo: parse error
+                        insert_html_element(P, P_SIZE);
+                    }
+                    
+                    close_p_element();
                 }
                 else if (is_end && name_is(LI, LI_SIZE, &t))
                 {
@@ -1439,7 +1482,10 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(MARQUEE, MARQUEE_SIZE, &t)||
                                       name_is(OBJECT, OBJECT_SIZE, &t)) )
                 {
-                    NOT_IMPLEMENTED
+                    // todo: reconstruct active formatting elements
+                    insert_html_element(t.name, t.name_size);
+                    // todo: insert marker at the end of list of active elements
+                    // todo: set frameset-ok flag to not ok
                 }
                 else if (is_end && (name_is(APPLET, APPLET_SIZE, &t)    ||
                                     name_is(MARQUEE, MARQUEE_SIZE, &t)  ||

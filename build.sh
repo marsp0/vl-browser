@@ -35,7 +35,7 @@ test_util_files="./test/util/test_utf8.c"
 
 #test_html_files=" ./test/html/test_tokenizer_test1.c ./test/html/test_tokenizer_test2.c ./test/html/test_tokenizer_test3.c ./test/html/test_tokenizer_rcdata.c "
 #test_html_files+=" ./test/html/test_tokenizer_rawtext.c ./test/html/test_tokenizer_script_data.c"
-test_html_files+=" ./test/html/test_parser.c"
+test_html_files+=" ./test/html/test_parser.c ./test/html/test_parser_utils.c"
 
 test_dom_files=" ./test/dom/test_node.c ./test/dom/test_node_utils.c"
 

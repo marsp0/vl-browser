@@ -295,6 +295,9 @@ html_node_t* html_node_new(html_node_type_e type, html_node_t* document)
 {
     html_node_t* node = malloc(sizeof(html_node_t));
 
+    memset(node->name, 0, MAX_HTML_NAME_LEN);
+    memset(node->base_uri, 0, MAX_HTML_NAME_LEN);
+
     node->type          = type;
     node->document      = document;
     node->name_size     = 0;
