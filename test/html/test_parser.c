@@ -752,32 +752,6 @@ static void test_parser_3()
 //     // |   <body>
 //     // |     <p>
 //     // |     <p>
-
-//     unsigned char buffer[] = "<script><div></script></div><title><p></title><p><p>";
-//     html_node_t* document   = html_document_new();
-//     html_node_t* html       = html_element_new(document, "html", 4);
-//     html_node_t* head       = html_element_new(document, "head", 4);
-//     html_node_t* body       = html_element_new(document, "body", 4);
-//     html_node_t* span       = html_element_new(document, "span", 4);
-//     html_node_t* button     = html_element_new(document, "button", 6);
-//     html_node_t* t1         = html_text_new(document, "foobar", 6);
-
-//     APPEND_TO_TREE(document, html);
-//     APPEND_TO_TREE(html, head);
-//     APPEND_TO_TREE(html, body);
-//     APPEND_TO_TREE(body, span);
-//     APPEND_TO_TREE(span, button);
-//     APPEND_TO_TREE(button, t1);
-
-//     // RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
-//     html_parser_init();                                                                 
-//     html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);                  
-//     ASSERT_NODE(actual, document);                                                      
-//     print_document_tree(actual, 0);
-//     print_document_tree(document, 0);
-//     html_node_free(document);                                                           
-//     html_node_free(actual);                                                             
-//     html_parser_free();                                                                 
 // }
 
 void test_html_parser_test1()
@@ -807,5 +781,4 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_3);
     // TEST_CASE(test_parser_4);
     // TEST_CASE(test_parser_5);
-    
 }
