@@ -1067,7 +1067,20 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(SCRIPT, SCRIPT_SIZE, &t))
                 {
-                    NOT_IMPLEMENTED
+                    // breakpoint
+                    html_node_t* location   = get_appropriate_insertion_location(NULL);
+                    html_node_t* element    = create_element(t.name, t.name_size, document);
+
+                    // todo: step 3
+                    // todo: step 4
+                    // todo: step 5
+
+                    html_node_append(location, element);
+                    stack_push(element);
+                    html_tokenizer_set_state(HTML_TOKENIZER_SCRIPT_DATA_STATE);
+
+                    original_mode           = mode;
+                    mode                    = HTML_PARSER_MODE_TEXT;
                 }
                 else if (is_end && name_is(HEAD, HEAD_SIZE, &t))
                 {
@@ -1088,7 +1101,6 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(BR, BR_SIZE, &t))))
                 {
                     // todo: parse error
-                    NOT_IMPLEMENTED
                 }
                 else
                 {
@@ -1540,7 +1552,6 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     if (!in_scope(t.name, t.name_size, GENERIC_SCOPE))
                     {
                         // todo: parse error
-                        printf("d\n");
                     }
                     else
                     {
@@ -1789,7 +1800,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
             case HTML_PARSER_MODE_TEXT:
                 if (is_character)
                 {
-                    NOT_IMPLEMENTED
+                    insert_character(&t);
                 }
                 else if (is_eof)
                 {
@@ -1797,11 +1808,19 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_end && name_is(SCRIPT, SCRIPT_SIZE, &t))
                 {
-                    NOT_IMPLEMENTED
+                    // breakpoint
+                    // todo: speculative parsing
+
+                    stack_pop();
+                    mode = original_mode;
+
+                    // todo: there is more implementation logic related to speculative parsing
+                    // todo: nesting level logic
                 }
-                else
+                else if (is_end)
                 {
-                    NOT_IMPLEMENTED
+                    stack_pop();
+                    mode = original_mode;
                 }
                 break;
 

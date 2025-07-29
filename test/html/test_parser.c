@@ -735,24 +735,48 @@ static void test_parser_4()
 }
 
 
-// static void test_parser_5()
-// {
-//     // #data
-//     // <script><div></script></div><title><p></title><p><p>
-//     // #errors
-//     // (1,8): expected-doctype-but-got-start-tag
-//     // (1,28): unexpected-end-tag
-//     // #document
-//     // | <html>
-//     // |   <head>
-//     // |     <script>
-//     // |       "<div>"
-//     // |     <title>
-//     // |       "<p>"
-//     // |   <body>
-//     // |     <p>
-//     // |     <p>
-// }
+static void test_parser_5()
+{
+    // #data
+    // <script><div></script></div><title><p></title><p><p>
+    // #errors
+    // (1,8): expected-doctype-but-got-start-tag
+    // (1,28): unexpected-end-tag
+    // #document
+    // | <html>
+    // |   <head>
+    // |     <script>
+    // |       "<div>"
+    // |     <title>
+    // |       "<p>"
+    // |   <body>
+    // |     <p>
+    // |     <p>
+
+    unsigned char buffer[] = "<script><div></script></div><title><p></title><p><p>";
+    html_node_t* document   = html_document_new();
+    html_node_t* html       = html_element_new(document, "html", 4);
+    html_node_t* head       = html_element_new(document, "head", 4);
+    html_node_t* body       = html_element_new(document, "body", 4);
+    html_node_t* script     = html_element_new(document, "script", 6);
+    html_node_t* t1         = html_text_new(document, "<div>", 5);
+    html_node_t* title      = html_element_new(document, "title", 5);
+    html_node_t* t2         = html_text_new(document, "<p>", 3);
+    html_node_t* p1         = html_element_new(document, "p", 1);
+    html_node_t* p2         = html_element_new(document, "p", 1);
+
+    APPEND_TO_TREE(document, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(head, script);
+    APPEND_TO_TREE(script, t1);
+    APPEND_TO_TREE(head, title);
+    APPEND_TO_TREE(title, t2);
+    APPEND_TO_TREE(body, p1);
+    APPEND_TO_TREE(body, p2);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+}
 
 void test_html_parser_test1()
 {
@@ -780,5 +804,5 @@ void test_html_parser_test1()
     // TEST_CASE(test_parser_2);
     TEST_CASE(test_parser_3);
     TEST_CASE(test_parser_4);
-    // TEST_CASE(test_parser_5);
+    TEST_CASE(test_parser_5);
 }
