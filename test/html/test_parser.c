@@ -684,55 +684,55 @@ static void test_parser_3()
 }
 
 
-// static void test_parser_4()
-// {
-//     // #data
-//     // <p><b><div><marquee></p></b></div>X
-//     // #errors
-//     // (1,3): expected-doctype-but-got-start-tag
-//     // (1,11): unexpected-end-tag
-//     // (1,24): unexpected-end-tag
-//     // (1,28): unexpected-end-tag
-//     // (1,34): end-tag-too-early
-//     // (1,35): expected-closing-tag-but-got-eof
-//     // #document
-//     // | <html>
-//     // |   <head>
-//     // |   <body>
-//     // |     <p>
-//     // |       <b>
-//     // |     <div>
-//     // |       <b>
-//     // |         <marquee>
-//     // |           <p>
-//     // |           "X"
+static void test_parser_4()
+{
+    // #data
+    // <p><b><div><marquee></p></b></div>X
+    // #errors
+    // (1,3): expected-doctype-but-got-start-tag
+    // (1,11): unexpected-end-tag
+    // (1,24): unexpected-end-tag
+    // (1,28): unexpected-end-tag
+    // (1,34): end-tag-too-early
+    // (1,35): expected-closing-tag-but-got-eof
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <p>
+    // |       <b>
+    // |     <div>
+    // |       <b>
+    // |         <marquee>
+    // |           <p>
+    // |           "X"
 
-//     unsigned char buffer[] = "<p><b><div><marquee></p></b></div>X";
-//     html_node_t* document   = html_document_new();
-//     html_node_t* html       = html_element_new(document, "html", 4);
-//     html_node_t* head       = html_element_new(document, "head", 4);
-//     html_node_t* body       = html_element_new(document, "body", 4);
-//     html_node_t* p1         = html_element_new(document, "p", 1);
-//     html_node_t* b1         = html_element_new(document, "b", 1);
-//     html_node_t* div        = html_element_new(document, "div", 3);
-//     html_node_t* b2         = html_element_new(document, "b", 1);
-//     html_node_t* marquee    = html_element_new(document, "marquee", 7);
-//     html_node_t* p2         = html_element_new(document, "p", 1);
-//     html_node_t* t          = html_text_new(document, "X", 1);
+    unsigned char buffer[] = "<p><b><div><marquee></p></b></div>X";
+    html_node_t* document   = html_document_new();
+    html_node_t* html       = html_element_new(document, "html", 4);
+    html_node_t* head       = html_element_new(document, "head", 4);
+    html_node_t* body       = html_element_new(document, "body", 4);
+    html_node_t* p1         = html_element_new(document, "p", 1);
+    html_node_t* b1         = html_element_new(document, "b", 1);
+    html_node_t* div        = html_element_new(document, "div", 3);
+    html_node_t* b2         = html_element_new(document, "b", 1);
+    html_node_t* marquee    = html_element_new(document, "marquee", 7);
+    html_node_t* p2         = html_element_new(document, "p", 1);
+    html_node_t* t          = html_text_new(document, "X", 1);
 
-//     APPEND_TO_TREE(document, html);
-//     APPEND_TO_TREE(html, head);
-//     APPEND_TO_TREE(html, body);
-//     APPEND_TO_TREE(body, p1);
-//     APPEND_TO_TREE(p1, b1);
-//     APPEND_TO_TREE(body, div);
-//     APPEND_TO_TREE(div, b2);
-//     APPEND_TO_TREE(b2, marquee);
-//     APPEND_TO_TREE(marquee, p2);
-//     APPEND_TO_TREE(marquee, t);
+    APPEND_TO_TREE(document, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, p1);
+    APPEND_TO_TREE(p1, b1);
+    APPEND_TO_TREE(body, div);
+    APPEND_TO_TREE(div, b2);
+    APPEND_TO_TREE(b2, marquee);
+    APPEND_TO_TREE(marquee, p2);
+    APPEND_TO_TREE(marquee, t);
 
-//     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
-// }
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+}
 
 
 // static void test_parser_5()
@@ -779,6 +779,6 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_1);
     // TEST_CASE(test_parser_2);
     TEST_CASE(test_parser_3);
-    // TEST_CASE(test_parser_4);
+    TEST_CASE(test_parser_4);
     // TEST_CASE(test_parser_5);
 }

@@ -253,6 +253,17 @@ typedef enum
     TABLE_SCOPE,
 } html_element_scope_e;
 
+typedef enum
+{
+    FOUR,
+    FIVE,
+    SIX,
+    SEVEN,
+    EIGHT,
+    NINE,
+    TEN,
+} html_formatting_elements_step_e;
+
 static html_parser_mode_e mode                      = HTML_PARSER_MODE_INITIAL;
 static html_parser_mode_e original_mode             = HTML_PARSER_MODE_INITIAL;
 static html_token_t tokens[MAX_TOKENS]              = { 0 };
@@ -261,6 +272,11 @@ static uint32_t stack_idx                           = 0;
 static uint32_t stack_size                          = 0;
 static html_node_t* document                        = NULL;
 static bool stop                                    = false;
+
+static html_node_t* formatting_elements[10]         = { 0 };
+static bool formatting_elements_m[10]               = { 0 };
+static html_token_t formatting_elements_t[10]       = { 0 };
+static uint32_t formatting_elements_size            = 0;
 
 /********************/
 /* static functions */
@@ -334,6 +350,20 @@ static bool stack_contains_element(unsigned char* name, uint32_t name_size)
         html_element_t* element = (html_element_t*)current->data;
         if (strncmp(element->local_name, name, name_size) == 0) { return true; }
         // todo: figure out which name to use and perform case insensitive comparison
+    }
+
+    return false;
+}
+
+
+static bool stack_contains_node(html_node_t* node)
+{
+    for (uint32_t i = 0; i < stack_size; i++)
+    {
+        if (stack[i] == node)
+        {
+            return true;
+        }
     }
 
     return false;
@@ -670,6 +700,126 @@ static bool is_special(html_node_t* node)
             string_compare(name, name_size, UL, UL_SIZE)                || string_compare(name, name_size, WBR, WBR_SIZE);
 }
 
+
+static void insert_marker()
+{
+    assert(formatting_elements_size < 10);
+
+    formatting_elements[formatting_elements_size] = NULL;
+    formatting_elements_m[formatting_elements_size] = true;
+    // formatting_elements_t[formatting_elements_size] = { 0 };
+    memset(&formatting_elements_t[formatting_elements_size], 0, sizeof(html_token_t));
+
+    formatting_elements_size++;
+}
+
+static void push_formatting_element(html_node_t* node, html_token_t* token)
+{
+    // todo: go backwards instead
+    uint32_t last_marker = 0;
+    for (uint32_t i = 0; i < formatting_elements_size; i++)
+    {
+        if (formatting_elements_m[i])
+        {
+            last_marker = i;
+        }
+    }
+
+    if (formatting_elements_size - last_marker >= 3)
+    {
+        // todo: compare current element to the ones after the last marker and if match, then remove the oldest entry
+    }
+
+    formatting_elements[formatting_elements_size] = node;
+    formatting_elements_m[formatting_elements_size] = false;
+    memcpy(&formatting_elements_t[formatting_elements_size], token, sizeof(html_token_t));
+    formatting_elements_size++;
+}
+
+
+static void reconstruct_formatting_elements()
+{
+    if (formatting_elements_size == 0)
+    {
+        return;
+    }
+
+    if (formatting_elements_m[formatting_elements_size - 1] || stack_contains_node(formatting_elements[formatting_elements_size - 1]))
+    {
+        return;
+    }
+
+    int32_t idx = (int32_t)formatting_elements_size - 1;
+    html_node_t* entry = formatting_elements[idx];
+
+    html_formatting_elements_step_e step    = FOUR;
+    html_node_t* new_element                = NULL;
+    bool run                                = true;
+
+    while (run)
+    {
+        switch (step)
+        {
+        case FOUR:
+            if (idx - 1 < 0)
+            {
+                step = EIGHT;
+            }
+            else
+            {
+                step = FIVE;
+            }
+            break;
+
+        case FIVE:
+            idx--;
+            entry = formatting_elements[idx];
+            step = SIX;
+            break;
+
+        case SIX:
+            if (formatting_elements_m[idx] || stack_contains_node(entry))
+            {
+                step = SEVEN;
+            }
+            else
+            {
+                step = FOUR;
+            }
+            break;
+
+        case SEVEN:
+            idx++;
+            entry = formatting_elements[idx];
+            step = EIGHT;
+            break;
+
+        case EIGHT:
+            ;
+            html_token_t* t = &(formatting_elements_t[idx]);
+            new_element = insert_html_element(t->name, t->name_size);
+            step = NINE;
+            break;
+
+        case NINE:
+            formatting_elements[idx] = new_element;
+            step = TEN;
+            break;
+
+        case TEN:
+            if (idx + 1 != (int32_t)formatting_elements_size)
+            {
+                step = SEVEN;
+            }
+            else
+            {
+                run = false;
+            }
+            break;
+        }
+    }
+}
+
 /********************/
 /* public functions */
 /********************/
@@ -683,6 +833,8 @@ void html_parser_init()
     stack_size      = 0;
     document        = NULL;
     stop            = false;
+
+    formatting_elements_size = 0;
 }
 
 
@@ -1452,9 +1604,9 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(TT, TT_SIZE, &t)          ||
                                       name_is(U, U_SIZE, &t)) )
                 {
-                    // reconstruct active formatting elements
-                    insert_html_element(t.name, t.name_size);
-                    // push element onto list of active formatting elements
+                    reconstruct_formatting_elements();
+                    html_node_t* node = insert_html_element(t.name, t.name_size);
+                    push_formatting_element(node, &t);
                 }
                 else if (is_start && name_is(NOBR, NOBR_SIZE, &t))
                 {
@@ -1482,9 +1634,9 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(MARQUEE, MARQUEE_SIZE, &t)||
                                       name_is(OBJECT, OBJECT_SIZE, &t)) )
                 {
-                    // todo: reconstruct active formatting elements
+                    reconstruct_formatting_elements();
                     insert_html_element(t.name, t.name_size);
-                    // todo: insert marker at the end of list of active elements
+                    insert_marker();
                     // todo: set frameset-ok flag to not ok
                 }
                 else if (is_end && (name_is(APPLET, APPLET_SIZE, &t)    ||
