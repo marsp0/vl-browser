@@ -6,6 +6,7 @@
 #include "dom/doctype.h"
 #include "dom/text.h"
 #include "dom/element.h"
+#include "dom/comment.h"
 
 void               ASSERT_NODE(html_node_t* a, html_node_t* e);
 
@@ -99,4 +100,12 @@ do                                                                              
                                                                                         \
     ASSERT_EQUAL(a->content_type_size, e->content_type_size);                           \
     ASSERT_STRING((char)a->content_type, (char)e->content_type, a->content_type_size);  \
+} while (0);
+
+
+#define ASSERT_NODE_COMMENT(a, e)                                                       \
+do                                                                                      \
+{                                                                                       \
+    ASSERT_EQUAL(a->data_size, e->data_size);                                           \
+    ASSERT_STRING((char)a->data, (char)e->data, a->data_size);                          \
 } while (0);

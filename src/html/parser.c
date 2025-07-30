@@ -441,7 +441,7 @@ static html_node_t* get_appropriate_insertion_location(html_node_t* override)
 static void insert_comment(html_token_t* token, html_node_t* position)
 {
     html_node_t* location   = get_appropriate_insertion_location(position);
-    html_node_t* comment    = html_comment_new(token->data, token->data_size, document);
+    html_node_t* comment    = html_comment_new(document, token->data, token->data_size);
 
     html_node_append(location, comment);
 }
@@ -858,7 +858,13 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
         uint32_t tokens_size        = get_tokens_size();
         uint32_t i                  = 0;
 
-        if (err != HTML_TOKENIZER_OK || tokens_size == 0) { break; }
+        // todo: placeholder until i start using err
+        assert((int)err >= 0);
+
+        if (tokens_size == 0)
+        {
+            break;
+        }
 
 
         while (i < tokens_size)
@@ -1695,7 +1701,22 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(HR, HR_SIZE, &t))
                 {
-                
+                    if (in_scope(P, P_SIZE, BUTTON_SCOPE))
+                    {
+                        close_p_element();
+                    }
+                    if (in_scope(SELECT, SELECT_SIZE, GENERIC_SCOPE))
+                    {
+                        generate_implied_end_tags(NULL, 0);
+                        if (in_scope(OPTION, OPTION_SIZE, GENERIC_SCOPE) || in_scope(OPTGROUP, OPTGROUP_SIZE, GENERIC_SCOPE))
+                        {
+                            // todo: parse error
+                        }
+                    }
+                    insert_html_element(t.name, t.name_size);
+                    stack_pop();
+                    // todo: ack self closing tag if set
+                    // todo: set frameset-ok to "not ok"
                 }
                 else if (is_start && name_is(IMAGE, IMAGE_SIZE, &t))
                 {

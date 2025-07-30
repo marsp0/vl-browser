@@ -35,6 +35,12 @@ void ASSERT_NODE(html_node_t* a, html_node_t* e)
         html_text_t* e_data = (html_text_t*)e->data;
         ASSERT_NODE_TEXT(a_data, e_data);
     }
+    if (a->type == e->type && a->type == HTML_NODE_COMMENT)
+    {
+        html_comment_t* a_data = (html_comment_t*)a->data;
+        html_comment_t* e_data = (html_comment_t*)e->data;
+        ASSERT_NODE_COMMENT(a_data, e_data);
+    }
 
     html_node_t* a_child = a->first_child;
     html_node_t* e_child = e->first_child;

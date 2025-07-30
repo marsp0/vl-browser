@@ -778,6 +778,106 @@ static void test_parser_5()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
 }
 
+
+static void test_parser_6()
+{
+    // #data
+    // <!--><div>--<!-->
+    // #errors
+    // (1,5): incorrect-comment
+    // (1,10): expected-doctype-but-got-start-tag
+    // (1,17): incorrect-comment
+    // (1,17): expected-closing-tag-but-got-eof
+    // #new-errors
+    // (1:5) abrupt-closing-of-empty-comment
+    // (1:17) abrupt-closing-of-empty-comment
+    // #document
+    // | <!--  -->
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <div>
+    // |       "--"
+    // |       <!--  -->
+
+    unsigned char buffer[] = "<!--><div>--<!-->";
+    html_node_t* document   = html_document_new();
+    html_node_t* html       = html_element_new(document, "html", 4);
+    html_node_t* c1         = html_comment_new(document, "", 0);
+    html_node_t* head       = html_element_new(document, "head", 4);
+    html_node_t* body       = html_element_new(document, "body", 4);
+    html_node_t* div        = html_element_new(document, "div", 3);
+    html_node_t* t          = html_text_new(document, "--", 2);
+    html_node_t* c2         = html_comment_new(document, "", 0);
+
+
+    APPEND_TO_TREE(document, c1);
+    APPEND_TO_TREE(document, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, div);
+    APPEND_TO_TREE(div, t);
+    APPEND_TO_TREE(div, c2);
+    
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+}
+
+
+static void test_parser_7()
+{
+    // #data
+    // <p><hr></p>
+    // #errors
+    // (1,3): expected-doctype-but-got-start-tag
+    // (1,11): unexpected-end-tag
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <p>
+    // |     <hr>
+    // |     <p>
+
+    unsigned char buffer[] = "<p><hr></p>";
+    html_node_t* document   = html_document_new();
+    html_node_t* html       = html_element_new(document, "html", 4);
+    html_node_t* head       = html_element_new(document, "head", 4);
+    html_node_t* body       = html_element_new(document, "body", 4);
+    html_node_t* p1         = html_element_new(document, "p", 1);
+    html_node_t* hr         = html_element_new(document, "hr", 2);
+    html_node_t* p2         = html_element_new(document, "p", 1);
+
+
+    APPEND_TO_TREE(document, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, p1);
+    APPEND_TO_TREE(body, hr);
+    APPEND_TO_TREE(body, p2);
+    
+
+    // RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+    html_parser_init();
+    html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
+    print_document_tree(actual, 0);
+    print_document_tree(document, 0);
+    ASSERT_NODE(actual, document);
+    html_node_free(document);
+    html_node_free(actual);
+    html_parser_free();
+}
+
+
+
+// html_parser_init();
+// html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
+// print_document_tree(actual, 0);
+// print_document_tree(document, 0);
+// ASSERT_NODE(actual, document);
+// html_node_free(document);
+// html_node_free(actual);
+// html_parser_free();
 void test_html_parser_test1()
 {
     TEST_CASE(test_when_input_is_pure_text_then_add_missing_nodes);
@@ -805,4 +905,6 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_3);
     TEST_CASE(test_parser_4);
     TEST_CASE(test_parser_5);
+    TEST_CASE(test_parser_6);
+    TEST_CASE(test_parser_7);
 }

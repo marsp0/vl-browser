@@ -4,12 +4,25 @@
 #include <assert.h>
 #include <string.h>
 
-html_node_t* html_comment_new(unsigned char* buffer, uint32_t size, html_node_t* document)
+html_node_t* html_comment_new(html_node_t* document, unsigned char* buffer, uint32_t size)
 {
     html_node_t* node               = html_node_new(HTML_NODE_COMMENT, document);
     html_comment_t* comment         = malloc(sizeof(html_comment_t));
-    memcpy(comment->data, buffer, size);
+
+    if (size > 0)
+    {
+        comment->data_size = size;
+        memcpy(comment->data, buffer, size);
+    }
+    else
+    {
+        comment->data_size = 0;
+        memset(comment->data, 0, MAX_HTML_NAME_LEN);
+    }
+
     node->data                      = (void*)comment;
+
+    memcpy(node->name, "#comment", sizeof("#comment") - 1);
 
     return node;
 }

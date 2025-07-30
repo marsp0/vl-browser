@@ -10,5 +10,5 @@ typedef struct
 } html_comment_t;
 
 
-html_node_t*                html_comment_new(unsigned char* buffer, uint32_t size, html_node_t* document);
+html_node_t*                html_comment_new(html_node_t* document, unsigned char* buffer, uint32_t size);
 void                        html_comment_free(html_node_t* node);
