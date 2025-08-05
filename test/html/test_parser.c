@@ -848,36 +848,128 @@ static void test_parser_7()
     html_node_t* hr         = html_element_new(document, "hr", 2);
     html_node_t* p2         = html_element_new(document, "p", 1);
 
-
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
     APPEND_TO_TREE(html, body);
     APPEND_TO_TREE(body, p1);
     APPEND_TO_TREE(body, hr);
     APPEND_TO_TREE(body, p2);
-    
 
-    // RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
-    html_parser_init();
-    html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
-    print_document_tree(actual, 0);
-    print_document_tree(document, 0);
-    ASSERT_NODE(actual, document);
-    html_node_free(document);
-    html_node_free(actual);
-    html_parser_free();
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
 }
 
 
+static void test_parser_8()
+{
+    // #data
+    // <select><b><option><select><option></b></select>X
+    // #errors
+    // (1,8): expected-doctype-but-got-start-tag
+    // (1,11): unexpected-start-tag-in-select
+    // (1,27): unexpected-select-in-select
+    // (1,39): unexpected-end-tag
+    // (1,48): unexpected-end-tag
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <select>
+    // |       <option>
+    // |     <option>
+    // |       "X"
 
-// html_parser_init();
-// html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
-// print_document_tree(actual, 0);
-// print_document_tree(document, 0);
-// ASSERT_NODE(actual, document);
-// html_node_free(document);
-// html_node_free(actual);
-// html_parser_free();
+    // unsigned char buffer[] = "<select><b><option><select><option></b></select>X";
+    // html_node_t* document   = html_document_new();
+    // html_node_t* html       = html_element_new(document, "html", 4);
+    // html_node_t* head       = html_element_new(document, "head", 4);
+    // html_node_t* body       = html_element_new(document, "body", 4);
+    // html_node_t* select     = html_element_new(document, "select", 6);
+    // html_node_t* o1         = html_element_new(document, "option", 6);
+    // html_node_t* o2         = html_element_new(document, "option", 6);
+    // html_node_t* t          = html_text_new(document, "X", 1);
+
+    // APPEND_TO_TREE(document, html);
+    // APPEND_TO_TREE(html, head);
+    // APPEND_TO_TREE(html, body);
+    // APPEND_TO_TREE(body, select);
+    // APPEND_TO_TREE(select, o1);
+    // APPEND_TO_TREE(body, o2);
+    // APPEND_TO_TREE(o2, t);
+
+    // // RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+    // html_parser_init();
+    // html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
+    // print_document_tree(actual, 0);
+    // print_document_tree(document, 0);
+    // ASSERT_NODE(actual, document);
+    // html_node_free(document);
+    // html_node_free(actual);
+    // html_parser_free();
+}
+
+
+static void test_parser_9()
+{
+    unsigned char buffer[] = "<p>1<b>2<i>3</b>4</i>5</p>";
+    html_node_t* document   = html_document_new();
+    html_node_t* html       = html_element_new(document, "html", 4);
+    html_node_t* head       = html_element_new(document, "head", 4);
+    html_node_t* body       = html_element_new(document, "body", 4);
+    html_node_t* p          = html_element_new(document, "p", 1);
+    html_node_t* b          = html_element_new(document, "b", 1);
+    html_node_t* i1         = html_element_new(document, "i", 1);
+    html_node_t* i2         = html_element_new(document, "i", 1);
+    html_node_t* t1         = html_text_new(document, "1", 1);
+    html_node_t* t2         = html_text_new(document, "2", 1);
+    html_node_t* t3         = html_text_new(document, "3", 1);
+    html_node_t* t4         = html_text_new(document, "4", 1);
+    html_node_t* t5         = html_text_new(document, "5", 1);
+
+    APPEND_TO_TREE(document, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, p);
+    APPEND_TO_TREE(p, t1);
+    APPEND_TO_TREE(p, b);
+    APPEND_TO_TREE(b, t2);
+    APPEND_TO_TREE(b, i1);
+    APPEND_TO_TREE(i1, t3);
+    APPEND_TO_TREE(p, i2);
+    APPEND_TO_TREE(i2, t4);
+    APPEND_TO_TREE(p, t5);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+}
+
+
+static void test_parser_10()
+{
+    unsigned char buffer[] = "<b>1<p>2</b>3</p>";
+    html_node_t* document   = html_document_new();
+    html_node_t* html       = html_element_new(document, "html", 4);
+    html_node_t* head       = html_element_new(document, "head", 4);
+    html_node_t* body       = html_element_new(document, "body", 4);
+    html_node_t* b1         = html_element_new(document, "b", 1);
+    html_node_t* b2         = html_element_new(document, "b", 1);
+    html_node_t* p1         = html_element_new(document, "p", 1);
+    html_node_t* t1         = html_text_new(document, "1", 1);
+    html_node_t* t2         = html_text_new(document, "2", 1);
+    html_node_t* t3         = html_text_new(document, "3", 1);
+
+    APPEND_TO_TREE(document, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, b1);
+    APPEND_TO_TREE(body, p1);
+    APPEND_TO_TREE(b1, t1);
+    APPEND_TO_TREE(p1, b2);
+    APPEND_TO_TREE(b2, t2);
+    APPEND_TO_TREE(p1, t3);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+}
+
+
 void test_html_parser_test1()
 {
     TEST_CASE(test_when_input_is_pure_text_then_add_missing_nodes);
@@ -907,4 +999,7 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_5);
     TEST_CASE(test_parser_6);
     TEST_CASE(test_parser_7);
+    TEST_CASE(test_parser_8);
+    TEST_CASE(test_parser_9);
+    TEST_CASE(test_parser_10);
 }

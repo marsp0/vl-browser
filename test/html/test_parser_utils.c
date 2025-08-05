@@ -6,7 +6,23 @@ void print_document_tree(html_node_t* node, uint32_t level)
     {
         printf("\t");
     }
-    printf("%s\n", node->name);
+
+    html_node_type_e type = node->type;
+    if (type == HTML_NODE_ELEMENT)
+    {
+        html_element_t* element = (html_element_t*)node->data;
+        printf("%s\n", element->local_name);
+    }
+    else if (type == HTML_NODE_DOCUMENT)
+    {
+        printf("#document\n");
+    }
+    else if (type == HTML_NODE_TEXT)
+    {
+        html_text_t* element = (html_text_t*)node->data;
+        printf("#text - %s\n", element->data);
+    }
+    
 
     html_node_t* child = node->first_child;
     while (child)

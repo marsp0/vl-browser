@@ -331,6 +331,20 @@ static void remove_from_stack(html_node_t* node)
 }
 
 
+static void stack_insert(uint32_t index, html_node_t* node)
+{
+    if (index >= stack_size) { return; }
+
+    for (uint32_t i = stack_size; i >= index; i--)
+    {
+        stack[i] = stack[i-1];
+    }
+
+    stack[index] = node;
+    stack_size++;
+}
+
+
 static bool name_is(const unsigned char* name, const uint32_t name_size, const html_token_t* token)
 {
     if (token->name_size != name_size) { return false; }
@@ -737,6 +751,34 @@ static void push_formatting_element(html_node_t* node, html_token_t* token)
 }
 
 
+static void remove_formatting_element(html_node_t* node)
+{
+    uint32_t idx = 0;
+    for (uint32_t i = 0; i < formatting_elements_size; i++)
+    {
+        if (formatting_elements[i] == node)
+        {
+            idx = i;
+            break;
+        }
+    }
+
+    for (uint32_t i = idx; i < formatting_elements_size - 1; i++)
+    {
+        formatting_elements[i] = formatting_elements[i + 1];
+        formatting_elements_m[i] = formatting_elements_m[i + 1];
+        memcpy(&formatting_elements_t[i], &formatting_elements_t[i + 1], sizeof(html_token_t));
+    }
+
+    for (uint32_t i = formatting_elements_size; i < 10; i++)
+    {
+        formatting_elements_m[i] = false;
+    }
+
+    formatting_elements_size--;
+}
+
+
 static void reconstruct_formatting_elements()
 {
     if (formatting_elements_size == 0)
@@ -820,6 +862,282 @@ static void reconstruct_formatting_elements()
     }
 }
 
+
+static bool formatting_elements_contains(html_node_t* node)
+{
+    for (uint32_t i = 0; i < formatting_elements_size; i++)
+    {
+        if (formatting_elements[i] == node)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+static html_node_t* find_appropriate_formatting_element(html_token_t* t)
+{
+    int32_t last_marker = -1;
+    for (int32_t i = 0; i < (int32_t)formatting_elements_size; i++)
+    {
+        if (formatting_elements_m[i])
+        {
+            last_marker = i;
+        }
+    }
+
+    int32_t start = last_marker >= 0 ? last_marker + 1 : 0;
+
+    for (int32_t i = (int32_t)formatting_elements_size - 1; i >= start; i--)
+    {
+        html_node_t* node = formatting_elements[i];
+        html_element_t* element = (html_element_t*)node->data;
+
+        if (string_compare(element->local_name, element->local_name_size, t->name, t->name_size))
+        {
+            return node;
+        }
+    }
+
+    return NULL;
+}
+
+
+static void formatting_elements_replace(html_node_t* old, html_node_t* new)
+{
+    for (uint32_t i = 0; i < formatting_elements_size; i++)
+    {
+        if (formatting_elements[i] == old) { formatting_elements[i] = new; }
+    }
+}
+
+
+static void stack_replace(html_node_t* old, html_node_t* new)
+{
+    for (uint32_t i = 0; i < stack_size; i++)
+    {
+        if (stack[i] == old) { stack[i] = new; }
+    }
+}
+
+
+static html_node_t* find_furthest_block(html_node_t* node)
+{
+    uint32_t node_idx = 0;
+    for (uint32_t i = 0; i < stack_size; i++)
+    {
+        if (stack[i] == node) { node_idx = i; break; }
+    }
+
+    for (uint32_t i = node_idx + 1; i < stack_size; i++)
+    {
+        if (is_special(stack[i])) { return stack[i]; }
+    }
+
+    return NULL;
+}
+
+static html_node_t* find_common_ancestor(html_node_t* node)
+{
+    for (uint32_t i = stack_size - 1; i > 0; i--)
+    {
+        if (stack[i] == node) { return stack[i - 1]; }
+    }
+
+    NOT_IMPLEMENTED
+
+    return NULL;
+}
+
+
+static uint32_t find_node_index(html_node_t** list, uint32_t list_size, html_node_t* node)
+{
+    for (int32_t i = (int32_t)list_size - 1; i >= 0; i--)
+    {
+        if (list[i] == node) { return (uint32_t)i; }
+    }
+
+    NOT_IMPLEMENTED
+    return 0;
+}
+
+
+// todo: turn this bool into OPERATION_RESULT or something similar
+static bool run_adoption_procedure(html_token_t* t)
+{
+    html_node_t* current = stack[stack_idx];
+    html_element_t* element = (html_element_t*)current->data;
+
+    if (string_compare(element->local_name, element->local_name_size, t->name, t->name_size) && !formatting_elements_contains(current))
+    {
+        stack_pop();
+        return true;
+    }
+
+    uint32_t outer_i = 0;
+
+    while (true)
+    {
+        if (outer_i >= 8)
+        {
+            return true;
+        }
+
+        outer_i++;
+        html_node_t* formatting_node = find_appropriate_formatting_element(t);
+
+        if (!formatting_node) { return false; }
+
+        html_element_t* formatting_element = (html_element_t*)formatting_node->data;
+
+        if (!stack_contains_node(formatting_node))
+        {
+            // todo: parse error
+            remove_formatting_element(formatting_node);
+            return true;
+        }
+
+        if (stack_contains_node(formatting_node) && !in_scope(formatting_element->local_name, formatting_element->local_name_size, GENERIC_SCOPE))
+        {
+            // todo: parse error
+            return true;
+        }
+
+        if (stack[stack_idx] != formatting_node)
+        {
+            // todo: parse error
+        }
+
+        html_node_t* furthest = find_furthest_block(formatting_node);
+
+        if (!furthest)
+        {
+            pop_all_including(formatting_node);
+            remove_formatting_element(formatting_node);
+            return true;
+        }
+
+        html_node_t* common_ancestor = find_common_ancestor(formatting_node);
+
+        uint32_t bookmark = 0;
+        for (uint32_t i = 0; i < formatting_elements_size; i++)
+        {
+            if (formatting_elements[i] == formatting_node) { bookmark = i; }
+        }
+
+        html_node_t* node = furthest;
+        html_node_t* last_node = furthest;
+        uint32_t inner_i = 0;
+        uint32_t node_i = find_node_index(stack, stack_size, node);
+
+        while (true)
+        {
+            inner_i++;
+
+            node_i--;
+            node = stack[node_i];
+
+            if (node == formatting_node) { break; }
+
+            if (inner_i > 3 && formatting_elements_contains(node))
+            {
+                remove_formatting_element(node);
+            }
+
+            if (!formatting_elements_contains(node))
+            {
+                remove_from_stack(node);
+                continue;
+            }
+
+            uint32_t node_formatting_index = find_node_index(formatting_elements, formatting_elements_size, node);
+            html_token_t* node_t = &formatting_elements_t[node_formatting_index];
+            html_node_t* new_node = create_element(node_t->name, node_t->name_size, document);
+            html_node_append(common_ancestor, new_node);
+            formatting_elements_replace(node, new_node);
+            stack_replace(node, new_node);
+            node = new_node;
+
+            if (last_node == furthest)
+            {
+                for (uint32_t i = 0; i < formatting_elements_size; i++)
+                {
+                    if (formatting_elements[i] == new_node) { bookmark = i + 1; }
+                }
+            }
+
+            html_node_append(node, last_node);
+            last_node = node;
+        }
+
+        // step 14
+        html_node_t* location = get_appropriate_insertion_location(common_ancestor);
+        html_node_remove(last_node->parent, last_node);
+        html_node_append(location, last_node);
+
+        // step 15
+        uint32_t formatting_node_i = find_node_index(formatting_elements, formatting_elements_size, formatting_node);
+        html_token_t* formatting_node_t = &formatting_elements_t[formatting_node_i];
+        html_node_t* new_element = create_element(formatting_node_t->name, formatting_node_t->name_size, furthest);
+
+        // step 16
+        html_node_t* child = furthest->first_child;
+        while (child)
+        {
+            html_node_remove(furthest, child);
+            html_node_append(new_element, child);
+            child = child->next_sibling;
+        }
+
+        // step 17
+        html_node_append(furthest, new_element);
+
+        // step 18
+        remove_formatting_element(formatting_node);
+        formatting_elements[bookmark] = new_element;
+        formatting_elements_m[bookmark] = false;
+        memcpy(&formatting_elements_t[bookmark], formatting_node_t, sizeof(html_token_t));
+
+        // step 19
+        remove_from_stack(formatting_node);
+        uint32_t furthest_i = find_node_index(stack, stack_size, furthest);
+        stack_insert(furthest_i + 1, new_element);
+    }
+}
+
+static void handle_end_tag_in_body(html_token_t* t)
+{
+    uint32_t idx = stack_idx;
+    html_node_t* node = stack[idx];
+    html_element_t* element = (html_element_t*)node->data;
+
+    while (true)
+    {
+        if (string_compare(element->local_name, element->local_name_size, t->name, t->name_size))
+        {
+            generate_implied_end_tags(t->name, t->name_size);
+            if (node == stack[stack_idx])
+            {
+                // todo: parse error
+            }
+
+            pop_all_including(node);
+            break;
+        }
+        else if (is_special(node))
+        {
+            // todo: parse error
+            break;
+        }
+
+        idx--;
+        node = stack[idx];
+        element = (html_element_t*)node->data;
+    }
+}
+
 /********************/
 /* public functions */
 /********************/
@@ -835,6 +1153,9 @@ void html_parser_init()
     stop            = false;
 
     formatting_elements_size = 0;
+    memset(formatting_elements, 0, sizeof(formatting_elements));
+    memset(formatting_elements_m, 0, sizeof(formatting_elements_m));
+    memset(formatting_elements_t, 0, sizeof(formatting_elements_t));
 }
 
 
@@ -1252,7 +1573,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_character)
                 {
-                    // todo: reconstruct active formatting elements
+                    reconstruct_formatting_elements();
                     insert_character(&t);
                     // todo: frameset-ok flag
                 }
@@ -1553,7 +1874,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                     name_is(NAV, NAV_SIZE, &t)              || name_is(OL, OL_SIZE, &t)                 ||
                                     name_is(PRE, PRE_SIZE, &t)              || name_is(SEARCH, SEARCH_SIZE, &t)         ||
                                     name_is(SECTION, SECTION_SIZE, &t)      || name_is(SUMMARY, SUMMARY_SIZE, &t)       ||
-                                    name_is(UL, UL_SIZE, &t) ))
+                                    name_is(SELECT, SELECT_SIZE, &t)        || name_is(UL, UL_SIZE, &t) ))
                 {
                     if (!in_scope(t.name, t.name_size, GENERIC_SCOPE))
                     {
@@ -1644,8 +1965,9 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                     name_is(TT, TT_SIZE, &t)        ||
                                     name_is(U, U_SIZE, &t)))
                 {
-                    // todo: adoption agency algorithm
-                    // run_agency_adoption();
+                    bool success = run_adoption_procedure(&t);
+
+                    if (!success) { handle_end_tag_in_body(&t); }
                 }
                 else if (is_start && (name_is(APPLET, APPLET_SIZE, &t)  ||
                                       name_is(MARQUEE, MARQUEE_SIZE, &t)||
@@ -1741,10 +2063,49 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(SELECT, SELECT_SIZE, &t) )
                 {
+                    // todo: fragment parsing logic
+                    if (in_scope(SELECT, SELECT_SIZE, GENERIC_SCOPE))
+                    {
+                        // todo: parse error
+                        pop_elements_until_name_included(SELECT, SELECT_SIZE);
+                    }
+                    else
+                    {
+                        reconstruct_formatting_elements();
+                        insert_html_element(t.name, t.name_size);
+                        // todo: set frameset-ok to "not ok"
+                    }
+                }
+                else if (is_start && name_is(OPTION, OPTION_SIZE, &t))
+                {
+                    // html_node_t* current = stack[stack_idx];
+                    // html_element_t* element = (html_element_t*)current->data;
+                    if (in_scope(SELECT, SELECT_SIZE, GENERIC_SCOPE))
+                    {
+                        generate_implied_end_tags(OPTGROUP, OPTGROUP_SIZE);
+                        if (in_scope(OPTION, OPTION_SIZE, GENERIC_SCOPE))
+                        {
+                            // todo: parse error
+                        }
+                    }
+                    else
+                    {
+                        html_node_t* current = stack[stack_idx];
+                        html_element_t* element = (html_element_t*)current->data;
+                        if (string_compare(element->local_name, element->local_name_size, OPTION, OPTION_SIZE))
+                        {
+                            stack_pop();
+                        }
+                    }
+
+                    reconstruct_formatting_elements();
+                    insert_html_element(t.name, t.name_size);
+                }
+                else if (is_start && name_is(OPTGROUP, OPTGROUP_SIZE, &t))
+                {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && (name_is(OPTGROUP, OPTGROUP_SIZE, &t) ||
-                                      name_is(OPTION, OPTION_SIZE, &t)))
+                else if (is_end && name_is(OPTION, OPTION_SIZE, &t))
                 {
                     NOT_IMPLEMENTED
                 }
@@ -1787,33 +2148,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_end)
                 {
-                    uint32_t idx = stack_idx;
-                    html_node_t* node = stack[idx];
-                    html_element_t* element = (html_element_t*)node->data;
-
-                    while (true)
-                    {
-                        if (string_compare(element->local_name, element->local_name_size, t.name, t.name_size))
-                        {
-                            generate_implied_end_tags(t.name, t.name_size);
-                            if (node == stack[stack_idx])
-                            {
-                                // todo: parse error
-                            }
-
-                            pop_all_including(node);
-                            break;
-                        }
-                        else if (is_special(node))
-                        {
-                            // todo: parse error
-                            break;
-                        }
-
-                        idx--;
-                        node = stack[idx];
-                        element = (html_element_t*)node->data;
-                    }
+                    handle_end_tag_in_body(&t);
                 }
                 break;
 

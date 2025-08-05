@@ -320,6 +320,45 @@ html_node_t* html_node_append(html_node_t* node, html_node_t* new_node)
 }
 
 
+html_node_t* html_node_remove(html_node_t* node, html_node_t* child)
+{
+    // todo: this should be returning an error status
+    if (child->parent != node) { return NULL; }
+
+    html_node_t* parent = child->parent;
+    assert(parent);
+
+    // todo: live range logic
+
+    html_node_t* prev_sibling = child->prev_sibling;
+    html_node_t* next_sibling = child->next_sibling;
+
+    if (prev_sibling)
+    {
+        prev_sibling->next_sibling = next_sibling;
+    }
+
+    if (next_sibling)
+    {
+        next_sibling->prev_sibling = prev_sibling;
+    }
+
+    if (node->first_child == child)
+    {
+        node->first_child = next_sibling;
+    }
+
+    if (node->last_child == child)
+    {
+        node->last_child = prev_sibling;
+    }
+
+    child->parent = NULL;
+
+    return child;
+}
+
+
 void html_node_free(html_node_t* node)
 {
     html_node_t* child = node->last_child;

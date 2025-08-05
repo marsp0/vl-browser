@@ -10,6 +10,7 @@ html_node_t* html_text_new(html_node_t* document, unsigned char* data, uint32_t 
 
     html_text_t* text       = malloc(sizeof(html_text_t));
     text->data_size         = data_size;
+    memset(text->data, 0, MAX_HTML_NAME_LEN);
     memcpy(text->data, data, data_size);
 
     node->data              = (void*)text;
