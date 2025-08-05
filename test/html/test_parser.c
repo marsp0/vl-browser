@@ -878,33 +878,29 @@ static void test_parser_8()
     // |     <option>
     // |       "X"
 
-    // unsigned char buffer[] = "<select><b><option><select><option></b></select>X";
-    // html_node_t* document   = html_document_new();
-    // html_node_t* html       = html_element_new(document, "html", 4);
-    // html_node_t* head       = html_element_new(document, "head", 4);
-    // html_node_t* body       = html_element_new(document, "body", 4);
-    // html_node_t* select     = html_element_new(document, "select", 6);
-    // html_node_t* o1         = html_element_new(document, "option", 6);
-    // html_node_t* o2         = html_element_new(document, "option", 6);
-    // html_node_t* t          = html_text_new(document, "X", 1);
+    unsigned char buffer[] = "<select><b><option><select><option></b></select>X";
+    html_node_t* document   = html_document_new();
+    html_node_t* html       = html_element_new(document, "html", 4);
+    html_node_t* head       = html_element_new(document, "head", 4);
+    html_node_t* body       = html_element_new(document, "body", 4);
+    html_node_t* select     = html_element_new(document, "select", 6);
+    html_node_t* o1         = html_element_new(document, "option", 6);
+    html_node_t* o2         = html_element_new(document, "option", 6);
+    html_node_t* b1         = html_element_new(document, "b", 1);
+    html_node_t* b2         = html_element_new(document, "b", 1);
+    html_node_t* t          = html_text_new(document, "X", 1);
 
-    // APPEND_TO_TREE(document, html);
-    // APPEND_TO_TREE(html, head);
-    // APPEND_TO_TREE(html, body);
-    // APPEND_TO_TREE(body, select);
-    // APPEND_TO_TREE(select, o1);
-    // APPEND_TO_TREE(body, o2);
-    // APPEND_TO_TREE(o2, t);
+    APPEND_TO_TREE(document, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, select);
+    APPEND_TO_TREE(body, b2);
+    APPEND_TO_TREE(body, t);
+    APPEND_TO_TREE(select, b1);
+    APPEND_TO_TREE(b1, o1);
+    APPEND_TO_TREE(b2, o2);
 
-    // // RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
-    // html_parser_init();
-    // html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
-    // print_document_tree(actual, 0);
-    // print_document_tree(document, 0);
-    // ASSERT_NODE(actual, document);
-    // html_node_free(document);
-    // html_node_free(actual);
-    // html_parser_free();
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
 }
 
 

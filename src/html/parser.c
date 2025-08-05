@@ -965,33 +965,42 @@ static uint32_t find_node_index(html_node_t** list, uint32_t list_size, html_nod
 
 
 // todo: turn this bool into OPERATION_RESULT or something similar
+// https://html.spec.whatwg.org/multipage/parsing.html#adoption-agency-algorithm
 static bool run_adoption_procedure(html_token_t* t)
 {
     html_node_t* current = stack[stack_idx];
     html_element_t* element = (html_element_t*)current->data;
 
+    // step 2
     if (string_compare(element->local_name, element->local_name_size, t->name, t->name_size) && !formatting_elements_contains(current))
     {
         stack_pop();
         return true;
     }
 
+    // step 3
     uint32_t outer_i = 0;
 
+    // step 4
     while (true)
     {
+        // step 4.1
         if (outer_i >= 8)
         {
             return true;
         }
 
+        // step 4.2
         outer_i++;
+
+        // step 4.3
         html_node_t* formatting_node = find_appropriate_formatting_element(t);
 
         if (!formatting_node) { return false; }
 
         html_element_t* formatting_element = (html_element_t*)formatting_node->data;
 
+        // step 4.4
         if (!stack_contains_node(formatting_node))
         {
             // todo: parse error
@@ -999,19 +1008,23 @@ static bool run_adoption_procedure(html_token_t* t)
             return true;
         }
 
+        // step 4.5
         if (stack_contains_node(formatting_node) && !in_scope(formatting_element->local_name, formatting_element->local_name_size, GENERIC_SCOPE))
         {
             // todo: parse error
             return true;
         }
 
+        // step 4.6
         if (stack[stack_idx] != formatting_node)
         {
             // todo: parse error
         }
 
+        // step 4.7
         html_node_t* furthest = find_furthest_block(formatting_node);
 
+        // step 4.8
         if (!furthest)
         {
             pop_all_including(formatting_node);
@@ -1019,39 +1032,51 @@ static bool run_adoption_procedure(html_token_t* t)
             return true;
         }
 
+        // step 4.9
         html_node_t* common_ancestor = find_common_ancestor(formatting_node);
 
+        // step 4.10
         uint32_t bookmark = 0;
         for (uint32_t i = 0; i < formatting_elements_size; i++)
         {
             if (formatting_elements[i] == formatting_node) { bookmark = i; }
         }
 
+        // step 4.11
         html_node_t* node = furthest;
         html_node_t* last_node = furthest;
+
+        // step 4.12
         uint32_t inner_i = 0;
         uint32_t node_i = find_node_index(stack, stack_size, node);
 
+        // step 4.13
         while (true)
         {
+            // step 4.13.1
             inner_i++;
 
+            // step 4.13.2
             node_i--;
             node = stack[node_i];
 
+            // step 4.13.3
             if (node == formatting_node) { break; }
 
+            // step 4.13.4
             if (inner_i > 3 && formatting_elements_contains(node))
             {
                 remove_formatting_element(node);
             }
 
+            // step 4.13.5
             if (!formatting_elements_contains(node))
             {
                 remove_from_stack(node);
                 continue;
             }
 
+            // step 4.13.6
             uint32_t node_formatting_index = find_node_index(formatting_elements, formatting_elements_size, node);
             html_token_t* node_t = &formatting_elements_t[node_formatting_index];
             html_node_t* new_node = create_element(node_t->name, node_t->name_size, document);
@@ -1060,6 +1085,7 @@ static bool run_adoption_procedure(html_token_t* t)
             stack_replace(node, new_node);
             node = new_node;
 
+            // step 4.13.7
             if (last_node == furthest)
             {
                 for (uint32_t i = 0; i < formatting_elements_size; i++)
@@ -1068,7 +1094,10 @@ static bool run_adoption_procedure(html_token_t* t)
                 }
             }
 
+            // step 4.13.8
             html_node_append(node, last_node);
+
+            // step 4.13.9
             last_node = node;
         }
 
