@@ -314,6 +314,12 @@ html_node_t* html_node_new(html_node_type_e type, html_node_t* document)
 }
 
 
+html_node_t* html_node_insert_before(html_node_t* node, html_node_t* new_node, html_node_t* child)
+{
+    return html_pre_insert_node(node, new_node, child);
+}
+
+
 html_node_t* html_node_append(html_node_t* node, html_node_t* new_node)
 {
     return html_pre_insert_node(node, new_node, NULL);

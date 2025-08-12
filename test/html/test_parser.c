@@ -864,19 +864,20 @@ static void test_parser_8()
     // #data
     // <select><b><option><select><option></b></select>X
     // #errors
-    // (1,8): expected-doctype-but-got-start-tag
-    // (1,11): unexpected-start-tag-in-select
-    // (1,27): unexpected-select-in-select
-    // (1,39): unexpected-end-tag
-    // (1,48): unexpected-end-tag
+    // 1:1: ERROR: Expected a doctype token
+    // 1:20: ERROR: Start tag 'select' isn't allowed here. Currently open tags: html, body, select, b, option.
+    // 1:36: ERROR: End tag 'b' isn't allowed here. Currently open tags: html, body, b, select, option.
+    // 1:50: ERROR: Premature end of file. Currently open tags: html, body, b.
     // #document
     // | <html>
     // |   <head>
     // |   <body>
     // |     <select>
+    // |       <b>
+    // |         <option>
+    // |     <b>
     // |       <option>
-    // |     <option>
-    // |       "X"
+    // |     "X"
 
     unsigned char buffer[] = "<select><b><option><select><option></b></select>X";
     html_node_t* document   = html_document_new();
@@ -965,6 +966,119 @@ static void test_parser_10()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
 }
 
+static void test_parser_11()
+{
+    // #data
+    // <a><table><td><a><table></table><a></tr><a></table><b>X</b>C<a>Y
+    // #errors
+    // (1,3): expected-doctype-but-got-start-tag
+    // (1,14): unexpected-cell-in-table-body
+    // (1,35): unexpected-start-tag-implies-end-tag
+    // (1,40): unexpected-cell-end-tag
+    // (1,43): unexpected-start-tag-implies-table-voodoo
+    // (1,43): unexpected-start-tag-implies-end-tag
+    // (1,43): unexpected-end-tag
+    // (1,63): unexpected-start-tag-implies-end-tag
+    // (1,64): expected-closing-tag-but-got-eof
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <a>
+    // |       <a>
+    // |       <table>
+    // |         <tbody>
+    // |           <tr>
+    // |             <td>
+    // |               <a>
+    // |                 <table>
+    // |               <a>
+    // |     <a>
+    // |       <b>
+    // |         "X"
+    // |       "C"
+    // |     <a>
+    // |       "Y"
+
+    unsigned char buffer[] = "<a><table><td><a><table></table><a></tr><a></table><b>X</b>C<a>Y";
+    html_node_t* document   = html_document_new();
+    html_node_t* html       = html_element_new(document, "html", 4);
+    html_node_t* head       = html_element_new(document, "head", 4);
+    html_node_t* body       = html_element_new(document, "body", 4);
+    html_node_t* a1       = html_element_new(document, "a", 1);
+    html_node_t* a2       = html_element_new(document, "a", 1);
+    html_node_t* a3       = html_element_new(document, "a", 1);
+    html_node_t* a4       = html_element_new(document, "a", 1);
+    html_node_t* a5       = html_element_new(document, "a", 1);
+    html_node_t* a6       = html_element_new(document, "a", 1);
+    html_node_t* table       = html_element_new(document, "table", 5);
+    html_node_t* tbody       = html_element_new(document, "tbody", 5);
+    html_node_t* tr       = html_element_new(document, "tr", 2);
+    html_node_t* td       = html_element_new(document, "td", 2);
+    html_node_t* table2       = html_element_new(document, "table", 5);
+    html_node_t* b1       = html_element_new(document, "b", 1);
+    html_node_t* x         = html_text_new(document, "X", 1);
+    html_node_t* c         = html_text_new(document, "C", 1);
+    html_node_t* y         = html_text_new(document, "Y", 1);
+
+    APPEND_TO_TREE(document, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, a1);
+    APPEND_TO_TREE(body, a2);
+    APPEND_TO_TREE(body, a3);
+    APPEND_TO_TREE(a1, a4);
+    APPEND_TO_TREE(a1, table);
+    APPEND_TO_TREE(table, tbody);
+    APPEND_TO_TREE(tbody, tr);
+    APPEND_TO_TREE(tr, td);
+    APPEND_TO_TREE(td, a5);
+    APPEND_TO_TREE(td, a6);
+    APPEND_TO_TREE(a5, table2);
+    APPEND_TO_TREE(a2, b1);
+    APPEND_TO_TREE(b1, x);
+    APPEND_TO_TREE(a2, c);
+    APPEND_TO_TREE(a3, y);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+}
+
+
+// static void test_parser_12()
+// {
+//     // https://html.spec.whatwg.org/multipage/parsing.html#unexpected-markup-in-tables
+
+//     unsigned char buffer[] = "<table><b><tr><td>aaa</td></tr>bbb</table>ccc";
+//     html_node_t* document   = html_document_new();
+//     html_node_t* html       = html_element_new(document, "html", 4);
+//     html_node_t* head       = html_element_new(document, "head", 4);
+//     html_node_t* body       = html_element_new(document, "body", 4);
+//     html_node_t* b1         = html_element_new(document, "b", 1);
+//     html_node_t* b2         = html_element_new(document, "b", 1);
+//     html_node_t* p1         = html_element_new(document, "p", 1);
+//     html_node_t* t1         = html_text_new(document, "X", 1);
+//     html_node_t* t2         = html_text_new(document, "C", 1);
+//     html_node_t* t3         = html_text_new(document, "Y", 1);
+
+//     APPEND_TO_TREE(document, html);
+//     APPEND_TO_TREE(html, head);
+//     APPEND_TO_TREE(html, body);
+//     APPEND_TO_TREE(body, b1);
+//     APPEND_TO_TREE(body, p1);
+//     APPEND_TO_TREE(b1, t1);
+//     APPEND_TO_TREE(p1, b2);
+//     APPEND_TO_TREE(b2, t2);
+//     APPEND_TO_TREE(p1, t3);
+
+//     // RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+//     html_parser_init();
+//     html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
+//     print_document_tree(actual, 0);
+//     // ASSERT_NODE(actual, document);
+//     html_node_free(document);
+//     html_node_free(actual);
+//     html_parser_free();
+// }
 
 void test_html_parser_test1()
 {
@@ -998,4 +1112,6 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_8);
     TEST_CASE(test_parser_9);
     TEST_CASE(test_parser_10);
+    TEST_CASE(test_parser_11);
+    // TEST_CASE(test_parser_12);
 }
