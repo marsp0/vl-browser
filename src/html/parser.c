@@ -590,18 +590,21 @@ static html_node_t* insert_html_element(unsigned char* name, uint32_t name_size)
     return insert_foreign_element(name, name_size, false);
 }
 
-
+// https://html.spec.whatwg.org/multipage/parsing.html#insert-a-character
 static void insert_character(unsigned char* data, uint32_t data_size)
 {
     html_insertion_location_t insertion_position = get_appropriate_insertion_location(NULL);
-    html_node_t* location = insertion_position.parent;
+    html_node_t* location   = insertion_position.parent;
+    html_node_t* child      = insertion_position.child;
+
+    if (!child) { child = location->last_child; }
+    else        { child = child->prev_sibling; }
 
     if (location->type == HTML_NODE_DOCUMENT) { return; }
 
-    html_node_t* last_child = location->last_child;
-    if (last_child && last_child->type == HTML_NODE_TEXT)
+    if (child && child->type == HTML_NODE_TEXT)
     {
-        html_text_append_data(last_child, data, data_size);
+        html_text_append_data(child, data, data_size);
     }
     else
     {

@@ -1132,6 +1132,93 @@ static void test_parser_13()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
 }
 
+
+static void test_parser_14()
+{
+    // #data
+    // <!-----><font><div>hello<table>excite!<b>me!<th><i>please!</tr><!--X-->
+    // #errors
+    // (1,14): expected-doctype-but-got-start-tag
+    // (1,41): unexpected-start-tag-implies-table-voodoo
+    // (1,48): foster-parenting-character-in-table
+    // (1,48): foster-parenting-character-in-table
+    // (1,48): foster-parenting-character-in-table
+    // (1,48): foster-parenting-character-in-table
+    // (1,48): foster-parenting-character-in-table
+    // (1,48): foster-parenting-character-in-table
+    // (1,48): foster-parenting-character-in-table
+    // (1,48): foster-parenting-character-in-table
+    // (1,48): foster-parenting-character-in-table
+    // (1,48): foster-parenting-character-in-table
+    // (1,48): unexpected-cell-in-table-body
+    // (1,63): unexpected-cell-end-tag
+    // (1,71): eof-in-table
+    // #document
+    // | <!-- - -->
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <font>
+    // |       <div>
+    // |         "helloexcite!"
+    // |         <b>
+    // |           "me!"
+    // |         <table>
+    // |           <tbody>
+    // |             <tr>
+    // |               <th>
+    // |                 <i>
+    // |                   "please!"
+    // |             <!-- X -->
+
+    unsigned char buffer[] = "<!-----><font><div>hello<table>excite!<b>me!<th><i>please!</tr><!--X-->";
+    html_node_t* expected   = html_document_new();
+    html_node_t* html       = html_element_new(expected, "html", 4);
+    html_node_t* head       = html_element_new(expected, "head", 4);
+    html_node_t* body       = html_element_new(expected, "body", 4);
+    html_node_t* font       = html_element_new(expected, "font", 4);
+    html_node_t* div        = html_element_new(expected, "div", 3);
+    html_node_t* t1         = html_text_new(expected, "helloexcite!", 12);
+    html_node_t* t2         = html_text_new(expected, "me!", 3);
+    html_node_t* t3         = html_text_new(expected, "please!", 7);
+    html_node_t* c1         = html_comment_new(expected, "-", 1);
+    html_node_t* c2         = html_comment_new(expected, "X", 1);
+    html_node_t* table      = html_element_new(expected, "table", 5);
+    html_node_t* tbody      = html_element_new(expected, "tbody", 5);
+    html_node_t* tr         = html_element_new(expected, "tr", 2);
+    html_node_t* th         = html_element_new(expected, "th", 2);
+    html_node_t* i          = html_element_new(expected, "i", 1);
+    html_node_t* b          = html_element_new(expected, "b", 1);
+
+    APPEND_TO_TREE(expected, c1);
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, font);
+    APPEND_TO_TREE(font, div);
+    APPEND_TO_TREE(div, t1);
+    APPEND_TO_TREE(div, b);
+    APPEND_TO_TREE(b, t2);
+    APPEND_TO_TREE(div, table);
+    APPEND_TO_TREE(table, tbody);
+    APPEND_TO_TREE(tbody, tr);
+    APPEND_TO_TREE(tr, th);
+    APPEND_TO_TREE(th, i);
+    APPEND_TO_TREE(i, t3);
+    APPEND_TO_TREE(tbody, c2);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+// html_parser_init();
+// html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
+// ASSERT_NODE(actual, expected);
+// print_document_tree(actual, 0);
+// print_document_tree(expected, 0);
+// html_node_free(expected);
+// html_node_free(actual);
+// html_parser_free();
+
 void test_html_parser_test1()
 {
     TEST_CASE(test_when_input_is_pure_text_then_add_missing_nodes);
@@ -1167,4 +1254,5 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_11);
     TEST_CASE(test_parser_12);
     TEST_CASE(test_parser_13);
+    TEST_CASE(test_parser_14);
 }

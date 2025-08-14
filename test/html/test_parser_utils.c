@@ -4,7 +4,7 @@ void print_document_tree(html_node_t* node, uint32_t level)
 {
     for (uint32_t i = 0; i < level; i++)
     {
-        printf("\t");
+        printf("  ");
     }
 
     html_node_type_e type = node->type;
@@ -22,7 +22,11 @@ void print_document_tree(html_node_t* node, uint32_t level)
         html_text_t* element = (html_text_t*)node->data;
         printf("#text - %s\n", element->data);
     }
-    
+    else if (type == HTML_NODE_COMMENT)
+    {
+        html_comment_t* comment = (html_comment_t*)node->data;
+        printf("<!-- %s -->\n", comment->data);
+    }
 
     html_node_t* child = node->first_child;
     while (child)

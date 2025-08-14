@@ -9,6 +9,8 @@ html_node_t* html_comment_new(html_node_t* document, unsigned char* buffer, uint
     html_node_t* node               = html_node_new(HTML_NODE_COMMENT, document);
     html_comment_t* comment         = malloc(sizeof(html_comment_t));
 
+    memset(comment->data, 0, MAX_HTML_NAME_LEN);
+
     if (size > 0)
     {
         comment->data_size = size;
@@ -17,7 +19,6 @@ html_node_t* html_comment_new(html_node_t* document, unsigned char* buffer, uint
     else
     {
         comment->data_size = 0;
-        memset(comment->data, 0, MAX_HTML_NAME_LEN);
     }
 
     node->data                      = (void*)comment;
