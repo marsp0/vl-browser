@@ -1081,6 +1081,57 @@ static void test_parser_12()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
 }
 
+
+static void test_parser_13()
+{
+    // #data
+    // <a X>0<b>1<a Y>2
+    // #errors
+    // (1,5): expected-doctype-but-got-start-tag
+    // (1,15): unexpected-start-tag-implies-end-tag
+    // (1,15): adoption-agency-1.3
+    // (1,16): expected-closing-tag-but-got-eof
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <a>
+    // |       x=""
+    // |       "0"
+    // |       <b>
+    // |         "1"
+    // |     <b>
+    // |       <a>
+    // |         y=""
+    // |         "2"
+
+    unsigned char buffer[] = "<a X>0<b>1<a Y>2";
+    html_node_t* expected   = html_document_new();
+    html_node_t* html       = html_element_new(expected, "html", 4);
+    html_node_t* head       = html_element_new(expected, "head", 4);
+    html_node_t* body       = html_element_new(expected, "body", 4);
+    html_node_t* a1       = html_element_new(expected, "a", 1);
+    html_node_t* a2       = html_element_new(expected, "a", 1);
+    html_node_t* b1       = html_element_new(expected, "b", 1);
+    html_node_t* b2       = html_element_new(expected, "b", 1);
+    html_node_t* t1       = html_text_new(expected, "0", 1);
+    html_node_t* t2       = html_text_new(expected, "1", 1);
+    html_node_t* t3       = html_text_new(expected, "2", 1);
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, a1);
+    APPEND_TO_TREE(body, b1);
+    APPEND_TO_TREE(a1, t1);
+    APPEND_TO_TREE(a1, b2);
+    APPEND_TO_TREE(b2, t2);
+    APPEND_TO_TREE(b1, a2);
+    APPEND_TO_TREE(a2, t3);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
 void test_html_parser_test1()
 {
     TEST_CASE(test_when_input_is_pure_text_then_add_missing_nodes);
@@ -1115,4 +1166,5 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_10);
     TEST_CASE(test_parser_11);
     TEST_CASE(test_parser_12);
+    TEST_CASE(test_parser_13);
 }
