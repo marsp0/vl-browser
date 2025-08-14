@@ -1044,41 +1044,42 @@ static void test_parser_11()
 }
 
 
-// static void test_parser_12()
-// {
-//     // https://html.spec.whatwg.org/multipage/parsing.html#unexpected-markup-in-tables
+static void test_parser_12()
+{
+    // https://html.spec.whatwg.org/multipage/parsing.html#unexpected-markup-in-tables
 
-//     unsigned char buffer[] = "<table><b><tr><td>aaa</td></tr>bbb</table>ccc";
-//     html_node_t* document   = html_document_new();
-//     html_node_t* html       = html_element_new(document, "html", 4);
-//     html_node_t* head       = html_element_new(document, "head", 4);
-//     html_node_t* body       = html_element_new(document, "body", 4);
-//     html_node_t* b1         = html_element_new(document, "b", 1);
-//     html_node_t* b2         = html_element_new(document, "b", 1);
-//     html_node_t* p1         = html_element_new(document, "p", 1);
-//     html_node_t* t1         = html_text_new(document, "X", 1);
-//     html_node_t* t2         = html_text_new(document, "C", 1);
-//     html_node_t* t3         = html_text_new(document, "Y", 1);
+    unsigned char buffer[] = "<table><b><tr><td>aaa</td></tr>bbb</table>ccc";
+    html_node_t* document   = html_document_new();
+    html_node_t* html       = html_element_new(document, "html", 4);
+    html_node_t* head       = html_element_new(document, "head", 4);
+    html_node_t* body       = html_element_new(document, "body", 4);
+    html_node_t* b1       = html_element_new(document, "b", 1);
+    html_node_t* b2       = html_element_new(document, "b", 1);
+    html_node_t* b3       = html_element_new(document, "b", 1);
+    html_node_t* t       = html_element_new(document, "table", 5);
+    html_node_t* tb       = html_element_new(document, "tbody", 5);
+    html_node_t* tr       = html_element_new(document, "tr", 2);
+    html_node_t* td       = html_element_new(document, "td", 2);
+    html_node_t* t1         = html_text_new(document, "bbb", 3);
+    html_node_t* t2         = html_text_new(document, "aaa", 3);
+    html_node_t* t3         = html_text_new(document, "ccc", 3);
 
-//     APPEND_TO_TREE(document, html);
-//     APPEND_TO_TREE(html, head);
-//     APPEND_TO_TREE(html, body);
-//     APPEND_TO_TREE(body, b1);
-//     APPEND_TO_TREE(body, p1);
-//     APPEND_TO_TREE(b1, t1);
-//     APPEND_TO_TREE(p1, b2);
-//     APPEND_TO_TREE(b2, t2);
-//     APPEND_TO_TREE(p1, t3);
+    APPEND_TO_TREE(document, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, b1);
+    APPEND_TO_TREE(body, b2);
+    APPEND_TO_TREE(b2, t1);
+    APPEND_TO_TREE(body, t);
+    APPEND_TO_TREE(t, tb);
+    APPEND_TO_TREE(tb, tr);
+    APPEND_TO_TREE(tr, td);
+    APPEND_TO_TREE(td, t2);
+    APPEND_TO_TREE(body, b3);
+    APPEND_TO_TREE(b3, t3);
 
-//     // RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
-//     html_parser_init();
-//     html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
-//     print_document_tree(actual, 0);
-//     // ASSERT_NODE(actual, document);
-//     html_node_free(document);
-//     html_node_free(actual);
-//     html_parser_free();
-// }
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, document);
+}
 
 void test_html_parser_test1()
 {
@@ -1113,5 +1114,5 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_9);
     TEST_CASE(test_parser_10);
     TEST_CASE(test_parser_11);
-    // TEST_CASE(test_parser_12);
+    TEST_CASE(test_parser_12);
 }
