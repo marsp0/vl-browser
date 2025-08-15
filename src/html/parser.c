@@ -253,17 +253,6 @@ typedef enum
     TABLE_SCOPE,
 } html_element_scope_e;
 
-typedef enum
-{
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
-    EIGHT,
-    NINE,
-    TEN,
-} html_formatting_elements_step_e;
-
 typedef struct
 {
     html_node_t* parent;
@@ -892,7 +881,7 @@ static void reconstruct_formatting_elements()
     int32_t idx = (int32_t)formatting_elements_size - 1;
     html_node_t* entry = formatting_elements[idx];
 
-    html_formatting_elements_step_e step    = FOUR;
+    uint32_t step    = 4;
     html_node_t* new_element                = NULL;
     bool run                                = true;
 
@@ -900,56 +889,56 @@ static void reconstruct_formatting_elements()
     {
         switch (step)
         {
-        case FOUR:
+        case 4:
             if (idx - 1 < 0)
             {
-                step = EIGHT;
+                step = 8;
             }
             else
             {
-                step = FIVE;
+                step = 5;
             }
             break;
 
-        case FIVE:
+        case 5:
             idx--;
             entry = formatting_elements[idx];
-            step = SIX;
+            step = 6;
             break;
 
-        case SIX:
+        case 6:
             if (formatting_elements_m[idx] || stack_contains_node(entry))
             {
-                step = SEVEN;
+                step = 7;
             }
             else
             {
-                step = FOUR;
+                step = 4;
             }
             break;
 
-        case SEVEN:
+        case 7:
             idx++;
             entry = formatting_elements[idx];
-            step = EIGHT;
+            step = 8;
             break;
 
-        case EIGHT:
+        case 8:
             ;
             html_token_t* t = &(formatting_elements_t[idx]);
             new_element = insert_html_element(t->name, t->name_size);
-            step = NINE;
+            step = 9;
             break;
 
-        case NINE:
+        case 9:
             formatting_elements[idx] = new_element;
-            step = TEN;
+            step = 10;
             break;
 
-        case TEN:
+        case 10:
             if (idx + 1 != (int32_t)formatting_elements_size)
             {
-                step = SEVEN;
+                step = 7;
             }
             else
             {
@@ -2102,8 +2091,69 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(LI, LI_SIZE, &t))
                 {
-                    // todo: implement
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
+
+                    html_node_t* node = stack[stack_idx];
+                    html_element_t* element = (html_element_t*)node->data;
+                    uint32_t idx = stack_idx;
+                    uint32_t step = 1;
+                    bool run = true;
+
+                    while (run)
+                    {
+                        switch (step)
+                        {
+                        case 1:
+                            if (string_compare(element->local_name, element->local_name_size, LI, LI_SIZE))
+                            {
+                                generate_implied_end_tags(LI, LI_SIZE);
+    
+                                node = stack[stack_idx];
+                                element = (html_element_t*)node->data;
+                                if (!string_compare(element->local_name, element->local_name_size, LI, LI_SIZE))
+                                {
+                                    INCOMPLETE_IMPLEMENTATION("parse error");
+                                }
+    
+                                pop_elements_until_name_included(LI, LI_SIZE);
+                                step = 4;
+                            }
+                            else
+                            {
+                                step = 2;
+                            }
+                            break;
+
+                        case 2:
+                            if (is_special(node) && (!string_compare(element->local_name, element->local_name_size, ADDRESS, ADDRESS_SIZE) &&
+                                                     !string_compare(element->local_name, element->local_name_size, DIV, DIV_SIZE) &&
+                                                     !string_compare(element->local_name, element->local_name_size, P, P_SIZE)))
+                            {
+                                step = 4;
+                            }
+                            else
+                            {
+                                step = 3;
+                            }
+                            break;
+
+                        case 3:
+                            idx--;
+                            node = stack[idx];
+                            step = 1;
+                            break;
+
+                        case 4:
+                            if (in_scope(P, P_SIZE, BUTTON_SCOPE))
+                            {
+                                close_p_element();
+                            }
+                            run = false;
+                            break;
+                        }
+                    }
+
+                    insert_html_element(t.name, t.name_size);
                 }
                 else if (is_start && (name_is(DT, DT_SIZE, &t) || name_is(DD, DD_SIZE, &t)))
                 {

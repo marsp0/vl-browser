@@ -1210,6 +1210,61 @@ static void test_parser_14()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
 }
 
+
+static void test_parser_15()
+{
+    // #data
+    // <!DOCTYPE html><li>hello<li>world<ul>how<li>do</ul>you</body><!--do-->
+    // #errors
+    // #document
+    // | <!DOCTYPE html>
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <li>
+    // |       "hello"
+    // |     <li>
+    // |       "world"
+    // |       <ul>
+    // |         "how"
+    // |         <li>
+    // |           "do"
+    // |       "you"
+    // |   <!-- do -->
+
+    unsigned char buffer[] = "<!DOCTYPE html><li>hello<li>world<ul>how<li>do</ul>you</body><!--do-->";
+    html_node_t* expected   = html_document_new();
+    html_node_t* html       = html_element_new(expected, "html", 4);
+    html_node_t* head       = html_element_new(expected, "head", 4);
+    html_node_t* body       = html_element_new(expected, "body", 4);
+    html_node_t* li1        = html_element_new(expected, "li", 2);
+    html_node_t* li2        = html_element_new(expected, "li", 2);
+    html_node_t* li3        = html_element_new(expected, "li", 2);
+    html_node_t* ul         = html_element_new(expected, "ul", 2);
+    html_node_t* t1         = html_text_new(expected, "hello", 5);
+    html_node_t* t2         = html_text_new(expected, "world", 5);
+    html_node_t* t3         = html_text_new(expected, "how", 3);
+    html_node_t* t4         = html_text_new(expected, "do", 2);
+    html_node_t* t5         = html_text_new(expected, "you", 3);
+    html_node_t* c1         = html_comment_new(expected, "do", 2);
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, li1);
+    APPEND_TO_TREE(li1, t1);
+    APPEND_TO_TREE(body, li2);
+    APPEND_TO_TREE(li2, t2);
+    APPEND_TO_TREE(li2, ul);
+    APPEND_TO_TREE(ul, t3);
+    APPEND_TO_TREE(ul, li3);
+    APPEND_TO_TREE(li3, t4);
+    APPEND_TO_TREE(li2, t5);
+    APPEND_TO_TREE(html, c1);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
 // html_parser_init();
 // html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
 // ASSERT_NODE(actual, expected);
@@ -1255,4 +1310,5 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_12);
     TEST_CASE(test_parser_13);
     TEST_CASE(test_parser_14);
+    TEST_CASE(test_parser_15);
 }
