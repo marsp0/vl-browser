@@ -363,11 +363,12 @@ static bool stack_contains_element(unsigned char* name, uint32_t name_size)
 {
     for (uint32_t i = 0; i < stack_size; i++)
     {
-        html_node_t* current = stack[i];
-        if (!current)                                           { return false; }
-        if (current->type != HTML_NODE_ELEMENT)                 { continue; }
+        html_node_t* node = stack[i];
+        if (!node)                                           { return false; }
+        if (node->type != HTML_NODE_ELEMENT)                 { continue; }
 
-        html_element_t* element = (html_element_t*)current->data;
+        html_element_t* element = html_element_from_node(node);
+
         if (strncmp(element->local_name, name, name_size) == 0) { return true; }
         // todo: figure out which name to use and perform case insensitive comparison
     }
@@ -393,7 +394,8 @@ static bool stack_contains_node(html_node_t* node)
 static bool in_scope(unsigned char* name, uint32_t name_size, html_element_scope_e scope)
 {
     html_node_t* node = stack[stack_idx];
-    html_element_t* element = (html_element_t*)node->data;
+    html_element_t* element = html_element_from_node(node);
+
     int32_t i = (int32_t)stack_idx;
 
     while (i >= 0)
@@ -426,7 +428,7 @@ static bool in_scope(unsigned char* name, uint32_t name_size, html_element_scope
 
         i--;
         node = stack[i];
-        element = (html_element_t*)node->data;
+        element = html_element_from_node(node);
     }
 
     return false;
@@ -440,7 +442,7 @@ static html_node_t* find_last_stack_element(const unsigned char* name, const uin
     while (i >= 0)
     {
         html_node_t* node = stack[i];
-        html_element_t* element = (html_element_t*)node->data;
+        html_element_t* element = html_element_from_node(node);
 
         if (string_compare(element->local_name, element->local_name_size, name, name_size))
         {
@@ -473,15 +475,23 @@ static html_insertion_location_t get_appropriate_insertion_location(html_node_t*
 
     if (override) { target = override; }
 
-    html_element_t* target_element = (html_element_t*)target->data;
-    const unsigned char* name = target_element->local_name;
-    const uint32_t name_size = target_element->local_name_size;
+    unsigned char* name = NULL;
+    uint32_t name_size = 0;
 
-    if (foster_parenting && (string_compare(name, name_size, TABLE, TABLE_SIZE) ||
-                             string_compare(name, name_size, TBODY, TBODY_SIZE) ||
-                             string_compare(name, name_size, TFOOT, TFOOT_SIZE) ||
-                             string_compare(name, name_size, THEAD, THEAD_SIZE) ||
-                             string_compare(name, name_size, TR, TR_SIZE)))
+    if (target->type == HTML_NODE_ELEMENT)
+    {
+        html_element_t* target_element  = html_element_from_node(target);
+        name                            = target_element->local_name;
+        name_size                       = target_element->local_name_size;
+    }
+
+    if (foster_parenting && 
+        target->type == HTML_NODE_ELEMENT && 
+        (string_compare(name, name_size, TABLE, TABLE_SIZE) ||
+         string_compare(name, name_size, TBODY, TBODY_SIZE) ||
+         string_compare(name, name_size, THEAD, THEAD_SIZE) ||
+         string_compare(name, name_size, TFOOT, TFOOT_SIZE) ||
+         string_compare(name, name_size, TR, TR_SIZE)))
     {
         html_node_t* last_template = find_last_stack_element(TEMPLATE, TEMPLATE_SIZE);
         html_node_t* last_table = find_last_stack_element(TABLE, TABLE_SIZE);
@@ -629,7 +639,7 @@ static void generate_implied_end_tags(unsigned char* name, uint32_t name_size)
     while (stack_size > 0)
     {
         html_node_t* node = stack[stack_idx];
-        html_element_t* element = (html_element_t*)node->data;
+        html_element_t* element = html_element_from_node(node);
         const unsigned char* local_name = element->local_name;
 
         if (name_size > 0 && strncmp(local_name, name, name_size) == 0)
@@ -677,7 +687,7 @@ static void close_p_element()
     generate_implied_end_tags(P, P_SIZE);
 
     html_node_t* node = stack[stack_idx];
-    html_element_t* element = (html_element_t*)node->data;
+    html_element_t* element = html_element_from_node(node);
     if (strncmp(element->local_name, P, P_SIZE) != 0)
     {
         // todo: parse error
@@ -691,7 +701,7 @@ static void close_p_element()
         stack_pop();
 
         node = stack[stack_idx];
-        element = (html_element_t*)node->data;
+        element = html_element_from_node(node);
     }
 }
 
@@ -701,7 +711,7 @@ static void close_cell()
     generate_implied_end_tags(NULL, 0);
 
     html_node_t* node = stack[stack_idx];
-    html_element_t* element = (html_element_t*)(node->data);
+    html_element_t* element = html_element_from_node(node);
     if (strncmp(element->local_name, TD, TD_SIZE) != 0 && strncmp(element->local_name, TH, TH_SIZE) != 0)
     {
         INCOMPLETE_IMPLEMENTATION("parse error");
@@ -711,7 +721,7 @@ static void close_cell()
     {
         stack_pop();
         node = stack[stack_idx];
-        element = (html_element_t*)node->data;
+        element = html_element_from_node(node);
     }
 
     stack_pop();
@@ -736,8 +746,8 @@ static void pop_all_including(html_node_t* node)
 
 static void pop_elements_until_name_included(const unsigned char* name, const uint32_t name_size)
 {
-    html_node_t* current = stack[stack_idx];
-    html_element_t* element = (html_element_t*)current->data;
+    html_node_t* node = stack[stack_idx];
+    html_element_t* element = html_element_from_node(node);
     while (true)
     {
         if (string_compare(element->local_name, element->local_name_size, name, name_size))
@@ -745,8 +755,8 @@ static void pop_elements_until_name_included(const unsigned char* name, const ui
             break;
         }
         stack_pop();
-        current = stack[stack_idx];
-        element = (html_element_t*)current->data;
+        node = stack[stack_idx];
+        element = html_element_from_node(node);
     }
     stack_pop();
 }
@@ -754,7 +764,7 @@ static void pop_elements_until_name_included(const unsigned char* name, const ui
 
 static bool is_special(html_node_t* node)
 {
-    html_element_t* element = (html_element_t*)node->data;
+    html_element_t* element = html_element_from_node(node);
     const unsigned char* name = element->local_name;
     const uint32_t name_size = element->local_name_size;
 
@@ -980,7 +990,7 @@ static html_node_t* find_appropriate_formatting_element(const unsigned char* nam
     for (int32_t i = (int32_t)formatting_elements_size - 1; i >= start; i--)
     {
         html_node_t* node = formatting_elements[i];
-        html_element_t* element = (html_element_t*)node->data;
+        html_element_t* element = html_element_from_node(node);
 
         if (string_compare(element->local_name, element->local_name_size, name, name_size))
         {
@@ -1045,7 +1055,7 @@ static bool run_adoption_procedure(html_token_t* t)
     // turn this bool into OPERATION_RESULT or something similar
     INCOMPLETE_IMPLEMENTATION("operation_result_t instead of bool");
     html_node_t* current = stack[stack_idx];
-    html_element_t* element = (html_element_t*)current->data;
+    html_element_t* element = html_element_from_node(current);
 
     // step 2
     if (string_compare(element->local_name, element->local_name_size, t->name, t->name_size) && !formatting_elements_contains(current))
@@ -1074,7 +1084,7 @@ static bool run_adoption_procedure(html_token_t* t)
 
         if (!formatting_node) { return false; }
 
-        html_element_t* formatting_element = (html_element_t*)formatting_node->data;
+        html_element_t* formatting_element = html_element_from_node(formatting_node);
 
         // step 4.4
         if (!stack_contains_node(formatting_node))
@@ -1216,7 +1226,7 @@ static void handle_end_tag_in_body(html_token_t* t)
 {
     uint32_t idx = stack_idx;
     html_node_t* node = stack[idx];
-    html_element_t* element = (html_element_t*)node->data;
+    html_element_t* element = html_element_from_node(node);
 
     while (true)
     {
@@ -1239,7 +1249,7 @@ static void handle_end_tag_in_body(html_token_t* t)
 
         idx--;
         node = stack[idx];
-        element = (html_element_t*)node->data;
+        element = html_element_from_node(node);
     }
 }
 
@@ -1247,7 +1257,7 @@ static void handle_end_tag_in_body(html_token_t* t)
 static void clear_stack_back_to_table_row()
 {
     html_node_t* node = stack[stack_idx];
-    html_element_t* element = (html_element_t*)node->data;
+    html_element_t* element = html_element_from_node(node);
     const unsigned char* name = element->local_name;
     uint32_t name_size = element->local_name_size;
 
@@ -1258,7 +1268,7 @@ static void clear_stack_back_to_table_row()
         stack_pop();
 
         node = stack[stack_idx];
-        element = (html_element_t*)node->data;
+        element = html_element_from_node(node);
         name = element->local_name;
         name_size = element->local_name_size;
     }
@@ -1267,7 +1277,7 @@ static void clear_stack_back_to_table_row()
 static void clear_stack_back_to_table()
 {
     html_node_t* node = stack[stack_idx];
-    html_element_t* element = (html_element_t*)node->data;
+    html_element_t* element = html_element_from_node(node);
     const unsigned char* name = element->local_name;
     uint32_t name_size = element->local_name_size;
 
@@ -1278,7 +1288,7 @@ static void clear_stack_back_to_table()
         stack_pop();
 
         node = stack[stack_idx];
-        element = (html_element_t*)node->data;
+        element = html_element_from_node(node);
         name = element->local_name;
         name_size = element->local_name_size;
     }
@@ -1288,7 +1298,7 @@ static void clear_stack_back_to_table()
 static void clear_stack_back_to_table_body()
 {
     html_node_t* node = stack[stack_idx];
-    html_element_t* element = (html_element_t*)node->data;
+    html_element_t* element = html_element_from_node(node);
     const unsigned char* name = element->local_name;
     uint32_t name_size = element->local_name_size;
 
@@ -1301,7 +1311,7 @@ static void clear_stack_back_to_table_body()
         stack_pop();
 
         node = stack[stack_idx];
-        element = (html_element_t*)node->data;
+        element = html_element_from_node(node);
         name = element->local_name;
         name_size = element->local_name_size;
     }
@@ -1313,7 +1323,7 @@ static void reset_insertion_mode_appropriately()
     uint32_t idx = stack_idx;
     bool last = false;
     html_node_t* node = stack[idx];
-    html_element_t* element = (html_element_t*)node->data;
+    html_element_t* element = html_element_from_node(node);
 
     INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
 
@@ -1397,7 +1407,7 @@ static void reset_insertion_mode_appropriately()
 
         idx--;
         node = stack[idx];
-        element = (html_element_t*)node->data;
+        element = html_element_from_node(node);
     }
 }
 
@@ -2048,7 +2058,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     // todo: scope logic
 
                     html_node_t* node = stack[stack_idx];
-                    html_element_t* element = (html_element_t*)node->data;
+                    html_element_t* element = html_element_from_node(node);
                     const unsigned char* local_name = element->local_name;
                     const uint32_t local_name_size = element->local_name_size;
 
@@ -2094,7 +2104,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
 
                     html_node_t* node = stack[stack_idx];
-                    html_element_t* element = (html_element_t*)node->data;
+                    html_element_t* element = html_element_from_node(node);
                     uint32_t idx = stack_idx;
                     uint32_t step = 1;
                     bool run = true;
@@ -2109,7 +2119,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                 generate_implied_end_tags(LI, LI_SIZE);
     
                                 node = stack[stack_idx];
-                                element = (html_element_t*)node->data;
+                                element = html_element_from_node(node);
                                 if (!string_compare(element->local_name, element->local_name_size, LI, LI_SIZE))
                                 {
                                     INCOMPLETE_IMPLEMENTATION("parse error");
@@ -2172,13 +2182,13 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                         generate_implied_end_tags(NULL, 0);
 
                         html_node_t* node = stack[stack_idx];
-                        html_element_t* element = (html_element_t*)node->data;
+                        html_element_t* element = html_element_from_node(node);
 
                         while (!string_compare(element->local_name, element->local_name_size, BUTTON, BUTTON_SIZE))
                         {
                             stack_pop();
                             node = stack[stack_idx];
-                            element = (html_element_t*)node->data;
+                            element = html_element_from_node(node);
                         }
 
                         stack_pop();
@@ -2212,7 +2222,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                         generate_implied_end_tags(NULL, 0);
 
                         html_node_t* node = stack[stack_idx];
-                        html_element_t* element = (html_element_t*)node->data;
+                        html_element_t* element = html_element_from_node(node);
                         if (!string_compare(element->local_name, element->local_name_size, t.name, t.name_size))
                         {
                             // todo: parse error
@@ -2435,7 +2445,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     else
                     {
                         html_node_t* current = stack[stack_idx];
-                        html_element_t* element = (html_element_t*)current->data;
+                        html_element_t* element = html_element_from_node(current);
                         if (string_compare(element->local_name, element->local_name_size, OPTION, OPTION_SIZE))
                         {
                             stack_pop();
@@ -2528,7 +2538,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
             case HTML_PARSER_MODE_IN_TABLE:
                 ;
                 html_node_t* current_node = stack[stack_idx];
-                html_element_t* current_element = (html_element_t*)current_node->data;
+                html_element_t* current_element = html_element_from_node(current_node);
                 unsigned char* name = current_element->local_name;
                 uint32_t name_size = current_element->local_name_size;
                 if (is_character && (string_compare(name, name_size, TABLE, TABLE_SIZE) ||
@@ -2913,7 +2923,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                         generate_implied_end_tags(NULL, 0);
 
                         html_node_t* node = stack[stack_idx];
-                        html_element_t* element = (html_element_t*)node->data;
+                        html_element_t* element = html_element_from_node(node);
 
                         if (!string_compare(element->local_name, element->local_name_size, t.name, t.name_size))
                         {

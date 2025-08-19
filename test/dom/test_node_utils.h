@@ -10,13 +10,6 @@
 
 void               ASSERT_NODE(html_node_t* a, html_node_t* e);
 
-html_node_t        create_base_node(html_node_type_e type);
-html_document_t    create_document_node(bool parser_cannot_change_mode);
-html_element_t     create_element_node(unsigned char* name, uint32_t name_size);
-html_doctype_t     create_doctype_node(unsigned char* name, uint32_t name_size, 
-                                       unsigned char* public_id, uint32_t public_id_size, 
-                                       unsigned char* system_id, uint32_t system_id_size);
-
 
 #define APPEND_TO_TREE(root, node)                                                      \
 do                                                                                      \

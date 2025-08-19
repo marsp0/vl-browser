@@ -6,14 +6,14 @@
 
 html_node_t* html_text_new(html_node_t* document, unsigned char* data, uint32_t data_size)
 {
-    html_node_t* node       = html_node_new(HTML_NODE_TEXT, document);
-
     html_text_t* text       = malloc(sizeof(html_text_t));
+    html_node_t* node       = html_node_from_text(text);
+
+    html_node_initialize(node, HTML_NODE_TEXT, document);
+
     text->data_size         = data_size;
     memset(text->data, 0, MAX_HTML_NAME_LEN);
     memcpy(text->data, data, data_size);
-
-    node->data              = (void*)text;
     memcpy(node->name, "#text", sizeof("#text") - 1);
 
     return node;
@@ -24,7 +24,7 @@ void html_text_append_data(html_node_t* node, unsigned char* data, uint32_t data
 {
     if (node->type != HTML_NODE_TEXT) { return; }
     
-    html_text_t* text = node->data;
+    html_text_t* text = html_text_from_node(node);
 
     for (uint32_t i = 0; i < data_size; i++)
     {
@@ -37,10 +37,25 @@ void html_text_append_data(html_node_t* node, unsigned char* data, uint32_t data
 }
 
 
-void html_text_free(html_node_t* node)
+html_text_t* html_text_from_node(html_node_t* node)
 {
     assert(node->type == HTML_NODE_TEXT);
 
-    free(node->data);
+    return (html_text_t*)node;
+}
+
+
+html_node_t* html_node_from_text(html_text_t* text)
+{
+    return (html_node_t*)text;
+}
+
+
+void html_text_free(html_node_t* node)
+{
     html_node_free(node);
+    assert(node->type == HTML_NODE_TEXT);
+
+    html_text_t* text = html_text_from_node(node);
+    free(text);
 }

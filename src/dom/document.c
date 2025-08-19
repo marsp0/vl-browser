@@ -6,10 +6,12 @@
 
 html_node_t* html_document_new()
 {
-    html_node_t* node                   = html_node_new(HTML_NODE_DOCUMENT, NULL);
+    html_document_t* document           = malloc(sizeof(html_document_t));
+    html_node_t* node                   = html_node_from_document(document);
+
+    html_node_initialize(node, HTML_NODE_DOCUMENT, NULL);
     node->document                      = node;
 
-    html_document_t* document           = malloc(sizeof(html_document_t));
     document->url_size                  = 0;
     document->uri_size                  = 0;
     document->compat_mode_size          = 0;
@@ -17,17 +19,31 @@ html_node_t* html_document_new()
     document->content_type_size         = 0;
     document->parser_cannot_change_mode = false;
 
-    node->data                          = (void*)document;
     memcpy(node->name, "#document", sizeof("#document") - 1);
 
     return node;
 }
 
 
-void html_document_free(html_node_t* node)
+html_node_t* html_node_from_document(html_document_t* document)
+{
+    return (html_node_t*)document;
+}
+
+
+html_document_t* html_document_from_node(html_node_t* node)
 {
     assert(node->type == HTML_NODE_DOCUMENT);
 
-    free(node->data);
+    return (html_document_t*)node;
+}
+
+
+void html_document_free(html_node_t* node)
+{
     html_node_free(node);
+    assert(node->type == HTML_NODE_DOCUMENT);
+
+    html_document_t* document = html_document_from_node(node);
+    free(document);
 }

@@ -29,6 +29,7 @@ typedef enum
     HTML_NODE_ENTITY,                   // legacy
     HTML_NODE_PROCESSING_INSTRUCTION,
     HTML_NODE_COMMENT,
+    HTML_NODE_DOCTYPE,
     HTML_NODE_DOCUMENT,
     HTML_NODE_DOCUMENT_TYPE,
     HTML_NODE_DOCUMENT_FRAGMENT,
@@ -56,14 +57,12 @@ typedef struct html_node_t
     struct html_node_t*     prev_sibling;
     struct html_node_t*     next_sibling;
 
-    void*                   data;
-
 } html_node_t;
 
 
-html_node_t*                html_node_new(html_node_type_e type, html_node_t* document);
-html_node_t*                html_node_insert_before(html_node_t* node, html_node_t* new_node, html_node_t* child);
-html_node_t*                html_node_append(html_node_t* node, html_node_t* new_node);
-bool                        html_node_replace(html_node_t* node, html_node_t* new_node, html_node_t* child);
-html_node_t*                html_node_remove(html_node_t* node, html_node_t* child);
-void                        html_node_free(html_node_t* node);
+void            html_node_initialize(html_node_t* node, html_node_type_e type, html_node_t* document);
+html_node_t*    html_node_insert_before(html_node_t* node, html_node_t* new_node, html_node_t* child);
+html_node_t*    html_node_append(html_node_t* node, html_node_t* new_node);
+bool            html_node_replace(html_node_t* node, html_node_t* new_node, html_node_t* child);
+html_node_t*    html_node_remove(html_node_t* node, html_node_t* child);
+void            html_node_free(html_node_t* node);

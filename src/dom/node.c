@@ -286,15 +286,19 @@ static html_node_t* html_pre_insert_node(html_node_t* parent, html_node_t* node,
     return html_insert_node(parent, node, ref_child, false);
 }
 
+void html_element_free(html_node_t* node);
+void html_document_free(html_node_t* node);
+void html_doctype_free(html_node_t* node);
+void html_comment_free(html_node_t* node);
+void html_text_free(html_node_t* node);
+
 /********************/
 /* public functions */
 /********************/
 
 
-html_node_t* html_node_new(html_node_type_e type, html_node_t* document)
+void html_node_initialize(html_node_t* node, html_node_type_e type, html_node_t* document)
 {
-    html_node_t* node = malloc(sizeof(html_node_t));
-
     memset(node->name, 0, MAX_HTML_NAME_LEN);
     memset(node->base_uri, 0, MAX_HTML_NAME_LEN);
 
@@ -309,8 +313,6 @@ html_node_t* html_node_new(html_node_type_e type, html_node_t* document)
     node->prev_sibling  = NULL;
 
     assert(node->type != HTML_NODE_INVALID);
-
-    return node;
 }
 
 
@@ -371,8 +373,13 @@ void html_node_free(html_node_t* node)
     while (child)
     {
         html_node_t* prev = child->prev_sibling;
-        html_node_free(child);
+
+        if (child->type == HTML_NODE_DOCUMENT)  { html_document_free(child); }
+        if (child->type == HTML_NODE_DOCTYPE)   { html_doctype_free(child); }
+        if (child->type == HTML_NODE_ELEMENT)   { html_element_free(child); }
+        if (child->type == HTML_NODE_COMMENT)   { html_comment_free(child); }
+        if (child->type == HTML_NODE_TEXT)      { html_text_free(child); }
+
         child = prev;
     }
-    free(node);
 }

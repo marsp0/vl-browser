@@ -5,6 +5,8 @@
 // https://dom.spec.whatwg.org/#interface-document
 typedef struct
 {
+    html_node_t     node;
+
     unsigned char   url[MAX_HTML_NAME_LEN];
     uint32_t        url_size;
 
@@ -27,4 +29,6 @@ typedef struct
 
 
 html_node_t*                html_document_new();
+html_node_t*                html_node_from_document(html_document_t* document);
+html_document_t*            html_document_from_node(html_node_t* node);
 void                        html_document_free(html_node_t* node);
