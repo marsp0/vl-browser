@@ -1,2 +1,86 @@
-before PR
-- are names of enums good enough ?
+html node hierarchy
+
+EventTarget
+└── Node
+    ├── Document
+    │   ├── XMLDocument
+    │   └── HTMLDocument
+    ├── DocumentType
+    ├── DocumentFragment
+    │   └── ShadowRoot
+    ├── Element
+    │   ├── HTMLElement
+    │   │   ├── HTMLAnchorElement
+    │   │   ├── HTMLAreaElement
+    │   │   ├── HTMLAudioElement
+    │   │   ├── HTMLBaseElement
+    │   │   ├── HTMLBodyElement
+    │   │   ├── HTMLBRElement
+    │   │   ├── HTMLButtonElement
+    │   │   ├── HTMLCanvasElement
+    │   │   ├── HTMLDataElement
+    │   │   ├── HTMLDataListElement
+    │   │   ├── HTMLDetailsElement
+    │   │   ├── HTMLDialogElement
+    │   │   ├── HTMLDivElement
+    │   │   ├── HTMLEmbedElement
+    │   │   ├── HTMLFieldSetElement
+    │   │   ├── HTMLFormElement
+    │   │   ├── HTMLHeadingElement (h1–h6)
+    │   │   ├── HTMLHeadElement
+    │   │   ├── HTMLHRElement
+    │   │   ├── HTMLHtmlElement
+    │   │   ├── HTMLIFrameElement
+    │   │   ├── HTMLImageElement
+    │   │   ├── HTMLInputElement
+    │   │   ├── HTMLLabelElement
+    │   │   ├── HTMLLegendElement
+    │   │   ├── HTMLLIElement
+    │   │   ├── HTMLLinkElement
+    │   │   ├── HTMLMapElement
+    │   │   ├── HTMLMediaElement
+    │   │   │   ├── HTMLAudioElement
+    │   │   │   └── HTMLVideoElement
+    │   │   ├── HTMLMenuElement
+    │   │   ├── HTMLMetaElement
+    │   │   ├── HTMLMeterElement
+    │   │   ├── HTMLModElement (ins/del)
+    │   │   ├── HTMLOListElement
+    │   │   ├── HTMLObjectElement
+    │   │   ├── HTMLOptGroupElement
+    │   │   ├── HTMLOptionElement
+    │   │   ├── HTMLOutputElement
+    │   │   ├── HTMLParagraphElement
+    │   │   ├── HTMLPictureElement
+    │   │   ├── HTMLPreElement
+    │   │   ├── HTMLProgressElement
+    │   │   ├── HTMLQuoteElement (blockquote, q)
+    │   │   ├── HTMLScriptElement
+    │   │   ├── HTMLSelectElement
+    │   │   ├── HTMLSlotElement
+    │   │   ├── HTMLSourceElement
+    │   │   ├── HTMLSpanElement
+    │   │   ├── HTMLStyleElement
+    │   │   ├── HTMLTableElement
+    │   │   │   ├── HTMLTableCaptionElement
+    │   │   │   ├── HTMLTableCellElement (td, th)
+    │   │   │   ├── HTMLTableColElement (col, colgroup)
+    │   │   │   ├── HTMLTableRowElement (tr)
+    │   │   │   └── HTMLTableSectionElement (thead, tbody, tfoot)
+    │   │   ├── HTMLTemplateElement
+    │   │   ├── HTMLTextAreaElement
+    │   │   ├── HTMLTimeElement
+    │   │   ├── HTMLTitleElement
+    │   │   ├── HTMLTrackElement
+    │   │   ├── HTMLUListElement
+    │   │   ├── HTMLUnknownElement
+    │   │   └── HTMLVideoElement
+    │   ├── SVGElement (root of SVG element interfaces)
+    │   └── MathMLElement (root of MathML element interfaces)
+    ├── Attr
+    ├── CharacterData
+    │   ├── Text
+    │   │   └── CDATASection (XML only)
+    │   ├── ProcessingInstruction
+    │   └── Comment
+

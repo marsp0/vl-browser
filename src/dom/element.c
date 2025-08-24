@@ -7,10 +7,13 @@
 
 #include "html/constants.h"
 
-html_node_t* html_element_new(html_node_t* document, unsigned char* local_name, uint32_t local_name_size)
+html_element_t* html_element_from_node(html_node_t* node);
+html_node_t*    html_node_from_element(html_element_t* element);
+
+
+void html_element_initialize(html_element_t* element, html_node_t* document, unsigned char* local_name, uint32_t local_name_size)
 {
-    html_element_t* element     = malloc(sizeof(html_element_t));
-    html_node_t* node           = (html_node_t*)element;
+    html_node_t* node = html_node_from_element(element);
 
     html_node_initialize(node, HTML_NODE_ELEMENT, document);
 
@@ -43,9 +46,21 @@ html_node_t* html_element_new(html_node_t* document, unsigned char* local_name, 
     element->id_size = 0;
     memset(element->id, 0, MAX_HTML_NAME_LEN);
 
-    // todo: step 6.3 - finish
+    element->class_name_size = 0;
+    memset(element->class_name, 0, MAX_HTML_NAME_LEN);
 
-    return node;
+    element->type = HTML_ELEMENT_GENERIC;
+
+    // todo: step 6.3 - finish
+}
+
+
+html_node_t* html_element_new(html_node_t* document, unsigned char* local_name, uint32_t local_name_size)
+{
+    html_element_t* element = malloc(sizeof(html_element_t));
+    html_element_initialize(element, document, local_name, local_name_size);
+
+    return html_node_from_element(element);
 }
 
 

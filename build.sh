@@ -21,6 +21,7 @@ main_file="./src/main.c"
 html_files="./src/html/tokenizer.c ./src/html/parser.c"
 
 dom_files="./src/dom/node.c ./src/dom/comment.c ./src/dom/document.c ./src/dom/doctype.c ./src/dom/text.c ./src/dom/element.c"
+dom_files+=" ./src/dom/option.c ./src/dom/select.c"
 
 util_files="./src/util/utf8.c"
 
