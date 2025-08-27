@@ -1,0 +1,163 @@
+/*
+ * Notes
+ * 
+ */
+
+#include <assert.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "dom/hash_str.h"
+
+/********************/
+/*      defines     */
+/********************/
+
+#define INITIAL_SIZE 30
+#define INITIAL_MULTIPLIER 6
+
+/********************/
+/* static variables */
+/********************/
+
+typedef struct hash_str_t
+{
+    struct hash_str_t*      next;
+
+    unsigned char*    data;
+    uint32_t          data_size;
+    hash_str_t        hash;
+} str_t;
+
+static str_t*   table;
+static uint32_t table_size  = 0;
+static uint32_t next_slot   = 0;
+static uint32_t total_nodes = 0;
+
+/********************/
+/* static functions */
+/********************/
+
+static str_t* get_free_node()
+{
+    assert(next_slot < total_nodes);
+
+    return &table[next_slot++];
+}
+
+static str_t* find_node(hash_str_t hash)
+{
+    uint32_t idx    = hash % table_size;
+    str_t* node     = &table[idx];
+
+    while (node)
+    {
+        if (node->hash == hash) { return node; }
+        node = node->next;
+    }
+
+    return NULL;
+}
+
+
+// http://www.cse.yorku.ca/~oz/hash.html
+static hash_str_t hash_str(const unsigned char* str, const uint32_t str_size)
+{
+    uint32_t hash = 5381;
+    uint32_t i = 0;
+
+    while (i < str_size)
+    {
+        hash = ((hash << 5) + hash) + str[i]; /* hash * 33 + c */
+        i++;
+    }
+
+    return hash;
+}
+
+
+static void append(hash_str_t hash, const unsigned char* str, const uint32_t str_size)
+{
+    str_t* new      = get_free_node();
+    new->data       = malloc(str_size);
+    new->data_size  = str_size;
+    new->hash       = hash;
+
+    memcpy(new->data, str, str_size);
+
+    uint32_t idx = hash % table_size;
+
+    str_t* node = find_node(hash);
+    if (node) { return; }
+
+    node = &table[idx];
+    while (node->next) { node = node->next; }
+
+    node->next = new;
+}
+
+
+// static void grow()
+// {
+//     // todo: allocate new table
+//     // allocate string space
+//     // move everything from old to new table
+// }
+
+/********************/
+/* public functions */
+/********************/
+
+void hash_str_pool_new()
+{
+    if (table) { return; }
+
+    table       = malloc(sizeof(str_t) * INITIAL_SIZE * INITIAL_MULTIPLIER);
+
+    total_nodes = INITIAL_SIZE * INITIAL_MULTIPLIER;
+    table_size  = INITIAL_SIZE;
+    next_slot   = INITIAL_SIZE;
+}
+
+
+hash_str_t hash_str_new(const unsigned char* str, const uint32_t str_size)
+{
+    assert(table);
+
+    hash_str_t hash = hash_str(str, str_size);
+    append(hash, str, str_size);
+
+    return hash;
+}
+
+
+const unsigned char* hash_str_get(hash_str_t hash)
+{
+    str_t* node = find_node(hash);
+    assert(node);
+
+    return node->data;
+}
+
+
+uint32_t hash_str_get_size(hash_str_t hash)
+{
+    str_t* node = find_node(hash);
+    assert(node);
+
+    return node->data_size;
+}
+
+
+void hash_str_pool_free()
+{
+    if (!table) { return; }
+
+    for (uint32_t i = 0; i < total_nodes; i++)
+    {
+        free(table[i].data);
+    }
+
+    free(table);
+}
