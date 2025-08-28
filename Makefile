@@ -1,10 +1,10 @@
 # tab here: [	]
 
 # ------------------- files -------------------
-SRC_FILES       := $(shell find src -name "*.c" ! -name "main.c")
+SRC_FILES       := $(shell find src -name "*.c" ! -name "main.c" ! -name "*parser*.c")
 OBJ_FILES       := $(addprefix out/, $(SRC_FILES:.c=.o))
 
-TEST_SRC_FILES   := $(shell find ./test -name "*.c")
+TEST_SRC_FILES   := $(shell find ./test -name "*.c" ! -name "*parser*.c")
 TEST_OBJ_FILES   := $(addprefix out/, $(TEST_SRC_FILES:.c=.o))
 
 

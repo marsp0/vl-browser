@@ -4,27 +4,27 @@
 #include <assert.h>
 #include <string.h>
 
-html_node_t* html_text_new(html_node_t* document, unsigned char* data, uint32_t data_size)
+dom_node_t* dom_text_new(dom_node_t* document, unsigned char* data, uint32_t data_size)
 {
-    html_text_t* text       = malloc(sizeof(html_text_t));
-    html_node_t* node       = html_node_from_text(text);
+    dom_text_t* text       = malloc(sizeof(dom_text_t));
+    dom_node_t* node       = dom_node_from_text(text);
 
-    html_node_initialize(node, HTML_NODE_TEXT, document);
+    dom_node_initialize(node, DOM_NODE_TEXT, document);
 
     text->data_size         = data_size;
     memset(text->data, 0, MAX_HTML_NAME_LEN);
     memcpy(text->data, data, data_size);
-    memcpy(node->name, "#text", sizeof("#text") - 1);
+    node->name              = hash_str_new("#text", 5);
 
     return node;
 }
 
 
-void html_text_append_data(html_node_t* node, unsigned char* data, uint32_t data_size)
+void dom_text_append_data(dom_node_t* node, unsigned char* data, uint32_t data_size)
 {
-    if (node->type != HTML_NODE_TEXT) { return; }
+    if (node->type != DOM_NODE_TEXT) { return; }
     
-    html_text_t* text = html_text_from_node(node);
+    dom_text_t* text = dom_text_from_node(node);
 
     for (uint32_t i = 0; i < data_size; i++)
     {
@@ -37,25 +37,25 @@ void html_text_append_data(html_node_t* node, unsigned char* data, uint32_t data
 }
 
 
-html_text_t* html_text_from_node(html_node_t* node)
+dom_text_t* dom_text_from_node(dom_node_t* node)
 {
-    assert(node->type == HTML_NODE_TEXT);
+    assert(node->type == DOM_NODE_TEXT);
 
-    return (html_text_t*)node;
+    return (dom_text_t*)node;
 }
 
 
-html_node_t* html_node_from_text(html_text_t* text)
+dom_node_t* dom_node_from_text(dom_text_t* text)
 {
-    return (html_node_t*)text;
+    return (dom_node_t*)text;
 }
 
 
-void html_text_free(html_node_t* node)
+void dom_text_free(dom_node_t* node)
 {
-    html_node_free(node);
-    assert(node->type == HTML_NODE_TEXT);
+    dom_node_free(node);
+    assert(node->type == DOM_NODE_TEXT);
 
-    html_text_t* text = html_text_from_node(node);
+    dom_text_t* text = dom_text_from_node(node);
     free(text);
 }

@@ -255,8 +255,8 @@ typedef enum
 
 typedef struct
 {
-    html_node_t* parent;
-    html_node_t* child;
+    dom_node_t* parent;
+    dom_node_t* child;
 } html_insertion_location_t;
 
 static html_parser_mode_e mode                      = HTML_PARSER_MODE_INITIAL;
@@ -268,16 +268,16 @@ static html_token_t pending_tokens[MAX_TOKENS]      = { 0 };
 static uint32_t pending_tokens_size                 = 0;
 
 static html_token_t tokens[MAX_TOKENS]              = { 0 };
-static html_node_t* stack[OPEN_STACK_MAX_SIZE]      = { 0 };
+static dom_node_t* stack[OPEN_STACK_MAX_SIZE]      = { 0 };
 static uint32_t stack_idx                           = 0;
 static uint32_t stack_size                          = 0;
-static html_node_t* document                        = NULL;
+static dom_node_t* document                        = NULL;
 static bool stop                                    = false;
 static bool foster_parenting                        = false;
 static bool will_use_foster_parenting               = false;
-static html_node_t* head_pointer                    = NULL;
+static dom_node_t* head_pointer                    = NULL;
 
-static html_node_t* formatting_elements[10]         = { 0 };
+static dom_node_t* formatting_elements[10]         = { 0 };
 static bool formatting_elements_m[10]               = { 0 };
 static html_token_t formatting_elements_t[10]       = { 0 };
 static uint32_t formatting_elements_size            = 0;
@@ -303,7 +303,7 @@ static uint32_t get_tokens_size()
 }
 
 
-static void stack_push(html_node_t* node)
+static void stack_push(dom_node_t* node)
 {
     if (stack_size > 0) { stack_idx++; }
     stack[stack_idx] = node;
@@ -319,7 +319,7 @@ static void stack_pop()
     stack_size--;
 }
 
-static void remove_from_stack(html_node_t* node)
+static void remove_from_stack(dom_node_t* node)
 {
     for (uint32_t i = 0; i < stack_size; i++)
     {
@@ -337,7 +337,7 @@ static void remove_from_stack(html_node_t* node)
 }
 
 
-static void stack_insert(uint32_t index, html_node_t* node)
+static void stack_insert(uint32_t index, dom_node_t* node)
 {
     if (index >= stack_size) { return; }
 
@@ -363,7 +363,7 @@ static bool stack_contains_element(unsigned char* name, uint32_t name_size)
 {
     for (uint32_t i = 0; i < stack_size; i++)
     {
-        html_node_t* node = stack[i];
+        dom_node_t* node = stack[i];
         if (!node)                                           { return false; }
         if (node->type != HTML_NODE_ELEMENT)                 { continue; }
 
@@ -377,7 +377,7 @@ static bool stack_contains_element(unsigned char* name, uint32_t name_size)
 }
 
 
-static bool stack_contains_node(html_node_t* node)
+static bool stack_contains_node(dom_node_t* node)
 {
     for (uint32_t i = 0; i < stack_size; i++)
     {
@@ -393,7 +393,7 @@ static bool stack_contains_node(html_node_t* node)
 
 static bool in_scope(unsigned char* name, uint32_t name_size, html_element_scope_e scope)
 {
-    html_node_t* node = stack[stack_idx];
+    dom_node_t* node = stack[stack_idx];
     html_element_t* element = html_element_from_node(node);
 
     int32_t i = (int32_t)stack_idx;
@@ -435,13 +435,13 @@ static bool in_scope(unsigned char* name, uint32_t name_size, html_element_scope
 }
 
 
-static html_node_t* find_last_stack_element(const unsigned char* name, const uint32_t name_size)
+static dom_node_t* find_last_stack_element(const unsigned char* name, const uint32_t name_size)
 {
     int32_t i = (int32_t)stack_size - 1;
 
     while (i >= 0)
     {
-        html_node_t* node = stack[i];
+        dom_node_t* node = stack[i];
         html_element_t* element = html_element_from_node(node);
 
         if (string_compare(element->local_name, element->local_name_size, name, name_size))
@@ -456,7 +456,7 @@ static html_node_t* find_last_stack_element(const unsigned char* name, const uin
 }
 
 
-static uint32_t find_node_index(html_node_t** list, uint32_t list_size, html_node_t* node)
+static uint32_t find_node_index(dom_node_t** list, uint32_t list_size, dom_node_t* node)
 {
     for (int32_t i = (int32_t)list_size - 1; i >= 0; i--)
     {
@@ -468,10 +468,10 @@ static uint32_t find_node_index(html_node_t** list, uint32_t list_size, html_nod
 }
 
 
-static html_insertion_location_t get_appropriate_insertion_location(html_node_t* override)
+static html_insertion_location_t get_appropriate_insertion_location(dom_node_t* override)
 {
     html_insertion_location_t location  = { NULL, NULL };
-    html_node_t* target                 = stack[stack_idx];
+    dom_node_t* target                 = stack[stack_idx];
 
     if (override) { target = override; }
 
@@ -493,8 +493,8 @@ static html_insertion_location_t get_appropriate_insertion_location(html_node_t*
          string_compare(name, name_size, TFOOT, TFOOT_SIZE) ||
          string_compare(name, name_size, TR, TR_SIZE)))
     {
-        html_node_t* last_template = find_last_stack_element(TEMPLATE, TEMPLATE_SIZE);
-        html_node_t* last_table = find_last_stack_element(TABLE, TABLE_SIZE);
+        dom_node_t* last_template = find_last_stack_element(TEMPLATE, TEMPLATE_SIZE);
+        dom_node_t* last_table = find_last_stack_element(TABLE, TABLE_SIZE);
 
         if (last_template)
         {
@@ -512,7 +512,7 @@ static html_insertion_location_t get_appropriate_insertion_location(html_node_t*
         else
         {
             uint32_t table_i = find_node_index(stack, stack_size, last_table);
-            html_node_t* prev = stack[table_i - 1];
+            dom_node_t* prev = stack[table_i - 1];
             location.parent = prev;
         }
     }
@@ -530,21 +530,21 @@ static html_insertion_location_t get_appropriate_insertion_location(html_node_t*
 }
 
 
-static void insert_comment(html_token_t* token, html_node_t* position)
+static void insert_comment(html_token_t* token, dom_node_t* position)
 {
     html_insertion_location_t location   = get_appropriate_insertion_location(position);
-    html_node_t* comment                 = html_comment_new(document, token->data, token->data_size);
+    dom_node_t* comment                 = html_comment_new(document, token->data, token->data_size);
 
     html_node_insert_before(location.parent, comment, location.child);
 }
 
 
-static html_node_t* create_element(unsigned char* name, uint32_t name_size, html_node_t* parent)
+static dom_node_t* create_element(unsigned char* name, uint32_t name_size, dom_node_t* parent)
 {
     // todo: step 1
     // todo: step 2
 
-    // html_node_t* doc = parent->document;
+    // dom_node_t* doc = parent->document;
 
     // todo: step 5
     // todo: step 6
@@ -552,8 +552,8 @@ static html_node_t* create_element(unsigned char* name, uint32_t name_size, html
     // todo: step 8
     // todo: step 9
 
-    html_node_t* doc        = parent->document;
-    html_node_t* element    = html_element_new(doc, name, name_size);
+    dom_node_t* doc        = parent->document;
+    dom_node_t* element    = html_element_new(doc, name, name_size);
 
     // todo: step 11
     // todo: step 12
@@ -565,10 +565,10 @@ static html_node_t* create_element(unsigned char* name, uint32_t name_size, html
 }
 
 
-static html_node_t* insert_foreign_element(unsigned char* name, uint32_t name_size, bool only_add_to_stack)
+static dom_node_t* insert_foreign_element(unsigned char* name, uint32_t name_size, bool only_add_to_stack)
 {
     html_insertion_location_t location  = get_appropriate_insertion_location(NULL);
-    html_node_t* node                   = create_element(name, name_size, document);
+    dom_node_t* node                   = create_element(name, name_size, document);
 
     if (!only_add_to_stack)
     {
@@ -584,7 +584,7 @@ static html_node_t* insert_foreign_element(unsigned char* name, uint32_t name_si
 }
 
 
-static html_node_t* insert_html_element(unsigned char* name, uint32_t name_size)
+static dom_node_t* insert_html_element(unsigned char* name, uint32_t name_size)
 {
     return insert_foreign_element(name, name_size, false);
 }
@@ -593,21 +593,21 @@ static html_node_t* insert_html_element(unsigned char* name, uint32_t name_size)
 static void insert_character(unsigned char* data, uint32_t data_size)
 {
     html_insertion_location_t insertion_position = get_appropriate_insertion_location(NULL);
-    html_node_t* location   = insertion_position.parent;
-    html_node_t* child      = insertion_position.child;
+    dom_node_t* location   = insertion_position.parent;
+    dom_node_t* child      = insertion_position.child;
 
     if (!child) { child = location->last_child; }
     else        { child = child->prev_sibling; }
 
     if (location->type == HTML_NODE_DOCUMENT) { return; }
 
-    if (child && child->type == HTML_NODE_TEXT)
+    if (child && child->type == DOM_NODE_TEXT)
     {
         html_text_append_data(child, data, data_size);
     }
     else
     {
-        html_node_t* node = html_text_new(document, data, data_size);
+        dom_node_t* node = html_text_new(document, data, data_size);
         html_node_insert_before(insertion_position.parent, node, insertion_position.child);
     }
     
@@ -638,7 +638,7 @@ static void generate_implied_end_tags(unsigned char* name, uint32_t name_size)
 {
     while (stack_size > 0)
     {
-        html_node_t* node = stack[stack_idx];
+        dom_node_t* node = stack[stack_idx];
         html_element_t* element = html_element_from_node(node);
         const unsigned char* local_name = element->local_name;
 
@@ -686,7 +686,7 @@ static void close_p_element()
 {
     generate_implied_end_tags(P, P_SIZE);
 
-    html_node_t* node = stack[stack_idx];
+    dom_node_t* node = stack[stack_idx];
     html_element_t* element = html_element_from_node(node);
     if (strncmp(element->local_name, P, P_SIZE) != 0)
     {
@@ -710,7 +710,7 @@ static void close_cell()
 {
     generate_implied_end_tags(NULL, 0);
 
-    html_node_t* node = stack[stack_idx];
+    dom_node_t* node = stack[stack_idx];
     html_element_t* element = html_element_from_node(node);
     if (strncmp(element->local_name, TD, TD_SIZE) != 0 && strncmp(element->local_name, TH, TH_SIZE) != 0)
     {
@@ -731,9 +731,9 @@ static void close_cell()
 }
 
 
-static void pop_all_including(html_node_t* node)
+static void pop_all_including(dom_node_t* node)
 {
-    html_node_t* current = stack[stack_idx];
+    dom_node_t* current = stack[stack_idx];
     while (current != node)
     {
         stack_pop();
@@ -746,7 +746,7 @@ static void pop_all_including(html_node_t* node)
 
 static void pop_elements_until_name_included(const unsigned char* name, const uint32_t name_size)
 {
-    html_node_t* node = stack[stack_idx];
+    dom_node_t* node = stack[stack_idx];
     html_element_t* element = html_element_from_node(node);
     while (true)
     {
@@ -762,7 +762,7 @@ static void pop_elements_until_name_included(const unsigned char* name, const ui
 }
 
 
-static bool is_special(html_node_t* node)
+static bool is_special(dom_node_t* node)
 {
     html_element_t* element = html_element_from_node(node);
     const unsigned char* name = element->local_name;
@@ -824,7 +824,7 @@ static void insert_marker()
     formatting_elements_size++;
 }
 
-static void push_formatting_element(html_node_t* node, html_token_t* token)
+static void push_formatting_element(dom_node_t* node, html_token_t* token)
 {
     // todo: go backwards instead
     uint32_t last_marker = 0;
@@ -848,7 +848,7 @@ static void push_formatting_element(html_node_t* node, html_token_t* token)
 }
 
 
-static void remove_formatting_element(html_node_t* node)
+static void remove_formatting_element(dom_node_t* node)
 {
     if (formatting_elements_size == 0) { return; }
 
@@ -889,10 +889,10 @@ static void reconstruct_formatting_elements()
     }
 
     int32_t idx = (int32_t)formatting_elements_size - 1;
-    html_node_t* entry = formatting_elements[idx];
+    dom_node_t* entry = formatting_elements[idx];
 
     uint32_t step    = 4;
-    html_node_t* new_element                = NULL;
+    dom_node_t* new_element                = NULL;
     bool run                                = true;
 
     while (run)
@@ -960,7 +960,7 @@ static void reconstruct_formatting_elements()
 }
 
 
-static bool formatting_elements_contains(html_node_t* node)
+static bool formatting_elements_contains(dom_node_t* node)
 {
     for (uint32_t i = 0; i < formatting_elements_size; i++)
     {
@@ -974,7 +974,7 @@ static bool formatting_elements_contains(html_node_t* node)
 }
 
 
-static html_node_t* find_appropriate_formatting_element(const unsigned char* name, uint32_t name_size)
+static dom_node_t* find_appropriate_formatting_element(const unsigned char* name, uint32_t name_size)
 {
     int32_t last_marker = -1;
     for (int32_t i = 0; i < (int32_t)formatting_elements_size; i++)
@@ -989,7 +989,7 @@ static html_node_t* find_appropriate_formatting_element(const unsigned char* nam
 
     for (int32_t i = (int32_t)formatting_elements_size - 1; i >= start; i--)
     {
-        html_node_t* node = formatting_elements[i];
+        dom_node_t* node = formatting_elements[i];
         html_element_t* element = html_element_from_node(node);
 
         if (string_compare(element->local_name, element->local_name_size, name, name_size))
@@ -1002,7 +1002,7 @@ static html_node_t* find_appropriate_formatting_element(const unsigned char* nam
 }
 
 
-static void formatting_elements_replace(html_node_t* old, html_node_t* new)
+static void formatting_elements_replace(dom_node_t* old, dom_node_t* new)
 {
     for (uint32_t i = 0; i < formatting_elements_size; i++)
     {
@@ -1011,7 +1011,7 @@ static void formatting_elements_replace(html_node_t* old, html_node_t* new)
 }
 
 
-static void stack_replace(html_node_t* old, html_node_t* new)
+static void stack_replace(dom_node_t* old, dom_node_t* new)
 {
     for (uint32_t i = 0; i < stack_size; i++)
     {
@@ -1020,7 +1020,7 @@ static void stack_replace(html_node_t* old, html_node_t* new)
 }
 
 
-static html_node_t* find_furthest_block(html_node_t* node)
+static dom_node_t* find_furthest_block(dom_node_t* node)
 {
     uint32_t node_idx = 0;
     for (uint32_t i = 0; i < stack_size; i++)
@@ -1036,7 +1036,7 @@ static html_node_t* find_furthest_block(html_node_t* node)
     return NULL;
 }
 
-static html_node_t* find_common_ancestor(html_node_t* node)
+static dom_node_t* find_common_ancestor(dom_node_t* node)
 {
     for (uint32_t i = stack_size - 1; i > 0; i--)
     {
@@ -1054,7 +1054,7 @@ static bool run_adoption_procedure(html_token_t* t)
 {
     // turn this bool into OPERATION_RESULT or something similar
     INCOMPLETE_IMPLEMENTATION("operation_result_t instead of bool");
-    html_node_t* current = stack[stack_idx];
+    dom_node_t* current = stack[stack_idx];
     html_element_t* element = html_element_from_node(current);
 
     // step 2
@@ -1080,7 +1080,7 @@ static bool run_adoption_procedure(html_token_t* t)
         outer_i++;
 
         // step 4.3
-        html_node_t* formatting_node = find_appropriate_formatting_element(t->name, t->name_size);
+        dom_node_t* formatting_node = find_appropriate_formatting_element(t->name, t->name_size);
 
         if (!formatting_node) { return false; }
 
@@ -1108,7 +1108,7 @@ static bool run_adoption_procedure(html_token_t* t)
         }
 
         // step 4.7
-        html_node_t* furthest = find_furthest_block(formatting_node);
+        dom_node_t* furthest = find_furthest_block(formatting_node);
 
         // step 4.8
         if (!furthest)
@@ -1119,7 +1119,7 @@ static bool run_adoption_procedure(html_token_t* t)
         }
 
         // step 4.9
-        html_node_t* common_ancestor = find_common_ancestor(formatting_node);
+        dom_node_t* common_ancestor = find_common_ancestor(formatting_node);
 
         // step 4.10
         uint32_t bookmark = 0;
@@ -1129,8 +1129,8 @@ static bool run_adoption_procedure(html_token_t* t)
         }
 
         // step 4.11
-        html_node_t* node = furthest;
-        html_node_t* last_node = furthest;
+        dom_node_t* node = furthest;
+        dom_node_t* last_node = furthest;
 
         // step 4.12
         uint32_t inner_i = 0;
@@ -1165,7 +1165,7 @@ static bool run_adoption_procedure(html_token_t* t)
             // step 4.13.6
             uint32_t node_formatting_index = find_node_index(formatting_elements, formatting_elements_size, node);
             html_token_t* node_t = &formatting_elements_t[node_formatting_index];
-            html_node_t* new_node = create_element(node_t->name, node_t->name_size, document);
+            dom_node_t* new_node = create_element(node_t->name, node_t->name_size, document);
             html_node_append(common_ancestor, new_node);
             formatting_elements_replace(node, new_node);
             stack_replace(node, new_node);
@@ -1195,10 +1195,10 @@ static bool run_adoption_procedure(html_token_t* t)
         // step 15
         uint32_t formatting_node_i = find_node_index(formatting_elements, formatting_elements_size, formatting_node);
         html_token_t* formatting_node_t = &formatting_elements_t[formatting_node_i];
-        html_node_t* new_element = create_element(formatting_node_t->name, formatting_node_t->name_size, furthest);
+        dom_node_t* new_element = create_element(formatting_node_t->name, formatting_node_t->name_size, furthest);
 
         // step 16
-        html_node_t* child = furthest->first_child;
+        dom_node_t* child = furthest->first_child;
         while (child)
         {
             html_node_remove(furthest, child);
@@ -1225,7 +1225,7 @@ static bool run_adoption_procedure(html_token_t* t)
 static void handle_end_tag_in_body(html_token_t* t)
 {
     uint32_t idx = stack_idx;
-    html_node_t* node = stack[idx];
+    dom_node_t* node = stack[idx];
     html_element_t* element = html_element_from_node(node);
 
     while (true)
@@ -1256,7 +1256,7 @@ static void handle_end_tag_in_body(html_token_t* t)
 
 static void clear_stack_back_to_table_row()
 {
-    html_node_t* node = stack[stack_idx];
+    dom_node_t* node = stack[stack_idx];
     html_element_t* element = html_element_from_node(node);
     const unsigned char* name = element->local_name;
     uint32_t name_size = element->local_name_size;
@@ -1276,7 +1276,7 @@ static void clear_stack_back_to_table_row()
 
 static void clear_stack_back_to_table()
 {
-    html_node_t* node = stack[stack_idx];
+    dom_node_t* node = stack[stack_idx];
     html_element_t* element = html_element_from_node(node);
     const unsigned char* name = element->local_name;
     uint32_t name_size = element->local_name_size;
@@ -1297,7 +1297,7 @@ static void clear_stack_back_to_table()
 
 static void clear_stack_back_to_table_body()
 {
-    html_node_t* node = stack[stack_idx];
+    dom_node_t* node = stack[stack_idx];
     html_element_t* element = html_element_from_node(node);
     const unsigned char* name = element->local_name;
     uint32_t name_size = element->local_name_size;
@@ -1322,7 +1322,7 @@ static void reset_insertion_mode_appropriately()
 {
     uint32_t idx = stack_idx;
     bool last = false;
-    html_node_t* node = stack[idx];
+    dom_node_t* node = stack[idx];
     html_element_t* element = html_element_from_node(node);
 
     INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
@@ -1437,13 +1437,13 @@ void html_parser_init()
 }
 
 
-html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
+dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 {
     html_tokenizer_init(buffer, size, tokens, MAX_TOKENS);
 
     document                    = html_document_new();
 
-    html_node_t* form_element   = NULL;
+    dom_node_t* form_element   = NULL;
     bool scripting_enabled      = false;
 
     while (!stop)
@@ -1545,7 +1545,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(HTML, HTML_SIZE, &t))
                 {
-                    html_node_t* element = create_element(t.name, t.name_size, document);
+                    dom_node_t* element = create_element(t.name, t.name_size, document);
                     html_node_append(document, element);
                     stack_push(element);
 
@@ -1560,7 +1560,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else
                 {
-                    html_node_t* element    = create_element(HTML, HTML_SIZE, document);
+                    dom_node_t* element    = create_element(HTML, HTML_SIZE, document);
 
                     html_node_append(document, element);
                     stack_push(element);
@@ -1674,7 +1674,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 else if (is_start && name_is(SCRIPT, SCRIPT_SIZE, &t))
                 {
                     html_insertion_location_t location   = get_appropriate_insertion_location(NULL);
-                    html_node_t* element    = create_element(t.name, t.name_size, document);
+                    dom_node_t* element    = create_element(t.name, t.name_size, document);
 
                     INCOMPLETE_IMPLEMENTATION("missing steps: 3/4/5");
 
@@ -2057,7 +2057,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     // todo: scope logic
 
-                    html_node_t* node = stack[stack_idx];
+                    dom_node_t* node = stack[stack_idx];
                     html_element_t* element = html_element_from_node(node);
                     const unsigned char* local_name = element->local_name;
                     const uint32_t local_name_size = element->local_name_size;
@@ -2092,7 +2092,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     else
                     {
                         // todo: scope logic
-                        html_node_t* element = insert_html_element(t.name, t.name_size);
+                        dom_node_t* element = insert_html_element(t.name, t.name_size);
                         if (!stack_contains_element(TEMPLATE, TEMPLATE_SIZE))
                         {
                             form_element = element;
@@ -2103,7 +2103,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
 
-                    html_node_t* node = stack[stack_idx];
+                    dom_node_t* node = stack[stack_idx];
                     html_element_t* element = html_element_from_node(node);
                     uint32_t idx = stack_idx;
                     uint32_t step = 1;
@@ -2181,7 +2181,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     {
                         generate_implied_end_tags(NULL, 0);
 
-                        html_node_t* node = stack[stack_idx];
+                        dom_node_t* node = stack[stack_idx];
                         html_element_t* element = html_element_from_node(node);
 
                         while (!string_compare(element->local_name, element->local_name_size, BUTTON, BUTTON_SIZE))
@@ -2221,7 +2221,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     {
                         generate_implied_end_tags(NULL, 0);
 
-                        html_node_t* node = stack[stack_idx];
+                        dom_node_t* node = stack[stack_idx];
                         html_element_t* element = html_element_from_node(node);
                         if (!string_compare(element->local_name, element->local_name_size, t.name, t.name_size))
                         {
@@ -2264,7 +2264,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(A, A_SIZE, &t))
                 {
-                    html_node_t* node = find_appropriate_formatting_element(A, A_SIZE);
+                    dom_node_t* node = find_appropriate_formatting_element(A, A_SIZE);
                     if (node)
                     {
                         INCOMPLETE_IMPLEMENTATION("parse error");
@@ -2295,7 +2295,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       name_is(U, U_SIZE, &t)) )
                 {
                     reconstruct_formatting_elements();
-                    html_node_t* node = insert_html_element(t.name, t.name_size);
+                    dom_node_t* node = insert_html_element(t.name, t.name_size);
                     push_formatting_element(node, &t);
                 }
                 else if (is_start && name_is(NOBR, NOBR_SIZE, &t))
@@ -2432,7 +2432,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && name_is(OPTION, OPTION_SIZE, &t))
                 {
-                    // html_node_t* current = stack[stack_idx];
+                    // dom_node_t* current = stack[stack_idx];
                     // html_element_t* element = (html_element_t*)current->data;
                     if (in_scope(SELECT, SELECT_SIZE, GENERIC_SCOPE))
                     {
@@ -2444,7 +2444,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     }
                     else
                     {
-                        html_node_t* current = stack[stack_idx];
+                        dom_node_t* current = stack[stack_idx];
                         html_element_t* element = html_element_from_node(current);
                         if (string_compare(element->local_name, element->local_name_size, OPTION, OPTION_SIZE))
                         {
@@ -2537,7 +2537,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
             // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable
             case HTML_PARSER_MODE_IN_TABLE:
                 ;
-                html_node_t* current_node = stack[stack_idx];
+                dom_node_t* current_node = stack[stack_idx];
                 html_element_t* current_element = html_element_from_node(current_node);
                 unsigned char* name = current_element->local_name;
                 uint32_t name_size = current_element->local_name_size;
@@ -2922,7 +2922,7 @@ html_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     {
                         generate_implied_end_tags(NULL, 0);
 
-                        html_node_t* node = stack[stack_idx];
+                        dom_node_t* node = stack[stack_idx];
                         html_element_t* element = html_element_from_node(node);
 
                         if (!string_compare(element->local_name, element->local_name_size, t.name, t.name_size))

@@ -127,6 +127,18 @@ do                                                                              
 } while(0);
 
 
+#define ASSERT_HASH_STRING(a, b)                                                            \
+do                                                                                          \
+{                                                                                           \
+    const unsigned char* adata  = hash_str_get(a);                                          \
+    const uint32_t asize        = hash_str_get_size(a);                                     \
+    const unsigned char* bdata  = hash_str_get(b);                                          \
+    const uint32_t bsize        = hash_str_get_size(b);                                     \
+    ASSERT_EQUAL(asize, bsize);                                                             \
+    ASSERT_STRING((char)adata, (char)bdata, asize);                                         \
+} while(0);
+
+
 #define TEST_CASE(test)                                                                     \
 do                                                                                          \
 {                                                                                           \

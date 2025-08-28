@@ -4,46 +4,40 @@
 #include <assert.h>
 #include <string.h>
 
-html_node_t* html_document_new()
+dom_node_t* dom_document_new()
 {
-    html_document_t* document           = malloc(sizeof(html_document_t));
-    html_node_t* node                   = html_node_from_document(document);
+    dom_document_t* document           = malloc(sizeof(dom_document_t));
+    dom_node_t* node                   = dom_node_from_document(document);
 
-    html_node_initialize(node, HTML_NODE_DOCUMENT, NULL);
+    dom_node_initialize(node, DOM_NODE_DOCUMENT, NULL);
     node->document                      = node;
+    node->name = hash_str_new("#document", 9);
 
-    document->url_size                  = 0;
-    document->uri_size                  = 0;
-    document->compat_mode_size          = 0;
-    document->character_set_size        = 0;
-    document->content_type_size         = 0;
     document->parser_cannot_change_mode = false;
-
-    memcpy(node->name, "#document", sizeof("#document") - 1);
 
     return node;
 }
 
 
-html_node_t* html_node_from_document(html_document_t* document)
+dom_node_t* dom_node_from_document(dom_document_t* document)
 {
-    return (html_node_t*)document;
+    return (dom_node_t*)document;
 }
 
 
-html_document_t* html_document_from_node(html_node_t* node)
+dom_document_t* dom_document_from_node(dom_node_t* node)
 {
-    assert(node->type == HTML_NODE_DOCUMENT);
+    assert(node->type == DOM_NODE_DOCUMENT);
 
-    return (html_document_t*)node;
+    return (dom_document_t*)node;
 }
 
 
-void html_document_free(html_node_t* node)
+void dom_document_free(dom_node_t* node)
 {
-    html_node_free(node);
-    assert(node->type == HTML_NODE_DOCUMENT);
+    dom_node_free(node);
+    assert(node->type == DOM_NODE_DOCUMENT);
 
-    html_document_t* document = html_document_from_node(node);
+    dom_document_t* document = dom_document_from_node(node);
     free(document);
 }
