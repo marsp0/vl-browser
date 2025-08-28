@@ -28,4 +28,4 @@ typedef enum
     HTML_DOM_ERR_TIMEOUT = 23,
     HTML_DOM_ERR_INVALID_NODE_TYPE = 24,
     HTML_DOM_ERR_DATA_CLONE = 25,
-} html_dom_exception_e;
+} dom_exception_e;
