@@ -4,9 +4,6 @@
 SRC_FILES       := $(shell find src -name "*.c" ! -name "main.c")
 OBJ_FILES       := $(addprefix out/, $(SRC_FILES:.c=.o))
 
-$(info $(SRC_FILES))
-$(info $(OBJ_FILES))
-
 TEST_SRC_FILES   := $(shell find ./test -name "*.c")
 TEST_OBJ_FILES   := $(addprefix out/, $(TEST_SRC_FILES:.c=.o))
 
@@ -23,12 +20,10 @@ LD_FLAGS    += -lgcov --coverage
 
 
 # ------------------- targets -------------------
-
 .PHONY: clean vl test_vl
 
 
 # ------------------- targets: vl -------------------
-
 vl: main.o $(OBJ_FILES)
 	$(CC) $(GCCFLAGS) ./out/main.o $(OBJ_FILES) -o ./out/$@ $(LD_FLAGS)
 
@@ -37,20 +32,17 @@ main.o: ./src/main.c
 
 
 # ------------------- targets: test -------------------
-
 test_vl: GCC_INCLUDE += -I./test
 test_vl: $(TEST_OBJ_FILES) $(OBJ_FILES)
 	$(CC) $(GCCFLAGS) $(TEST_OBJ_FILES) $(OBJ_FILES) -o ./out/$@ $(LD_FLAGS)
 
 
 # ------------------- targets: obj files -------------------
-
 out/%.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(GCC_FLAGS) $(GCC_INCLUDE) -c $< -o $@
 
 
 # ------------------- targets: clean -------------------
-
 clean:
 	@rm -rf out/*
