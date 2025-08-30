@@ -13,6 +13,7 @@
 #include "dom/element.h"
 #include "dom/text.h"
 #include "util/not_implemented.h"
+#include "html/tag_constants.h"
 
 /*
  * Notes
@@ -26,222 +27,6 @@
 #define MAX_TOKENS          10
 #define OPEN_STACK_MAX_SIZE 500
 
-#define HTML                "html"
-#define HTML_SIZE           4
-#define HEAD                "head"
-#define HEAD_SIZE           4
-#define BODY                "body"
-#define BODY_SIZE           4
-#define BR                  "br"
-#define BR_SIZE             2
-#define BASE                "base"
-#define BASE_SIZE           4
-#define BASEFONT            "basefont"
-#define BASEFONT_SIZE       8
-#define BGSOUND             "bgsound"
-#define BGSOUND_SIZE        7
-#define LINK                "link"
-#define LINK_SIZE           4
-#define META                "meta"
-#define META_SIZE           4
-#define TITLE               "title"
-#define TITLE_SIZE          5
-#define SCRIPT              "script"
-#define SCRIPT_SIZE         6
-#define NOSCRIPT            "noscript"
-#define NOSCRIPT_SIZE       8
-#define NOFRAMES            "noframes"
-#define NOFRAMES_SIZE       8
-#define STYLE               "style"
-#define STYLE_SIZE          5
-#define TEMPLATE            "template"
-#define TEMPLATE_SIZE       8
-#define FRAME               "frame"
-#define FRAME_SIZE          5
-#define FRAMESET            "frameset"
-#define FRAMESET_SIZE       8
-#define DD                  "dd"
-#define DD_SIZE             2
-#define DT                  "dt"
-#define DT_SIZE             2
-#define LI                  "li"
-#define LI_SIZE             2
-#define OPTGROUP            "optgroup"
-#define OPTGROUP_SIZE       8
-#define OPTION              "option"
-#define OPTION_SIZE         6
-#define P                   "p"
-#define P_SIZE              1
-#define RB                  "rb"
-#define RB_SIZE             2
-#define RP                  "rp"
-#define RP_SIZE             2
-#define RT                  "rt"
-#define RT_SIZE             2
-#define RTC                 "rtc"
-#define RTC_SIZE            3
-#define SVG                 "svg"
-#define SVG_SIZE            3
-#define TBODY               "tbody"
-#define TBODY_SIZE          5
-#define TD                  "td"
-#define TD_SIZE             2
-#define TFOOT               "tfoot"
-#define TFOOT_SIZE          5
-#define TH                  "th"
-#define TH_SIZE             2
-#define THEAD               "thead"
-#define THEAD_SIZE          5
-#define TABLE               "table"
-#define TABLE_SIZE          5
-#define TR                  "tr"
-#define TR_SIZE             2
-#define ADDRESS             "address"
-#define ADDRESS_SIZE        7
-#define ARTICLE             "article"
-#define ARTICLE_SIZE        7
-#define ASIDE               "aside"
-#define ASIDE_SIZE          5
-#define BLOCKQUOTE          "blockquote"
-#define BLOCKQUOTE_SIZE     10
-#define CENTER              "center"
-#define CENTER_SIZE         6
-#define DETAILS             "details"
-#define DETAILS_SIZE        7
-#define DIALOG              "dialog"
-#define DIALOG_SIZE         6
-#define DIR                 "dir"
-#define DIR_SIZE            3
-#define DIV                 "div"
-#define DIV_SIZE            3
-#define DL                  "dl"
-#define DL_SIZE             2
-#define FIELDSET            "fieldset"
-#define FIELDSET_SIZE       8
-#define FIGCAPTION          "figcaption"
-#define FIGCAPTION_SIZE     10
-#define FIGURE              "figure"
-#define FIGURE_SIZE         6
-#define FOOTER              "footer"
-#define FOOTER_SIZE         6
-#define HEADER              "header"
-#define HEADER_SIZE         6
-#define HGROUP              "hgroup"
-#define HGROUP_SIZE         6
-#define MAIN                "main"
-#define MAIN_SIZE           4
-#define MENU                "menu"
-#define MENU_SIZE           4
-#define NAV                 "nav"
-#define NAV_SIZE            3
-#define OL                  "ol"
-#define OL_SIZE             2
-#define SEARCH              "search"
-#define SEARCH_SIZE         6
-#define SECTION             "section"
-#define SECTION_SIZE        7
-#define SUMMARY             "summary"
-#define SUMMARY_SIZE        7
-#define UL                  "ul"
-#define UL_SIZE             2
-#define H1                  "h1"
-#define H1_SIZE             2
-#define H2                  "h2"
-#define H2_SIZE             2
-#define H3                  "h3"
-#define H3_SIZE             2
-#define H4                  "h4"
-#define H4_SIZE             2
-#define H5                  "h5"
-#define H5_SIZE             2
-#define H6                  "h6"
-#define H6_SIZE             2
-#define PRE                 "pre"
-#define PRE_SIZE            3
-#define LISTING             "listing"
-#define LISTING_SIZE        7
-#define FORM                "form"
-#define FORM_SIZE           4
-#define FONT                "font"
-#define FONT_SIZE           4
-#define BUTTON              "button"
-#define BUTTON_SIZE         6
-#define PLAINTEXT           "plaintext"
-#define PLAINTEXT_SIZE      9
-#define A                   "a"
-#define A_SIZE              1
-#define B                   "b"
-#define B_SIZE              1
-#define BIG                 "big"
-#define BIG_SIZE            3
-#define CODE                "code"
-#define CODE_SIZE           4
-#define EM                  "em"
-#define EM_SIZE             2
-#define I                   "i"
-#define I_SIZE              1
-#define S                   "s"
-#define S_SIZE              1
-#define SMALL               "small"
-#define SMALL_SIZE          5
-#define STRIKE              "strike"
-#define STRIKE_SIZE         6
-#define STRONG              "strong"
-#define STRONG_SIZE         6
-#define TT                  "tt"
-#define TT_SIZE             2
-#define U                   "u"
-#define U_SIZE              1
-#define NOBR                "nobr"
-#define NOBR_SIZE           4
-#define APPLET              "applet"
-#define APPLET_SIZE         6
-#define MARQUEE             "marquee"
-#define MARQUEE_SIZE        7
-#define MATH                "math"
-#define MATH_SIZE           4
-#define OBJECT              "object"
-#define OBJECT_SIZE         6
-#define AREA                "area"
-#define AREA_SIZE           4
-#define EMBED               "embed"
-#define EMBED_SIZE          5
-#define IMG                 "img"
-#define IMG_SIZE            3
-#define KEYGEN              "keygen"
-#define KEYGEN_SIZE         6
-#define WBR                 "wbr"
-#define WBR_SIZE            3
-#define INPUT               "input"
-#define INPUT_SIZE          5
-#define PARAM               "param"
-#define PARAM_SIZE          5
-#define SOURCE              "source"
-#define SOURCE_SIZE         6
-#define TRACK               "track"
-#define TRACK_SIZE          5
-#define HR                  "hr"
-#define HR_SIZE             2
-#define IMAGE               "image"
-#define IMAGE_SIZE          5
-#define TEXTAREA            "textarea"
-#define TEXTAREA_SIZE       8
-#define XMP                 "xmp"
-#define XMP_SIZE            3
-#define IFRAME              "iframe"
-#define IFRAME_SIZE         6
-#define NOEMBED             "noembed"
-#define NOEMBED_SIZE        7
-#define SELECT              "select"
-#define SELECT_SIZE         6
-#define COL                 "col"
-#define COL_SIZE            3
-#define COLGROUP            "colgroup"
-#define COLGROUP_SIZE       8
-#define CAPTION             "caption"
-#define CAPTION_SIZE        7
-
-
 /********************/
 /* static variables */
 /********************/
@@ -251,13 +36,13 @@ typedef enum
     GENERIC_SCOPE,
     BUTTON_SCOPE,
     TABLE_SCOPE,
-} html_element_scope_e;
+} dom_element_scope_e;
 
 typedef struct
 {
     dom_node_t* parent;
     dom_node_t* child;
-} html_insertion_location_t;
+} dom_insertion_location_t;
 
 static html_parser_mode_e mode                      = HTML_PARSER_MODE_INITIAL;
 static html_parser_mode_e original_mode             = HTML_PARSER_MODE_INITIAL;
@@ -287,12 +72,12 @@ static uint32_t formatting_elements_size            = 0;
 /********************/
 
 
-static bool string_compare(const unsigned char* first, const uint32_t first_size, const unsigned char* second, const uint32_t second_size)
-{
-    if (first_size != second_size) { return false; }
+// static bool string_compare(const unsigned char* first, const uint32_t first_size, const unsigned char* second, const uint32_t second_size)
+// {
+//     if (first_size != second_size) { return false; }
 
-    return strncmp(first, second, first_size) == 0;
-}
+//     return strncmp(first, second, first_size) == 0;
+// }
 
 static uint32_t get_tokens_size()
 {
@@ -351,25 +136,24 @@ static void stack_insert(uint32_t index, dom_node_t* node)
 }
 
 
-static bool name_is(const unsigned char* name, const uint32_t name_size, const html_token_t* token)
-{
-    if (token->name_size != name_size) { return false; }
+// static bool name_is(const unsigned char* name, const uint32_t name_size, const html_token_t* token)
+// {
+//     if (token->name_size != name_size) { return false; }
 
-    return string_compare(name, name_size, token->name, token->name_size);
-}
+//     return string_compare(name, name_size, token->name, token->name_size);
+// }
 
 
-static bool stack_contains_element(unsigned char* name, uint32_t name_size)
+static bool stack_contains_element(hash_str_t name)
 {
     for (uint32_t i = 0; i < stack_size; i++)
     {
         dom_node_t* node = stack[i];
-        if (!node)                                           { return false; }
-        if (node->type != HTML_NODE_ELEMENT)                 { continue; }
 
-        html_element_t* element = html_element_from_node(node);
+        if (!node)                              { return false; }
+        if (node->type != DOM_NODE_ELEMENT)    { continue; }
+        if (node->name == name)                 { return true; }
 
-        if (strncmp(element->local_name, name, name_size) == 0) { return true; }
         // todo: figure out which name to use and perform case insensitive comparison
     }
 
@@ -391,63 +175,55 @@ static bool stack_contains_node(dom_node_t* node)
 }
 
 
-static bool in_scope(unsigned char* name, uint32_t name_size, html_element_scope_e scope)
+static bool in_scope(const hash_str_t name, dom_element_scope_e scope)
 {
     dom_node_t* node = stack[stack_idx];
-    html_element_t* element = html_element_from_node(node);
 
     int32_t i = (int32_t)stack_idx;
 
     while (i >= 0)
     {
-        const unsigned char* local_name = element->local_name;
+        const hash_str_t node_name = node->name;
 
-        if (strncmp(name, local_name, name_size) == 0) { return true; }
+        if (node_name == name) { return true; }
 
-        if (strncmp(HTML, local_name, HTML_SIZE) == 0       ||
-            strncmp(TABLE, local_name, TABLE_SIZE) == 0     ||
-            strncmp(TEMPLATE, local_name, TEMPLATE_SIZE) == 0)
+        if (node_name == html_tag_html() || node_name == html_tag_table() || node_name == html_tag_template())
         {
             return false;
         }
 
-        if ((scope != TABLE_SCOPE) && (strncmp(APPLET, local_name, APPLET_SIZE) == 0   ||
-                                       strncmp(CAPTION, local_name, CAPTION_SIZE) == 0 ||
-                                       strncmp(TD, local_name, TD_SIZE) == 0           ||
-                                       strncmp(TH, local_name, TH_SIZE) == 0           ||
-                                       strncmp(MARQUEE, local_name, MARQUEE_SIZE) == 0 ||
-                                       strncmp(OBJECT, local_name, OBJECT_SIZE) == 0))
+        if ((scope != TABLE_SCOPE) && (node_name == html_tag_applet() ||
+                                       node_name == html_tag_caption() ||
+                                       node_name == html_tag_td() ||
+                                       node_name == html_tag_th() ||
+                                       node_name == html_tag_marquee() ||
+                                       node_name == html_tag_object()))
         {
             return false;
         }
 
-        if (scope == BUTTON_SCOPE && strncmp(BUTTON, element->local_name, BUTTON_SIZE) == 0)
+        if (scope == BUTTON_SCOPE && node_name == html_tag_button())
         {
             return false;
         }
 
         i--;
         node = stack[i];
-        element = html_element_from_node(node);
     }
 
     return false;
 }
 
 
-static dom_node_t* find_last_stack_element(const unsigned char* name, const uint32_t name_size)
+static dom_node_t* find_last_stack_element(const hash_str_t name)
 {
     int32_t i = (int32_t)stack_size - 1;
 
     while (i >= 0)
     {
         dom_node_t* node = stack[i];
-        html_element_t* element = html_element_from_node(node);
 
-        if (string_compare(element->local_name, element->local_name_size, name, name_size))
-        {
-            return node;
-        }
+        if (node->name == name) { return node; }
 
         i--;
     }
@@ -468,33 +244,21 @@ static uint32_t find_node_index(dom_node_t** list, uint32_t list_size, dom_node_
 }
 
 
-static html_insertion_location_t get_appropriate_insertion_location(dom_node_t* override)
+static dom_insertion_location_t get_appropriate_insertion_location(dom_node_t* override)
 {
-    html_insertion_location_t location  = { NULL, NULL };
+    dom_insertion_location_t location  = { NULL, NULL };
     dom_node_t* target                 = stack[stack_idx];
 
     if (override) { target = override; }
 
-    unsigned char* name = NULL;
-    uint32_t name_size = 0;
-
-    if (target->type == HTML_NODE_ELEMENT)
+    if (foster_parenting && target->type == DOM_NODE_ELEMENT && (target->name == html_tag_table() ||
+                                                                 target->name == html_tag_tbody() ||
+                                                                 target->name == html_tag_thead() ||
+                                                                 target->name == html_tag_tfoot() ||
+                                                                 target->name == html_tag_tr()))
     {
-        html_element_t* target_element  = html_element_from_node(target);
-        name                            = target_element->local_name;
-        name_size                       = target_element->local_name_size;
-    }
-
-    if (foster_parenting && 
-        target->type == HTML_NODE_ELEMENT && 
-        (string_compare(name, name_size, TABLE, TABLE_SIZE) ||
-         string_compare(name, name_size, TBODY, TBODY_SIZE) ||
-         string_compare(name, name_size, THEAD, THEAD_SIZE) ||
-         string_compare(name, name_size, TFOOT, TFOOT_SIZE) ||
-         string_compare(name, name_size, TR, TR_SIZE)))
-    {
-        dom_node_t* last_template = find_last_stack_element(TEMPLATE, TEMPLATE_SIZE);
-        dom_node_t* last_table = find_last_stack_element(TABLE, TABLE_SIZE);
+        dom_node_t* last_template = find_last_stack_element(html_tag_template());
+        dom_node_t* last_table = find_last_stack_element(html_tag_table());
 
         if (last_template)
         {
@@ -532,14 +296,14 @@ static html_insertion_location_t get_appropriate_insertion_location(dom_node_t* 
 
 static void insert_comment(html_token_t* token, dom_node_t* position)
 {
-    html_insertion_location_t location   = get_appropriate_insertion_location(position);
-    dom_node_t* comment                 = html_comment_new(document, token->data, token->data_size);
+    dom_insertion_location_t location   = get_appropriate_insertion_location(position);
+    dom_node_t* comment                 = dom_comment_new(document, token->data, token->data_size);
 
-    html_node_insert_before(location.parent, comment, location.child);
+    dom_node_insert_before(location.parent, comment, location.child);
 }
 
 
-static dom_node_t* create_element(unsigned char* name, uint32_t name_size, dom_node_t* parent)
+static dom_node_t* create_element(hash_str_t name, dom_node_t* parent)
 {
     // todo: step 1
     // todo: step 2
@@ -553,7 +317,7 @@ static dom_node_t* create_element(unsigned char* name, uint32_t name_size, dom_n
     // todo: step 9
 
     dom_node_t* doc        = parent->document;
-    dom_node_t* element    = html_element_new(doc, name, name_size);
+    dom_node_t* element    = dom_element_new(doc, name);
 
     // todo: step 11
     // todo: step 12
@@ -565,16 +329,16 @@ static dom_node_t* create_element(unsigned char* name, uint32_t name_size, dom_n
 }
 
 
-static dom_node_t* insert_foreign_element(unsigned char* name, uint32_t name_size, bool only_add_to_stack)
+static dom_node_t* insert_foreign_element(hash_str_t name, bool only_add_to_stack)
 {
-    html_insertion_location_t location  = get_appropriate_insertion_location(NULL);
-    dom_node_t* node                   = create_element(name, name_size, document);
+    dom_insertion_location_t location  = get_appropriate_insertion_location(NULL);
+    dom_node_t* node                   = create_element(name, document);
 
     if (!only_add_to_stack)
     {
         // todo: step 2
         // todo: step 3
-        html_node_insert_before(location.parent, node, location.child);
+        dom_node_insert_before(location.parent, node, location.child);
         // todo: step 5
     }
 
@@ -584,31 +348,31 @@ static dom_node_t* insert_foreign_element(unsigned char* name, uint32_t name_siz
 }
 
 
-static dom_node_t* insert_html_element(unsigned char* name, uint32_t name_size)
+static dom_node_t* insert_html_element(hash_str_t name)
 {
-    return insert_foreign_element(name, name_size, false);
+    return insert_foreign_element(name, false);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-a-character
 static void insert_character(unsigned char* data, uint32_t data_size)
 {
-    html_insertion_location_t insertion_position = get_appropriate_insertion_location(NULL);
+    dom_insertion_location_t insertion_position = get_appropriate_insertion_location(NULL);
     dom_node_t* location   = insertion_position.parent;
     dom_node_t* child      = insertion_position.child;
 
     if (!child) { child = location->last_child; }
     else        { child = child->prev_sibling; }
 
-    if (location->type == HTML_NODE_DOCUMENT) { return; }
+    if (location->type == DOM_NODE_DOCUMENT) { return; }
 
     if (child && child->type == DOM_NODE_TEXT)
     {
-        html_text_append_data(child, data, data_size);
+        dom_text_append_data(child, data, data_size);
     }
     else
     {
-        dom_node_t* node = html_text_new(document, data, data_size);
-        html_node_insert_before(insertion_position.parent, node, insertion_position.child);
+        dom_node_t* node = dom_text_new(document, data, data_size);
+        dom_node_insert_before(insertion_position.parent, node, insertion_position.child);
     }
     
     return;
@@ -634,29 +398,28 @@ static void stop_parsing()
 }
 
 
-static void generate_implied_end_tags(unsigned char* name, uint32_t name_size)
+static void generate_implied_end_tags(const hash_str_t name)
 {
     while (stack_size > 0)
     {
         dom_node_t* node = stack[stack_idx];
-        html_element_t* element = html_element_from_node(node);
-        const unsigned char* local_name = element->local_name;
+        const hash_str_t node_name = node->name;
 
-        if (name_size > 0 && strncmp(local_name, name, name_size) == 0)
+        if (name != 0 && node_name == name)
         {
             return;
         }
 
-        if (strncmp(local_name, DD, DD_SIZE) == 0              ||
-            strncmp(local_name, DT, DT_SIZE) == 0              ||
-            strncmp(local_name, LI, LI_SIZE) == 0              ||
-            strncmp(local_name, OPTGROUP, OPTGROUP_SIZE) == 0  ||
-            strncmp(local_name, OPTION, OPTION_SIZE) == 0      ||
-            strncmp(local_name, P, P_SIZE) == 0                ||
-            strncmp(local_name, RB, RB_SIZE) == 0              ||
-            strncmp(local_name, RP, RP_SIZE) == 0              ||
-            strncmp(local_name, RT, RT_SIZE) == 0              ||
-            strncmp(local_name, RTC, RTC_SIZE) == 0)
+        if (node_name == html_tag_dd()        ||
+            node_name == html_tag_dt()        ||
+            node_name == html_tag_li()        ||
+            node_name == html_tag_optgroup()  ||
+            node_name == html_tag_option()    ||
+            node_name == html_tag_p()         ||
+            node_name == html_tag_rb()        ||
+            node_name == html_tag_rp()        ||
+            node_name == html_tag_rt()        ||
+            node_name == html_tag_rtc())
         {
             stack_pop();
         }
@@ -684,44 +447,47 @@ static void clear_formatting_elements()
 
 static void close_p_element()
 {
-    generate_implied_end_tags(P, P_SIZE);
+    generate_implied_end_tags(html_tag_p());
 
     dom_node_t* node = stack[stack_idx];
-    html_element_t* element = html_element_from_node(node);
-    if (strncmp(element->local_name, P, P_SIZE) != 0)
+    hash_str_t node_name = node->name;
+
+    if (node_name != html_tag_p())
     {
-        // todo: parse error
+        INCOMPLETE_IMPLEMENTATION("parse error");
     }
 
     bool run = true;
     // todo: when do we stop ? 
     while (run)
     {
-        if (strncmp(element->local_name, P, P_SIZE) == 0) { run = false; }
+        node_name = node->name;
+
+        if (node_name == html_tag_p()) { run = false; }
         stack_pop();
 
         node = stack[stack_idx];
-        element = html_element_from_node(node);
     }
 }
 
 
 static void close_cell()
 {
-    generate_implied_end_tags(NULL, 0);
+    generate_implied_end_tags(0);
 
     dom_node_t* node = stack[stack_idx];
-    html_element_t* element = html_element_from_node(node);
-    if (strncmp(element->local_name, TD, TD_SIZE) != 0 && strncmp(element->local_name, TH, TH_SIZE) != 0)
+    hash_str_t node_name = node->name;
+
+    if (node_name != html_tag_td() && node_name != html_tag_th())
     {
         INCOMPLETE_IMPLEMENTATION("parse error");
     }
 
-    while (stack_size > 0 && strncmp(element->local_name, TH, TH_SIZE) != 0 && strncmp(element->local_name, TD, TD_SIZE))
+    while (stack_size > 0 && node_name != html_tag_th() && node_name != html_tag_td())
     {
         stack_pop();
         node = stack[stack_idx];
-        element = html_element_from_node(node);
+        node_name = node->name;
     }
 
     stack_pop();
@@ -744,19 +510,16 @@ static void pop_all_including(dom_node_t* node)
 }
 
 
-static void pop_elements_until_name_included(const unsigned char* name, const uint32_t name_size)
+static void pop_elements_until_name_included(const hash_str_t name)
 {
     dom_node_t* node = stack[stack_idx];
-    html_element_t* element = html_element_from_node(node);
+
     while (true)
     {
-        if (string_compare(element->local_name, element->local_name_size, name, name_size))
-        {
-            break;
-        }
+        if (node->name == name) { break; }
+
         stack_pop();
         node = stack[stack_idx];
-        element = html_element_from_node(node);
     }
     stack_pop();
 }
@@ -764,51 +527,49 @@ static void pop_elements_until_name_included(const unsigned char* name, const ui
 
 static bool is_special(dom_node_t* node)
 {
-    html_element_t* element = html_element_from_node(node);
-    const unsigned char* name = element->local_name;
-    const uint32_t name_size = element->local_name_size;
+    hash_str_t name = node->name;
 
-    return  string_compare(name, name_size, ADDRESS, ADDRESS_SIZE)      || string_compare(name, name_size, APPLET, APPLET_SIZE) ||
-            string_compare(name, name_size, AREA, AREA_SIZE)            || string_compare(name, name_size, ARTICLE, ARTICLE_SIZE) ||
-            string_compare(name, name_size, ASIDE, ASIDE_SIZE)          || string_compare(name, name_size, BASE, BASE_SIZE) ||
-            string_compare(name, name_size, BASEFONT, BASEFONT_SIZE)    || string_compare(name, name_size, BGSOUND, BGSOUND_SIZE) ||
-            string_compare(name, name_size, BLOCKQUOTE, BLOCKQUOTE_SIZE)|| string_compare(name, name_size, BODY, BODY_SIZE) ||
-            string_compare(name, name_size, BR, BR_SIZE)                || string_compare(name, name_size, BUTTON, BUTTON_SIZE) ||
-            string_compare(name, name_size, CAPTION, CAPTION_SIZE)      || string_compare(name, name_size, CENTER, CENTER_SIZE) ||
-            string_compare(name, name_size, COL, COL_SIZE)              || string_compare(name, name_size, COLGROUP, COLGROUP_SIZE) ||
-            string_compare(name, name_size, DD, DD_SIZE)                || string_compare(name, name_size, DETAILS, DETAILS_SIZE) ||
-            string_compare(name, name_size, DIR, DIR_SIZE)              || string_compare(name, name_size, DIV, DIV_SIZE) ||
-            string_compare(name, name_size, DL, DL_SIZE)                || string_compare(name, name_size, DT, DT_SIZE) ||
-            string_compare(name, name_size, EMBED, EMBED_SIZE)          || string_compare(name, name_size, FIELDSET, FIELDSET_SIZE) ||
-            string_compare(name, name_size, FIGCAPTION, FIGCAPTION_SIZE)|| string_compare(name, name_size, FIGURE, FIGURE_SIZE) ||
-            string_compare(name, name_size, FOOTER, FOOTER_SIZE)        || string_compare(name, name_size, FORM, FORM_SIZE) ||
-            string_compare(name, name_size, FRAME, FRAME_SIZE)          || string_compare(name, name_size, FRAMESET, FRAMESET_SIZE) ||
-            string_compare(name, name_size, H1, H1_SIZE)                || string_compare(name, name_size, H2, H2_SIZE) ||
-            string_compare(name, name_size, H3, H3_SIZE)                || string_compare(name, name_size, H4, H4_SIZE) ||
-            string_compare(name, name_size, H5, H5_SIZE)                || string_compare(name, name_size, H6, H6_SIZE) ||
-            string_compare(name, name_size, HEAD, HEAD_SIZE)            || string_compare(name, name_size, HEADER, HEADER_SIZE) ||
-            string_compare(name, name_size, HGROUP, HGROUP_SIZE)        || string_compare(name, name_size, HR, HR_SIZE) ||
-            string_compare(name, name_size, HTML, HTML_SIZE)            || string_compare(name, name_size, IFRAME, IFRAME_SIZE) ||
-            string_compare(name, name_size, IMG, IMG_SIZE)              || string_compare(name, name_size, INPUT, INPUT_SIZE) ||
-            string_compare(name, name_size, KEYGEN, KEYGEN_SIZE)        || string_compare(name, name_size, LI, LI_SIZE) ||
-            string_compare(name, name_size, LINK, LINK_SIZE)            || string_compare(name, name_size, LISTING, LISTING_SIZE) ||
-            string_compare(name, name_size, MAIN, MAIN_SIZE)            || string_compare(name, name_size, MARQUEE, MARQUEE_SIZE) ||
-            string_compare(name, name_size, MENU, MENU_SIZE)            || string_compare(name, name_size, META, META_SIZE) ||
-            string_compare(name, name_size, NAV, NAV_SIZE)              || string_compare(name, name_size, NOEMBED, NOEMBED_SIZE) ||
-            string_compare(name, name_size, NOFRAMES, NOFRAMES_SIZE)    || string_compare(name, name_size, NOSCRIPT, NOSCRIPT_SIZE) ||
-            string_compare(name, name_size, OBJECT, OBJECT_SIZE)        || string_compare(name, name_size, OL, OL_SIZE) ||
-            string_compare(name, name_size, P, P_SIZE)                  || string_compare(name, name_size, PARAM, PARAM_SIZE) ||
-            string_compare(name, name_size, PLAINTEXT, PLAINTEXT_SIZE)  || string_compare(name, name_size, PRE, PRE_SIZE) ||
-            string_compare(name, name_size, SCRIPT, SCRIPT_SIZE)        || string_compare(name, name_size, SEARCH, SEARCH_SIZE) ||
-            string_compare(name, name_size, SECTION, SECTION_SIZE)      || string_compare(name, name_size, SELECT, SELECT_SIZE) ||
-            string_compare(name, name_size, SOURCE, SOURCE_SIZE)        || string_compare(name, name_size, STYLE, STYLE_SIZE) ||
-            string_compare(name, name_size, SUMMARY, SUMMARY_SIZE)      || string_compare(name, name_size, TABLE, TABLE_SIZE) ||
-            string_compare(name, name_size, TBODY, TBODY_SIZE)          || string_compare(name, name_size, TD, TD_SIZE) ||
-            string_compare(name, name_size, TEMPLATE, TEMPLATE_SIZE)    || string_compare(name, name_size, TEXTAREA, TEXTAREA_SIZE) ||
-            string_compare(name, name_size, TFOOT, TFOOT_SIZE)          || string_compare(name, name_size, TH, TH_SIZE) ||
-            string_compare(name, name_size, THEAD, THEAD_SIZE)          || string_compare(name, name_size, TITLE, TITLE_SIZE) ||
-            string_compare(name, name_size, TR, TR_SIZE)                || string_compare(name, name_size, TRACK, TRACK_SIZE) ||
-            string_compare(name, name_size, UL, UL_SIZE)                || string_compare(name, name_size, WBR, WBR_SIZE);
+    return  name == html_tag_address()    || name == html_tag_applet()      ||
+            name == html_tag_area()       || name == html_tag_article()     ||
+            name == html_tag_aside()      || name == html_tag_base()        ||
+            name == html_tag_basefont()   || name == html_tag_bgsound()     ||
+            name == html_tag_blockquote() || name == html_tag_body()        ||
+            name == html_tag_br()         || name == html_tag_button()      ||
+            name == html_tag_caption()    || name == html_tag_center()      ||
+            name == html_tag_col()        || name == html_tag_colgroup()    ||
+            name == html_tag_dd()         || name == html_tag_details()     ||
+            name == html_tag_dir()        || name == html_tag_div()         ||
+            name == html_tag_dl()         || name == html_tag_dt()          ||
+            name == html_tag_embed()      || name == html_tag_fieldset()    ||
+            name == html_tag_figcaption() || name == html_tag_figure()      ||
+            name == html_tag_footer()     || name == html_tag_form()        ||
+            name == html_tag_frame()      || name == html_tag_frameset()    ||
+            name == html_tag_h1()         || name == html_tag_h2()          ||
+            name == html_tag_h3()         || name == html_tag_h4()          ||
+            name == html_tag_h5()         || name == html_tag_h6()          ||
+            name == html_tag_head()       || name == html_tag_header()      ||
+            name == html_tag_hgroup()     || name == html_tag_hr()          ||
+            name == html_tag_html()       || name == html_tag_iframe()      ||
+            name == html_tag_img()        || name == html_tag_input()       ||
+            name == html_tag_keygen()     || name == html_tag_li()          ||
+            name == html_tag_link()       || name == html_tag_listing()     ||
+            name == html_tag_main()       || name == html_tag_marquee()     ||
+            name == html_tag_menu()       || name == html_tag_meta()        ||
+            name == html_tag_nav()        || name == html_tag_noembed()     ||
+            name == html_tag_noframes()   || name == html_tag_noscript()    ||
+            name == html_tag_object()     || name == html_tag_ol()          ||
+            name == html_tag_p()          || name == html_tag_param()       ||
+            name == html_tag_plaintext()  || name == html_tag_pre()         ||
+            name == html_tag_script()     || name == html_tag_search()      ||
+            name == html_tag_section()    || name == html_tag_select()      ||
+            name == html_tag_source()     || name == html_tag_style()       ||
+            name == html_tag_summary()    || name == html_tag_table()       ||
+            name == html_tag_tbody()      || name == html_tag_td()          ||
+            name == html_tag_template()   || name == html_tag_textarea()    ||
+            name == html_tag_tfoot()      || name == html_tag_th()          ||
+            name == html_tag_thead()      || name == html_tag_title()       ||
+            name == html_tag_tr()         || name == html_tag_track()       ||
+            name == html_tag_ul()         || name == html_tag_wbr();
 }
 
 
@@ -936,7 +697,8 @@ static void reconstruct_formatting_elements()
         case 8:
             ;
             html_token_t* t = &(formatting_elements_t[idx]);
-            new_element = insert_html_element(t->name, t->name_size);
+            hash_str_t t_name = hash_str_new(t->name, t->name_size);
+            new_element = insert_html_element(t_name);
             step = 9;
             break;
 
@@ -974,7 +736,7 @@ static bool formatting_elements_contains(dom_node_t* node)
 }
 
 
-static dom_node_t* find_appropriate_formatting_element(const unsigned char* name, uint32_t name_size)
+static dom_node_t* find_appropriate_formatting_element(const hash_str_t name)
 {
     int32_t last_marker = -1;
     for (int32_t i = 0; i < (int32_t)formatting_elements_size; i++)
@@ -990,12 +752,8 @@ static dom_node_t* find_appropriate_formatting_element(const unsigned char* name
     for (int32_t i = (int32_t)formatting_elements_size - 1; i >= start; i--)
     {
         dom_node_t* node = formatting_elements[i];
-        html_element_t* element = html_element_from_node(node);
 
-        if (string_compare(element->local_name, element->local_name_size, name, name_size))
-        {
-            return node;
-        }
+        if (node->name == name) { return node; }
     }
 
     return NULL;
@@ -1050,15 +808,14 @@ static dom_node_t* find_common_ancestor(dom_node_t* node)
 
 
 // https://html.spec.whatwg.org/multipage/parsing.html#adoption-agency-algorithm
-static bool run_adoption_procedure(html_token_t* t)
+static bool run_adoption_procedure(const hash_str_t t_name)
 {
     // turn this bool into OPERATION_RESULT or something similar
     INCOMPLETE_IMPLEMENTATION("operation_result_t instead of bool");
     dom_node_t* current = stack[stack_idx];
-    html_element_t* element = html_element_from_node(current);
 
     // step 2
-    if (string_compare(element->local_name, element->local_name_size, t->name, t->name_size) && !formatting_elements_contains(current))
+    if (t_name == current->name && !formatting_elements_contains(current))
     {
         stack_pop();
         return true;
@@ -1080,11 +837,9 @@ static bool run_adoption_procedure(html_token_t* t)
         outer_i++;
 
         // step 4.3
-        dom_node_t* formatting_node = find_appropriate_formatting_element(t->name, t->name_size);
+        dom_node_t* formatting_node = find_appropriate_formatting_element(t_name);
 
         if (!formatting_node) { return false; }
-
-        html_element_t* formatting_element = html_element_from_node(formatting_node);
 
         // step 4.4
         if (!stack_contains_node(formatting_node))
@@ -1095,7 +850,7 @@ static bool run_adoption_procedure(html_token_t* t)
         }
 
         // step 4.5
-        if (stack_contains_node(formatting_node) && !in_scope(formatting_element->local_name, formatting_element->local_name_size, GENERIC_SCOPE))
+        if (stack_contains_node(formatting_node) && !in_scope(formatting_node->name, GENERIC_SCOPE))
         {
             // todo: parse error
             return true;
@@ -1165,8 +920,9 @@ static bool run_adoption_procedure(html_token_t* t)
             // step 4.13.6
             uint32_t node_formatting_index = find_node_index(formatting_elements, formatting_elements_size, node);
             html_token_t* node_t = &formatting_elements_t[node_formatting_index];
-            dom_node_t* new_node = create_element(node_t->name, node_t->name_size, document);
-            html_node_append(common_ancestor, new_node);
+            hash_str_t node_t_name = hash_str_new(node_t->name, node_t->name_size);
+            dom_node_t* new_node = create_element(node_t_name, document);
+            dom_node_append(common_ancestor, new_node);
             formatting_elements_replace(node, new_node);
             stack_replace(node, new_node);
             node = new_node;
@@ -1181,33 +937,34 @@ static bool run_adoption_procedure(html_token_t* t)
             }
 
             // step 4.13.8
-            html_node_append(node, last_node);
+            dom_node_append(node, last_node);
 
             // step 4.13.9
             last_node = node;
         }
 
         // step 14
-        html_insertion_location_t location = get_appropriate_insertion_location(common_ancestor);
-        html_node_remove(last_node->parent, last_node);
-        html_node_insert_before(location.parent, last_node, location.child);
+        dom_insertion_location_t location = get_appropriate_insertion_location(common_ancestor);
+        dom_node_remove(last_node->parent, last_node);
+        dom_node_insert_before(location.parent, last_node, location.child);
 
         // step 15
         uint32_t formatting_node_i = find_node_index(formatting_elements, formatting_elements_size, formatting_node);
         html_token_t* formatting_node_t = &formatting_elements_t[formatting_node_i];
-        dom_node_t* new_element = create_element(formatting_node_t->name, formatting_node_t->name_size, furthest);
+        hash_str_t formatting_node_t_name = hash_str_new(formatting_node_t->name, formatting_node_t->name_size);
+        dom_node_t* new_element = create_element(formatting_node_t_name, furthest);
 
         // step 16
         dom_node_t* child = furthest->first_child;
         while (child)
         {
-            html_node_remove(furthest, child);
-            html_node_append(new_element, child);
+            dom_node_remove(furthest, child);
+            dom_node_append(new_element, child);
             child = child->next_sibling;
         }
 
         // step 17
-        html_node_append(furthest, new_element);
+        dom_node_append(furthest, new_element);
 
         // step 18
         remove_formatting_element(formatting_node);
@@ -1222,17 +979,16 @@ static bool run_adoption_procedure(html_token_t* t)
     }
 }
 
-static void handle_end_tag_in_body(html_token_t* t)
+static void handle_end_tag_in_body(const hash_str_t t_name)
 {
     uint32_t idx = stack_idx;
     dom_node_t* node = stack[idx];
-    html_element_t* element = html_element_from_node(node);
 
     while (true)
     {
-        if (string_compare(element->local_name, element->local_name_size, t->name, t->name_size))
+        if (node->name == t_name)
         {
-            generate_implied_end_tags(t->name, t->name_size);
+            generate_implied_end_tags(t_name);
             if (node == stack[stack_idx])
             {
                 // todo: parse error
@@ -1249,7 +1005,6 @@ static void handle_end_tag_in_body(html_token_t* t)
 
         idx--;
         node = stack[idx];
-        element = html_element_from_node(node);
     }
 }
 
@@ -1257,40 +1012,22 @@ static void handle_end_tag_in_body(html_token_t* t)
 static void clear_stack_back_to_table_row()
 {
     dom_node_t* node = stack[stack_idx];
-    html_element_t* element = html_element_from_node(node);
-    const unsigned char* name = element->local_name;
-    uint32_t name_size = element->local_name_size;
 
-    while (!string_compare(TR, TR_SIZE, name, name_size) &&
-           !string_compare(HTML, HTML_SIZE, name, name_size) &&
-           !string_compare(TEMPLATE, TEMPLATE_SIZE, name, name_size))
+    while (node->name != html_tag_tr() && node->name != html_tag_html() && node->name != html_tag_template())
     {
         stack_pop();
-
         node = stack[stack_idx];
-        element = html_element_from_node(node);
-        name = element->local_name;
-        name_size = element->local_name_size;
     }
 }
 
 static void clear_stack_back_to_table()
 {
     dom_node_t* node = stack[stack_idx];
-    html_element_t* element = html_element_from_node(node);
-    const unsigned char* name = element->local_name;
-    uint32_t name_size = element->local_name_size;
 
-    while (!string_compare(TABLE, TABLE_SIZE, name, name_size) &&
-           !string_compare(HTML, HTML_SIZE, name, name_size) &&
-           !string_compare(TEMPLATE, TEMPLATE_SIZE, name, name_size))
+    while (node->name != html_tag_table() && node->name != html_tag_html() && node->name != html_tag_template())
     {
         stack_pop();
-
         node = stack[stack_idx];
-        element = html_element_from_node(node);
-        name = element->local_name;
-        name_size = element->local_name_size;
     }
 }
 
@@ -1298,22 +1035,15 @@ static void clear_stack_back_to_table()
 static void clear_stack_back_to_table_body()
 {
     dom_node_t* node = stack[stack_idx];
-    html_element_t* element = html_element_from_node(node);
-    const unsigned char* name = element->local_name;
-    uint32_t name_size = element->local_name_size;
 
-    while (!string_compare(TFOOT, TFOOT_SIZE, name, name_size) &&
-           !string_compare(TBODY, TBODY_SIZE, name, name_size) &&
-           !string_compare(THEAD, THEAD_SIZE, name, name_size) &&
-           !string_compare(HTML, HTML_SIZE, name, name_size) &&
-           !string_compare(TEMPLATE, TEMPLATE_SIZE, name, name_size))
+    while (node->name != html_tag_tfoot() && 
+           node->name != html_tag_tbody() && 
+           node->name != html_tag_thead() && 
+           node->name != html_tag_html() && 
+           node->name != html_tag_template())
     {
         stack_pop();
-
         node = stack[stack_idx];
-        element = html_element_from_node(node);
-        name = element->local_name;
-        name_size = element->local_name_size;
     }
 }
 
@@ -1323,69 +1053,65 @@ static void reset_insertion_mode_appropriately()
     uint32_t idx = stack_idx;
     bool last = false;
     dom_node_t* node = stack[idx];
-    html_element_t* element = html_element_from_node(node);
 
     INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
 
     while (!last)
     {
-        const unsigned char* name = element->local_name;
-        uint32_t name_size = element->local_name_size;
+        const hash_str_t name = node->name;
 
         if (idx == 0) { last = true; }
 
-        if ((string_compare(TD, TD_SIZE, name, name_size) || string_compare(TH, TH_SIZE, name, name_size)) && !last)
+        if ((name == html_tag_td() || name == html_tag_th()) && !last)
         {
             mode = HTML_PARSER_MODE_IN_CELL;
             return;
         }
-        else if (string_compare(TR, TR_SIZE, name, name_size))
+        else if (name == html_tag_tr())
         {
             mode = HTML_PARSER_MODE_IN_ROW;
             return;
         }
-        else if (string_compare(TBODY, TBODY_SIZE, name, name_size) ||
-                 string_compare(THEAD, THEAD_SIZE, name, name_size) ||
-                 string_compare(TFOOT, TFOOT_SIZE, name, name_size))
+        else if (name == html_tag_tbody() || name == html_tag_thead() || name == html_tag_tfoot())
         {
             mode = HTML_PARSER_MODE_IN_TABLE_BODY;
             return;
         }
-        else if (string_compare(CAPTION, CAPTION_SIZE, name, name_size))
+        else if (name == html_tag_caption())
         {
             mode = HTML_PARSER_MODE_IN_CAPTION;
             return;
         }
-        else if (string_compare(COLGROUP, COLGROUP_SIZE, name, name_size))
+        else if (name == html_tag_colgroup())
         {
             mode = HTML_PARSER_MODE_IN_COLUMN_GROUP;
             return;
         }
-        else if (string_compare(TABLE, TABLE_SIZE, name, name_size))
+        else if (name == html_tag_table())
         {
             mode = HTML_PARSER_MODE_IN_TABLE;
             return;
         }
-        else if (string_compare(TEMPLATE, TEMPLATE_SIZE, name, name_size))
+        else if (name == html_tag_template())
         {
             NOT_IMPLEMENTED
         }
-        else if (string_compare(HEAD, HEAD_SIZE, name, name_size) && !false)
+        else if (name == html_tag_head() && !false)
         {
             mode = HTML_PARSER_MODE_IN_HEAD;
             return;
         }
-        else if (string_compare(BODY, BODY_SIZE, name, name_size))
+        else if (name == html_tag_body())
         {
             mode = HTML_PARSER_MODE_IN_BODY;
             return;
         }
-        else if (string_compare(FRAMESET, FRAMESET_SIZE, name, name_size))
+        else if (name == html_tag_frameset())
         {
             mode = HTML_PARSER_MODE_IN_FRAMESET;
             return;
         }
-        else if (string_compare(HTML, HTML_SIZE, name, name_size))
+        else if (name == html_tag_html())
         {
             if (!head_pointer)
             {
@@ -1407,7 +1133,6 @@ static void reset_insertion_mode_appropriately()
 
         idx--;
         node = stack[idx];
-        element = html_element_from_node(node);
     }
 }
 
@@ -1441,7 +1166,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 {
     html_tokenizer_init(buffer, size, tokens, MAX_TOKENS);
 
-    document                    = html_document_new();
+    document                    = dom_document_new();
 
     dom_node_t* form_element   = NULL;
     bool scripting_enabled      = false;
@@ -1465,6 +1190,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
         {
             bool consume                    = true;
             html_token_t t                  = tokens[i];
+            hash_str_t t_name               = hash_str_new(t.name, t.name_size);
             html_parser_mode_e current_mode = mode;
 
             bool is_doctype                 = t.type == HTML_DOCTYPE_TOKEN;
@@ -1517,7 +1243,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     // todo: If the document is not an iframe srcdoc document, then this is a parse error; 
 
-                    // html_node_document_t* document_data = document->document_data;
+                    // dom_node_document_t* document_data = document->document_data;
 
                     // if (!document_data->parser_cannot_change_mode)
                     // {
@@ -1543,26 +1269,23 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     // ignore
                 }
-                else if (is_start && name_is(HTML, HTML_SIZE, &t))
+                else if (is_start && t_name == html_tag_html())
                 {
-                    dom_node_t* element = create_element(t.name, t.name_size, document);
-                    html_node_append(document, element);
+                    dom_node_t* element = create_element(t_name, document);
+                    dom_node_append(document, element);
                     stack_push(element);
 
                     mode = HTML_PARSER_MODE_BEFORE_HEAD;
                 }
-                else if (is_end && !(name_is(HTML, HTML_SIZE, &t) ||
-                                     name_is(HEAD, HEAD_SIZE, &t) ||
-                                     name_is(BODY, BODY_SIZE, &t) ||
-                                     name_is(BR, BR_SIZE, &t)))
+                else if (is_end && !(t_name == html_tag_html() || t_name == html_tag_head() || t_name == html_tag_body() || t_name == html_tag_br()))
                 {
                     // todo: parse error, ignore token
                 }
                 else
                 {
-                    dom_node_t* element    = create_element(HTML, HTML_SIZE, document);
+                    dom_node_t* element    = create_element(html_tag_html(), document);
 
-                    html_node_append(document, element);
+                    dom_node_append(document, element);
                     stack_push(element);
                     mode = HTML_PARSER_MODE_BEFORE_HEAD;
 
@@ -1584,29 +1307,26 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     INCOMPLETE_IMPLEMENTATION("parse error");
                 }
-                else if (is_start && name_is(HTML, HTML_SIZE, &t))
+                else if (is_start && t_name == html_tag_html())
                 {
                     replacement_mode    = HTML_PARSER_MODE_IN_BODY;
                     consume             = false;
                     mode                = HTML_PARSER_MODE_BEFORE_HEAD;
                     use_rules_for       = true;
                 }
-                else if (is_start && name_is(HEAD, HEAD_SIZE, &t))
+                else if (is_start && t_name == html_tag_head())
                 {
                     mode = HTML_PARSER_MODE_IN_HEAD;
-                    head_pointer        = insert_html_element(t.name, t.name_size);
+                    head_pointer        = insert_html_element(t_name);
                 }
-                else if (is_end && !(name_is(HTML, HTML_SIZE, &t) ||
-                                     name_is(HEAD, HEAD_SIZE, &t) ||
-                                     name_is(BODY, BODY_SIZE, &t) ||
-                                     name_is(BR, BR_SIZE, &t)))
+                else if (is_end && !(t_name == html_tag_html() || t_name == html_tag_head() || t_name == html_tag_body() || t_name == html_tag_br()))
                 {
                     INCOMPLETE_IMPLEMENTATION("parse error");
                 }
                 else
                 {
                     mode = HTML_PARSER_MODE_IN_HEAD;
-                    head_pointer        = insert_html_element(HEAD, HEAD_SIZE);
+                    head_pointer        = insert_html_element(html_tag_head());
                     consume             = false;
                 }
                 break;
@@ -1625,83 +1345,78 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     INCOMPLETE_IMPLEMENTATION("parse error");
                 }
-                else if (is_start && name_is(HTML, HTML_SIZE, &t))
+                else if (is_start && t_name == html_tag_html())
                 {
                     replacement_mode    = HTML_PARSER_MODE_IN_BODY;
                     consume             = false;
                     mode                = HTML_PARSER_MODE_IN_HEAD;
                     use_rules_for       = true;
                 }
-                else if (is_start && (name_is(BASE, BASE_SIZE, &t) ||
-                                      name_is(BASEFONT, BASEFONT_SIZE, &t) ||
-                                      name_is(BGSOUND, BGSOUND_SIZE, &t) ||
-                                      name_is(LINK, LINK_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_base() || t_name == html_tag_basefont() || t_name == html_tag_bgsound() || t_name == html_tag_link()))
                 {
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     stack_pop();
                     INCOMPLETE_IMPLEMENTATION("ack self closing tag");
                 }
-                else if (is_start && name_is(META, META_SIZE, &t))
+                else if (is_start && t_name == html_tag_meta())
                 {
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     stack_pop();
 
                     INCOMPLETE_IMPLEMENTATION("ack self closing tag");
                     INCOMPLETE_IMPLEMENTATION("speculative parsing logic");
                 }
-                else if (is_start && name_is(TITLE, TITLE_SIZE, &t))
+                else if (is_start && t_name == html_tag_title())
                 {
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     html_tokenizer_set_state(HTML_TOKENIZER_RCDATA_STATE);
 
                     original_mode       = mode;
                     mode = HTML_PARSER_MODE_TEXT;
                 }
-                else if ((is_start && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t) && scripting_enabled) || 
-                         (is_start && (name_is(NOFRAMES, NOFRAMES_SIZE, &t) || name_is(STYLE, STYLE_SIZE, &t))))
+                else if ((is_start && t_name == html_tag_noscript() && scripting_enabled) || 
+                         (is_start && (t_name == html_tag_noframes() || t_name == html_tag_style())))
                 {
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
 
                     original_mode       = mode;
                     mode = HTML_PARSER_MODE_TEXT;
                 }
-                else if (is_start && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t) && !scripting_enabled)
+                else if (is_start && t_name == html_tag_noscript() && !scripting_enabled)
                 {
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     mode = HTML_PARSER_MODE_IN_HEAD_NOSCRIPT;
                 }
-                else if (is_start && name_is(SCRIPT, SCRIPT_SIZE, &t))
+                else if (is_start && t_name == html_tag_script())
                 {
-                    html_insertion_location_t location   = get_appropriate_insertion_location(NULL);
-                    dom_node_t* element    = create_element(t.name, t.name_size, document);
+                    dom_insertion_location_t location   = get_appropriate_insertion_location(NULL);
+                    dom_node_t* element    = create_element(t_name, document);
 
                     INCOMPLETE_IMPLEMENTATION("missing steps: 3/4/5");
 
-                    html_node_insert_before(location.parent, element, location.child);
+                    dom_node_insert_before(location.parent, element, location.child);
                     stack_push(element);
                     html_tokenizer_set_state(HTML_TOKENIZER_SCRIPT_DATA_STATE);
 
                     original_mode           = mode;
                     mode = HTML_PARSER_MODE_TEXT;
                 }
-                else if (is_end && name_is(HEAD, HEAD_SIZE, &t))
+                else if (is_end && t_name == html_tag_head())
                 {
                     stack_pop();
                     mode = HTML_PARSER_MODE_AFTER_HEAD;
                 }
-                else if (is_start && name_is(TEMPLATE, TEMPLATE_SIZE, &t))
+                else if (is_start && t_name == html_tag_template())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t))
+                else if (is_end && t_name == html_tag_template())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if ((is_start && name_is(HEAD, HEAD_SIZE, &t)) ||
-                         (is_end && !(name_is(BODY, BODY_SIZE, &t) ||
-                                      name_is(HTML, HTML_SIZE, &t) ||
-                                      name_is(BR, BR_SIZE, &t))))
+                else if ((is_start && t_name == html_tag_head()) || 
+                         (is_end && !(t_name == html_tag_body() || t_name == html_tag_html() || t_name == html_tag_br())))
                 {
                     INCOMPLETE_IMPLEMENTATION("parse error");
                 }
@@ -1719,35 +1434,34 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     // todo: parse error, ignore token
                 }
-                else if (is_start && name_is(HTML, HTML_SIZE, &t))
+                else if (is_start && t_name == html_tag_html())
                 {
                     replacement_mode    = HTML_PARSER_MODE_IN_BODY;
                     consume             = false;
                     mode                = HTML_PARSER_MODE_IN_HEAD_NOSCRIPT;
                     use_rules_for       = true;
                 }
-                else if (is_end && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t))
+                else if (is_end && t_name == html_tag_noscript())
                 {
                     stack_pop();
                     mode = HTML_PARSER_MODE_IN_HEAD;
                 }
                 else if ((is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' ') ) ||
                          (is_comment) ||
-                         (is_start && (name_is(BASEFONT, BASEFONT_SIZE, &t) ||
-                                       name_is(BGSOUND, BGSOUND_SIZE, &t)   ||
-                                       name_is(LINK, LINK_SIZE, &t)         ||
-                                       name_is(META, META_SIZE, &t)         ||
-                                       name_is(NOFRAMES, NOFRAMES_SIZE, &t) ||
-                                       name_is(STYLE, STYLE_SIZE, &t))))
+                         (is_start && (t_name == html_tag_basefont()  ||
+                                       t_name == html_tag_bgsound()   ||
+                                       t_name == html_tag_link()      ||
+                                       t_name == html_tag_meta()      ||
+                                       t_name == html_tag_noframes()  ||
+                                       t_name == html_tag_style())))
                 {
                     replacement_mode    = HTML_PARSER_MODE_IN_HEAD;
                     consume             = false;
                     mode                = HTML_PARSER_MODE_IN_HEAD_NOSCRIPT;
                     use_rules_for       = true;
                 }
-                else if ((is_start && (name_is(HEAD, HEAD_SIZE, &t) ||
-                                       name_is(NOSCRIPT, NOSCRIPT_SIZE, &t))) ||
-                        (is_end && !(name_is(BR, BR_SIZE, &t))))
+                else if ((is_start && (t_name == html_tag_head() || t_name == html_tag_noscript())) ||
+                         (is_end && !(t_name == html_tag_br())))
                 {
                     // todo: parse error, ignore token
                 }
@@ -1774,34 +1488,34 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     // todo: parse error, ignore token
                 }
-                else if (is_start && name_is(HTML, HTML_SIZE, &t))
+                else if (is_start && t_name == html_tag_html())
                 {
                     replacement_mode    = HTML_PARSER_MODE_IN_BODY;
                     consume             = false;
                     mode                = HTML_PARSER_MODE_AFTER_HEAD;
                     use_rules_for       = true;
                 }
-                else if (is_start && name_is(BODY, BODY_SIZE, &t))
+                else if (is_start && t_name == html_tag_body())
                 {
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     mode = HTML_PARSER_MODE_IN_BODY;
                     INCOMPLETE_IMPLEMENTATION("ack self-closing tag");
                 }
-                else if (is_start && name_is(FRAMESET, FRAMESET_SIZE, &t))
+                else if (is_start && t_name == html_tag_frameset())
                 {
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     mode = HTML_PARSER_MODE_IN_FRAMESET;
                 }
-                else if (is_start && (name_is(BASE, BASE_SIZE, &t)          ||
-                                      name_is(BASEFONT, BASEFONT_SIZE, &t)  ||
-                                      name_is(BGSOUND, BGSOUND_SIZE, &t)    ||
-                                      name_is(LINK, LINK_SIZE, &t)          ||
-                                      name_is(META, META_SIZE, &t)          ||
-                                      name_is(NOFRAMES, NOFRAMES_SIZE, &t)  ||
-                                      name_is(SCRIPT, SCRIPT_SIZE, &t)      || 
-                                      name_is(TEMPLATE, TEMPLATE_SIZE, &t)  ||
-                                      name_is(TITLE, TITLE_SIZE, &t)        ||
-                                      name_is(STYLE, STYLE_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_base()       ||
+                                      t_name == html_tag_basefont()   ||
+                                      t_name == html_tag_bgsound()    ||
+                                      t_name == html_tag_link()       ||
+                                      t_name == html_tag_meta()       ||
+                                      t_name == html_tag_noframes()   ||
+                                      t_name == html_tag_script()     || 
+                                      t_name == html_tag_template()   ||
+                                      t_name == html_tag_title()      ||
+                                      t_name == html_tag_style()))
                 {
                     INCOMPLETE_IMPLEMENTATION("parse error");
                     assert(head_pointer);
@@ -1814,23 +1528,23 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
                     remove_from_stack(head_pointer);
                 }
-                else if (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t))
+                else if (is_end && t_name == html_tag_template())
                 {
                     replacement_mode    = HTML_PARSER_MODE_IN_HEAD;
                     consume             = false;
                     mode                = HTML_PARSER_MODE_AFTER_HEAD;
                     use_rules_for       = true;
                 }
-                else if ( (is_start && name_is(HEAD, HEAD_SIZE, &t))||
-                          (is_end && !(name_is(BODY, BODY_SIZE, &t) ||
-                                       name_is(HTML, HTML_SIZE, &t) ||
-                                       name_is(BR, BR_SIZE, &t))))
+                else if ( (is_start && t_name == html_tag_head())||
+                          (is_end && !(t_name == html_tag_body() ||
+                                       t_name == html_tag_html() ||
+                                       t_name == html_tag_br())))
                 {
                     INCOMPLETE_IMPLEMENTATION("parse error");
                 }
                 else
                 {
-                    insert_html_element(BODY, BODY_SIZE);
+                    insert_html_element(html_tag_body());
                     mode = HTML_PARSER_MODE_IN_BODY;
                     consume             = false;
                 }
@@ -1861,30 +1575,30 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     // todo: parse error
                 }
-                else if (is_start && name_is(HTML, HTML_SIZE, &t))
+                else if (is_start && t_name == html_tag_html())
                 {
                     // todo: parse error
-                    if (stack_contains_element(TEMPLATE, TEMPLATE_SIZE)) { break; }
+                    if (stack_contains_element(html_tag_template())) { break; }
                     // todo: handle attributes logic
                 }
-                else if ((is_start && (name_is(BASE, BASE_SIZE, &t)         ||
-                                       name_is(BASEFONT, BASEFONT_SIZE, &t) ||
-                                       name_is(BGSOUND, BGSOUND_SIZE, &t)   ||
-                                       name_is(LINK, LINK_SIZE, &t)         ||
-                                       name_is(META, META_SIZE, &t)         ||
-                                       name_is(NOFRAMES, NOFRAMES_SIZE, &t) ||
-                                       name_is(SCRIPT, SCRIPT_SIZE, &t)     ||
-                                       name_is(TEMPLATE, TEMPLATE_SIZE, &t) ||
-                                       name_is(TITLE, TITLE_SIZE, &t)       ||
-                                       name_is(STYLE, STYLE_SIZE, &t)))     ||
-                        (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t)))
+                else if ((is_start && (t_name == html_tag_base()      ||
+                                       t_name == html_tag_basefont()  ||
+                                       t_name == html_tag_bgsound()   ||
+                                       t_name == html_tag_link()      ||
+                                       t_name == html_tag_meta()      ||
+                                       t_name == html_tag_noframes()  ||
+                                       t_name == html_tag_script()    ||
+                                       t_name == html_tag_template()  ||
+                                       t_name == html_tag_title()     ||
+                                       t_name == html_tag_style()))   ||
+                        (is_end && t_name == html_tag_template()))
                 {
                     replacement_mode    = HTML_PARSER_MODE_IN_HEAD;
                     consume             = false;
                     mode                = HTML_PARSER_MODE_IN_BODY;
                     use_rules_for       = true;
                 }
-                else if (is_start && name_is(BODY, BODY_SIZE, &t))
+                else if (is_start && t_name == html_tag_body())
                 {
                     // todo: parse error
 
@@ -1894,8 +1608,8 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     // then ignore the token. (fragment case or there is a template element on the stack)
 
                     if ((stack_size == 0) ||
-                        (stack_size > 1 && !string_compare(stack[1]->name, stack[1]->name_size, BODY, BODY_SIZE)) ||
-                        (stack_contains_element(TEMPLATE, TEMPLATE_SIZE)))
+                        (stack_size > 1 && stack[1]->name != html_tag_body()) ||
+                        (stack_contains_element(html_tag_template())))
                     {
                         // ignore
                     }
@@ -1905,12 +1619,11 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                         // todo: handle attribute logic
                     }
                 }
-                else if (is_start && name_is(FRAMESET, FRAMESET_SIZE, &t))
+                else if (is_start && t_name == html_tag_frameset())
                 {
                     // todo: parse error
 
-                    if ((stack_size == 1) ||
-                        (stack_size > 1 && !string_compare(BODY, BODY_SIZE,  stack[1]->name, stack[1]->name_size)))
+                    if ((stack_size == 1) || (stack_size > 1 && stack[1]->name != html_tag_body()))
                     {
                         // ignore token
                     }
@@ -1919,7 +1632,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
                     // todo: step 1 
                     // todo: step 2
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     mode = HTML_PARSER_MODE_IN_FRAMESET;
                 }
                 else if (is_eof)
@@ -1931,56 +1644,56 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     }
                     else
                     {
-                        if (!(stack_contains_element(DD, DD_SIZE)               ||
-                              stack_contains_element(DT, DT_SIZE)               ||
-                              stack_contains_element(LI, LI_SIZE)               ||
-                              stack_contains_element(OPTGROUP, OPTGROUP_SIZE)   ||
-                              stack_contains_element(OPTION, OPTION_SIZE)       ||
-                              stack_contains_element(P, P_SIZE)                 ||
-                              stack_contains_element(RB, RP_SIZE)               ||
-                              stack_contains_element(RT, RT_SIZE)               ||
-                              stack_contains_element(RTC, RTC_SIZE)             ||
-                              stack_contains_element(TBODY, TBODY_SIZE)         ||
-                              stack_contains_element(TD, TD_SIZE)               ||
-                              stack_contains_element(TFOOT, TFOOT_SIZE)         ||
-                              stack_contains_element(TH, TH_SIZE)               ||
-                              stack_contains_element(THEAD, THEAD_SIZE)         ||
-                              stack_contains_element(TR, TR_SIZE)               ||
-                              stack_contains_element(BODY, BODY_SIZE)           ||
-                              stack_contains_element(HTML, HTML_SIZE)))
+                        if (!(stack_contains_element(html_tag_dd())               ||
+                              stack_contains_element(html_tag_dt())               ||
+                              stack_contains_element(html_tag_li())               ||
+                              stack_contains_element(html_tag_optgroup())   ||
+                              stack_contains_element(html_tag_option())       ||
+                              stack_contains_element(html_tag_p())                 ||
+                              stack_contains_element(html_tag_rb())               ||
+                              stack_contains_element(html_tag_rt())               ||
+                              stack_contains_element(html_tag_rtc())             ||
+                              stack_contains_element(html_tag_tbody())         ||
+                              stack_contains_element(html_tag_td())               ||
+                              stack_contains_element(html_tag_tfoot())         ||
+                              stack_contains_element(html_tag_th())               ||
+                              stack_contains_element(html_tag_thead())         ||
+                              stack_contains_element(html_tag_tr())               ||
+                              stack_contains_element(html_tag_body())           ||
+                              stack_contains_element(html_tag_html())))
                         {
                             // todo: parse error
                         }
                         stop_parsing();
                     }
                 }
-                else if (is_end && name_is(BODY, BODY_SIZE, &t))
+                else if (is_end && t_name == html_tag_body())
                 {
                     // todo: handle scope logic
                     // If the stack of open elements does not have a body element in scope, this is a parse error; ignore the token.
-                    if (!in_scope(BODY, BODY_SIZE, GENERIC_SCOPE))
+                    if (!in_scope(html_tag_body(), GENERIC_SCOPE))
                     {
                         // todo: parse error
                         NOT_IMPLEMENTED
                     }
 
-                    if (!(stack_contains_element(DD, DD_SIZE)               ||
-                          stack_contains_element(DT, DT_SIZE)               ||
-                          stack_contains_element(LI, LI_SIZE)               ||
-                          stack_contains_element(OPTGROUP, OPTGROUP_SIZE)   ||
-                          stack_contains_element(OPTION, OPTION_SIZE)       ||
-                          stack_contains_element(P, P_SIZE)                 ||
-                          stack_contains_element(RB, RP_SIZE)               ||
-                          stack_contains_element(RT, RT_SIZE)               ||
-                          stack_contains_element(RTC, RTC_SIZE)             ||
-                          stack_contains_element(TBODY, TBODY_SIZE)         ||
-                          stack_contains_element(TD, TD_SIZE)               ||
-                          stack_contains_element(TFOOT, TFOOT_SIZE)         ||
-                          stack_contains_element(TH, TH_SIZE)               ||
-                          stack_contains_element(THEAD, THEAD_SIZE)         ||
-                          stack_contains_element(TR, TR_SIZE)               ||
-                          stack_contains_element(BODY, BODY_SIZE)           ||
-                          stack_contains_element(HTML, HTML_SIZE)))
+                    if (!(stack_contains_element(html_tag_dd())               ||
+                          stack_contains_element(html_tag_dt())               ||
+                          stack_contains_element(html_tag_li())               ||
+                          stack_contains_element(html_tag_optgroup())   ||
+                          stack_contains_element(html_tag_option())       ||
+                          stack_contains_element(html_tag_p())                 ||
+                          stack_contains_element(html_tag_rb())               ||
+                          stack_contains_element(html_tag_rt())               ||
+                          stack_contains_element(html_tag_rtc())             ||
+                          stack_contains_element(html_tag_tbody())         ||
+                          stack_contains_element(html_tag_td())               ||
+                          stack_contains_element(html_tag_tfoot())         ||
+                          stack_contains_element(html_tag_th())               ||
+                          stack_contains_element(html_tag_thead())         ||
+                          stack_contains_element(html_tag_tr())               ||
+                          stack_contains_element(html_tag_body())           ||
+                          stack_contains_element(html_tag_html())))
                     {
                         // todo: parse error
                         NOT_IMPLEMENTED
@@ -1988,26 +1701,26 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
                     mode = HTML_PARSER_MODE_AFTER_BODY;
                 }
-                else if (is_end && name_is(HTML, HTML_SIZE, &t))
+                else if (is_end && t_name == html_tag_html())
                 {
                     // todo: handle scope logic
-                    if (!(stack_contains_element(DD, DD_SIZE)               ||
-                          stack_contains_element(DT, DT_SIZE)               ||
-                          stack_contains_element(LI, LI_SIZE)               ||
-                          stack_contains_element(OPTGROUP, OPTGROUP_SIZE)   ||
-                          stack_contains_element(OPTION, OPTION_SIZE)       ||
-                          stack_contains_element(P, P_SIZE)                 ||
-                          stack_contains_element(RB, RP_SIZE)               ||
-                          stack_contains_element(RT, RT_SIZE)               ||
-                          stack_contains_element(RTC, RTC_SIZE)             ||
-                          stack_contains_element(TBODY, TBODY_SIZE)         ||
-                          stack_contains_element(TD, TD_SIZE)               ||
-                          stack_contains_element(TFOOT, TFOOT_SIZE)         ||
-                          stack_contains_element(TH, TH_SIZE)               ||
-                          stack_contains_element(THEAD, THEAD_SIZE)         ||
-                          stack_contains_element(TR, TR_SIZE)               ||
-                          stack_contains_element(BODY, BODY_SIZE)           ||
-                          stack_contains_element(HTML, HTML_SIZE)))
+                    if (!(stack_contains_element(html_tag_dd())               ||
+                          stack_contains_element(html_tag_dt())               ||
+                          stack_contains_element(html_tag_li())               ||
+                          stack_contains_element(html_tag_optgroup())   ||
+                          stack_contains_element(html_tag_option())       ||
+                          stack_contains_element(html_tag_p())                 ||
+                          stack_contains_element(html_tag_rb())               ||
+                          stack_contains_element(html_tag_rt())               ||
+                          stack_contains_element(html_tag_rtc())             ||
+                          stack_contains_element(html_tag_tbody())         ||
+                          stack_contains_element(html_tag_td())               ||
+                          stack_contains_element(html_tag_tfoot())         ||
+                          stack_contains_element(html_tag_th())               ||
+                          stack_contains_element(html_tag_thead())         ||
+                          stack_contains_element(html_tag_tr())               ||
+                          stack_contains_element(html_tag_body())           ||
+                          stack_contains_element(html_tag_html())))
                     {
                         // todo: parse error
                     }
@@ -2015,76 +1728,72 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     mode = HTML_PARSER_MODE_AFTER_BODY;
                     consume             = false;
                 }
-                else if (is_start && (name_is(ADDRESS, ADDRESS_SIZE, &t)        ||
-                                      name_is(ARTICLE, ARTICLE_SIZE, &t)        ||
-                                      name_is(ASIDE, ASIDE_SIZE, &t)            ||
-                                      name_is(BLOCKQUOTE, BLOCKQUOTE_SIZE, &t)  ||
-                                      name_is(CENTER, CENTER_SIZE, &t)          ||
-                                      name_is(DETAILS, DETAILS_SIZE, &t)        ||
-                                      name_is(DIALOG, DIALOG_SIZE, &t)          ||
-                                      name_is(DIR, DIR_SIZE, &t)                ||
-                                      name_is(DIV, DIV_SIZE, &t)                ||
-                                      name_is(DL, DL_SIZE, &t)                  ||
-                                      name_is(FIELDSET, FIELDSET_SIZE, &t)      ||
-                                      name_is(FIGCAPTION, FIGCAPTION_SIZE, &t)  ||
-                                      name_is(FIGURE, FIGURE_SIZE, &t)          ||
-                                      name_is(FOOTER, FOOTER_SIZE, &t)          ||
-                                      name_is(HEADER, HEADER_SIZE, &t)          ||
-                                      name_is(HGROUP, HGROUP_SIZE, &t)          ||
-                                      name_is(MAIN, MAIN_SIZE, &t)              ||
-                                      name_is(MENU, MENU_SIZE, &t)              ||
-                                      name_is(NAV, NAV_SIZE, &t)                ||
-                                      name_is(OL, OL_SIZE, &t)                  ||
-                                      name_is(P, P_SIZE, &t)                    ||
-                                      name_is(SEARCH, SEARCH_SIZE, &t)          ||
-                                      name_is(SECTION, SECTION_SIZE, &t)        ||
-                                      name_is(SUMMARY, SUMMARY_SIZE, &t)        ||
-                                      name_is(UL, UL_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_address()    ||
+                                      t_name == html_tag_article()    ||
+                                      t_name == html_tag_aside()      ||
+                                      t_name == html_tag_blockquote() ||
+                                      t_name == html_tag_center()     ||
+                                      t_name == html_tag_details()    ||
+                                      t_name == html_tag_dialog()     ||
+                                      t_name == html_tag_dir()        ||
+                                      t_name == html_tag_div()        ||
+                                      t_name == html_tag_dl()         ||
+                                      t_name == html_tag_fieldset()   ||
+                                      t_name == html_tag_figcaption() ||
+                                      t_name == html_tag_figure()     ||
+                                      t_name == html_tag_footer()     ||
+                                      t_name == html_tag_header()     ||
+                                      t_name == html_tag_hgroup()     ||
+                                      t_name == html_tag_main()       ||
+                                      t_name == html_tag_menu()       ||
+                                      t_name == html_tag_nav()        ||
+                                      t_name == html_tag_ol()         ||
+                                      t_name == html_tag_p()          ||
+                                      t_name == html_tag_search()     ||
+                                      t_name == html_tag_section()    ||
+                                      t_name == html_tag_summary()    ||
+                                      t_name == html_tag_ul()))
                 {
-                    if (in_scope(P, P_SIZE, BUTTON_SCOPE))
+                    if (in_scope(html_tag_p(), BUTTON_SCOPE))
                     {
                         close_p_element();
                     }
 
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                 }
-                else if (is_start && (name_is(H1, H1_SIZE, &t)  ||
-                                      name_is(H2, H2_SIZE, &t)  ||
-                                      name_is(H3, H3_SIZE, &t)  ||
-                                      name_is(H4, H4_SIZE, &t)  ||
-                                      name_is(H5, H5_SIZE, &t)  ||
-                                      name_is(H6, H6_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_h1() ||
+                                      t_name == html_tag_h2() ||
+                                      t_name == html_tag_h3() ||
+                                      t_name == html_tag_h4() ||
+                                      t_name == html_tag_h5() ||
+                                      t_name == html_tag_h6()))
                 {
                     // todo: scope logic
 
                     dom_node_t* node = stack[stack_idx];
-                    html_element_t* element = html_element_from_node(node);
-                    const unsigned char* local_name = element->local_name;
-                    const uint32_t local_name_size = element->local_name_size;
 
-                    if (string_compare(H1, H1_SIZE, local_name, local_name_size) ||
-                        string_compare(H2, H2_SIZE, local_name, local_name_size) ||
-                        string_compare(H3, H3_SIZE, local_name, local_name_size) ||
-                        string_compare(H4, H4_SIZE, local_name, local_name_size) ||
-                        string_compare(H5, H5_SIZE, local_name, local_name_size) ||
-                        string_compare(H6, H6_SIZE, local_name, local_name_size))
+                    if (node->name == html_tag_h1() ||
+                        node->name == html_tag_h2() ||
+                        node->name == html_tag_h3() ||
+                        node->name == html_tag_h4() ||
+                        node->name == html_tag_h5() ||
+                        node->name == html_tag_h6())
                     {
                         // todo: parse error
                         stack_pop();
                     }
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                 }
-                else if (is_start && (name_is(PRE, PRE_SIZE, &t) || 
-                                      name_is(LISTING, LISTING_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_pre() || t_name == html_tag_listing()))
                 {
                     // todo: scope logic
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     // todo: check if next token is \n
                     // todo: frameset-ok flag
                 }
-                else if (is_start && name_is(FORM, FORM_SIZE, &t))
+                else if (is_start && t_name == html_tag_form())
                 {
-                    if (form_element && !stack_contains_element(TEMPLATE, TEMPLATE_SIZE))
+                    if (form_element && !stack_contains_element(html_tag_template()))
                     {
                         // todo: parse error
                         // ignore token
@@ -2092,40 +1801,39 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     else
                     {
                         // todo: scope logic
-                        dom_node_t* element = insert_html_element(t.name, t.name_size);
-                        if (!stack_contains_element(TEMPLATE, TEMPLATE_SIZE))
+                        dom_node_t* element = insert_html_element(t_name);
+                        if (!stack_contains_element(html_tag_template()))
                         {
                             form_element = element;
                         }
                     }
                 }
-                else if (is_start && name_is(LI, LI_SIZE, &t))
+                else if (is_start && t_name == html_tag_li())
                 {
                     INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
 
-                    dom_node_t* node = stack[stack_idx];
-                    html_element_t* element = html_element_from_node(node);
-                    uint32_t idx = stack_idx;
-                    uint32_t step = 1;
-                    bool run = true;
+                    dom_node_t* node    = stack[stack_idx];
+                    uint32_t idx        = stack_idx;
+                    uint32_t step       = 1;
+                    bool run            = true;
 
                     while (run)
                     {
                         switch (step)
                         {
                         case 1:
-                            if (string_compare(element->local_name, element->local_name_size, LI, LI_SIZE))
+                            if (node->name == html_tag_li())
                             {
-                                generate_implied_end_tags(LI, LI_SIZE);
+                                generate_implied_end_tags(html_tag_li());
     
                                 node = stack[stack_idx];
-                                element = html_element_from_node(node);
-                                if (!string_compare(element->local_name, element->local_name_size, LI, LI_SIZE))
+
+                                if (node->name != html_tag_li())
                                 {
                                     INCOMPLETE_IMPLEMENTATION("parse error");
                                 }
     
-                                pop_elements_until_name_included(LI, LI_SIZE);
+                                pop_elements_until_name_included(html_tag_li());
                                 step = 4;
                             }
                             else
@@ -2135,9 +1843,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                             break;
 
                         case 2:
-                            if (is_special(node) && (!string_compare(element->local_name, element->local_name_size, ADDRESS, ADDRESS_SIZE) &&
-                                                     !string_compare(element->local_name, element->local_name_size, DIV, DIV_SIZE) &&
-                                                     !string_compare(element->local_name, element->local_name_size, P, P_SIZE)))
+                            if (is_special(node) && (node->name != html_tag_address() && node->name != html_tag_div() && node->name != html_tag_p()))
                             {
                                 step = 4;
                             }
@@ -2154,7 +1860,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                             break;
 
                         case 4:
-                            if (in_scope(P, P_SIZE, BUTTON_SCOPE))
+                            if (in_scope(html_tag_p(), BUTTON_SCOPE))
                             {
                                 close_p_element();
                             }
@@ -2163,281 +1869,265 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                         }
                     }
 
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                 }
-                else if (is_start && (name_is(DT, DT_SIZE, &t) || name_is(DD, DD_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_dt() || t_name == html_tag_dd()))
                 {
                     // todo: implement
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(PLAINTEXT, PLAINTEXT_SIZE, &t))
+                else if (is_start && t_name == html_tag_plaintext())
                 {
                     // todo: handle scope logic - If the stack of open elements has a p element in button scope, then close a p element.
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(BUTTON, BUTTON_SIZE, &t))
+                else if (is_start && t_name == html_tag_button())
                 {
-                    if (in_scope(BUTTON, BUTTON_SIZE, BUTTON_SCOPE))
+                    if (in_scope(html_tag_button(), BUTTON_SCOPE))
                     {
-                        generate_implied_end_tags(NULL, 0);
+                        generate_implied_end_tags(0);
 
                         dom_node_t* node = stack[stack_idx];
-                        html_element_t* element = html_element_from_node(node);
 
-                        while (!string_compare(element->local_name, element->local_name_size, BUTTON, BUTTON_SIZE))
+                        while (node->name != html_tag_button())
                         {
                             stack_pop();
                             node = stack[stack_idx];
-                            element = html_element_from_node(node);
                         }
 
                         stack_pop();
                     }
 
                     // todo: reconstruct the active formatting elements
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     // set frameset-ok flag to not ok
                 }
-                else if (is_end && (name_is(ADDRESS, ADDRESS_SIZE, &t)      || name_is(ARTICLE, ARTICLE_SIZE, &t)       || 
-                                    name_is(ASIDE, ASIDE_SIZE, &t)          || name_is(BLOCKQUOTE, BLOCKQUOTE_SIZE, &t) ||
-                                    name_is(BUTTON, BUTTON_SIZE, &t)        || name_is(CENTER, CENTER_SIZE, &t)         ||
-                                    name_is(DETAILS, DETAILS_SIZE, &t)      || name_is(DIALOG, DIALOG_SIZE, &t)         ||
-                                    name_is(DIR, DIR_SIZE, &t)              || name_is(DIV, DIV_SIZE, &t)               ||
-                                    name_is(DL, DL_SIZE, &t)                || name_is(FIELDSET, FIELDSET_SIZE, &t)     ||
-                                    name_is(FIGCAPTION, FIGCAPTION_SIZE, &t)|| name_is(FIGURE, FIGURE_SIZE, &t)         ||
-                                    name_is(FOOTER, FOOTER_SIZE, &t)        || name_is(HEADER, HEADER_SIZE, &t)         ||
-                                    name_is(HGROUP, HGROUP_SIZE, &t)        || name_is(LISTING, LISTING_SIZE, &t)       ||
-                                    name_is(MAIN, MAIN_SIZE, &t)            || name_is(MENU, MENU_SIZE, &t)             ||
-                                    name_is(NAV, NAV_SIZE, &t)              || name_is(OL, OL_SIZE, &t)                 ||
-                                    name_is(PRE, PRE_SIZE, &t)              || name_is(SEARCH, SEARCH_SIZE, &t)         ||
-                                    name_is(SECTION, SECTION_SIZE, &t)      || name_is(SUMMARY, SUMMARY_SIZE, &t)       ||
-                                    name_is(SELECT, SELECT_SIZE, &t)        || name_is(UL, UL_SIZE, &t) ))
+                else if (is_end && (t_name == html_tag_address()      || t_name == html_tag_article()       || 
+                                    t_name == html_tag_aside()        || t_name == html_tag_blockquote()    ||
+                                    t_name == html_tag_button()       || t_name == html_tag_center()        ||
+                                    t_name == html_tag_details()      || t_name == html_tag_dialog()        ||
+                                    t_name == html_tag_dir()          || t_name == html_tag_div()           ||
+                                    t_name == html_tag_dl()           || t_name == html_tag_fieldset()      ||
+                                    t_name == html_tag_figcaption()   || t_name == html_tag_figure()        ||
+                                    t_name == html_tag_footer()       || t_name == html_tag_header()        ||
+                                    t_name == html_tag_hgroup()       || t_name == html_tag_listing()       ||
+                                    t_name == html_tag_main()         || t_name == html_tag_menu()          ||
+                                    t_name == html_tag_nav()          || t_name == html_tag_ol()            ||
+                                    t_name == html_tag_pre()          || t_name == html_tag_search()        ||
+                                    t_name == html_tag_section()      || t_name == html_tag_summary()       ||
+                                    t_name == html_tag_select()       || t_name == html_tag_ul() ))
                 {
-                    if (!in_scope(t.name, t.name_size, GENERIC_SCOPE))
+                    if (!in_scope(t_name, GENERIC_SCOPE))
                     {
                         // todo: parse error
                     }
                     else
                     {
-                        generate_implied_end_tags(NULL, 0);
+                        generate_implied_end_tags(0);
 
                         dom_node_t* node = stack[stack_idx];
-                        html_element_t* element = html_element_from_node(node);
-                        if (!string_compare(element->local_name, element->local_name_size, t.name, t.name_size))
+
+                        if (node->name != t_name)
                         {
                             // todo: parse error
                         }
 
-                        pop_elements_until_name_included(t.name, t.name_size);
+                        pop_elements_until_name_included(t_name);
                     }
                 }
-                else if (is_end && name_is(FORM, FORM_SIZE, &t))
+                else if (is_end && t_name == html_tag_form())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && name_is(P, P_SIZE, &t))
+                else if (is_end && t_name == html_tag_p())
                 {
-                    if (!in_scope(P, P_SIZE, BUTTON_SCOPE))
+                    if (!in_scope(html_tag_p(), BUTTON_SCOPE))
                     {
                         // todo: parse error
-                        insert_html_element(P, P_SIZE);
+                        insert_html_element(html_tag_p());
                     }
                     
                     close_p_element();
                 }
-                else if (is_end && name_is(LI, LI_SIZE, &t))
+                else if (is_end && t_name == html_tag_li())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && (name_is(DD, DD_SIZE, &t) || name_is(DT, DT_SIZE, &t) ))
+                else if (is_end && (t_name == html_tag_dd() || t_name == html_tag_dt() ))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && (name_is(H1, H1_SIZE, &t) || 
-                                    name_is(H2, H2_SIZE, &t) || 
-                                    name_is(H3, H3_SIZE, &t) ||
-                                    name_is(H4, H4_SIZE, &t) || 
-                                    name_is(H5, H5_SIZE, &t) || 
-                                    name_is(H6, H6_SIZE, &t)))
+                else if (is_end && (t_name == html_tag_h1() || t_name == html_tag_h2() || t_name == html_tag_h3() ||
+                                    t_name == html_tag_h4() || t_name == html_tag_h5() || t_name == html_tag_h6()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(A, A_SIZE, &t))
+                else if (is_start && t_name == html_tag_a())
                 {
-                    dom_node_t* node = find_appropriate_formatting_element(A, A_SIZE);
+                    dom_node_t* node = find_appropriate_formatting_element(html_tag_a());
                     if (node)
                     {
                         INCOMPLETE_IMPLEMENTATION("parse error");
 
-                        bool success = run_adoption_procedure(&t);
+                        bool success = run_adoption_procedure(t_name);
 
-                        if (!success) { handle_end_tag_in_body(&t); }
+                        if (!success) { handle_end_tag_in_body(t_name); }
 
                         remove_from_stack(node);
                         remove_formatting_element(node);
                     }
 
                     reconstruct_formatting_elements();
-                    node = insert_html_element(t.name, t.name_size);
+                    node = insert_html_element(t_name);
                     push_formatting_element(node, &t);
                 }
-                else if (is_start && (name_is(B, B_SIZE, &t)            || 
-                                      name_is(BIG, BIG_SIZE, &t)        ||
-                                      name_is(CODE, CODE_SIZE, &t)      ||
-                                      name_is(EM, EM_SIZE, &t)          ||
-                                      name_is(FONT, FONT_SIZE, &t)      ||
-                                      name_is(I, I_SIZE, &t)            ||
-                                      name_is(S, S_SIZE, &t)            ||
-                                      name_is(SMALL, SMALL_SIZE, &t)    ||
-                                      name_is(STRIKE, STRIKE_SIZE, &t)  ||
-                                      name_is(STRONG, STRONG_SIZE, &t)  ||
-                                      name_is(TT, TT_SIZE, &t)          ||
-                                      name_is(U, U_SIZE, &t)) )
+                else if (is_start && (t_name == html_tag_b()      || 
+                                      t_name == html_tag_big()    ||
+                                      t_name == html_tag_code()   ||
+                                      t_name == html_tag_em()     ||
+                                      t_name == html_tag_font()   ||
+                                      t_name == html_tag_i()      ||
+                                      t_name == html_tag_s()      ||
+                                      t_name == html_tag_small()  ||
+                                      t_name == html_tag_strike() ||
+                                      t_name == html_tag_strong() ||
+                                      t_name == html_tag_tt()     ||
+                                      t_name == html_tag_u()) )
                 {
                     reconstruct_formatting_elements();
-                    dom_node_t* node = insert_html_element(t.name, t.name_size);
+                    dom_node_t* node = insert_html_element(t_name);
                     push_formatting_element(node, &t);
                 }
-                else if (is_start && name_is(NOBR, NOBR_SIZE, &t))
+                else if (is_start && t_name == html_tag_nobr())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && (name_is(A, A_SIZE, &t)          ||
-                                    name_is(B, B_SIZE, &t)          ||
-                                    name_is(BIG, BIG_SIZE, &t)      ||
-                                    name_is(CODE, CODE_SIZE, &t)    ||
-                                    name_is(EM, EM_SIZE, &t)        ||
-                                    name_is(FONT, FONT_SIZE, &t)    ||
-                                    name_is(I, I_SIZE, &t)          ||
-                                    name_is(NOBR, NOBR_SIZE, &t)    ||
-                                    name_is(S, S_SIZE, &t)          ||
-                                    name_is(SMALL, SMALL_SIZE, &t)  ||
-                                    name_is(STRIKE, STRIKE_SIZE, &t)||
-                                    name_is(STRONG, STRONG_SIZE, &t)||
-                                    name_is(TT, TT_SIZE, &t)        ||
-                                    name_is(U, U_SIZE, &t)))
+                else if (is_end && (t_name == html_tag_a()        ||
+                                    t_name == html_tag_b()        ||
+                                    t_name == html_tag_big()      ||
+                                    t_name == html_tag_code()     ||
+                                    t_name == html_tag_em()       ||
+                                    t_name == html_tag_font()     ||
+                                    t_name == html_tag_i()        ||
+                                    t_name == html_tag_nobr()     ||
+                                    t_name == html_tag_s()        ||
+                                    t_name == html_tag_small()    ||
+                                    t_name == html_tag_strike()   ||
+                                    t_name == html_tag_strong()   ||
+                                    t_name == html_tag_tt()       ||
+                                    t_name == html_tag_u()))
                 {
-                    bool success = run_adoption_procedure(&t);
+                    bool success = run_adoption_procedure(t_name);
 
-                    if (!success) { handle_end_tag_in_body(&t); }
+                    if (!success) { handle_end_tag_in_body(t_name); }
                 }
-                else if (is_start && (name_is(APPLET, APPLET_SIZE, &t)  ||
-                                      name_is(MARQUEE, MARQUEE_SIZE, &t)||
-                                      name_is(OBJECT, OBJECT_SIZE, &t)) )
+                else if (is_start && (t_name == html_tag_applet() || t_name == html_tag_marquee() || t_name == html_tag_object()) )
                 {
                     reconstruct_formatting_elements();
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     insert_marker();
                     // todo: set frameset-ok flag to not ok
                 }
-                else if (is_end && (name_is(APPLET, APPLET_SIZE, &t)    ||
-                                    name_is(MARQUEE, MARQUEE_SIZE, &t)  ||
-                                    name_is(OBJECT, OBJECT_SIZE, &t)) )
+                else if (is_end && (t_name == html_tag_applet() || t_name == html_tag_marquee() || t_name == html_tag_object()) )
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(TABLE, TABLE_SIZE, &t))
+                else if (is_start && t_name == html_tag_table())
                 {
                     INCOMPLETE_IMPLEMENTATION("quirk modes additional logic");
 
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
 
                     INCOMPLETE_IMPLEMENTATION("Set the frameset-ok flag to not-ok.");
 
                     mode = HTML_PARSER_MODE_IN_TABLE;
                 }
-                else if (is_end && name_is(BR, BR_SIZE, &t))
+                else if (is_end && t_name == html_tag_br())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && (name_is(AREA, AREA_SIZE, &t)      ||
-                                      name_is(BR, BR_SIZE, &t)          ||
-                                      name_is(EMBED, EMBED_SIZE, &t)    ||
-                                      name_is(IMG, IMG_SIZE, &t)        ||
-                                      name_is(KEYGEN, KEYGEN_SIZE, &t)  ||
-                                      name_is(WBR, WBR_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_area() || t_name == html_tag_br() || t_name == html_tag_embed() ||
+                                      t_name == html_tag_img() || t_name == html_tag_keygen() || t_name == html_tag_wbr()))
                 {
                     // todo: reconstruct the active formatting elements
 
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     stack_pop();
 
                     // todo: acknowledge self closing tag
                     // todo: set frameset-ok flag to not ok
                 }
-                else if (is_start && name_is(INPUT, INPUT_SIZE, &t))
+                else if (is_start && t_name == html_tag_input())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && (name_is(PARAM, PARAM_SIZE, &t)    ||
-                                      name_is(SOURCE, SOURCE_SIZE, &t)  ||
-                                      name_is(TRACK, TRACK_SIZE, &t) ))
+                else if (is_start && (t_name == html_tag_param() || t_name == html_tag_source() || t_name == html_tag_track() ))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(HR, HR_SIZE, &t))
+                else if (is_start && t_name == html_tag_hr())
                 {
-                    if (in_scope(P, P_SIZE, BUTTON_SCOPE))
+                    if (in_scope(html_tag_p(), BUTTON_SCOPE))
                     {
                         close_p_element();
                     }
-                    if (in_scope(SELECT, SELECT_SIZE, GENERIC_SCOPE))
+                    if (in_scope(html_tag_select(), GENERIC_SCOPE))
                     {
-                        generate_implied_end_tags(NULL, 0);
-                        if (in_scope(OPTION, OPTION_SIZE, GENERIC_SCOPE) || in_scope(OPTGROUP, OPTGROUP_SIZE, GENERIC_SCOPE))
+                        generate_implied_end_tags(0);
+                        if (in_scope(html_tag_option(), GENERIC_SCOPE) || in_scope(html_tag_optgroup(), GENERIC_SCOPE))
                         {
                             // todo: parse error
                         }
                     }
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     stack_pop();
                     // todo: ack self closing tag if set
                     // todo: set frameset-ok to "not ok"
                 }
-                else if (is_start && name_is(IMAGE, IMAGE_SIZE, &t))
+                else if (is_start && t_name == html_tag_image())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(TEXTAREA, TEXTAREA_SIZE, &t))
+                else if (is_start && t_name == html_tag_textarea())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(XMP, XMP_SIZE, &t))
+                else if (is_start && t_name == html_tag_xmp())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(IFRAME, IFRAME_SIZE, &t) )
+                else if (is_start && t_name == html_tag_iframe() )
                 {
                     NOT_IMPLEMENTED
                 }
-                else if ( (is_start && name_is(NOEMBED, NOEMBED_SIZE, &t) ) ||
-                          (is_start && name_is(NOSCRIPT, NOSCRIPT_SIZE, &t) && scripting_enabled) )
+                else if ( (is_start && t_name == html_tag_noembed() ) ||
+                          (is_start && t_name == html_tag_noscript() && scripting_enabled) )
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(SELECT, SELECT_SIZE, &t) )
+                else if (is_start && t_name == html_tag_select() )
                 {
                     // todo: fragment parsing logic
-                    if (in_scope(SELECT, SELECT_SIZE, GENERIC_SCOPE))
+                    if (in_scope(html_tag_select(), GENERIC_SCOPE))
                     {
                         // todo: parse error
-                        pop_elements_until_name_included(SELECT, SELECT_SIZE);
+                        pop_elements_until_name_included(html_tag_select());
                     }
                     else
                     {
                         reconstruct_formatting_elements();
-                        insert_html_element(t.name, t.name_size);
+                        insert_html_element(t_name);
                         // todo: set frameset-ok to "not ok"
                     }
                 }
-                else if (is_start && name_is(OPTION, OPTION_SIZE, &t))
+                else if (is_start && t_name == html_tag_option())
                 {
                     // dom_node_t* current = stack[stack_idx];
-                    // html_element_t* element = (html_element_t*)current->data;
-                    if (in_scope(SELECT, SELECT_SIZE, GENERIC_SCOPE))
+                    // dom_element_t* element = (dom_element_t*)current->data;
+                    if (in_scope(html_tag_select(), GENERIC_SCOPE))
                     {
-                        generate_implied_end_tags(OPTGROUP, OPTGROUP_SIZE);
-                        if (in_scope(OPTION, OPTION_SIZE, GENERIC_SCOPE))
+                        generate_implied_end_tags(html_tag_optgroup());
+                        if (in_scope(html_tag_option(), GENERIC_SCOPE))
                         {
                             // todo: parse error
                         }
@@ -2445,64 +2135,61 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     else
                     {
                         dom_node_t* current = stack[stack_idx];
-                        html_element_t* element = html_element_from_node(current);
-                        if (string_compare(element->local_name, element->local_name_size, OPTION, OPTION_SIZE))
+                        if (current->name == html_tag_option())
                         {
                             stack_pop();
                         }
                     }
 
                     reconstruct_formatting_elements();
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                 }
-                else if (is_start && name_is(OPTGROUP, OPTGROUP_SIZE, &t))
+                else if (is_start && t_name == html_tag_optgroup())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && name_is(OPTION, OPTION_SIZE, &t))
+                else if (is_end && t_name == html_tag_option())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && (name_is(RB, RB_SIZE, &t) || 
-                                      name_is(RTC, RTC_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_rb() || t_name == html_tag_rtc()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && (name_is(RP, RP_SIZE, &t) ||
-                                      name_is(RT, RT_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_rp() || t_name == html_tag_rt()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(MATH, MATH_SIZE, &t))
+                else if (is_start && t_name == html_tag_math())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(SVG, SVG_SIZE, &t))
+                else if (is_start && t_name == html_tag_svg())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && (name_is(CAPTION, CAPTION_SIZE, &t)    ||
-                                      name_is(COL, COL_SIZE, &t)            ||
-                                      name_is(COLGROUP, COLGROUP_SIZE, &t)  || 
-                                      name_is(FRAME, FRAME_SIZE, &t)        ||
-                                      name_is(HEAD, HEAD_SIZE, &t)          ||
-                                      name_is(TBODY, TBODY_SIZE, &t)        ||
-                                      name_is(TD, TD_SIZE, &t)              ||
-                                      name_is(TFOOT, TFOOT_SIZE, &t)        ||
-                                      name_is(TH, TH_SIZE, &t)              ||
-                                      name_is(THEAD, THEAD_SIZE, &t)        ||
-                                      name_is(TR, TR_SIZE, &t) ))
+                else if (is_start && (t_name == html_tag_caption()    ||
+                                      t_name == html_tag_col()        ||
+                                      t_name == html_tag_colgroup()   || 
+                                      t_name == html_tag_frame()      ||
+                                      t_name == html_tag_head()       ||
+                                      t_name == html_tag_tbody()      ||
+                                      t_name == html_tag_td()         ||
+                                      t_name == html_tag_tfoot()      ||
+                                      t_name == html_tag_th()         ||
+                                      t_name == html_tag_thead()      ||
+                                      t_name == html_tag_tr() ))
                 {
                         NOT_IMPLEMENTED
                 }
                 else if (is_start)
                 {
                     // todo: Reconstruct the active formatting elements, if any.
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                 }
                 else if (is_end)
                 {
-                    handle_end_tag_in_body(&t);
+                    handle_end_tag_in_body(t_name);
                 }
                 break;
 
@@ -2516,7 +2203,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && name_is(SCRIPT, SCRIPT_SIZE, &t))
+                else if (is_end && t_name == html_tag_script())
                 {
                     // breakpoint
                     // todo: speculative parsing
@@ -2538,15 +2225,11 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
             case HTML_PARSER_MODE_IN_TABLE:
                 ;
                 dom_node_t* current_node = stack[stack_idx];
-                html_element_t* current_element = html_element_from_node(current_node);
-                unsigned char* name = current_element->local_name;
-                uint32_t name_size = current_element->local_name_size;
-                if (is_character && (string_compare(name, name_size, TABLE, TABLE_SIZE) ||
-                                     string_compare(name, name_size, TBODY, TBODY_SIZE) ||
-                                     string_compare(name, name_size, TEMPLATE, TEMPLATE_SIZE) ||
-                                     string_compare(name, name_size, TFOOT, TFOOT_SIZE) ||
-                                     string_compare(name, name_size, THEAD, THEAD_SIZE) ||
-                                     string_compare(name, name_size, TR, TR_SIZE)))
+                const hash_str_t name = current_node->name;
+
+                if (is_character && (name == html_tag_table() || name == html_tag_tbody() ||
+                                     name == html_tag_template() || name == html_tag_tfoot() ||
+                                     name == html_tag_thead() || name == html_tag_tr()))
                 {
                     memset(pending_tokens, 0, MAX_TOKENS * sizeof(html_token_t));
                     pending_tokens_size = 0;
@@ -2563,76 +2246,70 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(CAPTION, CAPTION_SIZE, &t))
+                else if (is_start && t_name == html_tag_caption())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(COLGROUP, COLGROUP_SIZE, &t))
+                else if (is_start && t_name == html_tag_colgroup())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(COL, COL_SIZE, &t))
+                else if (is_start && t_name == html_tag_col())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && (name_is(TBODY, TBODY_SIZE, &t) ||
-                                      name_is(TFOOT, TFOOT_SIZE, &t) ||
-                                      name_is(THEAD, THEAD_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_tbody() || t_name == html_tag_tfoot() || t_name == html_tag_thead()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && (name_is(TD, TD_SIZE, &t) ||
-                                      name_is(TH, TH_SIZE, &t) ||
-                                      name_is(TR, TR_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_td() || t_name == html_tag_th() || t_name == html_tag_tr()))
                 {
                     clear_stack_back_to_table();
-                    insert_html_element(TBODY, TBODY_SIZE);
+                    insert_html_element(html_tag_tbody());
                     mode = HTML_PARSER_MODE_IN_TABLE_BODY;
 
                     consume             = false;
                 }
-                else if (is_start && name_is(TABLE, TABLE_SIZE, &t))
+                else if (is_start && t_name == html_tag_table())
                 {
                         NOT_IMPLEMENTED
                 }
-                else if (is_end && name_is(TABLE, TABLE_SIZE, &t))
+                else if (is_end && t_name == html_tag_table())
                 {
-                    if (!in_scope(TABLE, TABLE_SIZE, TABLE_SCOPE))
+                    if (!in_scope(html_tag_table(), TABLE_SCOPE))
                     {
                         INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
                     }
                     else
                     {
-                        pop_elements_until_name_included(TABLE, TABLE_SIZE);
+                        pop_elements_until_name_included(html_tag_table());
                         reset_insertion_mode_appropriately();
                     }
                 }
-                else if (is_end && (name_is(BODY, BODY_SIZE, &t)        ||
-                                    name_is(CAPTION, CAPTION_SIZE, &t)  ||
-                                    name_is(COL, COL_SIZE, &t)          ||
-                                    name_is(COLGROUP, COLGROUP_SIZE, &t)||
-                                    name_is(HTML, HTML_SIZE, &t)        ||
-                                    name_is(TBODY, TBODY_SIZE, &t)      ||
-                                    name_is(TD, TD_SIZE, &t)            ||
-                                    name_is(TFOOT, TFOOT_SIZE, &t)      ||
-                                    name_is(TH, TH_SIZE, &t)            ||
-                                    name_is(THEAD, THEAD_SIZE, &t)      ||
-                                    name_is(TR, TR_SIZE, &t)))
+                else if (is_end && (t_name == html_tag_body()     ||
+                                    t_name == html_tag_caption()  ||
+                                    t_name == html_tag_col()      ||
+                                    t_name == html_tag_colgroup() ||
+                                    t_name == html_tag_html()     ||
+                                    t_name == html_tag_tbody()    ||
+                                    t_name == html_tag_td()       ||
+                                    t_name == html_tag_tfoot()    ||
+                                    t_name == html_tag_th()       ||
+                                    t_name == html_tag_thead()    ||
+                                    t_name == html_tag_tr()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if ((is_start && (name_is(STYLE, STYLE_SIZE, &t)           ||
-                                       name_is(SCRIPT, SCRIPT_SIZE, &t)         ||
-                                       name_is(TEMPLATE, TEMPLATE_SIZE, &t)))   ||
-                         (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t)))
+                else if ((is_start && (t_name == html_tag_style() || t_name == html_tag_script() || t_name == html_tag_template())) ||
+                         (is_end && t_name == html_tag_template()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(INPUT, INPUT_SIZE, &t))
+                else if (is_start && t_name == html_tag_input())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(FORM, FORM_SIZE, &t))
+                else if (is_start && t_name == html_tag_form())
                 {
                     NOT_IMPLEMENTED
                 }
@@ -2692,33 +2369,33 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
             // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incaption
             case HTML_PARSER_MODE_IN_CAPTION:
-                if (is_end && name_is(CAPTION, CAPTION_SIZE, &t))
+                if (is_end && t_name == html_tag_caption())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if ((is_start && (name_is(CAPTION, CAPTION_SIZE, &t)   ||
-                                       name_is(COL, COL_SIZE, &t)           ||
-                                       name_is(COLGROUP, COLGROUP_SIZE, &t) || 
-                                       name_is(TBODY, TBODY_SIZE, &t)       ||
-                                       name_is(TD, TD_SIZE, &t)             ||
-                                       name_is(TFOOT, TFOOT_SIZE, &t)       ||
-                                       name_is(TH, TH_SIZE, &t)             ||
-                                       name_is(THEAD, THEAD_SIZE, &t)       ||
-                                       name_is(TR, TR_SIZE, &t)))           ||
-                         (is_end && name_is(TABLE, TABLE_SIZE, &t)))
+                else if ((is_start && (t_name == html_tag_caption()   ||
+                                       t_name == html_tag_col()       ||
+                                       t_name == html_tag_colgroup()  || 
+                                       t_name == html_tag_tbody()     ||
+                                       t_name == html_tag_td()        ||
+                                       t_name == html_tag_tfoot()     ||
+                                       t_name == html_tag_th()        ||
+                                       t_name == html_tag_thead()     ||
+                                       t_name == html_tag_tr()))      ||
+                         (is_end && t_name == html_tag_table()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && (name_is(BODY, BODY_SIZE, &t)        ||
-                                    name_is(COL, COL_SIZE, &t)          ||
-                                    name_is(COLGROUP, COLGROUP_SIZE, &t)||
-                                    name_is(HTML, HTML_SIZE, &t)        ||
-                                    name_is(TBODY, TBODY_SIZE, &t)      ||
-                                    name_is(TD, TD_SIZE, &t)            ||
-                                    name_is(TFOOT, TFOOT_SIZE, &t)      ||
-                                    name_is(TH, TH_SIZE, &t)            ||
-                                    name_is(THEAD, THEAD_SIZE, &t)      ||
-                                    name_is(TR, TR_SIZE, &t)))
+                else if (is_end && (t_name == html_tag_body()     ||
+                                    t_name == html_tag_col()      ||
+                                    t_name == html_tag_colgroup() ||
+                                    t_name == html_tag_html()     ||
+                                    t_name == html_tag_tbody()    ||
+                                    t_name == html_tag_td()       ||
+                                    t_name == html_tag_tfoot()    ||
+                                    t_name == html_tag_th()       ||
+                                    t_name == html_tag_thead()    ||
+                                    t_name == html_tag_tr()))
                 {
                     NOT_IMPLEMENTED
                 }
@@ -2742,23 +2419,23 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(HTML, HTML_SIZE, &t))
+                else if (is_start && t_name == html_tag_html())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(COL, COL_SIZE, &t))
+                else if (is_start && t_name == html_tag_col())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && name_is(COLGROUP, COLGROUP_SIZE, &t))
+                else if (is_end && t_name == html_tag_colgroup())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && name_is(COL, COL_SIZE, &t))
+                else if (is_end && t_name == html_tag_col())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if ((is_start || is_end) && (name_is(TEMPLATE, TEMPLATE_SIZE, &t)))
+                else if ((is_start || is_end) && (t_name == html_tag_template()))
                 {
                     NOT_IMPLEMENTED
                 }
@@ -2774,40 +2451,37 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
             // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intbody
             case HTML_PARSER_MODE_IN_TABLE_BODY:
-                if (is_start && name_is(TR, TR_SIZE, &t))
+                if (is_start && t_name == html_tag_tr())
                 {
                     clear_stack_back_to_table_body();
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     mode                = HTML_PARSER_MODE_IN_ROW;
                 }
-                else if (is_start && (name_is(TH, TH_SIZE, &t) ||
-                                      name_is(TD, TD_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_th() || t_name == html_tag_td()))
                 {
                     INCOMPLETE_IMPLEMENTATION("parse error");
                     clear_stack_back_to_table_body();
 
-                    insert_html_element(TR, TR_SIZE);
+                    insert_html_element(html_tag_tr());
                     mode = HTML_PARSER_MODE_IN_ROW;
 
                     consume             = false;
                 }
-                else if (is_end && (name_is(TBODY, TBODY_SIZE, &t) ||
-                                    name_is(TFOOT, TFOOT_SIZE, &t) ||
-                                    name_is(THEAD, THEAD_SIZE, &t) ))
+                else if (is_end && (t_name == html_tag_tbody() || t_name == html_tag_tfoot() || t_name == html_tag_thead() ))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if ((is_start && (name_is(CAPTION, CAPTION_SIZE, &t)   ||
-                                       name_is(COL, COL_SIZE, &t)           ||
-                                       name_is(COLGROUP, COLGROUP_SIZE, &t) ||
-                                       name_is(TBODY, TBODY_SIZE, &t)       ||
-                                       name_is(TFOOT, TFOOT_SIZE, &t)       ||
-                                       name_is(THEAD, THEAD_SIZE, &t)))     ||
-                         (is_end && name_is(TABLE, TABLE_SIZE, &t)))
+                else if ((is_start && (t_name == html_tag_caption()   ||
+                                       t_name == html_tag_col()       ||
+                                       t_name == html_tag_colgroup()  ||
+                                       t_name == html_tag_tbody()     ||
+                                       t_name == html_tag_tfoot()     ||
+                                       t_name == html_tag_thead()))   ||
+                         (is_end && t_name == html_tag_table()))
                 {
-                    if (!in_scope(TBODY, TBODY_SIZE, TABLE_SCOPE) &&
-                        !in_scope(THEAD, THEAD_SIZE, TABLE_SCOPE) &&
-                        !in_scope(TFOOT, TFOOT_SIZE, TABLE_SCOPE))
+                    if (!in_scope(html_tag_tbody(), TABLE_SCOPE) &&
+                        !in_scope(html_tag_thead(), TABLE_SCOPE) &&
+                        !in_scope(html_tag_tfoot(), TABLE_SCOPE))
                     {
                         INCOMPLETE_IMPLEMENTATION("parse error");
                     }
@@ -2819,14 +2493,14 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                         consume         = false;
                     }
                 }
-                else if (is_end && (name_is(BODY, BODY_SIZE, &t)         ||
-                                    name_is(CAPTION, CAPTION_SIZE, &t)   ||
-                                    name_is(COL, COL_SIZE, &t)           ||
-                                    name_is(COLGROUP, COLGROUP_SIZE, &t) ||
-                                    name_is(HTML, HTML_SIZE, &t)         ||
-                                    name_is(TD, TD_SIZE, &t)             ||
-                                    name_is(TH, TH_SIZE, &t)             ||
-                                    name_is(TR, TR_SIZE, &t)))
+                else if (is_end && (t_name == html_tag_body()     ||
+                                    t_name == html_tag_caption()  ||
+                                    t_name == html_tag_col()      ||
+                                    t_name == html_tag_colgroup() ||
+                                    t_name == html_tag_html()     ||
+                                    t_name == html_tag_td()       ||
+                                    t_name == html_tag_th()       ||
+                                    t_name == html_tag_tr()))
                 {
                     NOT_IMPLEMENTED
                 }
@@ -2841,17 +2515,16 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
             // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intr
             case HTML_PARSER_MODE_IN_ROW:
-                if (is_start && (name_is(TH, TH_SIZE, &t) ||
-                                 name_is(TD, TD_SIZE, &t)))
+                if (is_start && (t_name == html_tag_th() || t_name == html_tag_td()))
                 {
                     clear_stack_back_to_table_row();
-                    insert_html_element(t.name, t.name_size);
+                    insert_html_element(t_name);
                     insert_marker();
                     mode = HTML_PARSER_MODE_IN_CELL;
                 }
-                else if (is_end && name_is(TR, TR_SIZE, &t))
+                else if (is_end && t_name == html_tag_tr())
                 {
-                    if (!in_scope(TR, TR_SIZE, TABLE_SCOPE))
+                    if (!in_scope(html_tag_tr(), TABLE_SCOPE))
                     {
                         // todo: parse error
                         // ignore token
@@ -2863,16 +2536,16 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                         mode = HTML_PARSER_MODE_IN_TABLE_BODY;
                     }
                 }
-                else if ((is_start && (name_is(CAPTION, CAPTION_SIZE, &t)   ||
-                                       name_is(COL, COL_SIZE, &t)           ||
-                                       name_is(COLGROUP, COLGROUP_SIZE, &t) ||
-                                       name_is(TBODY, TBODY_SIZE, &t)       ||
-                                       name_is(TFOOT, TFOOT_SIZE, &t)       ||
-                                       name_is(THEAD, THEAD_SIZE, &t)       ||
-                                       name_is(TR, TR_SIZE, &t)))           ||
-                         (is_end && name_is(TABLE, TABLE_SIZE, &t)))
+                else if ((is_start && (t_name == html_tag_caption()   ||
+                                       t_name == html_tag_col()       ||
+                                       t_name == html_tag_colgroup()  ||
+                                       t_name == html_tag_tbody()     ||
+                                       t_name == html_tag_tfoot()     ||
+                                       t_name == html_tag_thead()     ||
+                                       t_name == html_tag_tr()))      ||
+                         (is_end && t_name == html_tag_table()))
                 {
-                    if (!in_scope(TR, TR_SIZE, TABLE_SCOPE))
+                    if (!in_scope(html_tag_tr(), TABLE_SCOPE))
                     {
                         INCOMPLETE_IMPLEMENTATION("parse error");
                     }
@@ -2884,19 +2557,17 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                         consume             = false;
                     }
                 }
-                else if (is_end && (name_is(TBODY, TBODY_SIZE, &t) ||
-                                    name_is(THEAD, THEAD_SIZE, &t) ||
-                                    name_is(TFOOT, TFOOT_SIZE, &t)))
+                else if (is_end && (t_name == html_tag_tbody() || t_name == html_tag_thead() || t_name == html_tag_tfoot()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && (name_is(BODY, BODY_SIZE, &t)        ||
-                                    name_is(CAPTION, CAPTION_SIZE, &t)  ||
-                                    name_is(COL, COL_SIZE, &t)          ||
-                                    name_is(COLGROUP, COLGROUP_SIZE, &t)||
-                                    name_is(HTML, HTML_SIZE, &t)        ||
-                                    name_is(TD, TD_SIZE, &t)            ||
-                                    name_is(TH, TH_SIZE, &t)))
+                else if (is_end && (t_name == html_tag_body()     ||
+                                    t_name == html_tag_caption()  ||
+                                    t_name == html_tag_col()      ||
+                                    t_name == html_tag_colgroup() ||
+                                    t_name == html_tag_html()     ||
+                                    t_name == html_tag_td()       ||
+                                    t_name == html_tag_th()))
                 {
                     NOT_IMPLEMENTED
                 }
@@ -2911,57 +2582,52 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
             // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intd
             case HTML_PARSER_MODE_IN_CELL:
-                if (is_end && (name_is(TD, TD_SIZE, &t) ||
-                               name_is(TH, TH_SIZE, &t)))
+                if (is_end && (t_name == html_tag_td() || t_name == html_tag_th()))
                 {
-                    if (!in_scope(t.name, t.name_size, TABLE_SCOPE))
+                    if (!in_scope(t_name, TABLE_SCOPE))
                     {
                         INCOMPLETE_IMPLEMENTATION("parse error");
                     }
                     else
                     {
-                        generate_implied_end_tags(NULL, 0);
+                        generate_implied_end_tags(0);
 
                         dom_node_t* node = stack[stack_idx];
-                        html_element_t* element = html_element_from_node(node);
 
-                        if (!string_compare(element->local_name, element->local_name_size, t.name, t.name_size))
+                        if (node->name != t_name)
                         {
                             INCOMPLETE_IMPLEMENTATION("parse error");
                         }
 
-                        pop_elements_until_name_included(t.name, t.name_size);
+                        pop_elements_until_name_included(t_name);
                         clear_formatting_elements();
                         mode            = HTML_PARSER_MODE_IN_ROW;
                     }
                 }
-                else if (is_start && (name_is(CAPTION, CAPTION_SIZE, &t)    ||
-                                      name_is(COL, COL_SIZE, &t)            ||
-                                      name_is(COLGROUP, COLGROUP_SIZE, &t)  ||
-                                      name_is(TBODY, TBODY_SIZE, &t)        ||
-                                      name_is(TFOOT, TFOOT_SIZE, &t)        ||
-                                      name_is(THEAD, THEAD_SIZE, &t)        ||
-                                      name_is(TR, TR_SIZE, &t)              ||
-                                      name_is(TH, TH_SIZE, &t)              ||
-                                      name_is(TD, TD_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_caption()    ||
+                                      t_name == html_tag_col()        ||
+                                      t_name == html_tag_colgroup()   ||
+                                      t_name == html_tag_tbody()      ||
+                                      t_name == html_tag_tfoot()      ||
+                                      t_name == html_tag_thead()      ||
+                                      t_name == html_tag_tr()         ||
+                                      t_name == html_tag_th()         ||
+                                      t_name == html_tag_td()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && (name_is(BODY, BODY_SIZE, &t)        ||
-                                    name_is(CAPTION, CAPTION_SIZE, &t)  ||
-                                    name_is(COL, COL_SIZE, &t)          ||
-                                    name_is(COLGROUP, COLGROUP_SIZE, &t)||
-                                    name_is(HTML, HTML_SIZE, &t)))
+                else if (is_end && (t_name == html_tag_body()     ||
+                                    t_name == html_tag_caption()  ||
+                                    t_name == html_tag_col()      ||
+                                    t_name == html_tag_colgroup() ||
+                                    t_name == html_tag_html()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && (name_is(TABLE, TABLE_SIZE, &t) ||
-                                    name_is(TFOOT, TFOOT_SIZE, &t) ||
-                                    name_is(THEAD, THEAD_SIZE, &t) ||
-                                    name_is(TBODY, TBODY_SIZE, &t) ||
-                                    name_is(TR, TR_SIZE, &t)))
+                else if (is_end && (t_name == html_tag_table() || t_name == html_tag_tfoot() || t_name == html_tag_thead() ||
+                                    t_name == html_tag_tbody() || t_name == html_tag_tr()))
                 {
-                    if (!in_scope(t.name, t.name_size, TABLE_SCOPE))
+                    if (!in_scope(t_name, TABLE_SCOPE))
                     {
                         INCOMPLETE_IMPLEMENTATION("parse error");
                     }
@@ -2986,38 +2652,37 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     NOT_IMPLEMENTED
                 }
-                else if ((is_start && (name_is(BASE, BASE_SIZE, &t)         ||
-                                       name_is(BASEFONT, BASEFONT_SIZE, &t) ||
-                                       name_is(BGSOUND, BGSOUND_SIZE, &t)   ||
-                                       name_is(LINK, LINK_SIZE, &t)         ||
-                                       name_is(META, META_SIZE, &t)         ||
-                                       name_is(NOFRAMES, NOFRAMES_SIZE, &t) ||
-                                       name_is(SCRIPT, SCRIPT_SIZE, &t)     ||
-                                       name_is(STYLE, STYLE_SIZE, &t)       ||
-                                       name_is(TEMPLATE, TEMPLATE_SIZE, &t) ||
-                                       name_is(TITLE, TITLE_SIZE, &t)))     ||
-                         (is_end && name_is(TEMPLATE, TEMPLATE_SIZE, &t)))
+                else if ((is_start && (t_name == html_tag_base()      ||
+                                       t_name == html_tag_basefont()  ||
+                                       t_name == html_tag_bgsound()   ||
+                                       t_name == html_tag_link()      ||
+                                       t_name == html_tag_meta()      ||
+                                       t_name == html_tag_noframes()  ||
+                                       t_name == html_tag_script()    ||
+                                       t_name == html_tag_style()     ||
+                                       t_name == html_tag_template()  ||
+                                       t_name == html_tag_title()))   ||
+                         (is_end && t_name == html_tag_template()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && (name_is(CAPTION, CAPTION_SIZE, &t)    ||
-                                      name_is(COLGROUP, COLGROUP_SIZE, &t)  ||
-                                      name_is(TBODY, TBODY_SIZE, &t)        ||
-                                      name_is(TFOOT, TFOOT_SIZE, &t)        ||
-                                      name_is(THEAD, THEAD_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_caption()    ||
+                                      t_name == html_tag_colgroup()   ||
+                                      t_name == html_tag_tbody()      ||
+                                      t_name == html_tag_tfoot()      ||
+                                      t_name == html_tag_thead()))
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(COL, COL_SIZE, &t))
+                else if (is_start && t_name == html_tag_col())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(TR, TR_SIZE, &t))
+                else if (is_start && t_name == html_tag_tr())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && (name_is(TD, TD_SIZE, &t) ||
-                                      name_is(TH, TH_SIZE, &t)))
+                else if (is_start && (t_name == html_tag_td() || t_name == html_tag_th()))
                 {
                     NOT_IMPLEMENTED
                 }
@@ -3049,11 +2714,11 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(HTML, HTML_SIZE, &t))
+                else if (is_start && t_name == html_tag_html())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && name_is(HTML, HTML_SIZE, &t))
+                else if (is_end && t_name == html_tag_html())
                 {
                     // todo: if parser was created using fragment parsing algorithm -> error and ignore token
 
@@ -3085,23 +2750,23 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(HTML, HTML_SIZE, &t))
+                else if (is_start && t_name == html_tag_html())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(FRAMESET, FRAMESET_SIZE, &t))
+                else if (is_start && t_name == html_tag_frameset())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && name_is(FRAMESET, FRAMESET_SIZE, &t))
+                else if (is_end && t_name == html_tag_frameset())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(FRAME, FRAME_SIZE, &t))
+                else if (is_start && t_name == html_tag_frame())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(NOFRAMES, NOFRAMES_SIZE, &t))
+                else if (is_start && t_name == html_tag_noframes())
                 {
                     NOT_IMPLEMENTED
                 }
@@ -3129,15 +2794,15 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(HTML, HTML_SIZE, &t))
+                else if (is_start && t_name == html_tag_html())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_end && name_is(HTML, HTML_SIZE, &t))
+                else if (is_end && t_name == html_tag_html())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(NOFRAMES, NOFRAMES_SIZE, &t))
+                else if (is_start && t_name == html_tag_noframes())
                 {
                     NOT_IMPLEMENTED
                 }
@@ -3159,7 +2824,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if ((is_doctype) ||
                          (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' ')) ||
-                         (is_start && name_is(HTML, HTML_SIZE, &t)))
+                         (is_start && t_name == html_tag_html()))
                 {
                     NOT_IMPLEMENTED
                 }
@@ -3181,7 +2846,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if ((is_doctype) ||
                          (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' ')) ||
-                         (is_start && name_is(HTML, HTML_SIZE, &t)))
+                         (is_start && t_name == html_tag_html()))
                 {
                     NOT_IMPLEMENTED
                 }
@@ -3189,7 +2854,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && name_is(NOFRAMES, NOFRAMES_SIZE, &t))
+                else if (is_start && t_name == html_tag_noframes())
                 {
                     NOT_IMPLEMENTED
                 }

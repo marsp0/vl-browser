@@ -1,10 +1,10 @@
 # tab here: [	]
 
 # ------------------- files -------------------
-SRC_FILES       := $(shell find src -name "*.c" ! -name "main.c" ! -name "*parser*.c")
+SRC_FILES       := $(shell find src -name "*.c" ! -name "main.c")
 OBJ_FILES       := $(addprefix out/, $(SRC_FILES:.c=.o))
 
-TEST_SRC_FILES   := $(shell find ./test -name "*.c" ! -name "*parser*.c")
+TEST_SRC_FILES   := $(shell find ./test -name "*.c")
 TEST_OBJ_FILES   := $(addprefix out/, $(TEST_SRC_FILES:.c=.o))
 
 
@@ -14,9 +14,12 @@ GCC_FLAGS   := -std=gnu11 -Wall -Wextra -Werror -Wshadow -Wpedantic
 GCC_FLAGS   += -Wnull-dereference -Wunused -Wconversion -Wno-pointer-sign
 LD_FLAGS    := -lpthread -lm -lrt -ldl
 
-# debug build
-GCC_FLAGS   += -g -O0 -fprofile-arcs -ftest-coverage
-LD_FLAGS    += -lgcov --coverage
+ifeq ($(debug), 1)
+	GCC_FLAGS  += -g -O0 -fprofile-arcs -ftest-coverage
+	LD_FLAGS   += -lgcov --coverage
+else
+	GCC_FLAGS  += -O2
+endif
 
 
 # ------------------- targets -------------------

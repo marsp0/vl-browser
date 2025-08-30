@@ -3,6 +3,8 @@
 
 #include "test_parser_utils.h"
 
+#include "html/tag_constants.h"
+
 static void test_when_input_is_pure_text_then_add_missing_nodes()
 {
     // #data
@@ -16,11 +18,11 @@ static void test_when_input_is_pure_text_then_add_missing_nodes()
     // |     "Test"
     
     unsigned char buffer[] = "Test";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* text       = html_text_new(document, "Test", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* text       = dom_text_new(document, "Test", 4);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -47,14 +49,14 @@ static void test_when_input_is_mix_between_text_and_elements_then_add_missing_no
     // |       "Two"
 
     unsigned char buffer[] = "<p>One<p>Two";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* p_one      = html_element_new(document, "p", 1);
-    html_node_t* p_two      = html_element_new(document, "p", 1);
-    html_node_t* one        = html_text_new(document, "One", 3);
-    html_node_t* two        = html_text_new(document, "Two", 3);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* p_one      = dom_element_new(document, html_tag_p());
+    dom_node_t* p_two      = dom_element_new(document, html_tag_p());
+    dom_node_t* one        = dom_text_new(document, "One", 3);
+    dom_node_t* two        = dom_text_new(document, "Two", 3);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -87,17 +89,17 @@ static void test_when_input_is_mix_between_text_and_elements_then_add_missing_no
     // |     "Line4"
 
     unsigned char buffer[] = "Line1<br>Line2<br>Line3<br>Line4";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* one        = html_text_new(document, "Line1", 5);
-    html_node_t* one_br     = html_element_new(document, "br", 2);
-    html_node_t* two        = html_text_new(document, "Line2", 5);
-    html_node_t* two_br     = html_element_new(document, "br", 2);
-    html_node_t* three      = html_text_new(document, "Line3", 5);
-    html_node_t* three_br   = html_element_new(document, "br", 2);
-    html_node_t* four       = html_text_new(document, "Line4", 5);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* one        = dom_text_new(document, "Line1", 5);
+    dom_node_t* one_br     = dom_element_new(document, html_tag_br());
+    dom_node_t* two        = dom_text_new(document, "Line2", 5);
+    dom_node_t* two_br     = dom_element_new(document, html_tag_br());
+    dom_node_t* three      = dom_text_new(document, "Line3", 5);
+    dom_node_t* three_br   = dom_element_new(document, html_tag_br());
+    dom_node_t* four       = dom_text_new(document, "Line4", 5);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -126,10 +128,10 @@ static void test_when_only_html_is_provided_then_add_head_and_body_tags()
     // |   <body>
     
     unsigned char buffer[] = "<html>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -151,10 +153,10 @@ static void test_when_only_head_tag_is_provided_then_add_html_and_body_tags()
     // |   <body>
 
     unsigned char buffer[] = "<head>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -176,10 +178,10 @@ static void test_when_only_body_tag_is_provided_then_add_html_and_head_tags()
     // |   <body>
 
     unsigned char buffer[] = "<body>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -201,10 +203,10 @@ static void test_when_only_html_and_head_are_given_add_body()
     // |   <body>
 
     unsigned char buffer[] = "<html><head>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -226,10 +228,10 @@ static void test_when_html_and_complete_head_are_given_add_body()
     // |   <body>
 
     unsigned char buffer[] = "<html><head></head>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -251,10 +253,10 @@ static void test_when_html_head_and_body_present_but_only_head_is_closed_then_st
     // |   <body>
 
     unsigned char buffer[] = "<html><head></head><body>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -276,10 +278,10 @@ static void test_when_html_head_body_provided_but_only_head_and_body_are_closed_
     // |   <body>
 
     unsigned char buffer[] = "<html><head></head><body></body>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -301,10 +303,10 @@ static void test_when_html_and_body_are_closed_then_close_head_too()
     // |   <body>
 
     unsigned char buffer[] = "<html><head><body></body></html>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -326,10 +328,10 @@ static void test_when_html_tag_is_closed_and_body_end_tag_is_provided_then_close
     // |   <body>
 
     unsigned char buffer[] = "<html><head></body></html>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -351,10 +353,10 @@ static void test_when_only_html_tag_is_closed_then_we_automatically_close_head_a
     // |   <body>
 
     unsigned char buffer[] = "<html><head><body></html>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -376,10 +378,10 @@ static void test_when_head_tag_is_missing_and_body_is_not_closed_then_we_add_hea
     // |   <body>
 
     unsigned char buffer[] = "<html><body></html>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -401,10 +403,10 @@ static void test_when_html_open_tag_and_body_tags_are_missing_then_they_get_crea
     // |   <body>
 
     unsigned char buffer[] = "<head></html>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -426,10 +428,10 @@ static void test_when_only_closed_head_tag_is_provided_then_we_add_missing_html_
     // |   <body>
 
     unsigned char buffer[] = "</head>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -451,10 +453,10 @@ static void test_when_only_closed_body_tag_is_provided_then_we_add_missing_html_
     // |   <body>
 
     unsigned char buffer[] = "</body>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -476,10 +478,10 @@ static void test_when_only_closed_html_tag_is_provided_then_we_add_missing_body_
     // |   <body>
 
     unsigned char buffer[] = "</html>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -509,16 +511,16 @@ static void missing_tags_1()
     // |               <i>
 
     unsigned char buffer[] = "<b><table><td><i></table>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* b          = html_element_new(document, "b", 1);
-    html_node_t* table      = html_element_new(document, "table", 5);
-    html_node_t* tbody      = html_element_new(document, "tbody", 5);
-    html_node_t* tr         = html_element_new(document, "tr", 2);
-    html_node_t* td         = html_element_new(document, "td", 2);
-    html_node_t* i          = html_element_new(document, "i", 1);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* b          = dom_element_new(document, html_tag_b());
+    dom_node_t* table      = dom_element_new(document, html_tag_table());
+    dom_node_t* tbody      = dom_element_new(document, html_tag_tbody());
+    dom_node_t* tr         = dom_element_new(document, html_tag_tr());
+    dom_node_t* td         = dom_element_new(document, html_tag_td());
+    dom_node_t* i          = dom_element_new(document, html_tag_i());
     
 
     APPEND_TO_TREE(document, html);
@@ -535,7 +537,7 @@ static void missing_tags_1()
 }
 
 
-// static void missing_tags_2()
+// static void missing_html_tag_2()
 // {
 //     // #data
 //     // <b><table><td></b><i></table>X
@@ -558,17 +560,17 @@ static void missing_tags_1()
 //     // |       "X"
 
 //     unsigned char buffer[] = "<b><table><td></b><i></table>X";
-//     html_node_t* document   = html_document_new();
-//     html_node_t* html       = html_element_new(document, "html", 4);
-//     html_node_t* head       = html_element_new(document, "head", 4);
-//     html_node_t* body       = html_element_new(document, "body", 4);
-//     html_node_t* b          = html_element_new(document, "b", 1);
-//     html_node_t* table      = html_element_new(document, "table", 5);
-//     html_node_t* tbody      = html_element_new(document, "tbody", 5);
-//     html_node_t* tr         = html_element_new(document, "tr", 2);
-//     html_node_t* td         = html_element_new(document, "td", 2);
-//     html_node_t* i          = html_element_new(document, "i", 1);
-//     html_node_t* text       = html_text_new(document, "X", 1);
+//     dom_node_t* document   = dom_document_new();
+//     dom_node_t* html       = dom_element_new(document, html_tag_html);
+//     dom_node_t* head       = dom_element_new(document, html_tag_head);
+//     dom_node_t* body       = dom_element_new(document, html_tag_body);
+//     dom_node_t* b          = dom_element_new(document, html_tag_b);
+//     dom_node_t* table      = dom_element_new(document, html_tag_table);
+//     dom_node_t* tbody      = dom_element_new(document, html_tag_tbody);
+//     dom_node_t* tr         = dom_element_new(document, html_tag_tr);
+//     dom_node_t* td         = dom_element_new(document, html_tag_td);
+//     dom_node_t* i          = dom_element_new(document, html_tag_i);
+//     dom_node_t* text       = dom_text_new(document, "X", 1);
     
 
 //     APPEND_TO_TREE(document, html);
@@ -604,14 +606,14 @@ static void test_parser_1()
     // |       "World"
 
     unsigned char buffer[] = "<h1>Hello<h2>World";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* h1         = html_element_new(document, "h1", 2);
-    html_node_t* h2         = html_element_new(document, "h2", 2);
-    html_node_t* t1         = html_text_new(document, "Hello", 5);
-    html_node_t* t2         = html_text_new(document, "World", 5);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* h1         = dom_element_new(document, html_tag_h1());
+    dom_node_t* h2         = dom_element_new(document, html_tag_h2());
+    dom_node_t* t1         = dom_text_new(document, "Hello", 5);
+    dom_node_t* t2         = dom_text_new(document, "World", 5);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -665,13 +667,13 @@ static void test_parser_3()
     // |         "foobar"
 
     unsigned char buffer[] = "<!DOCTYPE html><span><button>foo</span>bar";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* span       = html_element_new(document, "span", 4);
-    html_node_t* button     = html_element_new(document, "button", 6);
-    html_node_t* t1         = html_text_new(document, "foobar", 6);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* span       = dom_element_new(document, html_tag_span());
+    dom_node_t* button     = dom_element_new(document, html_tag_button());
+    dom_node_t* t1         = dom_text_new(document, "foobar", 6);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -708,17 +710,17 @@ static void test_parser_4()
     // |           "X"
 
     unsigned char buffer[] = "<p><b><div><marquee></p></b></div>X";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* p1         = html_element_new(document, "p", 1);
-    html_node_t* b1         = html_element_new(document, "b", 1);
-    html_node_t* div        = html_element_new(document, "div", 3);
-    html_node_t* b2         = html_element_new(document, "b", 1);
-    html_node_t* marquee    = html_element_new(document, "marquee", 7);
-    html_node_t* p2         = html_element_new(document, "p", 1);
-    html_node_t* t          = html_text_new(document, "X", 1);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* p1         = dom_element_new(document, html_tag_p());
+    dom_node_t* b1         = dom_element_new(document, html_tag_b());
+    dom_node_t* div        = dom_element_new(document, html_tag_div());
+    dom_node_t* b2         = dom_element_new(document, html_tag_b());
+    dom_node_t* marquee    = dom_element_new(document, html_tag_marquee());
+    dom_node_t* p2         = dom_element_new(document, html_tag_p());
+    dom_node_t* t          = dom_text_new(document, "X", 1);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -754,16 +756,16 @@ static void test_parser_5()
     // |     <p>
 
     unsigned char buffer[] = "<script><div></script></div><title><p></title><p><p>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* script     = html_element_new(document, "script", 6);
-    html_node_t* t1         = html_text_new(document, "<div>", 5);
-    html_node_t* title      = html_element_new(document, "title", 5);
-    html_node_t* t2         = html_text_new(document, "<p>", 3);
-    html_node_t* p1         = html_element_new(document, "p", 1);
-    html_node_t* p2         = html_element_new(document, "p", 1);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* script     = dom_element_new(document, html_tag_script());
+    dom_node_t* t1         = dom_text_new(document, "<div>", 5);
+    dom_node_t* title      = dom_element_new(document, html_tag_title());
+    dom_node_t* t2         = dom_text_new(document, "<p>", 3);
+    dom_node_t* p1         = dom_element_new(document, html_tag_p());
+    dom_node_t* p2         = dom_element_new(document, html_tag_p());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -801,14 +803,14 @@ static void test_parser_6()
     // |       <!--  -->
 
     unsigned char buffer[] = "<!--><div>--<!-->";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* c1         = html_comment_new(document, "", 0);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* div        = html_element_new(document, "div", 3);
-    html_node_t* t          = html_text_new(document, "--", 2);
-    html_node_t* c2         = html_comment_new(document, "", 0);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* c1         = dom_comment_new(document, "", 0);
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* div        = dom_element_new(document, html_tag_div());
+    dom_node_t* t          = dom_text_new(document, "--", 2);
+    dom_node_t* c2         = dom_comment_new(document, "", 0);
 
 
     APPEND_TO_TREE(document, c1);
@@ -840,13 +842,13 @@ static void test_parser_7()
     // |     <p>
 
     unsigned char buffer[] = "<p><hr></p>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* p1         = html_element_new(document, "p", 1);
-    html_node_t* hr         = html_element_new(document, "hr", 2);
-    html_node_t* p2         = html_element_new(document, "p", 1);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* p1         = dom_element_new(document, html_tag_p());
+    dom_node_t* hr         = dom_element_new(document, html_tag_hr());
+    dom_node_t* p2         = dom_element_new(document, html_tag_p());
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -865,9 +867,9 @@ static void test_parser_8()
     // <select><b><option><select><option></b></select>X
     // #errors
     // 1:1: ERROR: Expected a doctype token
-    // 1:20: ERROR: Start tag 'select' isn't allowed here. Currently open tags: html, body, select, b, option.
-    // 1:36: ERROR: End tag 'b' isn't allowed here. Currently open tags: html, body, b, select, option.
-    // 1:50: ERROR: Premature end of file. Currently open tags: html, body, b.
+    // 1:20: ERROR: Start tag 'select' isn't allowed here. Currently open html_tag_ html, body, select, b, option.
+    // 1:36: ERROR: End tag 'b' isn't allowed here. Currently open html_tag_ html, body, b, select, option.
+    // 1:50: ERROR: Premature end of file. Currently open html_tag_ html, body, b.
     // #document
     // | <html>
     // |   <head>
@@ -880,16 +882,16 @@ static void test_parser_8()
     // |     "X"
 
     unsigned char buffer[] = "<select><b><option><select><option></b></select>X";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* select     = html_element_new(document, "select", 6);
-    html_node_t* o1         = html_element_new(document, "option", 6);
-    html_node_t* o2         = html_element_new(document, "option", 6);
-    html_node_t* b1         = html_element_new(document, "b", 1);
-    html_node_t* b2         = html_element_new(document, "b", 1);
-    html_node_t* t          = html_text_new(document, "X", 1);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* select     = dom_element_new(document, html_tag_select());
+    dom_node_t* o1         = dom_element_new(document, html_tag_option());
+    dom_node_t* o2         = dom_element_new(document, html_tag_option());
+    dom_node_t* b1         = dom_element_new(document, html_tag_b());
+    dom_node_t* b2         = dom_element_new(document, html_tag_b());
+    dom_node_t* t          = dom_text_new(document, "X", 1);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -908,19 +910,19 @@ static void test_parser_8()
 static void test_parser_9()
 {
     unsigned char buffer[] = "<p>1<b>2<i>3</b>4</i>5</p>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* p          = html_element_new(document, "p", 1);
-    html_node_t* b          = html_element_new(document, "b", 1);
-    html_node_t* i1         = html_element_new(document, "i", 1);
-    html_node_t* i2         = html_element_new(document, "i", 1);
-    html_node_t* t1         = html_text_new(document, "1", 1);
-    html_node_t* t2         = html_text_new(document, "2", 1);
-    html_node_t* t3         = html_text_new(document, "3", 1);
-    html_node_t* t4         = html_text_new(document, "4", 1);
-    html_node_t* t5         = html_text_new(document, "5", 1);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* p          = dom_element_new(document, html_tag_p());
+    dom_node_t* b          = dom_element_new(document, html_tag_b());
+    dom_node_t* i1         = dom_element_new(document, html_tag_i());
+    dom_node_t* i2         = dom_element_new(document, html_tag_i());
+    dom_node_t* t1         = dom_text_new(document, "1", 1);
+    dom_node_t* t2         = dom_text_new(document, "2", 1);
+    dom_node_t* t3         = dom_text_new(document, "3", 1);
+    dom_node_t* t4         = dom_text_new(document, "4", 1);
+    dom_node_t* t5         = dom_text_new(document, "5", 1);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -942,16 +944,16 @@ static void test_parser_9()
 static void test_parser_10()
 {
     unsigned char buffer[] = "<b>1<p>2</b>3</p>";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* b1         = html_element_new(document, "b", 1);
-    html_node_t* b2         = html_element_new(document, "b", 1);
-    html_node_t* p1         = html_element_new(document, "p", 1);
-    html_node_t* t1         = html_text_new(document, "1", 1);
-    html_node_t* t2         = html_text_new(document, "2", 1);
-    html_node_t* t3         = html_text_new(document, "3", 1);
+    dom_node_t* document   = dom_document_new();
+    dom_node_t* html       = dom_element_new(document, html_tag_html());
+    dom_node_t* head       = dom_element_new(document, html_tag_head());
+    dom_node_t* body       = dom_element_new(document, html_tag_body());
+    dom_node_t* b1         = dom_element_new(document, html_tag_b());
+    dom_node_t* b2         = dom_element_new(document, html_tag_b());
+    dom_node_t* p1         = dom_element_new(document, html_tag_p());
+    dom_node_t* t1         = dom_text_new(document, "1", 1);
+    dom_node_t* t2         = dom_text_new(document, "2", 1);
+    dom_node_t* t3         = dom_text_new(document, "3", 1);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -1000,26 +1002,26 @@ static void test_parser_11()
     // |     <a>
     // |       "Y"
 
-    unsigned char buffer[] = "<a><table><td><a><table></table><a></tr><a></table><b>X</b>C<a>Y";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* a1       = html_element_new(document, "a", 1);
-    html_node_t* a2       = html_element_new(document, "a", 1);
-    html_node_t* a3       = html_element_new(document, "a", 1);
-    html_node_t* a4       = html_element_new(document, "a", 1);
-    html_node_t* a5       = html_element_new(document, "a", 1);
-    html_node_t* a6       = html_element_new(document, "a", 1);
-    html_node_t* table       = html_element_new(document, "table", 5);
-    html_node_t* tbody       = html_element_new(document, "tbody", 5);
-    html_node_t* tr       = html_element_new(document, "tr", 2);
-    html_node_t* td       = html_element_new(document, "td", 2);
-    html_node_t* table2       = html_element_new(document, "table", 5);
-    html_node_t* b1       = html_element_new(document, "b", 1);
-    html_node_t* x         = html_text_new(document, "X", 1);
-    html_node_t* c         = html_text_new(document, "C", 1);
-    html_node_t* y         = html_text_new(document, "Y", 1);
+    unsigned char buffer[]  = "<a><table><td><a><table></table><a></tr><a></table><b>X</b>C<a>Y";
+    dom_node_t* document    = dom_document_new();
+    dom_node_t* html        = dom_element_new(document, html_tag_html());
+    dom_node_t* head        = dom_element_new(document, html_tag_head());
+    dom_node_t* body        = dom_element_new(document, html_tag_body());
+    dom_node_t* a1          = dom_element_new(document, html_tag_a());
+    dom_node_t* a2          = dom_element_new(document, html_tag_a());
+    dom_node_t* a3          = dom_element_new(document, html_tag_a());
+    dom_node_t* a4          = dom_element_new(document, html_tag_a());
+    dom_node_t* a5          = dom_element_new(document, html_tag_a());
+    dom_node_t* a6          = dom_element_new(document, html_tag_a());
+    dom_node_t* table       = dom_element_new(document, html_tag_table());
+    dom_node_t* tbody       = dom_element_new(document, html_tag_tbody());
+    dom_node_t* tr          = dom_element_new(document, html_tag_tr());
+    dom_node_t* td          = dom_element_new(document, html_tag_td());
+    dom_node_t* table2      = dom_element_new(document, html_tag_table());
+    dom_node_t* b1          = dom_element_new(document, html_tag_b());
+    dom_node_t* x           = dom_text_new(document, "X", 1);
+    dom_node_t* c           = dom_text_new(document, "C", 1);
+    dom_node_t* y           = dom_text_new(document, "Y", 1);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -1048,21 +1050,21 @@ static void test_parser_12()
 {
     // https://html.spec.whatwg.org/multipage/parsing.html#unexpected-markup-in-tables
 
-    unsigned char buffer[] = "<table><b><tr><td>aaa</td></tr>bbb</table>ccc";
-    html_node_t* document   = html_document_new();
-    html_node_t* html       = html_element_new(document, "html", 4);
-    html_node_t* head       = html_element_new(document, "head", 4);
-    html_node_t* body       = html_element_new(document, "body", 4);
-    html_node_t* b1       = html_element_new(document, "b", 1);
-    html_node_t* b2       = html_element_new(document, "b", 1);
-    html_node_t* b3       = html_element_new(document, "b", 1);
-    html_node_t* t       = html_element_new(document, "table", 5);
-    html_node_t* tb       = html_element_new(document, "tbody", 5);
-    html_node_t* tr       = html_element_new(document, "tr", 2);
-    html_node_t* td       = html_element_new(document, "td", 2);
-    html_node_t* t1         = html_text_new(document, "bbb", 3);
-    html_node_t* t2         = html_text_new(document, "aaa", 3);
-    html_node_t* t3         = html_text_new(document, "ccc", 3);
+    unsigned char buffer[]  = "<table><b><tr><td>aaa</td></tr>bbb</table>ccc";
+    dom_node_t* document    = dom_document_new();
+    dom_node_t* html        = dom_element_new(document, html_tag_html());
+    dom_node_t* head        = dom_element_new(document, html_tag_head());
+    dom_node_t* body        = dom_element_new(document, html_tag_body());
+    dom_node_t* b1          = dom_element_new(document, html_tag_b());
+    dom_node_t* b2          = dom_element_new(document, html_tag_b());
+    dom_node_t* b3          = dom_element_new(document, html_tag_b());
+    dom_node_t* t           = dom_element_new(document, html_tag_table());
+    dom_node_t* tb          = dom_element_new(document, html_tag_tbody());
+    dom_node_t* tr          = dom_element_new(document, html_tag_tr());
+    dom_node_t* td          = dom_element_new(document, html_tag_td());
+    dom_node_t* t1          = dom_text_new(document, "bbb", 3);
+    dom_node_t* t2          = dom_text_new(document, "aaa", 3);
+    dom_node_t* t3          = dom_text_new(document, "ccc", 3);
 
     APPEND_TO_TREE(document, html);
     APPEND_TO_TREE(html, head);
@@ -1106,17 +1108,17 @@ static void test_parser_13()
     // |         "2"
 
     unsigned char buffer[] = "<a X>0<b>1<a Y>2";
-    html_node_t* expected   = html_document_new();
-    html_node_t* html       = html_element_new(expected, "html", 4);
-    html_node_t* head       = html_element_new(expected, "head", 4);
-    html_node_t* body       = html_element_new(expected, "body", 4);
-    html_node_t* a1       = html_element_new(expected, "a", 1);
-    html_node_t* a2       = html_element_new(expected, "a", 1);
-    html_node_t* b1       = html_element_new(expected, "b", 1);
-    html_node_t* b2       = html_element_new(expected, "b", 1);
-    html_node_t* t1       = html_text_new(expected, "0", 1);
-    html_node_t* t2       = html_text_new(expected, "1", 1);
-    html_node_t* t3       = html_text_new(expected, "2", 1);
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* a1          = dom_element_new(expected, html_tag_a());
+    dom_node_t* a2          = dom_element_new(expected, html_tag_a());
+    dom_node_t* b1          = dom_element_new(expected, html_tag_b());
+    dom_node_t* b2          = dom_element_new(expected, html_tag_b());
+    dom_node_t* t1          = dom_text_new(expected, "0", 1);
+    dom_node_t* t2          = dom_text_new(expected, "1", 1);
+    dom_node_t* t3          = dom_text_new(expected, "2", 1);
 
     APPEND_TO_TREE(expected, html);
     APPEND_TO_TREE(html, head);
@@ -1172,23 +1174,23 @@ static void test_parser_14()
     // |             <!-- X -->
 
     unsigned char buffer[] = "<!-----><font><div>hello<table>excite!<b>me!<th><i>please!</tr><!--X-->";
-    html_node_t* expected   = html_document_new();
-    html_node_t* html       = html_element_new(expected, "html", 4);
-    html_node_t* head       = html_element_new(expected, "head", 4);
-    html_node_t* body       = html_element_new(expected, "body", 4);
-    html_node_t* font       = html_element_new(expected, "font", 4);
-    html_node_t* div        = html_element_new(expected, "div", 3);
-    html_node_t* t1         = html_text_new(expected, "helloexcite!", 12);
-    html_node_t* t2         = html_text_new(expected, "me!", 3);
-    html_node_t* t3         = html_text_new(expected, "please!", 7);
-    html_node_t* c1         = html_comment_new(expected, "-", 1);
-    html_node_t* c2         = html_comment_new(expected, "X", 1);
-    html_node_t* table      = html_element_new(expected, "table", 5);
-    html_node_t* tbody      = html_element_new(expected, "tbody", 5);
-    html_node_t* tr         = html_element_new(expected, "tr", 2);
-    html_node_t* th         = html_element_new(expected, "th", 2);
-    html_node_t* i          = html_element_new(expected, "i", 1);
-    html_node_t* b          = html_element_new(expected, "b", 1);
+    dom_node_t* expected   = dom_document_new();
+    dom_node_t* html       = dom_element_new(expected, html_tag_html());
+    dom_node_t* head       = dom_element_new(expected, html_tag_head());
+    dom_node_t* body       = dom_element_new(expected, html_tag_body());
+    dom_node_t* font       = dom_element_new(expected, html_tag_font());
+    dom_node_t* div        = dom_element_new(expected, html_tag_div());
+    dom_node_t* t1         = dom_text_new(expected, "helloexcite!", 12);
+    dom_node_t* t2         = dom_text_new(expected, "me!", 3);
+    dom_node_t* t3         = dom_text_new(expected, "please!", 7);
+    dom_node_t* c1         = dom_comment_new(expected, "-", 1);
+    dom_node_t* c2         = dom_comment_new(expected, "X", 1);
+    dom_node_t* table      = dom_element_new(expected, html_tag_table());
+    dom_node_t* tbody      = dom_element_new(expected, html_tag_tbody());
+    dom_node_t* tr         = dom_element_new(expected, html_tag_tr());
+    dom_node_t* th         = dom_element_new(expected, html_tag_th());
+    dom_node_t* i          = dom_element_new(expected, html_tag_i());
+    dom_node_t* b          = dom_element_new(expected, html_tag_b());
 
     APPEND_TO_TREE(expected, c1);
     APPEND_TO_TREE(expected, html);
@@ -1233,20 +1235,20 @@ static void test_parser_15()
     // |   <!-- do -->
 
     unsigned char buffer[] = "<!DOCTYPE html><li>hello<li>world<ul>how<li>do</ul>you</body><!--do-->";
-    html_node_t* expected   = html_document_new();
-    html_node_t* html       = html_element_new(expected, "html", 4);
-    html_node_t* head       = html_element_new(expected, "head", 4);
-    html_node_t* body       = html_element_new(expected, "body", 4);
-    html_node_t* li1        = html_element_new(expected, "li", 2);
-    html_node_t* li2        = html_element_new(expected, "li", 2);
-    html_node_t* li3        = html_element_new(expected, "li", 2);
-    html_node_t* ul         = html_element_new(expected, "ul", 2);
-    html_node_t* t1         = html_text_new(expected, "hello", 5);
-    html_node_t* t2         = html_text_new(expected, "world", 5);
-    html_node_t* t3         = html_text_new(expected, "how", 3);
-    html_node_t* t4         = html_text_new(expected, "do", 2);
-    html_node_t* t5         = html_text_new(expected, "you", 3);
-    html_node_t* c1         = html_comment_new(expected, "do", 2);
+    dom_node_t* expected   = dom_document_new();
+    dom_node_t* html       = dom_element_new(expected, html_tag_html());
+    dom_node_t* head       = dom_element_new(expected, html_tag_head());
+    dom_node_t* body       = dom_element_new(expected, html_tag_body());
+    dom_node_t* li1        = dom_element_new(expected, html_tag_li());
+    dom_node_t* li2        = dom_element_new(expected, html_tag_li());
+    dom_node_t* li3        = dom_element_new(expected, html_tag_li());
+    dom_node_t* ul         = dom_element_new(expected, html_tag_ul());
+    dom_node_t* t1         = dom_text_new(expected, "hello", 5);
+    dom_node_t* t2         = dom_text_new(expected, "world", 5);
+    dom_node_t* t3         = dom_text_new(expected, "how", 3);
+    dom_node_t* t4         = dom_text_new(expected, "do", 2);
+    dom_node_t* t5         = dom_text_new(expected, "you", 3);
+    dom_node_t* c1         = dom_comment_new(expected, "do", 2);
 
     APPEND_TO_TREE(expected, html);
     APPEND_TO_TREE(html, head);
@@ -1265,14 +1267,14 @@ static void test_parser_15()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
 }
 
-// html_parser_init();
-// html_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
+// dom_parser_init();
+// dom_node_t* actual = dom_parser_run(buffer, sizeof(buffer) - 1);
 // ASSERT_NODE(actual, expected);
 // print_document_tree(actual, 0);
 // print_document_tree(expected, 0);
-// html_node_free(expected);
-// html_node_free(actual);
-// html_parser_free();
+// dom_node_free(expected);
+// dom_node_free(actual);
+// dom_parser_free();
 
 void test_html_parser_test1()
 {
@@ -1295,7 +1297,7 @@ void test_html_parser_test1()
     TEST_CASE(test_when_only_closed_body_tag_is_provided_then_we_add_missing_html_and_head_tags);
     TEST_CASE(test_when_only_closed_html_tag_is_provided_then_we_add_missing_body_and_head_tags);
     TEST_CASE(missing_tags_1);
-    // TEST_CASE(missing_tags_2);
+    // TEST_CASE(missing_html_tag_2);
     TEST_CASE(test_parser_1);
     // TEST_CASE(test_parser_2);
     TEST_CASE(test_parser_3);

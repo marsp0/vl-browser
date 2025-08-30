@@ -6,12 +6,19 @@
 
 dom_node_t* dom_document_new()
 {
-    dom_document_t* document           = malloc(sizeof(dom_document_t));
-    dom_node_t* node                   = dom_node_from_document(document);
+    dom_document_t* document    = malloc(sizeof(dom_document_t));
+    dom_node_t* node            = dom_node_from_document(document);
 
     dom_node_initialize(node, DOM_NODE_DOCUMENT, NULL);
-    node->document                      = node;
-    node->name = hash_str_new("#document", 9);
+    node->document              = node;
+    node->name                  = hash_str_new("#document", 9);
+
+    document->url               = 0;
+    document->uri               = 0;
+    document->compat_mode       = 0;
+    document->character_set     = 0;
+    document->content_set       = 0;
+    document->content_type      = 0;
 
     document->parser_cannot_change_mode = false;
 

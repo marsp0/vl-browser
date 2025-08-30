@@ -129,6 +129,8 @@ void dom_text_free(dom_node_t* node);
 
 void dom_node_initialize(dom_node_t* node, dom_node_type_e type, dom_node_t* document)
 {
+    // note: should name be initialized here?
+
     node->type          = type;
     node->document      = document;
     node->is_connected  = false;

@@ -14,7 +14,8 @@
 /*      defines     */
 /********************/
 
-#define INITIAL_SIZE 30
+// todo: make this reallocation automatic
+#define INITIAL_SIZE 120
 #define INITIAL_MULTIPLIER 6
 
 /********************/
@@ -77,24 +78,38 @@ static hash_str_t hash_str(const unsigned char* str, const uint32_t str_size)
 }
 
 
+static void populate(str_t* node, hash_str_t hash, const unsigned char* str, const uint32_t str_size)
+{
+    node->hash = hash;
+    node->data = malloc(str_size);
+    node->data_size = str_size;
+
+    memcpy(node->data, str, str_size);
+}
+
+
 static void append(hash_str_t hash, const unsigned char* str, const uint32_t str_size)
 {
-    str_t* new      = get_free_node();
-    new->data       = malloc(str_size);
-    new->data_size  = str_size;
-    new->hash       = hash;
+    str_t* node = find_node(hash);
 
-    memcpy(new->data, str, str_size);
+    if (node) { return; }
 
     uint32_t idx = hash % table_size;
 
-    str_t* node = find_node(hash);
-    if (node) { return; }
+    if (table[idx].hash == 0)
+    {
+        populate(&table[idx], hash, str, str_size);
+    }
+    else
+    {
+        str_t* new = get_free_node();
+        populate(new, hash, str, str_size);
 
-    node = &table[idx];
-    while (node->next) { node = node->next; }
-
-    node->next = new;
+        node = &table[idx];
+        while (node->next) { node = node->next; }
+    
+        node->next = new;
+    }
 }
 
 
@@ -115,6 +130,8 @@ void hash_str_pool_new()
 
     table       = malloc(sizeof(str_t) * INITIAL_SIZE * INITIAL_MULTIPLIER);
 
+    printf("Allocating string pool: %lu\n", sizeof(str_t) * INITIAL_SIZE * INITIAL_MULTIPLIER);
+
     total_nodes = INITIAL_SIZE * INITIAL_MULTIPLIER;
     table_size  = INITIAL_SIZE;
     next_slot   = INITIAL_SIZE;
@@ -129,6 +146,12 @@ hash_str_t hash_str_new(const unsigned char* str, const uint32_t str_size)
     append(hash, str, str_size);
 
     return hash;
+}
+
+
+hash_str_t hash_str_compute(const unsigned char* str, const uint32_t str_size)
+{
+    return hash_str(str, str_size);
 }
 
 
@@ -147,6 +170,27 @@ uint32_t hash_str_get_size(hash_str_t hash)
     assert(node);
 
     return node->data_size;
+}
+
+
+void hash_str_pool_stats()
+{
+    for (uint32_t i = 0; i < table_size; i++)
+    {
+        if (table[i].hash == 0) { continue; }
+
+        printf("[%u] +", i);
+
+        str_t* node = &table[i];
+
+        while (node)
+        {
+            printf("+");
+            node = node->next;
+        }
+
+        printf("\n");
+    }
 }
 
 

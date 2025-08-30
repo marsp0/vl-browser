@@ -11,7 +11,7 @@ dom_element_t* dom_element_from_node(dom_node_t* node);
 dom_node_t*    dom_node_from_element(dom_element_t* element);
 
 
-void dom_element_initialize(dom_element_t* element, dom_node_t* document, unsigned char* local_name, uint32_t local_name_size)
+void dom_element_initialize(dom_element_t* element, dom_node_t* document, hash_str_t name)
 {
     dom_node_t* node = dom_node_from_element(element);
 
@@ -25,39 +25,33 @@ void dom_element_initialize(dom_element_t* element, dom_node_t* document, unsign
     element->namespace = hash_str_new(HTML_NAMESPACE, HTML_NAMESPACE_SIZE);
     // element->local_name = hash_str_new(local_name, local_name_size);
 
-    unsigned char temp[MAX_HTML_NAME_LEN];
+    unsigned char temp[MAX_HTML_NAME_LEN]   = { 0 };
+    const unsigned char* name_str           = hash_str_get(name);
+    const uint32_t name_str_size            = hash_str_get_size(name);
 
-    // set local name
-    memset(temp, 0, MAX_HTML_NAME_LEN);
-    assert(local_name_size <= MAX_HTML_NAME_LEN);
+    assert(name_str_size <= MAX_HTML_NAME_LEN);
 
-    for (uint32_t i = 0; i < local_name_size; i++)
-    {
-        temp[i] = local_name[i];
-
-        if (local_name[i] < 'a' && local_name[i] >= 'A')    { temp[i] += 0x20; }
-    }
-
-    element->local_name = hash_str_new(temp, local_name_size);
+    element->local_name = name;
+    node->name = name;
 
     // set tag name
-    for (uint32_t i = 0; i < local_name_size; i++)
+    for (uint32_t i = 0; i < name_str_size; i++)
     {
-        temp[i] = local_name[i];
+        temp[i] = name_str[i];
 
-        if (local_name[i] >= 'a' && local_name[i] <= 'z')   { temp[i] -= 0x20; }
+        if (temp[i] >= 'a' && temp[i] <= 'z')   { temp[i] -= 0x20; }
     }
 
-    element->tag_name = hash_str_new(temp, local_name_size);
+    element->tag_name = hash_str_new(temp, name_str_size);
 
     // todo: step 6.3 - finish
 }
 
 
-dom_node_t* dom_element_new(dom_node_t* document, unsigned char* local_name, uint32_t local_name_size)
+dom_node_t* dom_element_new(dom_node_t* document, hash_str_t name)
 {
     dom_element_t* element = malloc(sizeof(dom_element_t));
-    dom_element_initialize(element, document, local_name, local_name_size);
+    dom_element_initialize(element, document, name);
 
     return dom_node_from_element(element);
 }
