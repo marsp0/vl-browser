@@ -2122,8 +2122,6 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_option())
                 {
-                    // dom_node_t* current = stack[stack_idx];
-                    // dom_element_t* element = (dom_element_t*)current->data;
                     if (in_scope(html_tag_select(), GENERIC_SCOPE))
                     {
                         generate_implied_end_tags(html_tag_optgroup());
