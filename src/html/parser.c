@@ -360,8 +360,8 @@ static void insert_character(unsigned char* data, uint32_t data_size)
     dom_node_t* location   = insertion_position.parent;
     dom_node_t* child      = insertion_position.child;
 
-    if (!child) { child = location->last_child; }
-    else        { child = child->prev_sibling; }
+    if (!child) { child = location->last; }
+    else        { child = child->prev; }
 
     if (location->type == DOM_NODE_DOCUMENT) { return; }
 
@@ -955,12 +955,12 @@ static bool run_adoption_procedure(const hash_str_t t_name)
         dom_node_t* new_element = create_element(formatting_node_t_name, furthest);
 
         // step 16
-        dom_node_t* child = furthest->first_child;
+        dom_node_t* child = furthest->first;
         while (child)
         {
             dom_node_remove(furthest, child);
             dom_node_append(new_element, child);
-            child = child->next_sibling;
+            child = child->next;
         }
 
         // step 17

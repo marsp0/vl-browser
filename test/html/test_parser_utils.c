@@ -30,10 +30,10 @@ void print_document_tree(dom_node_t* node, uint32_t level)
         printf("<!-- %s -->\n", comment->data);
     }
 
-    dom_node_t* child = node->first_child;
+    dom_node_t* child = node->first;
     while (child)
     {
         print_document_tree(child, level + 1);
-        child = child->next_sibling;
+        child = child->next;
     }
 }

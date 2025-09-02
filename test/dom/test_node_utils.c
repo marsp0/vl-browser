@@ -43,8 +43,8 @@ void ASSERT_NODE(dom_node_t* a, dom_node_t* e)
         ASSERT_NODE_COMMENT(a_data, e_data);
     }
 
-    dom_node_t* a_child = a->first_child;
-    dom_node_t* e_child = e->first_child;
+    dom_node_t* a_child = a->first;
+    dom_node_t* e_child = e->first;
 
     while (a_child || e_child)
     {
@@ -52,8 +52,8 @@ void ASSERT_NODE(dom_node_t* a, dom_node_t* e)
 
         if (!a_child || !e_child) { break; }
 
-        a_child = a_child->next_sibling;
-        e_child = e_child->next_sibling;
+        a_child = a_child->next;
+        e_child = e_child->next;
     }
 }
 

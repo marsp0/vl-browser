@@ -49,10 +49,10 @@ typedef struct dom_node_t
     struct dom_node_t*      document;
     struct dom_node_t*      parent;                         // also used for parent_element
 
-    struct dom_node_t*      first_child;
-    struct dom_node_t*      last_child;
-    struct dom_node_t*      prev_sibling;
-    struct dom_node_t*      next_sibling;
+    struct dom_node_t*      first;
+    struct dom_node_t*      last;
+    struct dom_node_t*      prev;
+    struct dom_node_t*      next;
 
 } dom_node_t;
 

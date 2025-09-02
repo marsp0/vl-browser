@@ -45,42 +45,38 @@ static dom_node_t* dom_insert_node(dom_node_t* parent, dom_node_t* node, dom_nod
     // todo: step 2
     // todo: step 3
     // todo: step 4
-    // todo: step 5
-
-    // dom_node_t* prev = parent->last_child;
-    // if (child) { prev = child->prev_sibling; }
-    
+    // todo: step 5    
 
     if (!child)
     {
-        dom_node_t* prev = parent->last_child;
+        dom_node_t* prev = parent->last;
         if (prev)
         {
-            prev->next_sibling = node;
-            node->prev_sibling = prev;
-            parent->last_child = node;
+            prev->next = node;
+            node->prev = prev;
+            parent->last = node;
         }
         else
         {
-            parent->first_child = node;
-            parent->last_child = node;
+            parent->first = node;
+            parent->last = node;
         }
     }
     else
     {
-        dom_node_t* prev = child->prev_sibling;
+        dom_node_t* prev = child->prev;
         if (prev)
         {
-            prev->next_sibling = node;
-            node->prev_sibling = prev;
-            child->prev_sibling = node;
-            node->next_sibling = child;
+            prev->next = node;
+            node->prev = prev;
+            child->prev = node;
+            node->next = child;
         }
         else
         {
-            node->next_sibling = child;
-            child->prev_sibling = node;
-            parent->first_child = node;
+            node->next = child;
+            child->prev = node;
+            parent->first = node;
         }
     }
 
@@ -111,7 +107,7 @@ static dom_node_t* dom_pre_insert_node(dom_node_t* parent, dom_node_t* node, dom
     }
 
     dom_node_t* ref_child = child;
-    if (ref_child == node) { ref_child = node->next_sibling; }
+    if (ref_child == node) { ref_child = node->next; }
 
     return dom_insert_node(parent, node, ref_child, false);
 }
@@ -134,10 +130,10 @@ void dom_node_initialize(dom_node_t* node, dom_node_type_e type, dom_node_t* doc
     node->type          = type;
     node->document      = document;
     node->is_connected  = false;
-    node->first_child   = NULL;
-    node->last_child    = NULL;
-    node->next_sibling  = NULL;
-    node->prev_sibling  = NULL;
+    node->first   = NULL;
+    node->last    = NULL;
+    node->next  = NULL;
+    node->prev  = NULL;
 
     assert(node->type != DOM_NODE_INVALID);
 }
@@ -165,27 +161,27 @@ dom_node_t* dom_node_remove(dom_node_t* node, dom_node_t* child)
 
     // todo: live range logic
 
-    dom_node_t* prev_sibling = child->prev_sibling;
-    dom_node_t* next_sibling = child->next_sibling;
+    dom_node_t* prev = child->prev;
+    dom_node_t* next = child->next;
 
-    if (prev_sibling)
+    if (prev)
     {
-        prev_sibling->next_sibling = next_sibling;
+        prev->next = next;
     }
 
-    if (next_sibling)
+    if (next)
     {
-        next_sibling->prev_sibling = prev_sibling;
+        next->prev = prev;
     }
 
-    if (node->first_child == child)
+    if (node->first == child)
     {
-        node->first_child = next_sibling;
+        node->first = next;
     }
 
-    if (node->last_child == child)
+    if (node->last == child)
     {
-        node->last_child = prev_sibling;
+        node->last = prev;
     }
 
     child->parent = NULL;
@@ -196,10 +192,10 @@ dom_node_t* dom_node_remove(dom_node_t* node, dom_node_t* child)
 
 void dom_node_free(dom_node_t* node)
 {
-    dom_node_t* child = node->last_child;
+    dom_node_t* child = node->last;
     while (child)
     {
-        dom_node_t* prev = child->prev_sibling;
+        dom_node_t* prev = child->prev;
 
         // BIG TODO: how do we dispose of all of this
         if (child->type == DOM_NODE_DOCUMENT)  { dom_document_free(child); }
