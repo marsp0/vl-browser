@@ -13,8 +13,8 @@ void ASSERT_NODE(dom_node_t* a, dom_node_t* e)
         return;
     }
 
-    dom_node_type_e e_type         = e->type;
-    dom_node_type_e a_type         = a->type;
+    uint64_t e_type = e->type;
+    uint64_t a_type = a->type;
 
     ASSERT_HASH_STRING(a->name, e->name);
 

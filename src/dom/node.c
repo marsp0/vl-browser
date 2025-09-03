@@ -123,7 +123,7 @@ void dom_text_free(dom_node_t* node);
 /********************/
 
 
-void dom_node_initialize(dom_node_t* node, dom_node_type_e type, dom_node_t* document)
+void dom_node_initialize(dom_node_t* node, uint64_t type, dom_node_t* document)
 {
     // note: should name be initialized here?
 

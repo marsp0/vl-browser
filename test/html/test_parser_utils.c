@@ -7,7 +7,7 @@ void print_document_tree(dom_node_t* node, uint32_t level)
         printf("  ");
     }
 
-    dom_node_type_e type = node->type;
+    uint64_t type = node->type;
     if (type == DOM_NODE_ELEMENT)
     {
         dom_element_t* element = dom_element_from_node(node);
