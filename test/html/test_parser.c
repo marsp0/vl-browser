@@ -1315,6 +1315,347 @@ static void test_parser_16()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
 }
 
+
+static void test_parser_17()
+{
+    // #data
+    // <
+    // #errors
+    // (1,1): expected-tag-name
+    // (1,1): expected-doctype-but-got-chars
+    // #new-errors
+    // (1:2) eof-before-tag-name
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     "<"
+
+    unsigned char buffer[]  = "<";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* t1          = dom_text_new(expected, "<", 1);
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, t1);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_18()
+{
+    // #data
+    // <#
+    // #errors
+    // (1,1): expected-tag-name
+    // (1,1): expected-doctype-but-got-chars
+    // #new-errors
+    // (1:2) invalid-first-character-of-tag-name
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     "<#"
+
+    unsigned char buffer[]  = "<#";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* t1          = dom_text_new(expected, "<#", 2);
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, t1);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_19()
+{
+    // #data
+    // </
+    // #errors
+    // (1,1): expected-tag-name
+    // (1,1): expected-doctype-but-got-chars
+    // #new-errors
+    // (1:2) invalid-first-character-of-tag-name
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     "</"
+
+    unsigned char buffer[]  = "</";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* t1          = dom_text_new(expected, "</", 2);
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, t1);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_20()
+{
+    // #data
+    // </#
+    // #errors
+    // (1,2): expected-closing-tag-but-got-char
+    // (1,3): expected-doctype-but-got-eof
+    // #new-errors
+    // (1:3) invalid-first-character-of-tag-name
+    // #document
+    // | <!-- # -->
+    // | <html>
+    // |   <head>
+    // |   <body>
+
+    unsigned char buffer[]  = "</#";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* c           = dom_comment_new(expected, "#", 1);
+
+    APPEND_TO_TREE(expected, c);
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_21()
+{
+    // #data
+    // <?
+    // #errors
+    // (1,1): expected-tag-name-but-got-question-mark
+    // (1,2): expected-doctype-but-got-eof
+    // #new-errors
+    // (1:2) unexpected-question-mark-instead-of-tag-name
+    // #document
+    // | <!-- ? -->
+    // | <html>
+    // |   <head>
+    // |   <body>
+
+    unsigned char buffer[]  = "<?";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* c           = dom_comment_new(expected, "?", 1);
+
+    APPEND_TO_TREE(expected, c);
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_22()
+{
+    // #data
+    // <?#
+    // #errors
+    // (1,1): expected-tag-name-but-got-question-mark
+    // (1,3): expected-doctype-but-got-eof
+    // #new-errors
+    // (1:2) unexpected-question-mark-instead-of-tag-name
+    // #document
+    // | <!-- ?# -->
+    // | <html>
+    // |   <head>
+    // |   <body>
+
+    unsigned char buffer[]  = "<?#";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* c           = dom_comment_new(expected, "?#", 2);
+
+    APPEND_TO_TREE(expected, c);
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_23()
+{
+    // #data
+    // <!
+    // #errors
+    // (1,2): expected-dashes-or-doctype
+    // (1,2): expected-doctype-but-got-eof
+    // #new-errors
+    // (1:3) incorrectly-opened-comment
+    // #document
+    // | <!--  -->
+    // | <html>
+    // |   <head>
+    // |   <body>
+
+    unsigned char buffer[]  = "<!";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* c           = dom_comment_new(expected, "", 0);
+
+    APPEND_TO_TREE(expected, c);
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_24()
+{
+    // #data
+    // <!#
+    // #errors
+    // (1,2): expected-dashes-or-doctype
+    // (1,3): expected-doctype-but-got-eof
+    // #new-errors
+    // (1:3) incorrectly-opened-comment
+    // #document
+    // | <!-- # -->
+    // | <html>
+    // |   <head>
+    // |   <body>
+
+    unsigned char buffer[]  = "<!#";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* c           = dom_comment_new(expected, "#", 1);
+
+    APPEND_TO_TREE(expected, c);
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_25()
+{
+    // #data
+    // <?COMMENT?>
+    // #errors
+    // (1,1): expected-tag-name-but-got-question-mark
+    // (1,11): expected-doctype-but-got-eof
+    // #new-errors
+    // (1:2) unexpected-question-mark-instead-of-tag-name
+    // #document
+    // | <!-- ?COMMENT? -->
+    // | <html>
+    // |   <head>
+    // |   <body>
+
+    unsigned char buffer[]  = "<?COMMENT?>";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* c           = dom_comment_new(expected, "?COMMENT?", 9);
+
+    APPEND_TO_TREE(expected, c);
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_26()
+{
+    // #data
+    // <!COMMENT>
+    // #errors
+    // (1,2): expected-dashes-or-doctype
+    // (1,10): expected-doctype-but-got-eof
+    // #new-errors
+    // (1:3) incorrectly-opened-comment
+    // #document
+    // | <!-- COMMENT -->
+    // | <html>
+    // |   <head>
+    // |   <body>
+
+    unsigned char buffer[]  = "<!COMMENT>";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* c           = dom_comment_new(expected, "COMMENT", 7);
+
+    APPEND_TO_TREE(expected, c);
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_27()
+{
+    // #data
+    // </ COMMENT >
+    // #errors
+    // (1,2): expected-closing-tag-but-got-char
+    // (1,12): expected-doctype-but-got-eof
+    // #new-errors
+    // (1:3) invalid-first-character-of-tag-name
+    // #document
+    // | <!--  COMMENT  -->
+    // | <html>
+    // |   <head>
+    // |   <body>
+
+    unsigned char buffer[]  = "</ COMMENT >";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* c           = dom_comment_new(expected, " COMMENT ", 9);
+
+    APPEND_TO_TREE(expected, c);
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
 // html_parser_init();
 // dom_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
 // ASSERT_NODE(actual, expected);
@@ -1362,4 +1703,15 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_14);
     TEST_CASE(test_parser_15);
     TEST_CASE(test_parser_16);
+    TEST_CASE(test_parser_17);
+    TEST_CASE(test_parser_18);
+    TEST_CASE(test_parser_19);
+    TEST_CASE(test_parser_20);
+    TEST_CASE(test_parser_21);
+    TEST_CASE(test_parser_22);
+    TEST_CASE(test_parser_23);
+    TEST_CASE(test_parser_24);
+    TEST_CASE(test_parser_25);
+    TEST_CASE(test_parser_26);
+    TEST_CASE(test_parser_27);
 }
