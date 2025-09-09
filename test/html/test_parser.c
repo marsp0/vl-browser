@@ -1267,14 +1267,62 @@ static void test_parser_15()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
 }
 
-// dom_parser_init();
-// dom_node_t* actual = dom_parser_run(buffer, sizeof(buffer) - 1);
+
+static void test_parser_16()
+{
+    // #data
+    // <!DOCTYPE html>A<option>B<optgroup>C<select>D</option>E
+    // #errors
+    // (1,54): unexpected-end-tag-in-select
+    // (1,55): eof-in-select
+    // #document
+    // | <!DOCTYPE html>
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     "A"
+    // |     <option>
+    // |       "B"
+    // |     <optgroup>
+    // |       "C"
+    // |       <select>
+    // |         "DE"
+
+    unsigned char buffer[]  = "<!DOCTYPE html>A<option>B<optgroup>C<select>D</option>E";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* t1          = dom_text_new(expected, "A", 1);
+    dom_node_t* o1          = dom_element_new(expected, html_tag_option());
+    dom_node_t* t2          = dom_text_new(expected, "B", 1);
+    dom_node_t* og1         = dom_element_new(expected, html_tag_optgroup());
+    dom_node_t* t3          = dom_text_new(expected, "C", 1);
+    dom_node_t* s           = dom_element_new(expected, html_tag_select());
+    dom_node_t* t4          = dom_text_new(expected, "DE", 2);
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, t1);
+    APPEND_TO_TREE(body, o1);
+    APPEND_TO_TREE(o1, t2);
+    APPEND_TO_TREE(body, og1);
+    APPEND_TO_TREE(og1, t3);
+    APPEND_TO_TREE(og1, s);
+    APPEND_TO_TREE(s, t4);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+// html_parser_init();
+// dom_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
 // ASSERT_NODE(actual, expected);
 // print_document_tree(actual, 0);
 // print_document_tree(expected, 0);
 // dom_node_free(expected);
 // dom_node_free(actual);
-// dom_parser_free();
+// html_parser_free();
 
 void test_html_parser_test1()
 {
@@ -1313,4 +1361,5 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_13);
     TEST_CASE(test_parser_14);
     TEST_CASE(test_parser_15);
+    TEST_CASE(test_parser_16);
 }

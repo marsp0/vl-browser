@@ -12,6 +12,7 @@
 #include "dom/doctype.h"
 #include "dom/element.h"
 #include "dom/text.h"
+#include "html/select.h"
 #include "util/not_implemented.h"
 #include "html/tag_constants.h"
 
@@ -151,7 +152,7 @@ static bool stack_contains_element(hash_str_t name)
         dom_node_t* node = stack[i];
 
         if (!node)                              { return false; }
-        if (node->type != DOM_NODE_ELEMENT)    { continue; }
+        if (node->type != DOM_NODE_ELEMENT)     { continue; }
         if (node->name == name)                 { return true; }
 
         // todo: figure out which name to use and perform case insensitive comparison
@@ -187,16 +188,19 @@ static bool in_scope(const hash_str_t name, dom_element_scope_e scope)
 
         if (node_name == name) { return true; }
 
+        // applies to all scopes
         if (node_name == html_tag_html() || node_name == html_tag_table() || node_name == html_tag_template())
         {
             return false;
         }
 
+        // generic, button and list scope
         if ((scope != TABLE_SCOPE) && (node_name == html_tag_applet() ||
                                        node_name == html_tag_caption() ||
                                        node_name == html_tag_td() ||
                                        node_name == html_tag_th() ||
                                        node_name == html_tag_marquee() ||
+                                       node_name == html_tag_select() ||
                                        node_name == html_tag_object()))
         {
             return false;
@@ -303,6 +307,13 @@ static void insert_comment(html_token_t* token, dom_node_t* position)
 }
 
 
+static dom_node_t* create_appropriate_element(dom_node_t* doc, hash_str_t name)
+{
+    if (name == html_tag_select())  { return html_select_new(doc);              }
+    else                            { return html_element_new(doc, name);       }
+}
+
+
 static dom_node_t* create_element(hash_str_t name, dom_node_t* parent)
 {
     // todo: step 1
@@ -317,7 +328,7 @@ static dom_node_t* create_element(hash_str_t name, dom_node_t* parent)
     // todo: step 9
 
     dom_node_t* doc        = parent->document;
-    dom_node_t* element    = dom_element_new(doc, name);
+    dom_node_t* element    = create_appropriate_element(doc, name);
 
     // todo: step 11
     // todo: step 12
@@ -1134,6 +1145,43 @@ static void reset_insertion_mode_appropriately()
         idx--;
         node = stack[idx];
     }
+}
+
+
+static dom_node_t* find_first_in_stack(hash_str_t name)
+{
+    for (uint32_t i = 0; i < stack_size; i++)
+    {
+        if (stack[i]->name == name)
+        {
+            return stack[i];
+        }
+    }
+
+    return NULL;
+}
+
+
+static dom_node_t* find_nearest_ancestor(dom_node_t* node, hash_str_t name)
+{
+    dom_node_t* parent = node->parent;
+
+    while (parent && parent->type != DOM_NODE_DOCUMENT)
+    {
+        if (parent->name == name) { return parent; }
+
+        parent = parent->parent;
+    }
+
+    return NULL;
+}
+
+static void maybe_clone_option_into_selected_content(dom_node_t* option)
+{
+    dom_node_t* select = find_nearest_ancestor(option, html_tag_select());
+
+    if (!select) { return; }
+
 }
 
 /********************/
@@ -2127,7 +2175,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                         generate_implied_end_tags(html_tag_optgroup());
                         if (in_scope(html_tag_option(), GENERIC_SCOPE))
                         {
-                            // todo: parse error
+                            INCOMPLETE_IMPLEMENTATION("parse error");
                         }
                     }
                     else
@@ -2144,11 +2192,33 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_optgroup())
                 {
-                    NOT_IMPLEMENTED
+                    if (in_scope(html_tag_select(), GENERIC_SCOPE))
+                    {
+                        generate_implied_end_tags(0);
+                        if (in_scope(html_tag_option(), GENERIC_SCOPE) || in_scope(html_tag_optgroup(), GENERIC_SCOPE))
+                        {
+                            INCOMPLETE_IMPLEMENTATION("parse error");
+                        }
+                    }
+                    else
+                    {
+                        dom_node_t* current = stack[stack_idx];
+                        if (current->name == html_tag_option()) { stack_pop(); }
+                    }
+
+                    reconstruct_formatting_elements();
+                    insert_html_element(t_name);
                 }
                 else if (is_end && t_name == html_tag_option())
                 {
-                    NOT_IMPLEMENTED
+                    dom_node_t* option = find_first_in_stack(html_tag_option());
+
+                    handle_end_tag_in_body(t_name);
+
+                    if (option && !stack_contains_node(option))
+                    {
+                        maybe_clone_option_into_selected_content(option);
+                    }
                 }
                 else if (is_start && (t_name == html_tag_rb() || t_name == html_tag_rtc()))
                 {

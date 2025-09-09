@@ -173,6 +173,15 @@ uint32_t hash_str_get_size(hash_str_t hash)
 }
 
 
+void hash_str_print(hash_str_t hash)
+{
+    const unsigned char* str = hash_str_get(hash);
+    const uint32_t str_size = hash_str_get_size(hash);
+
+    printf("%u - %.*s\n", hash, str_size, str);
+}
+
+
 void hash_str_pool_stats()
 {
     for (uint32_t i = 0; i < table_size; i++)

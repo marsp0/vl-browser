@@ -44,6 +44,10 @@ void dom_element_initialize(dom_element_t* element, dom_node_t* document, hash_s
 
     element->tag_name = hash_str_new(temp, name_str_size);
 
+    element->prefix = 0;
+    element->id = 0;
+    element->class_name = 0;
+
     // todo: step 6.3 - finish
 }
 
@@ -73,7 +77,6 @@ dom_node_t* dom_node_from_element(dom_element_t* element)
 
 void dom_element_free(dom_node_t* node)
 {
-    dom_node_free(node);
     assert(node->type == DOM_NODE_ELEMENT);
 
     dom_element_t* element = dom_element_from_node(node);

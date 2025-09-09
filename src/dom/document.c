@@ -42,7 +42,6 @@ dom_document_t* dom_document_from_node(dom_node_t* node)
 
 void dom_document_free(dom_node_t* node)
 {
-    dom_node_free(node);
     assert(node->type == DOM_NODE_DOCUMENT);
 
     dom_document_t* document = dom_document_from_node(node);

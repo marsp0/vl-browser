@@ -18,3 +18,5 @@
 #define DOM_NODE_DOCUMENT_FRAGMENT      __BIT(13)
 #define DOM_NODE_NOTATION               __BIT(14)
 #define HTML_NODE_ELEMENT               __BIT(15)
+#define HTML_NODE_SELECT                __BIT(16)
+#define HTML_NODE_OPTION                __BIT(17)

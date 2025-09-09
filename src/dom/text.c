@@ -53,7 +53,6 @@ dom_node_t* dom_node_from_text(dom_text_t* text)
 
 void dom_text_free(dom_node_t* node)
 {
-    dom_node_free(node);
     assert(node->type == DOM_NODE_TEXT);
 
     dom_text_t* text = dom_text_from_node(node);

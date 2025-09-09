@@ -38,7 +38,6 @@ dom_doctype_t* dom_doctype_from_node(dom_node_t* node)
 
 void dom_doctype_free(dom_node_t* node)
 {
-    dom_node_free(node);
     assert(node->type == DOM_NODE_DOCTYPE);
 
     dom_doctype_t* doctype = dom_doctype_from_node(node);

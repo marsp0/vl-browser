@@ -45,7 +45,6 @@ dom_node_t* dom_node_from_comment(dom_comment_t* comment)
 
 void dom_comment_free(dom_node_t* node)
 {
-    dom_node_free(node);
     assert(node->type == DOM_NODE_COMMENT);
 
     dom_comment_t* comment = dom_comment_from_node(node);

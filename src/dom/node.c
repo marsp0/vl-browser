@@ -117,6 +117,8 @@ void dom_document_free(dom_node_t* node);
 void dom_doctype_free(dom_node_t* node);
 void dom_comment_free(dom_node_t* node);
 void dom_text_free(dom_node_t* node);
+void html_element_free(dom_node_t* node);
+void html_select_free(dom_node_t* node);
 
 /********************/
 /* public functions */
@@ -196,14 +198,15 @@ void dom_node_free(dom_node_t* node)
     while (child)
     {
         dom_node_t* prev = child->prev;
-
-        // BIG TODO: how do we dispose of all of this
-        if (child->type == DOM_NODE_DOCUMENT)  { dom_document_free(child); }
-        if (child->type == DOM_NODE_DOCTYPE)   { dom_doctype_free(child); }
-        if (child->type == DOM_NODE_ELEMENT)   { dom_element_free(child); }
-        if (child->type == DOM_NODE_COMMENT)   { dom_comment_free(child); }
-        if (child->type == DOM_NODE_TEXT)      { dom_text_free(child); }
-
+        dom_node_free(child);
         child = prev;
     }
+
+    if (node->type == HTML_NODE_SELECT)     { html_select_free(node);   }
+    if (node->type == HTML_NODE_ELEMENT)    { html_element_free(node);  }
+    if (node->type == DOM_NODE_DOCUMENT)    { dom_document_free(node);  }
+    if (node->type == DOM_NODE_DOCTYPE)     { dom_doctype_free(node);   }
+    if (node->type == DOM_NODE_ELEMENT)     { dom_element_free(node);   }
+    if (node->type == DOM_NODE_COMMENT)     { dom_comment_free(node);   }
+    if (node->type == DOM_NODE_TEXT)        { dom_text_free(node);      }
 }
