@@ -24,10 +24,6 @@
 /* static functions */
 /********************/
 
-static bool is_select(dom_node_t* node)
-{
-    return node->type | HTML_NODE_SELECT;
-}
 
 /********************/
 /* public functions */
@@ -43,9 +39,15 @@ dom_node_t* html_select_new(dom_node_t* document)
 }
 
 
+bool html_node_is_select(dom_node_t* node)
+{
+    return node->type & HTML_NODE_SELECT;
+}
+
+
 html_select_t* html_select_from_node(dom_node_t* node)
 {
-    assert(is_select(node));
+    assert(html_node_is_select(node));
 
     return (html_select_t*)node;
 }

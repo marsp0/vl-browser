@@ -52,6 +52,29 @@ void dom_element_initialize(dom_element_t* element, dom_node_t* document, hash_s
 }
 
 
+bool dom_node_is_element(dom_node_t* node)
+{
+    return node->type & DOM_NODE_ELEMENT;
+}
+
+
+void dom_element_append_attribute(dom_element_t* element, dom_attr_t* attr)
+{
+    if (element->attributes)
+    {
+        dom_attr_t* cur = element->attributes;
+        while(cur->next) { cur = cur->next; }
+
+        cur->next = attr;
+        attr->prev = cur;
+    }
+    else
+    {
+        element->attributes = attr;
+    }
+}
+
+
 dom_node_t* dom_element_new(dom_node_t* document, hash_str_t name)
 {
     dom_element_t* element = malloc(sizeof(dom_element_t));
@@ -63,7 +86,7 @@ dom_node_t* dom_element_new(dom_node_t* document, hash_str_t name)
 
 dom_element_t* dom_element_from_node(dom_node_t* node)
 {
-    assert(node->type == DOM_NODE_ELEMENT);
+    assert(dom_node_is_element(node));
 
     return (dom_element_t*)node;
 }
@@ -77,8 +100,6 @@ dom_node_t* dom_node_from_element(dom_element_t* element)
 
 void dom_element_free(dom_node_t* node)
 {
-    assert(node->type == DOM_NODE_ELEMENT);
-
     dom_element_t* element = dom_element_from_node(node);
     free(element);
 }

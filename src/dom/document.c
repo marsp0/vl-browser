@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <string.h>
 
+
 dom_node_t* dom_document_new()
 {
     dom_document_t* document    = malloc(sizeof(dom_document_t));
@@ -26,6 +27,12 @@ dom_node_t* dom_document_new()
 }
 
 
+bool dom_node_is_document(dom_node_t* node)
+{
+    return node->type & DOM_NODE_DOCUMENT;
+}
+
+
 dom_node_t* dom_node_from_document(dom_document_t* document)
 {
     return (dom_node_t*)document;
@@ -34,7 +41,7 @@ dom_node_t* dom_node_from_document(dom_document_t* document)
 
 dom_document_t* dom_document_from_node(dom_node_t* node)
 {
-    assert(node->type == DOM_NODE_DOCUMENT);
+    assert(dom_node_is_document(node));
 
     return (dom_document_t*)node;
 }
@@ -42,7 +49,7 @@ dom_document_t* dom_document_from_node(dom_node_t* node)
 
 void dom_document_free(dom_node_t* node)
 {
-    assert(node->type == DOM_NODE_DOCUMENT);
+    assert(dom_node_is_document(node));
 
     dom_document_t* document = dom_document_from_node(node);
     free(document);

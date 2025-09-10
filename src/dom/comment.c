@@ -29,9 +29,15 @@ dom_node_t* dom_comment_new(dom_node_t* document, unsigned char* buffer, uint32_
 }
 
 
+bool dom_node_is_comment(dom_node_t* node)
+{
+    return node->type & DOM_NODE_COMMENT;
+}
+
+
 dom_comment_t* dom_comment_from_node(dom_node_t* node)
 {
-    assert(node->type == DOM_NODE_COMMENT);
+    assert(dom_node_is_comment(node));
 
     return (dom_comment_t*)node;
 }
@@ -45,8 +51,6 @@ dom_node_t* dom_node_from_comment(dom_comment_t* comment)
 
 void dom_comment_free(dom_node_t* node)
 {
-    assert(node->type == DOM_NODE_COMMENT);
-
     dom_comment_t* comment = dom_comment_from_node(node);
     free(comment);
 }

@@ -38,6 +38,39 @@ do                                                                              
 } while (0);
 
 
+#define ASSERT_NODE_ELEMENT_ATTRIBUTES(a, e)                                            \
+do                                                                                      \
+{                                                                                       \
+    dom_attr_t* a_attr = a->attributes;                                                 \
+    dom_attr_t* e_attr = e->attributes;                                                 \
+    uint32_t a_attr_size = 0;                                                           \
+    uint32_t e_attr_size = 0;                                                           \
+    while(a_attr)                                                                       \
+    {                                                                                   \
+        a_attr_size++;                                                                  \
+        a_attr = a_attr->next;                                                          \
+    }                                                                                   \
+    while(e_attr)                                                                       \
+    {                                                                                   \
+        e_attr_size++;                                                                  \
+        e_attr = e_attr->next;                                                          \
+    }                                                                                   \
+    ASSERT_EQUAL(a_attr_size, e_attr_size);                                             \
+    if (a_attr_size == e_attr_size)                                                     \
+    {                                                                                   \
+        a_attr = a->attributes;                                                         \
+        e_attr = e->attributes;                                                         \
+        while(a_attr && e_attr)                                                         \
+        {                                                                               \
+            ASSERT_HASH_STRING(a_attr->name, e_attr->name);                             \
+            ASSERT_HASH_STRING(a_attr->value, e_attr->value);                           \
+            a_attr = a_attr->next;                                                      \
+            e_attr = e_attr->next;                                                      \
+        }                                                                               \
+    }                                                                                   \
+} while(0);
+
+
 #define ASSERT_NODE_ELEMENT(a, e)                                                       \
 do                                                                                      \
 {                                                                                       \

@@ -119,6 +119,15 @@ void dom_comment_free(dom_node_t* node);
 void dom_text_free(dom_node_t* node);
 void html_element_free(dom_node_t* node);
 void html_select_free(dom_node_t* node);
+void dom_attr_free(dom_node_t* node);
+bool html_node_is_select(dom_node_t* node);
+bool html_node_is_element(dom_node_t* node);
+bool dom_node_is_document(dom_node_t* node);
+bool dom_node_is_doctype(dom_node_t* node);
+bool dom_node_is_element(dom_node_t* node);
+bool dom_node_is_comment(dom_node_t* node);
+bool dom_node_is_attr(dom_node_t* node);
+bool dom_node_is_text(dom_node_t* node);
 
 /********************/
 /* public functions */
@@ -202,11 +211,12 @@ void dom_node_free(dom_node_t* node)
         child = prev;
     }
 
-    if (node->type == HTML_NODE_SELECT)     { html_select_free(node);   }
-    if (node->type == HTML_NODE_ELEMENT)    { html_element_free(node);  }
-    if (node->type == DOM_NODE_DOCUMENT)    { dom_document_free(node);  }
-    if (node->type == DOM_NODE_DOCTYPE)     { dom_doctype_free(node);   }
-    if (node->type == DOM_NODE_ELEMENT)     { dom_element_free(node);   }
-    if (node->type == DOM_NODE_COMMENT)     { dom_comment_free(node);   }
-    if (node->type == DOM_NODE_TEXT)        { dom_text_free(node);      }
+    if      (html_node_is_select(node))         { html_select_free(node);   }
+    else if (html_node_is_element(node))        { html_element_free(node);  }
+    else if (dom_node_is_document(node))        { dom_document_free(node);  }
+    else if (dom_node_is_doctype(node))         { dom_doctype_free(node);   }
+    else if (dom_node_is_element(node))         { dom_element_free(node);   }
+    else if (dom_node_is_comment(node))         { dom_comment_free(node);   }
+    else if (dom_node_is_attr(node))            { dom_attr_free(node);      }
+    else if (dom_node_is_text(node))            { dom_text_free(node);      }
 }

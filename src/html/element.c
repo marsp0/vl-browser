@@ -43,9 +43,15 @@ dom_node_t* html_element_new(dom_node_t* document, hash_str_t name)
 }
 
 
+bool html_node_is_element(dom_node_t* node)
+{
+    return node->type & HTML_NODE_ELEMENT;
+}
+
+
 html_element_t* html_element_from_node(dom_node_t* node)
 {
-    assert(node->type | HTML_NODE_ELEMENT);
+    assert(html_node_is_element(node));
 
     return (html_element_t*)node;
 }

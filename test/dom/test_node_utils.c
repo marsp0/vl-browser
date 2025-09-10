@@ -18,25 +18,25 @@ void ASSERT_NODE(dom_node_t* a, dom_node_t* e)
 
     ASSERT_HASH_STRING(a->name, e->name);
 
-    if (a_type == e_type && a_type == DOM_NODE_DOCUMENT)
+    if (a_type == e_type && dom_node_is_document(a))
     {
         dom_document_t* a_doc = dom_document_from_node(a);
         dom_document_t* e_doc = dom_document_from_node(e);
         ASSERT_NODE_DOCUMENT(a_doc, e_doc);
     }
-    if (a_type == e_type && a_type == DOM_NODE_ELEMENT)
+    if (a_type == e_type && dom_node_is_element(a))
     {
         dom_element_t* a_data = dom_element_from_node(a);
         dom_element_t* e_data = dom_element_from_node(e);
         ASSERT_NODE_ELEMENT(a_data, e_data);
     }
-    if (a_type == e_type && a_type == DOM_NODE_TEXT)
+    if (a_type == e_type && dom_node_is_text(a))
     {
         dom_text_t* a_data = dom_text_from_node(a);
         dom_text_t* e_data = dom_text_from_node(e);
         ASSERT_NODE_TEXT(a_data, e_data);
     }
-    if (a_type == e_type && a_type == DOM_NODE_COMMENT)
+    if (a_type == e_type && dom_node_is_comment(a))
     {
         dom_comment_t* a_data = dom_comment_from_node(a);
         dom_comment_t* e_data = dom_comment_from_node(e);
