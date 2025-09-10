@@ -2269,7 +2269,16 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_eof)
                 {
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("parse error");
+                    dom_node_t* current = stack[stack_idx];
+                    if (current->name == html_tag_script())
+                    {
+                        INCOMPLETE_IMPLEMENTATION("set already_started to true");
+                    }
+
+                    stack_pop();
+                    consume = false;
+                    mode = original_mode;
                 }
                 else if (is_end && t_name == html_tag_script())
                 {
