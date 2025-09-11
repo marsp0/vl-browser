@@ -142,6 +142,8 @@ hash_str_t hash_str_new(const unsigned char* str, const uint32_t str_size)
 {
     assert(table);
 
+    if (str_size == 0) { return 0; }
+
     hash_str_t hash = hash_str(str, str_size);
     append(hash, str, str_size);
 

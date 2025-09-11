@@ -1113,12 +1113,17 @@ static void test_parser_13()
     dom_node_t* head        = dom_element_new(expected, html_tag_head());
     dom_node_t* body        = dom_element_new(expected, html_tag_body());
     dom_node_t* a1          = dom_element_new(expected, html_tag_a());
+    dom_node_t* a1_attr     = dom_attr_new(hash_str_new("x", 1), 0, a1);
     dom_node_t* a2          = dom_element_new(expected, html_tag_a());
+    dom_node_t* a2_attr     = dom_attr_new(hash_str_new("y", 1), 0, a2);
     dom_node_t* b1          = dom_element_new(expected, html_tag_b());
     dom_node_t* b2          = dom_element_new(expected, html_tag_b());
     dom_node_t* t1          = dom_text_new(expected, "0", 1);
     dom_node_t* t2          = dom_text_new(expected, "1", 1);
     dom_node_t* t3          = dom_text_new(expected, "2", 1);
+
+    dom_element_append_attr(dom_element_from_node(a1), dom_attr_from_node(a1_attr));
+    dom_element_append_attr(dom_element_from_node(a2), dom_attr_from_node(a2_attr));
 
     APPEND_TO_TREE(expected, html);
     APPEND_TO_TREE(html, head);

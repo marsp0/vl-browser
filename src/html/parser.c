@@ -338,7 +338,7 @@ static dom_node_t* create_element(hash_str_t name, html_token_t* token, dom_node
             hash_str_t a_name = hash_str_new(t_attr.name, t_attr.name_size);
             hash_str_t a_value = hash_str_new(t_attr.value, t_attr.value_size);
             dom_node_t* attr = dom_attr_new(a_name, a_value, element);
-            dom_element_append_attribute(dom_element_from_node(element), dom_attr_from_node(attr));
+            dom_element_append_attr(dom_element_from_node(element), dom_attr_from_node(attr));
         }
     }
 
@@ -1386,7 +1386,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 else
                 {
                     mode = HTML_PARSER_MODE_IN_HEAD;
-                    head_pointer        = insert_html_element(html_tag_head(), &t);
+                    head_pointer        = insert_html_element(html_tag_head(), NULL);
                     consume             = false;
                 }
                 break;
@@ -1604,7 +1604,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else
                 {
-                    insert_html_element(html_tag_body(), &t);
+                    insert_html_element(html_tag_body(), NULL);
                     mode = HTML_PARSER_MODE_IN_BODY;
                     consume             = false;
                 }
@@ -2004,7 +2004,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     if (!in_scope(html_tag_p(), BUTTON_SCOPE))
                     {
                         // todo: parse error
-                        insert_html_element(html_tag_p(), &t);
+                        insert_html_element(html_tag_p(), NULL);
                     }
                     
                     close_p_element();
@@ -2354,7 +2354,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 else if (is_start && (t_name == html_tag_td() || t_name == html_tag_th() || t_name == html_tag_tr()))
                 {
                     clear_stack_back_to_table();
-                    insert_html_element(html_tag_tbody(), &t);
+                    insert_html_element(html_tag_tbody(), NULL);
                     mode = HTML_PARSER_MODE_IN_TABLE_BODY;
 
                     consume             = false;
@@ -2551,7 +2551,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     INCOMPLETE_IMPLEMENTATION("parse error");
                     clear_stack_back_to_table_body();
 
-                    insert_html_element(html_tag_tr(), &t);
+                    insert_html_element(html_tag_tr(), NULL);
                     mode = HTML_PARSER_MODE_IN_ROW;
 
                     consume             = false;
