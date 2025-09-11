@@ -1769,6 +1769,52 @@ static void test_parser_30()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
 }
 
+
+static void test_parser_31()
+{
+    // #data
+    // <p id=a><b><p id=b></b>TEST
+    // #errors
+    // (1,8): expected-doctype-but-got-start-tag
+    // (1,19): unexpected-end-tag
+    // (1,23): adoption-agency-1.2
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <p>
+    // |       id="a"
+    // |       <b>
+    // |     <p>
+    // |       id="b"
+    // |       "TEST"
+
+    unsigned char buffer[]  = "<p id=a><b><p id=b></b>TEST";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* p1          = dom_element_new(expected, html_tag_p());
+    dom_node_t* p1_attr     = dom_attr_new(hash_str_new("id", 2), hash_str_new("a", 1), p1);
+    dom_node_t* p2          = dom_element_new(expected, html_tag_p());
+    dom_node_t* p2_attr     = dom_attr_new(hash_str_new("id", 2), hash_str_new("b", 1), p2);
+    dom_node_t* b1          = dom_element_new(expected, html_tag_b());
+    dom_node_t* t1          = dom_text_new(expected, "TEST", 4);
+
+    dom_element_append_attr(dom_element_from_node(p1), dom_attr_from_node(p1_attr));
+    dom_element_append_attr(dom_element_from_node(p2), dom_attr_from_node(p2_attr));
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, p1);
+    APPEND_TO_TREE(body, p2);
+    APPEND_TO_TREE(p1, b1);
+    APPEND_TO_TREE(p2, t1);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
 // html_parser_init();
 // dom_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
 // ASSERT_NODE(actual, expected);
@@ -1830,4 +1876,5 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_28);
     TEST_CASE(test_parser_29);
     TEST_CASE(test_parser_30);
+    TEST_CASE(test_parser_31);
 }

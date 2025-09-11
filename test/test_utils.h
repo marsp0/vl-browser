@@ -35,24 +35,24 @@ uint32_t    TESTS_FAIL_COUNT();
 
 #define GET_FORMAT_UNEQUAL(a)                                                               \
 _Generic( a,                                                                                \
-          int:         "%d != %d (%s != %s)\n",                                             \
-          int64_t:    "%ld != %ld (%s != %s)\n",                                            \
-          uint32_t:    "%u != %u (%s != %s)\n",                                             \
-          uint64_t:   "%lu != %lu (%s != %s)\n",                                            \
-          char:        "%c != %c (%s != %s)\n",                                             \
-          float:       "%f != %f (%s != %s)\n",                                             \
-          bool:        "%d != %d (%s != %s)\n")
+          int:          "%d != %d (%s != %s)\n",                                            \
+          int64_t:      "%ld != %ld (%s != %s)\n",                                          \
+          uint32_t:     "%u != %u (%s != %s)\n",                                            \
+          uint64_t:     "%lu != %lu (%s != %s)\n",                                          \
+          char:         "%c != %c (%s != %s)\n",                                            \
+          float:        "%f != %f (%s != %s)\n",                                            \
+          bool:         "%d != %d (%s != %s)\n")
 
 
 #define GET_FORMAT_EQUAL(a)                                                                 \
 _Generic( a,                                                                                \
-          int:         "%d == %d (%s != %s)\n",                                             \
-          int64_t:    "%ld == %ld (%s != %s)\n",                                            \
-          uint32_t:    "%u == %u (%s != %s)\n",                                             \
-          uint64_t:   "%lu == %lu (%s != %s)\n",                                            \
-          char:        "%c == %c (%s != %s)\n",                                             \
-          float:       "%f == %f (%s != %s)\n",                                             \
-          bool:        "%d == %d (%s != %s)\n")
+          int:          "%d == %d (%s != %s)\n",                                            \
+          int64_t:      "%ld == %ld (%s != %s)\n",                                          \
+          uint32_t:     "%u == %u (%s != %s)\n",                                            \
+          uint64_t:     "%lu == %lu (%s != %s)\n",                                          \
+          char:         "%c == %c (%s != %s)\n",                                            \
+          float:        "%f == %f (%s != %s)\n",                                            \
+          bool:         "%d == %d (%s != %s)\n")
 
 
 #define ASSERT_EQUAL(a, b)                                                                  \
@@ -65,7 +65,7 @@ do                                                                              
     }                                                                                       \
     if (fail && get_test_assert_counter() <= 10)                                            \
     {                                                                                       \
-        printf("    [%u]", __LINE__);                                                       \
+        printf("    [%u][%s]", __LINE__, __FILE__);                                         \
         printf("[" ANSI_COLOR_RED "FAIL" ANSI_COLOR_RESET "]: ");                           \
         printf(GET_FORMAT_UNEQUAL(a), a, b, #a, #b);                                        \
     }                                                                                       \
@@ -82,7 +82,7 @@ do                                                                              
     }                                                                                       \
     if (fail && get_test_assert_counter() <= 10)                                            \
     {                                                                                       \
-        printf("    [%u]", __LINE__);                                                       \
+        printf("    [%u][%s]", __LINE__, __FILE__);                                         \
         printf("[" ANSI_COLOR_RED "FAIL" ANSI_COLOR_RESET "]: ");                           \
         printf(GET_FORMAT_EQUAL(a), a, b, #a, #b);                                          \
     }                                                                                       \
@@ -141,7 +141,7 @@ do                                                                              
         const unsigned char* bdata  = hash_str_get(b);                                      \
         const uint32_t bsize        = hash_str_get_size(b);                                 \
         ASSERT_EQUAL(asize, bsize);                                                         \
-        if (adata && bdata)                                                                 \
+        if (adata && bdata && asize == bsize)                                               \
         {                                                                                   \
             ASSERT_STRING((char)adata, (char)bdata, asize);                                 \
         }                                                                                   \
