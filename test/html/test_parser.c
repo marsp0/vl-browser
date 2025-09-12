@@ -1815,6 +1815,182 @@ static void test_parser_31()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
 }
 
+
+static void test_parser_32()
+{
+    // #data
+    // <b id=a><p><b id=b></p></b>TEST
+    // #errors
+    // (1,8): expected-doctype-but-got-start-tag
+    // (1,23): unexpected-end-tag
+    // (1,27): adoption-agency-1.2
+    // (1,31): expected-closing-tag-but-got-eof
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <b>
+    // |       id="a"
+    // |       <p>
+    // |         <b>
+    // |           id="b"
+    // |       "TEST"
+
+    unsigned char buffer[]  = "<b id=a><p><b id=b></p></b>TEST";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* b1          = dom_element_new(expected, html_tag_b());
+    dom_node_t* b1_attr     = dom_attr_new(hash_str_new("id", 2), hash_str_new("a", 1), b1);
+    dom_node_t* p1          = dom_element_new(expected, html_tag_p());
+    dom_node_t* b2          = dom_element_new(expected, html_tag_b());
+    dom_node_t* b2_attr     = dom_attr_new(hash_str_new("id", 2), hash_str_new("b", 1), b2);
+    dom_node_t* t1          = dom_text_new(expected, "TEST", 4);
+    
+    dom_element_append_attr(dom_element_from_node(b1), dom_attr_from_node(b1_attr));
+    dom_element_append_attr(dom_element_from_node(b2), dom_attr_from_node(b2_attr));
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, b1);
+    APPEND_TO_TREE(b1, p1);
+    APPEND_TO_TREE(p1, b2);
+    APPEND_TO_TREE(b1, t1);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_33()
+{
+    // #data
+    // <!DOCTYPE html><title>U-test</title><body><div><p>Test<u></p></div></body>
+    // #errors
+    // (1,61): unexpected-end-tag
+    // #document
+    // | <!DOCTYPE html>
+    // | <html>
+    // |   <head>
+    // |     <title>
+    // |       "U-test"
+    // |   <body>
+    // |     <div>
+    // |       <p>
+    // |         "Test"
+    // |         <u>
+
+    unsigned char buffer[]  = "<!DOCTYPE html><title>U-test</title><body><div><p>Test<u></p></div></body>";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* title       = dom_element_new(expected, html_tag_title());
+    dom_node_t* t1          = dom_text_new(expected, "U-test", 6);
+    dom_node_t* div         = dom_element_new(expected, html_tag_div());
+    dom_node_t* p           = dom_element_new(expected, html_tag_p());
+    dom_node_t* t2          = dom_text_new(expected, "Test", 4);
+    dom_node_t* u           = dom_element_new(expected, html_tag_u());
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(head, title);
+    APPEND_TO_TREE(title, t1);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, div);
+    APPEND_TO_TREE(div, p);
+    APPEND_TO_TREE(p, t2);
+    APPEND_TO_TREE(p, u);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_34()
+{
+    // #data
+    // <!DOCTYPE html><font><table></font></table></font>
+    // #errors
+    // (1,35): unexpected-end-tag-implies-table-voodoo
+    // (1,35): unexpected-end-tag
+    // #document
+    // | <!DOCTYPE html>
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <font>
+    // |       <table>
+
+    unsigned char buffer[]  = "<!DOCTYPE html><font><table></font></table></font>";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* font        = dom_element_new(expected, html_tag_font());
+    dom_node_t* table       = dom_element_new(expected, html_tag_table());
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, font);
+    APPEND_TO_TREE(font, table);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
+
+static void test_parser_35()
+{
+    // #data
+    // <font><p>hello<b>cruel</font>world
+    // #errors
+    // (1,6): expected-doctype-but-got-start-tag
+    // (1,29): adoption-agency-1.3
+    // (1,29): adoption-agency-1.3
+    // (1,34): expected-closing-tag-but-got-eof
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <font>
+    // |     <p>
+    // |       <font>
+    // |         "hello"
+    // |         <b>
+    // |           "cruel"
+    // |       <b>
+    // |         "world"
+
+    unsigned char buffer[]  = "<font><p>hello<b>cruel</font>world";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* font1       = dom_element_new(expected, html_tag_font());
+    dom_node_t* p1          = dom_element_new(expected, html_tag_p());
+    dom_node_t* font2       = dom_element_new(expected, html_tag_font());
+    dom_node_t* b1          = dom_element_new(expected, html_tag_b());
+    dom_node_t* b2          = dom_element_new(expected, html_tag_b());
+    dom_node_t* t1          = dom_text_new(expected, "hello", 5);
+    dom_node_t* t2          = dom_text_new(expected, "cruel", 5);
+    dom_node_t* t3          = dom_text_new(expected, "world", 5);
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, font1);
+    APPEND_TO_TREE(body, p1);
+    APPEND_TO_TREE(p1, font2);
+    APPEND_TO_TREE(font2, t1);
+    APPEND_TO_TREE(font2, b1);
+    APPEND_TO_TREE(b1, t2);
+    APPEND_TO_TREE(p1, b2);
+    APPEND_TO_TREE(b2, t3);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+}
+
 // html_parser_init();
 // dom_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
 // ASSERT_NODE(actual, expected);
@@ -1877,4 +2053,8 @@ void test_html_parser_test1()
     TEST_CASE(test_parser_29);
     TEST_CASE(test_parser_30);
     TEST_CASE(test_parser_31);
+    TEST_CASE(test_parser_32);
+    TEST_CASE(test_parser_33);
+    TEST_CASE(test_parser_34);
+    TEST_CASE(test_parser_35);
 }

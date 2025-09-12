@@ -73,6 +73,59 @@ static uint32_t formatting_elements_size            = 0;
 /* static functions */
 /********************/
 
+// // todo: remove
+// static void print_document_tree(dom_node_t* node, uint32_t level)
+// {
+//     for (uint32_t i = 0; i < level; i++)
+//     {
+//         printf("  ");
+//     }
+
+//     if (dom_node_is_element(node))
+//     {
+//         dom_element_t* element = dom_element_from_node(node);
+//         const unsigned char* name = hash_str_get(element->local_name);
+//         const uint32_t name_size = hash_str_get_size(element->local_name);
+//         printf("%.*s\n", name_size, name);
+
+//         dom_attr_t* attr = element->attr;
+
+//         for (uint32_t i = 0; i < element->attr_size; i++)
+//         {
+//             for (uint32_t j = 0; j < level; j++)
+//             {
+//                 printf("  ");
+//             }
+//             printf("  ");
+
+//             const unsigned char* attr_name = hash_str_get(attr->name);
+//             const uint32_t attr_name_size = hash_str_get_size(attr->name);
+//             printf("#attr - %.*s\n", attr_name_size, attr_name);
+//             attr = attr->next;
+//         }
+//     }
+//     else if (dom_node_is_document(node))
+//     {
+//         printf("#document\n");
+//     }
+//     else if (dom_node_is_text(node))
+//     {
+//         dom_text_t* text = dom_text_from_node(node);
+//         printf("#text - %s\n", text->data);
+//     }
+//     else if (dom_node_is_comment(node))
+//     {
+//         dom_comment_t* comment = dom_comment_from_node(node);
+//         printf("<!-- %s -->\n", comment->data);
+//     }
+
+//     dom_node_t* child = node->first;
+//     while (child)
+//     {
+//         print_document_tree(child, level + 1);
+//         child = child->next;
+//     }
+// }
 
 // static bool string_compare(const unsigned char* first, const uint32_t first_size, const unsigned char* second, const uint32_t second_size)
 // {
@@ -128,7 +181,7 @@ static void stack_insert(uint32_t index, dom_node_t* node)
 {
     if (index >= stack_size) { return; }
 
-    for (uint32_t i = stack_size; i >= index; i--)
+    for (uint32_t i = stack_size; i > index; i--)
     {
         stack[i] = stack[i-1];
     }
@@ -632,6 +685,22 @@ static void push_formatting_element(dom_node_t* node, html_token_t* token)
 }
 
 
+static void insert_formatting_element(dom_node_t* node, html_token_t* token, uint32_t idx)
+{
+    for (uint32_t i = formatting_elements_size; i > idx; i--)
+    {
+        formatting_elements[i] = formatting_elements[i - 1];
+        formatting_elements_m[i] = formatting_elements_m[i - 1];
+        memcpy(&formatting_elements_t[i], &formatting_elements_t[i - 1], sizeof(html_token_t));
+    }
+
+    formatting_elements[idx] = node;
+    formatting_elements_m[idx] = false;
+    memcpy(&formatting_elements_t[idx], token, sizeof(html_token_t));
+    formatting_elements_size++;
+}
+
+
 static void remove_formatting_element(dom_node_t* node)
 {
     if (formatting_elements_size == 0) { return; }
@@ -930,6 +999,7 @@ static bool run_adoption_procedure(const hash_str_t t_name)
             // step 4.13.4
             if (inner_i > 3 && formatting_elements_contains(node))
             {
+                // todo: decrease bookmark if node is before bookmark
                 remove_formatting_element(node);
             }
 
@@ -966,18 +1036,18 @@ static bool run_adoption_procedure(const hash_str_t t_name)
             last_node = node;
         }
 
-        // step 14
+        // step 4.14
         dom_insertion_location_t location = get_appropriate_insertion_location(common_ancestor);
         dom_node_remove(last_node->parent, last_node);
         dom_node_insert_before(location.parent, last_node, location.child);
 
-        // step 15
+        // step 4.15
         uint32_t formatting_node_i = find_node_index(formatting_elements, formatting_elements_size, formatting_node);
         html_token_t* formatting_node_t = &formatting_elements_t[formatting_node_i];
         hash_str_t formatting_node_t_name = hash_str_new(formatting_node_t->name, formatting_node_t->name_size);
         dom_node_t* new_element = create_element(formatting_node_t_name, formatting_node_t, furthest);
 
-        // step 16
+        // step 4.16
         dom_node_t* child = furthest->first;
         while (child)
         {
@@ -986,16 +1056,14 @@ static bool run_adoption_procedure(const hash_str_t t_name)
             child = child->next;
         }
 
-        // step 17
+        // step 4.17
         dom_node_append(furthest, new_element);
 
-        // step 18
+        // step 4.18
         remove_formatting_element(formatting_node);
-        formatting_elements[bookmark] = new_element;
-        formatting_elements_m[bookmark] = false;
-        memcpy(&formatting_elements_t[bookmark], formatting_node_t, sizeof(html_token_t));
+        insert_formatting_element(new_element, formatting_node_t, bookmark);
 
-        // step 19
+        // step 4.19
         remove_from_stack(formatting_node);
         uint32_t furthest_i = find_node_index(stack, stack_size, furthest);
         stack_insert(furthest_i + 1, new_element);
@@ -1195,6 +1263,7 @@ static void maybe_clone_option_into_selected_content(dom_node_t* option)
     if (!select) { return; }
 
 }
+
 
 /********************/
 /* public functions */
