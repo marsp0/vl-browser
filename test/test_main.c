@@ -3,6 +3,7 @@
 #include "util/test_utf8.h"
 #include "html/test_tokenizer.h"
 #include "html/test_parser.h"
+#include "html/test_parser_2.h"
 #include "dom/test_hash_str.h"
 #include "dom/test_node.h"
 
@@ -26,6 +27,7 @@ int32_t main()
     TEST_GROUP(test_dom_hash_string);
     TEST_GROUP(test_html_node);
     TEST_GROUP(test_html_parser_test1);
+    TEST_GROUP(test_html_parser_test2);
 
     TESTS_SUMMARY();
 

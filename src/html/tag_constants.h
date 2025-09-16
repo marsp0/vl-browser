@@ -218,5 +218,7 @@ hash_str_t html_tag_caption();
 hash_str_t html_tag_CAPTION();
 hash_str_t html_tag_span();
 hash_str_t html_tag_SPAN();
+hash_str_t html_tag_cite();
+hash_str_t html_tag_CITE();
 
 void html_populate_tags();

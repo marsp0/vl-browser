@@ -83,4 +83,3 @@ EventTarget
     │   │   └── CDATASection (XML only)
     │   ├── ProcessingInstruction
     │   └── Comment
-

@@ -23,7 +23,7 @@ endif
 
 
 # ------------------- targets -------------------
-.PHONY: clean vl test_vl
+.PHONY: clean vl tvl
 
 
 # ------------------- targets: vl -------------------
@@ -35,8 +35,8 @@ main.o: ./src/main.c
 
 
 # ------------------- targets: test -------------------
-test_vl: GCC_INCLUDE += -I./test
-test_vl: $(TEST_OBJ_FILES) $(OBJ_FILES)
+tvl: GCC_INCLUDE += -I./test
+tvl: $(TEST_OBJ_FILES) $(OBJ_FILES)
 	$(CC) $(GCCFLAGS) $(TEST_OBJ_FILES) $(OBJ_FILES) -o ./out/$@ $(LD_FLAGS)
 
 

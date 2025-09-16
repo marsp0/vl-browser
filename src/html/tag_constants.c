@@ -216,6 +216,8 @@ hash_str_t caption;
 hash_str_t CAPTION;
 hash_str_t span;
 hash_str_t SPAN;
+hash_str_t cite;
+hash_str_t CITE;
 
 void html_populate_tags()
 {
@@ -542,6 +544,9 @@ void html_populate_tags()
 
     span           = hash_str_new("span", 4);
     SPAN           = hash_str_new("SPAN", 4);
+
+    cite           = hash_str_new("cite", 4);
+    CITE           = hash_str_new("CITE", 4);
 
     hash_str_pool_stats();
 }
@@ -1841,3 +1846,14 @@ hash_str_t html_tag_SPAN()
     return SPAN;
 }
 
+
+hash_str_t html_tag_cite()
+{
+    return cite;
+}
+
+
+hash_str_t html_tag_CITE()
+{
+    return CITE;
+}
