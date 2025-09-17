@@ -1001,6 +1001,7 @@ static bool run_adoption_procedure(const hash_str_t t_name)
             {
                 // todo: decrease bookmark if node is before bookmark
                 remove_formatting_element(node);
+                if (node_i < bookmark) { bookmark--; }
             }
 
             // step 4.13.5
@@ -1063,6 +1064,7 @@ static bool run_adoption_procedure(const hash_str_t t_name)
 
         // step 4.18
         remove_formatting_element(formatting_node);
+        if (formatting_node_i < bookmark) { bookmark--; }
         insert_formatting_element(new_element, formatting_node_t, bookmark);
 
         // step 4.19
@@ -1337,6 +1339,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 current_mode = replacement_mode;
             }
 
+            // print_document_tree(document, 0);
             switch (current_mode)
             {
 
@@ -1689,7 +1692,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
                 {
-                    // todo: reconstruct active formatting elements
+                    reconstruct_formatting_elements();
                     insert_character(t.data, t.data_size);
                 }
                 else if (is_character)

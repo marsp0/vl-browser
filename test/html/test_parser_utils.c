@@ -37,7 +37,7 @@ void print_document_tree(dom_node_t* node, uint32_t level)
     else if (dom_node_is_text(node))
     {
         dom_text_t* text = dom_text_from_node(node);
-        printf("#text - %s\n", text->data);
+        printf("#text - \"%s\"\n", text->data);
     }
     else if (dom_node_is_comment(node))
     {
