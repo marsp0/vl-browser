@@ -733,6 +733,143 @@ static void test_parser_52()
     RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
+
+static void test_parser_53()
+{
+    // #data
+    // <DIV> abc <B> def <I> ghi <P> jkl </B> mno </I> pqr </P>
+    // #errors
+    // (1,5): expected-doctype-but-got-start-tag
+    // (1,38): adoption-agency-1.3
+    // (1,47): adoption-agency-1.3
+    // (1,56): expected-closing-tag-but-got-eof
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <div>
+    // |       " abc "
+    // |       <b>
+    // |         " def "
+    // |         <i>
+    // |           " ghi "
+    // |       <i>
+    // |       <p>
+    // |         <i>
+    // |           <b>
+    // |             " jkl "
+    // |           " mno "
+    // |         " pqr "
+
+    unsigned char buffer[]  = "<DIV> abc <B> def <I> ghi <P> jkl </B> mno </I> pqr </P>";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* div         = dom_element_new(expected, html_tag_div());
+    dom_node_t* t1          = dom_text_new(expected, " abc ", 5);
+    dom_node_t* b1          = dom_element_new(expected, html_tag_b());
+    dom_node_t* b2          = dom_element_new(expected, html_tag_b());
+    dom_node_t* t2          = dom_text_new(expected, " def ", 5);
+    dom_node_t* i1          = dom_element_new(expected, html_tag_i());
+    dom_node_t* i2          = dom_element_new(expected, html_tag_i());
+    dom_node_t* i3          = dom_element_new(expected, html_tag_i());
+    dom_node_t* t3          = dom_text_new(expected, " ghi ", 5);
+    dom_node_t* p1          = dom_element_new(expected, html_tag_p());
+    dom_node_t* t4          = dom_text_new(expected, " jkl ", 5);
+    dom_node_t* t5          = dom_text_new(expected, " mno ", 5);
+    dom_node_t* t6          = dom_text_new(expected, " pqr ", 5);
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, div);
+    APPEND_TO_TREE(div, t1);
+    APPEND_TO_TREE(div, b1);
+    APPEND_TO_TREE(b1, t2);
+    APPEND_TO_TREE(b1, i1);
+    APPEND_TO_TREE(i1, t3);
+    APPEND_TO_TREE(div, i2);
+    APPEND_TO_TREE(div, p1);
+    APPEND_TO_TREE(p1, i3);
+    APPEND_TO_TREE(i3, b2);
+    APPEND_TO_TREE(b2, t4);
+    APPEND_TO_TREE(i3, t5);
+    APPEND_TO_TREE(p1, t6);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
+}
+
+
+static void test_parser_54()
+{
+    // #data
+    // <DIV> abc <B> def <I> ghi <P> jkl </B> mno </I> pqr </P> stu
+    // #errors
+    // (1,5): expected-doctype-but-got-start-tag
+    // (1,38): adoption-agency-1.3
+    // (1,47): adoption-agency-1.3
+    // (1,60): expected-closing-tag-but-got-eof
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <div>
+    // |       " abc "
+    // |       <b>
+    // |         " def "
+    // |         <i>
+    // |           " ghi "
+    // |       <i>
+    // |       <p>
+    // |         <i>
+    // |           <b>
+    // |             " jkl "
+    // |           " mno "
+    // |         " pqr "
+    // |       " stu"
+
+    unsigned char buffer[]  = "<DIV> abc <B> def <I> ghi <P> jkl </B> mno </I> pqr </P> stu";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* div         = dom_element_new(expected, html_tag_div());
+    dom_node_t* t1          = dom_text_new(expected, " abc ", 5);
+    dom_node_t* b1          = dom_element_new(expected, html_tag_b());
+    dom_node_t* b2          = dom_element_new(expected, html_tag_b());
+    dom_node_t* t2          = dom_text_new(expected, " def ", 5);
+    dom_node_t* i1          = dom_element_new(expected, html_tag_i());
+    dom_node_t* i2          = dom_element_new(expected, html_tag_i());
+    dom_node_t* i3          = dom_element_new(expected, html_tag_i());
+    dom_node_t* t3          = dom_text_new(expected, " ghi ", 5);
+    dom_node_t* p1          = dom_element_new(expected, html_tag_p());
+    dom_node_t* t4          = dom_text_new(expected, " jkl ", 5);
+    dom_node_t* t5          = dom_text_new(expected, " mno ", 5);
+    dom_node_t* t6          = dom_text_new(expected, " pqr ", 5);
+    dom_node_t* t7          = dom_text_new(expected, " stu", 4);
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, div);
+    APPEND_TO_TREE(div, t1);
+    APPEND_TO_TREE(div, b1);
+    APPEND_TO_TREE(b1, t2);
+    APPEND_TO_TREE(b1, i1);
+    APPEND_TO_TREE(i1, t3);
+    APPEND_TO_TREE(div, i2);
+    APPEND_TO_TREE(div, p1);
+    APPEND_TO_TREE(p1, i3);
+    APPEND_TO_TREE(i3, b2);
+    APPEND_TO_TREE(b2, t4);
+    APPEND_TO_TREE(i3, t5);
+    APPEND_TO_TREE(p1, t6);
+    APPEND_TO_TREE(div, t7);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
+}
+
 void test_html_parser_test2()
 {
     TEST_CASE(test_parser_37);
@@ -751,4 +888,6 @@ void test_html_parser_test2()
     TEST_CASE(test_parser_50);
     TEST_CASE(test_parser_51);
     TEST_CASE(test_parser_52);
+    TEST_CASE(test_parser_53);
+    TEST_CASE(test_parser_54);
 }
