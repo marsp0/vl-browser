@@ -44,7 +44,7 @@ static void test_parser_37()
     APPEND_TO_TREE(cite, div);
     APPEND_TO_TREE(div, t3);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -89,7 +89,7 @@ static void test_parser_38()
     APPEND_TO_TREE(cite, div);
     APPEND_TO_TREE(div, t3);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -141,7 +141,7 @@ static void test_parser_39()
     APPEND_TO_TREE(div, t4);
 
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -166,7 +166,7 @@ static void test_parser_40()
     APPEND_TO_TREE(html, head);
     APPEND_TO_TREE(html, body);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -195,7 +195,7 @@ static void test_parser_41()
     APPEND_TO_TREE(html, body);
     APPEND_TO_TREE(body, div);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -227,7 +227,7 @@ static void test_parser_42()
     APPEND_TO_TREE(body, div);
     APPEND_TO_TREE(div, t1);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -262,7 +262,7 @@ static void test_parser_43()
     APPEND_TO_TREE(div, t1);
     APPEND_TO_TREE(div, b);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -300,7 +300,7 @@ static void test_parser_44()
     APPEND_TO_TREE(div, b);
     APPEND_TO_TREE(b, t2);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -341,7 +341,7 @@ static void test_parser_45()
     APPEND_TO_TREE(b, t2);
     APPEND_TO_TREE(b, i);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -385,7 +385,7 @@ static void test_parser_46()
     APPEND_TO_TREE(b, i);
     APPEND_TO_TREE(i, t3);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -432,7 +432,7 @@ static void test_parser_47()
     APPEND_TO_TREE(i, t3);
     APPEND_TO_TREE(i, p);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -482,7 +482,7 @@ static void test_parser_48()
     APPEND_TO_TREE(i, p);
     APPEND_TO_TREE(p, t4);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
 
@@ -539,17 +539,68 @@ static void test_parser_49()
     APPEND_TO_TREE(p1, b2);
     APPEND_TO_TREE(b2, t4);
 
-    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected);
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
 }
 
-// html_parser_init();
-// dom_node_t* actual = html_parser_run(buffer, sizeof(buffer) - 1);
-// ASSERT_NODE(actual, expected);
-// print_document_tree(actual, 0);
-// print_document_tree(expected, 0);
-// dom_node_free(expected);
-// dom_node_free(actual);
-// html_parser_free();
+
+static void test_parser_50()
+{
+    // #data
+    // <DIV> abc <B> def <I> ghi <P> jkl </B> mno
+    // #errors
+    // (1,5): expected-doctype-but-got-start-tag
+    // (1,38): adoption-agency-1.3
+    // (1,42): expected-closing-tag-but-got-eof
+    // #document
+    // | <html>
+    // |   <head>
+    // |   <body>
+    // |     <div>
+    // |       " abc "
+    // |       <b>
+    // |         " def "
+    // |         <i>
+    // |           " ghi "
+    // |       <i>
+    // |         <p>
+    // |           <b>
+    // |             " jkl "
+    // |           " mno"
+
+    unsigned char buffer[]  = "<DIV> abc <B> def <I> ghi <P> jkl </B> mno";
+    dom_node_t* expected    = dom_document_new();
+    dom_node_t* html        = dom_element_new(expected, html_tag_html());
+    dom_node_t* head        = dom_element_new(expected, html_tag_head());
+    dom_node_t* body        = dom_element_new(expected, html_tag_body());
+    dom_node_t* div         = dom_element_new(expected, html_tag_div());
+    dom_node_t* t1          = dom_text_new(expected, " abc ", 5);
+    dom_node_t* b1          = dom_element_new(expected, html_tag_b());
+    dom_node_t* b2          = dom_element_new(expected, html_tag_b());
+    dom_node_t* t2          = dom_text_new(expected, " def ", 5);
+    dom_node_t* i1          = dom_element_new(expected, html_tag_i());
+    dom_node_t* i2          = dom_element_new(expected, html_tag_i());
+    dom_node_t* t3          = dom_text_new(expected, " ghi ", 5);
+    dom_node_t* p1          = dom_element_new(expected, html_tag_p());
+    dom_node_t* t4          = dom_text_new(expected, " jkl ", 5);
+    dom_node_t* t5          = dom_text_new(expected, " mno", 4);
+
+    APPEND_TO_TREE(expected, html);
+    APPEND_TO_TREE(html, head);
+    APPEND_TO_TREE(html, body);
+    APPEND_TO_TREE(body, div);
+    APPEND_TO_TREE(div, t1);
+    APPEND_TO_TREE(div, b1);
+    APPEND_TO_TREE(div, i2);
+    APPEND_TO_TREE(b1, t2);
+    APPEND_TO_TREE(b1, i1);
+    APPEND_TO_TREE(i1, t3);
+    APPEND_TO_TREE(i2, p1);
+    APPEND_TO_TREE(p1, b2);
+    APPEND_TO_TREE(b2, t4);
+    APPEND_TO_TREE(p1, t5);
+
+    RUN_TEST_AND_ASSERT_DOCUMENT(buffer, expected, false);
+}
 
 void test_html_parser_test2()
 {
@@ -566,4 +617,5 @@ void test_html_parser_test2()
     TEST_CASE(test_parser_47);
     TEST_CASE(test_parser_48);
     TEST_CASE(test_parser_49);
+    TEST_CASE(test_parser_50);
 }
