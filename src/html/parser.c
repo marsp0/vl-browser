@@ -368,7 +368,7 @@ static dom_node_t* create_appropriate_element(dom_node_t* doc, hash_str_t name)
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#create-an-element-for-the-token
-static dom_node_t* create_element(hash_str_t name, html_token_t* token, dom_node_t* parent)
+static dom_node_t* create_element(hash_str_t name, html_token_t* token, dom_node_t* doc)
 {
     // todo: step 1
     // todo: step 2
@@ -381,7 +381,7 @@ static dom_node_t* create_element(hash_str_t name, html_token_t* token, dom_node
     // todo: step 8
     // todo: step 9
 
-    dom_node_t* doc        = parent->document;
+    // dom_node_t* doc        = parent->document;
     dom_node_t* element    = create_appropriate_element(doc, name);
     if (token)
     {
@@ -1030,6 +1030,7 @@ static bool run_adoption_procedure(const hash_str_t t_name)
             }
 
             // step 4.13.8
+            dom_node_remove(last_node->parent, last_node);
             dom_node_append(node, last_node);
 
             // step 4.13.9
@@ -1045,15 +1046,16 @@ static bool run_adoption_procedure(const hash_str_t t_name)
         uint32_t formatting_node_i = find_node_index(formatting_elements, formatting_elements_size, formatting_node);
         html_token_t* formatting_node_t = &formatting_elements_t[formatting_node_i];
         hash_str_t formatting_node_t_name = hash_str_new(formatting_node_t->name, formatting_node_t->name_size);
-        dom_node_t* new_element = create_element(formatting_node_t_name, formatting_node_t, furthest);
+        dom_node_t* new_element = create_element(formatting_node_t_name, formatting_node_t, document);
 
         // step 4.16
         dom_node_t* child = furthest->first;
         while (child)
         {
+            dom_node_t* next = child->next;
             dom_node_remove(furthest, child);
             dom_node_append(new_element, child);
-            child = child->next;
+            child = next;
         }
 
         // step 4.17

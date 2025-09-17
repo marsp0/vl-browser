@@ -49,11 +49,11 @@ static dom_node_t* dom_insert_node(dom_node_t* parent, dom_node_t* node, dom_nod
 
     if (!child)
     {
-        dom_node_t* prev = parent->last;
-        if (prev)
+        dom_node_t* last = parent->last;
+        if (last)
         {
-            prev->next = node;
-            node->prev = prev;
+            last->next = node;
+            node->prev = last;
             parent->last = node;
         }
         else
@@ -196,6 +196,8 @@ dom_node_t* dom_node_remove(dom_node_t* node, dom_node_t* child)
     }
 
     child->parent = NULL;
+    child->next = NULL;
+    child->prev = NULL;
 
     return child;
 }

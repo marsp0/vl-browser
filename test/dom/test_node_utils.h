@@ -14,18 +14,7 @@ void               ASSERT_NODE(dom_node_t* a, dom_node_t* e);
 #define APPEND_TO_TREE(root, node)                                                      \
 do                                                                                      \
 {                                                                                       \
-    dom_node_t* last = root->last;                                                      \
-    if (last)                                                                           \
-    {                                                                                   \
-        last->next = node;                                                              \
-        node->prev = last;                                                              \
-        root->last = node;                                                              \
-    }                                                                                   \
-    else                                                                                \
-    {                                                                                   \
-        root->first = node;                                                             \
-        root->last = node;                                                              \
-    }                                                                                   \
+    dom_node_append(root, node);                                                        \
 } while(0);
 
 
