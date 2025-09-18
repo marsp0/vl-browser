@@ -26,7 +26,9 @@ void print_document_tree(dom_node_t* node, uint32_t level)
 
             const unsigned char* attr_name = hash_str_get(attr->name);
             const uint32_t attr_name_size = hash_str_get_size(attr->name);
-            printf("#attr - %.*s\n", attr_name_size, attr_name);
+            const unsigned char* val_name = hash_str_get(attr->value);
+            const uint32_t val_name_size = hash_str_get_size(attr->value);
+            printf("#attr - %.*s=%.*s\n", attr_name_size, attr_name, val_name_size, val_name);
             attr = attr->next;
         }
     }

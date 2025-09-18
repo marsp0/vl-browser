@@ -220,5 +220,7 @@ hash_str_t html_tag_span();
 hash_str_t html_tag_SPAN();
 hash_str_t html_tag_cite();
 hash_str_t html_tag_CITE();
+hash_str_t html_tag_spacer();
+hash_str_t html_tag_SPACER();
 
 void html_populate_tags();

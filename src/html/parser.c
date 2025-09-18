@@ -73,59 +73,59 @@ static uint32_t formatting_elements_size            = 0;
 /* static functions */
 /********************/
 
-// // todo: remove
-// static void print_document_tree(dom_node_t* node, uint32_t level)
-// {
-//     for (uint32_t i = 0; i < level; i++)
-//     {
-//         printf("  ");
-//     }
+// todo: remove
+static void print_document_tree(dom_node_t* node, uint32_t level)
+{
+    for (uint32_t i = 0; i < level; i++)
+    {
+        printf("  ");
+    }
 
-//     if (dom_node_is_element(node))
-//     {
-//         dom_element_t* element = dom_element_from_node(node);
-//         const unsigned char* name = hash_str_get(element->local_name);
-//         const uint32_t name_size = hash_str_get_size(element->local_name);
-//         printf("%.*s\n", name_size, name);
+    if (dom_node_is_element(node))
+    {
+        dom_element_t* element = dom_element_from_node(node);
+        const unsigned char* name = hash_str_get(element->local_name);
+        const uint32_t name_size = hash_str_get_size(element->local_name);
+        printf("%.*s\n", name_size, name);
 
-//         dom_attr_t* attr = element->attr;
+        dom_attr_t* attr = element->attr;
 
-//         for (uint32_t i = 0; i < element->attr_size; i++)
-//         {
-//             for (uint32_t j = 0; j < level; j++)
-//             {
-//                 printf("  ");
-//             }
-//             printf("  ");
+        for (uint32_t i = 0; i < element->attr_size; i++)
+        {
+            for (uint32_t j = 0; j < level; j++)
+            {
+                printf("  ");
+            }
+            printf("  ");
 
-//             const unsigned char* attr_name = hash_str_get(attr->name);
-//             const uint32_t attr_name_size = hash_str_get_size(attr->name);
-//             printf("#attr - %.*s\n", attr_name_size, attr_name);
-//             attr = attr->next;
-//         }
-//     }
-//     else if (dom_node_is_document(node))
-//     {
-//         printf("#document\n");
-//     }
-//     else if (dom_node_is_text(node))
-//     {
-//         dom_text_t* text = dom_text_from_node(node);
-//         printf("#text - %s\n", text->data);
-//     }
-//     else if (dom_node_is_comment(node))
-//     {
-//         dom_comment_t* comment = dom_comment_from_node(node);
-//         printf("<!-- %s -->\n", comment->data);
-//     }
+            const unsigned char* attr_name = hash_str_get(attr->name);
+            const uint32_t attr_name_size = hash_str_get_size(attr->name);
+            printf("#attr - %.*s\n", attr_name_size, attr_name);
+            attr = attr->next;
+        }
+    }
+    else if (dom_node_is_document(node))
+    {
+        printf("#document\n");
+    }
+    else if (dom_node_is_text(node))
+    {
+        dom_text_t* text = dom_text_from_node(node);
+        printf("#text - %s\n", text->data);
+    }
+    else if (dom_node_is_comment(node))
+    {
+        dom_comment_t* comment = dom_comment_from_node(node);
+        printf("<!-- %s -->\n", comment->data);
+    }
 
-//     dom_node_t* child = node->first;
-//     while (child)
-//     {
-//         print_document_tree(child, level + 1);
-//         child = child->next;
-//     }
-// }
+    dom_node_t* child = node->first;
+    while (child)
+    {
+        print_document_tree(child, level + 1);
+        child = child->next;
+    }
+}
 
 // static bool string_compare(const unsigned char* first, const uint32_t first_size, const unsigned char* second, const uint32_t second_size)
 // {
@@ -1301,8 +1301,10 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
     document                    = dom_document_new();
 
-    dom_node_t* form_element   = NULL;
+    dom_node_t* form_element    = NULL;
     bool scripting_enabled      = false;
+    bool remove_head            = false;
+    bool will_remove_head       = false;
 
     while (!stop)
     {
@@ -1339,7 +1341,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 current_mode = replacement_mode;
             }
 
-            // print_document_tree(document, 0);
+            print_document_tree(document, 0);
             switch (current_mode)
             {
 
@@ -1660,7 +1662,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     mode                = HTML_PARSER_MODE_AFTER_HEAD;
                     use_rules_for       = true;
 
-                    remove_from_stack(head_pointer);
+                    will_remove_head    = true;
                 }
                 else if (is_end && t_name == html_tag_template())
                 {
@@ -1669,10 +1671,8 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     mode                = HTML_PARSER_MODE_AFTER_HEAD;
                     use_rules_for       = true;
                 }
-                else if ( (is_start && t_name == html_tag_head())||
-                          (is_end && !(t_name == html_tag_body() ||
-                                       t_name == html_tag_html() ||
-                                       t_name == html_tag_br())))
+                else if ((is_start && t_name == html_tag_head()) ||
+                         (is_end && !(t_name == html_tag_body() || t_name == html_tag_html() || t_name == html_tag_br())))
                 {
                     INCOMPLETE_IMPLEMENTATION("parse error");
                 }
@@ -2160,11 +2160,24 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     reconstruct_formatting_elements();
                     insert_html_element(t_name, &t);
                     insert_marker();
-                    // todo: set frameset-ok flag to not ok
+                    INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
                 }
                 else if (is_end && (t_name == html_tag_applet() || t_name == html_tag_marquee() || t_name == html_tag_object()) )
                 {
-                    NOT_IMPLEMENTED
+                    if (!in_scope(t_name, GENERIC_SCOPE))
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+                    else
+                    {
+                        generate_implied_end_tags(0);
+                        if (stack[stack_idx]->name != t_name)
+                        {
+                            INCOMPLETE_IMPLEMENTATION("parse error");
+                        }
+                        pop_elements_until_name_included(t_name);
+                        clear_formatting_elements();
+                    }
                 }
                 else if (is_start && t_name == html_tag_table())
                 {
@@ -3037,6 +3050,16 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
             {
                 will_use_foster_parenting = false;
                 foster_parenting = true;
+            }
+
+            if (remove_head)
+            {
+                remove_from_stack(head_pointer);
+            }
+
+            if (will_remove_head)
+            {
+                remove_head = true;
             }
 
             if (consume)

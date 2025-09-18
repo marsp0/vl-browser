@@ -135,6 +135,8 @@ void hash_str_pool_new()
     total_nodes = INITIAL_SIZE * INITIAL_MULTIPLIER;
     table_size  = INITIAL_SIZE;
     next_slot   = INITIAL_SIZE;
+
+    append(0, "VL-EMPTY", 8);
 }
 
 
