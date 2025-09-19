@@ -5,6 +5,7 @@
 #include "html/test_parser.h"
 #include "html/test_parser_2.h"
 #include "html/test_parser_3.h"
+#include "html/test_parser_4.h"
 #include "dom/test_hash_str.h"
 #include "dom/test_node.h"
 
@@ -30,6 +31,7 @@ int32_t main()
     TEST_GROUP(test_html_parser_test1);
     TEST_GROUP(test_html_parser_test2);
     TEST_GROUP(test_html_parser_test3);
+    TEST_GROUP(test_html_parser_test4);
 
     TESTS_SUMMARY();
 

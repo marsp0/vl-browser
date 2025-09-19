@@ -2085,7 +2085,19 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_end && t_name == html_tag_li())
                 {
-                    NOT_IMPLEMENTED
+                    if (!in_scope(html_tag_li(), BUTTON_SCOPE))
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+                    else
+                    {
+                        generate_implied_end_tags(html_tag_li());
+                        if (stack[stack_idx]->name != html_tag_li())
+                        {
+                            INCOMPLETE_IMPLEMENTATION("parse error");
+                        }
+                        pop_elements_until_name_included(html_tag_li());
+                    }
                 }
                 else if (is_end && (t_name == html_tag_dd() || t_name == html_tag_dt() ))
                 {
@@ -2094,7 +2106,35 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 else if (is_end && (t_name == html_tag_h1() || t_name == html_tag_h2() || t_name == html_tag_h3() ||
                                     t_name == html_tag_h4() || t_name == html_tag_h5() || t_name == html_tag_h6()))
                 {
-                    NOT_IMPLEMENTED
+                    if (!in_scope(html_tag_h1(), GENERIC_SCOPE) &&
+                        !in_scope(html_tag_h2(), GENERIC_SCOPE) &&
+                        !in_scope(html_tag_h3(), GENERIC_SCOPE) &&
+                        !in_scope(html_tag_h4(), GENERIC_SCOPE) &&
+                        !in_scope(html_tag_h5(), GENERIC_SCOPE) &&
+                        !in_scope(html_tag_h6(), GENERIC_SCOPE))
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+                    else
+                    {
+                        generate_implied_end_tags(0);
+                        if (stack[stack_idx]->name != t_name)
+                        {
+                            INCOMPLETE_IMPLEMENTATION("parse error");
+                        }
+
+                        dom_node_t* current = stack[stack_idx];
+                        while (current->name != html_tag_h1() &&
+                               current->name != html_tag_h2() &&
+                               current->name != html_tag_h3() &&
+                               current->name != html_tag_h4() &&
+                               current->name != html_tag_h5() &&
+                               current->name != html_tag_h6())
+                        {
+                            stack_pop();
+                            current = stack[stack_idx];
+                        }
+                    }
                 }
                 else if (is_start && t_name == html_tag_a())
                 {
@@ -2233,17 +2273,26 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_image())
                 {
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("parse error");
+                    memset(tokens[i].name, 0, HTML_TOKEN_MAX_NAME_LEN);
+                    memcpy(tokens[i].name, "img", 3);
+                    tokens[i].name_size = 3;
+                    consume = false;
                 }
                 else if (is_start && t_name == html_tag_textarea())
                 {
-                    NOT_IMPLEMENTED
+                    insert_html_element(t_name, &t);
+                    INCOMPLETE_IMPLEMENTATION("todo: check the next token is a U+000A LINE FEED (LF) character token");
+                    html_tokenizer_set_state(HTML_TOKENIZER_RCDATA_STATE);
+                    original_mode = mode;
+                    INCOMPLETE_IMPLEMENTATION("set frameset-ok flag to not-ok");
+                    mode = HTML_PARSER_MODE_TEXT;
                 }
                 else if (is_start && t_name == html_tag_xmp())
                 {
                     NOT_IMPLEMENTED
                 }
-                else if (is_start && t_name == html_tag_iframe() )
+                else if (is_start && t_name == html_tag_iframe())
                 {
                     NOT_IMPLEMENTED
                 }
@@ -2790,7 +2839,10 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       t_name == html_tag_th()         ||
                                       t_name == html_tag_td()))
                 {
-                    NOT_IMPLEMENTED
+                    assert(in_scope(html_tag_td(), GENERIC_SCOPE) || in_scope(html_tag_th(), GENERIC_SCOPE));
+
+                    close_cell();
+                    consume                 = false;
                 }
                 else if (is_end && (t_name == html_tag_body()     ||
                                     t_name == html_tag_caption()  ||
@@ -2932,23 +2984,40 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_frameset())
                 {
-                    NOT_IMPLEMENTED
+                    insert_html_element(t_name, &t);
                 }
                 else if (is_end && t_name == html_tag_frameset())
                 {
-                    NOT_IMPLEMENTED
+                    if (stack[stack_idx]->name == html_tag_html())
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+                    else
+                    {
+                        stack_pop();
+                        INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
+                    }
                 }
                 else if (is_start && t_name == html_tag_frame())
                 {
-                    NOT_IMPLEMENTED
+                    insert_html_element(t_name, &t);
+                    stack_pop();
+                    INCOMPLETE_IMPLEMENTATION("ack token self close flag");
                 }
                 else if (is_start && t_name == html_tag_noframes())
                 {
-                    NOT_IMPLEMENTED
+                    replacement_mode    = HTML_PARSER_MODE_IN_HEAD;
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_IN_FRAMESET;
+                    use_rules_for       = true;
                 }
                 else if (is_eof)
                 {
-                    NOT_IMPLEMENTED
+                    if (stack[stack_idx]->name != html_tag_html())
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+                    stop_parsing();
                 }
                 else
                 {
@@ -3010,7 +3079,9 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else
                 {
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("parse error");
+                    mode = HTML_PARSER_MODE_IN_BODY;
+                    consume = false;
                 }
                 break;
 
