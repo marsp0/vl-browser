@@ -101,6 +101,8 @@ static dom_node_t* dom_insert_node(dom_node_t* parent, dom_node_t* node, dom_nod
 
 static dom_node_t* dom_pre_insert_node(dom_node_t* parent, dom_node_t* node, dom_node_t* child)
 {
+    assert(node);
+
     if (dom_check_pre_insert_validity(parent, node, child) != HTML_DOM_ERR_OK)
     {
         return NULL;
