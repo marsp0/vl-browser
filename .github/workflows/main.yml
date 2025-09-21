@@ -13,17 +13,17 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Build
+    - name: Build Tests
       shell: bash
-      run: ./build.sh debug
+      run: make tvl debug=1
 
     - name: Run Tests
       shell: bash
-      run: ./out/test_vl
+      run: ./out/tvl
 
     - name: Remove test coverage files
       shell: bash
-      run: find ./out/ -name "test_vl-test_*" -type f -delete
+      run: find ./out/ -name "tvl-test_*" -type f -delete
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
