@@ -7,3 +7,4 @@
 [ignore]
 .git
 out
+html5lib-tests
