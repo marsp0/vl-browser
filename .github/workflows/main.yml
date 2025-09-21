@@ -13,9 +13,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Build
+    - name: Build Tests
       shell: bash
-      run: make all
+      run: make tvl
 
     - name: Run Tests
       shell: bash
