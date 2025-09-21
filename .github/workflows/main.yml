@@ -15,7 +15,7 @@ jobs:
 
     - name: Build Tests
       shell: bash
-      run: make tvl
+      run: make tvl debug=1
 
     - name: Run Tests
       shell: bash
