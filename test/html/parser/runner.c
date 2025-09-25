@@ -1,4 +1,4 @@
-#include "html5lib_parser.h"
+#include "runner.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -411,8 +411,8 @@ static void run()
 void html5lib_parser_tests()
 {
     is_eof = false;
-    // const unsigned char* files[] = { "./test/html/html5lib/tree-construction/debug.data" };
-    const unsigned char* files[] = { "./test/html/html5lib/tree-construction/tests1.data" };
+    // const unsigned char* files[] = { "./test/html/parser/data/debug.data" };
+    const unsigned char* files[] = { "./test/html/parser/data/tests1.data" };
     uint32_t len = sizeof(files) / sizeof(char*);
 
     for (uint32_t i = 0; i < len; i++)
