@@ -33,6 +33,12 @@ bool dom_node_is_document(dom_node_t* node)
 }
 
 
+void dom_document_set_doctype(dom_document_t* doc, dom_doctype_t* doctype)
+{
+    doc->doctype = doctype;
+}
+
+
 dom_node_t* dom_node_from_document(dom_document_t* document)
 {
     return (dom_node_t*)document;

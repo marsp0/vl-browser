@@ -81,7 +81,8 @@ static hash_str_t hash_str(const unsigned char* str, const uint32_t str_size)
 static void populate(str_t* node, hash_str_t hash, const unsigned char* str, const uint32_t str_size)
 {
     node->hash = hash;
-    node->data = malloc(str_size);
+    node->data = malloc(str_size + 1);
+    memset(node->data, 0, str_size + 1);
     node->data_size = str_size;
 
     memcpy(node->data, str, str_size);

@@ -9,6 +9,8 @@
 #include "dom/test_hash_str.h"
 #include "dom/test_node.h"
 
+#include "html/html5lib_parser.h"
+
 #include "dom/hash_str.h"
 #include "util/hash_str_constants.h"
 
@@ -32,6 +34,9 @@ int32_t main()
     TEST_GROUP(test_html_parser_test2);
     TEST_GROUP(test_html_parser_test3);
     TEST_GROUP(test_html_parser_test4);
+
+    // external tests
+    TEST_GROUP(html5lib_parser_tests);
 
     TESTS_SUMMARY();
 

@@ -38,6 +38,7 @@ typedef enum
     GENERIC_SCOPE,
     BUTTON_SCOPE,
     TABLE_SCOPE,
+    LIST_SCOPE
 } dom_element_scope_e;
 
 typedef struct
@@ -74,58 +75,58 @@ static uint32_t formatting_elements_size            = 0;
 /********************/
 
 // todo: remove
-static void print_document_tree(dom_node_t* node, uint32_t level)
-{
-    for (uint32_t i = 0; i < level; i++)
-    {
-        printf("  ");
-    }
+// static void print_document_tree(dom_node_t* node, uint32_t level)
+// {
+//     for (uint32_t i = 0; i < level; i++)
+//     {
+//         printf("  ");
+//     }
 
-    if (dom_node_is_element(node))
-    {
-        dom_element_t* element = dom_element_from_node(node);
-        const unsigned char* name = hash_str_get(element->local_name);
-        const uint32_t name_size = hash_str_get_size(element->local_name);
-        printf("%.*s\n", name_size, name);
+//     if (dom_node_is_element(node))
+//     {
+//         dom_element_t* element = dom_element_from_node(node);
+//         const unsigned char* name = hash_str_get(element->local_name);
+//         const uint32_t name_size = hash_str_get_size(element->local_name);
+//         printf("%.*s\n", name_size, name);
 
-        dom_attr_t* attr = element->attr;
+//         dom_attr_t* attr = element->attr;
 
-        for (uint32_t i = 0; i < element->attr_size; i++)
-        {
-            for (uint32_t j = 0; j < level; j++)
-            {
-                printf("  ");
-            }
-            printf("  ");
+//         for (uint32_t i = 0; i < element->attr_size; i++)
+//         {
+//             for (uint32_t j = 0; j < level; j++)
+//             {
+//                 printf("  ");
+//             }
+//             printf("  ");
 
-            const unsigned char* attr_name = hash_str_get(attr->name);
-            const uint32_t attr_name_size = hash_str_get_size(attr->name);
-            printf("#attr - %.*s\n", attr_name_size, attr_name);
-            attr = attr->next;
-        }
-    }
-    else if (dom_node_is_document(node))
-    {
-        printf("#document\n");
-    }
-    else if (dom_node_is_text(node))
-    {
-        dom_text_t* text = dom_text_from_node(node);
-        printf("#text - %s\n", text->data);
-    }
-    else if (dom_node_is_comment(node))
-    {
-        dom_comment_t* comment = dom_comment_from_node(node);
-        printf("<!-- %s -->\n", comment->data);
-    }
+//             const unsigned char* attr_name = hash_str_get(attr->name);
+//             const uint32_t attr_name_size = hash_str_get_size(attr->name);
+//             printf("#attr - %.*s\n", attr_name_size, attr_name);
+//             attr = attr->next;
+//         }
+//     }
+//     else if (dom_node_is_document(node))
+//     {
+//         printf("#document\n");
+//     }
+//     else if (dom_node_is_text(node))
+//     {
+//         dom_text_t* text = dom_text_from_node(node);
+//         printf("#text - %s\n", text->data);
+//     }
+//     else if (dom_node_is_comment(node))
+//     {
+//         dom_comment_t* comment = dom_comment_from_node(node);
+//         printf("<!-- %s -->\n", comment->data);
+//     }
 
-    dom_node_t* child = node->first;
-    while (child)
-    {
-        print_document_tree(child, level + 1);
-        child = child->next;
-    }
-}
+//     dom_node_t* child = node->first;
+//     while (child)
+//     {
+//         print_document_tree(child, level + 1);
+//         child = child->next;
+//     }
+// }
 
 // static bool string_compare(const unsigned char* first, const uint32_t first_size, const unsigned char* second, const uint32_t second_size)
 // {
@@ -261,6 +262,11 @@ static bool in_scope(const hash_str_t name, dom_element_scope_e scope)
         }
 
         if (scope == BUTTON_SCOPE && node_name == html_tag_button())
+        {
+            return false;
+        }
+
+        if (scope == LIST_SCOPE && (node_name == html_tag_ol() || node_name == html_tag_ul()))
         {
             return false;
         }
@@ -1341,7 +1347,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 current_mode = replacement_mode;
             }
 
-            print_document_tree(document, 0);
+            // print_document_tree(document, 0);
             switch (current_mode)
             {
 
@@ -1811,22 +1817,22 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                         NOT_IMPLEMENTED
                     }
 
-                    if (!(stack_contains_element(html_tag_dd())               ||
-                          stack_contains_element(html_tag_dt())               ||
-                          stack_contains_element(html_tag_li())               ||
+                    if (!(stack_contains_element(html_tag_dd())         ||
+                          stack_contains_element(html_tag_dt())         ||
+                          stack_contains_element(html_tag_li())         ||
                           stack_contains_element(html_tag_optgroup())   ||
-                          stack_contains_element(html_tag_option())       ||
-                          stack_contains_element(html_tag_p())                 ||
-                          stack_contains_element(html_tag_rb())               ||
-                          stack_contains_element(html_tag_rt())               ||
-                          stack_contains_element(html_tag_rtc())             ||
-                          stack_contains_element(html_tag_tbody())         ||
-                          stack_contains_element(html_tag_td())               ||
-                          stack_contains_element(html_tag_tfoot())         ||
-                          stack_contains_element(html_tag_th())               ||
-                          stack_contains_element(html_tag_thead())         ||
-                          stack_contains_element(html_tag_tr())               ||
-                          stack_contains_element(html_tag_body())           ||
+                          stack_contains_element(html_tag_option())     ||
+                          stack_contains_element(html_tag_p())          ||
+                          stack_contains_element(html_tag_rb())         ||
+                          stack_contains_element(html_tag_rt())         ||
+                          stack_contains_element(html_tag_rtc())        ||
+                          stack_contains_element(html_tag_tbody())      ||
+                          stack_contains_element(html_tag_td())         ||
+                          stack_contains_element(html_tag_tfoot())      ||
+                          stack_contains_element(html_tag_th())         ||
+                          stack_contains_element(html_tag_thead())      ||
+                          stack_contains_element(html_tag_tr())         ||
+                          stack_contains_element(html_tag_body())       ||
                           stack_contains_element(html_tag_html())))
                     {
                         // todo: parse error
@@ -1838,22 +1844,22 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 else if (is_end && t_name == html_tag_html())
                 {
                     // todo: handle scope logic
-                    if (!(stack_contains_element(html_tag_dd())               ||
-                          stack_contains_element(html_tag_dt())               ||
-                          stack_contains_element(html_tag_li())               ||
+                    if (!(stack_contains_element(html_tag_dd())         ||
+                          stack_contains_element(html_tag_dt())         ||
+                          stack_contains_element(html_tag_li())         ||
                           stack_contains_element(html_tag_optgroup())   ||
-                          stack_contains_element(html_tag_option())       ||
-                          stack_contains_element(html_tag_p())                 ||
-                          stack_contains_element(html_tag_rb())               ||
-                          stack_contains_element(html_tag_rt())               ||
-                          stack_contains_element(html_tag_rtc())             ||
-                          stack_contains_element(html_tag_tbody())         ||
-                          stack_contains_element(html_tag_td())               ||
-                          stack_contains_element(html_tag_tfoot())         ||
-                          stack_contains_element(html_tag_th())               ||
-                          stack_contains_element(html_tag_thead())         ||
-                          stack_contains_element(html_tag_tr())               ||
-                          stack_contains_element(html_tag_body())           ||
+                          stack_contains_element(html_tag_option())     ||
+                          stack_contains_element(html_tag_p())          ||
+                          stack_contains_element(html_tag_rb())         ||
+                          stack_contains_element(html_tag_rt())         ||
+                          stack_contains_element(html_tag_rtc())        ||
+                          stack_contains_element(html_tag_tbody())      ||
+                          stack_contains_element(html_tag_td())         ||
+                          stack_contains_element(html_tag_tfoot())      ||
+                          stack_contains_element(html_tag_th())         ||
+                          stack_contains_element(html_tag_thead())      ||
+                          stack_contains_element(html_tag_tr())         ||
+                          stack_contains_element(html_tag_body())       ||
                           stack_contains_element(html_tag_html())))
                     {
                         // todo: parse error
@@ -1948,52 +1954,50 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
                     dom_node_t* node    = stack[stack_idx];
                     uint32_t idx        = stack_idx;
-                    uint32_t step       = 1;
+                    uint32_t step       = 3;
                     bool run            = true;
 
                     while (run)
                     {
                         switch (step)
                         {
-                        case 1:
+                        case 3:
                             if (node->name == html_tag_li())
                             {
                                 generate_implied_end_tags(html_tag_li());
-    
-                                node = stack[stack_idx];
 
-                                if (node->name != html_tag_li())
+                                if (stack[stack_idx]->name != html_tag_li())
                                 {
                                     INCOMPLETE_IMPLEMENTATION("parse error");
                                 }
     
                                 pop_elements_until_name_included(html_tag_li());
-                                step = 4;
+                                step = 6;
                             }
                             else
                             {
-                                step = 2;
-                            }
-                            break;
-
-                        case 2:
-                            if (is_special(node) && (node->name != html_tag_address() && node->name != html_tag_div() && node->name != html_tag_p()))
-                            {
                                 step = 4;
                             }
-                            else
-                            {
-                                step = 3;
-                            }
-                            break;
-
-                        case 3:
-                            idx--;
-                            node = stack[idx];
-                            step = 1;
                             break;
 
                         case 4:
+                            if (is_special(node) && (node->name != html_tag_address() && node->name != html_tag_div() && node->name != html_tag_p()))
+                            {
+                                step = 6;
+                            }
+                            else
+                            {
+                                step = 5;
+                            }
+                            break;
+
+                        case 5:
+                            idx--;
+                            node = stack[idx];
+                            step = 3;
+                            break;
+
+                        case 6:
                             if (in_scope(html_tag_p(), BUTTON_SCOPE))
                             {
                                 close_p_element();
@@ -2071,7 +2075,28 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_end && t_name == html_tag_form())
                 {
-                    NOT_IMPLEMENTED
+                    if (stack_contains_element(html_tag_template()))
+                    {
+                        NOT_IMPLEMENTED
+                    }
+                    else
+                    {
+                        dom_node_t* node = form_element;
+                        form_element = NULL;
+                        if (!node || !stack_contains_node(node))
+                        {
+                            INCOMPLETE_IMPLEMENTATION("parse error");
+                        }
+                        else
+                        {
+                            generate_implied_end_tags(0);
+                            if (stack[stack_idx] != node)
+                            {
+                                INCOMPLETE_IMPLEMENTATION("parse error");
+                            }
+                            remove_from_stack(node);
+                        }
+                    }
                 }
                 else if (is_end && t_name == html_tag_p())
                 {
@@ -2085,7 +2110,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_end && t_name == html_tag_li())
                 {
-                    if (!in_scope(html_tag_li(), BUTTON_SCOPE))
+                    if (!in_scope(html_tag_li(), LIST_SCOPE))
                     {
                         INCOMPLETE_IMPLEMENTATION("parse error");
                     }
@@ -2101,7 +2126,19 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_end && (t_name == html_tag_dd() || t_name == html_tag_dt() ))
                 {
-                    NOT_IMPLEMENTED
+                    if (!in_scope(t_name, GENERIC_SCOPE))
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+                    else
+                    {
+                        generate_implied_end_tags(t_name);
+                        if (stack[stack_idx]->name != t_name)
+                        {
+                            INCOMPLETE_IMPLEMENTATION("parse error");
+                        }
+                        pop_elements_until_name_included(t_name);
+                    }
                 }
                 else if (is_end && (t_name == html_tag_h1() || t_name == html_tag_h2() || t_name == html_tag_h3() ||
                                     t_name == html_tag_h4() || t_name == html_tag_h5() || t_name == html_tag_h6()))
@@ -2231,18 +2268,24 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_end && t_name == html_tag_br())
                 {
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("parse error");
+                    t.attributes_size = 0;
+                    reconstruct_formatting_elements();
+                    insert_html_element(t_name, &t);
+                    stack_pop();
+
+                    INCOMPLETE_IMPLEMENTATION("ack self closing flag");
+                    INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
                 }
                 else if (is_start && (t_name == html_tag_area() || t_name == html_tag_br() || t_name == html_tag_embed() ||
                                       t_name == html_tag_img() || t_name == html_tag_keygen() || t_name == html_tag_wbr()))
                 {
-                    // todo: reconstruct the active formatting elements
-
+                    reconstruct_formatting_elements();
                     insert_html_element(t_name, &t);
                     stack_pop();
 
-                    // todo: acknowledge self closing tag
-                    // todo: set frameset-ok flag to not ok
+                    INCOMPLETE_IMPLEMENTATION("ack self closing flag");
+                    INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
                 }
                 else if (is_start && t_name == html_tag_input())
                 {
@@ -2396,7 +2439,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                       t_name == html_tag_thead()      ||
                                       t_name == html_tag_tr() ))
                 {
-                        NOT_IMPLEMENTED
+                        INCOMPLETE_IMPLEMENTATION("parse error");
                 }
                 else if (is_start)
                 {
@@ -2477,15 +2520,22 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_colgroup())
                 {
-                    NOT_IMPLEMENTED
+                    clear_stack_back_to_table();
+                    insert_html_element(t_name, &t);
+                    mode = HTML_PARSER_MODE_IN_COLUMN_GROUP;
                 }
                 else if (is_start && t_name == html_tag_col())
                 {
-                    NOT_IMPLEMENTED
+                    clear_stack_back_to_table();
+                    insert_html_element(html_tag_colgroup(), NULL);
+                    mode = HTML_PARSER_MODE_IN_COLUMN_GROUP;
+                    consume = false;
                 }
                 else if (is_start && (t_name == html_tag_tbody() || t_name == html_tag_tfoot() || t_name == html_tag_thead()))
                 {
-                    NOT_IMPLEMENTED
+                    clear_stack_back_to_table();
+                    insert_html_element(t_name, &t);
+                    mode = HTML_PARSER_MODE_IN_TABLE_BODY;
                 }
                 else if (is_start && (t_name == html_tag_td() || t_name == html_tag_th() || t_name == html_tag_tr()))
                 {
@@ -2523,7 +2573,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                     t_name == html_tag_thead()    ||
                                     t_name == html_tag_tr()))
                 {
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
                 }
                 else if ((is_start && (t_name == html_tag_style() || t_name == html_tag_script() || t_name == html_tag_template())) ||
                          (is_end && t_name == html_tag_template()))
@@ -2650,7 +2700,9 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_col())
                 {
-                    NOT_IMPLEMENTED
+                    insert_html_element(t_name, &t);
+                    stack_pop();
+                    INCOMPLETE_IMPLEMENTATION("ack self closing flag, if set");
                 }
                 else if (is_end && t_name == html_tag_colgroup())
                 {
@@ -2670,7 +2722,16 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else
                 {
-                    NOT_IMPLEMENTED
+                    if (stack[stack_idx]->name != html_tag_colgroup())
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
+                    }
+                    else
+                    {
+                        stack_pop();
+                        mode = HTML_PARSER_MODE_IN_TABLE;
+                        consume = false;
+                    }
                 }
                 break;
 
