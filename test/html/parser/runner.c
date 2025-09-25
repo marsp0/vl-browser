@@ -27,6 +27,8 @@ static unsigned char line[2048] = { 0 };
 static uint32_t line_size = 0;
 static uint32_t is_eof = false;
 static FILE* file = NULL;
+static uint32_t line_num = 0;
+static uint32_t test_line = 0;
 
 // test data
 static unsigned char buffer[2048] = { 0 };
@@ -52,6 +54,7 @@ static void read_line()
     }
 
     line[--line_size] = '\0';
+    line_num++;
 }
 
 
@@ -276,7 +279,7 @@ static dom_node_t* parse_doctype()
 }
 
 
-static void parse()
+static void run_test()
 {
     memset(buffer, 0, 2048);
     buffer_size = 0;
@@ -284,6 +287,7 @@ static void parse()
     // #data
     read_line();
     assert(strncmp("#data", line, 5) == 0);
+    test_line = line_num;
 
     // #test-data
     read_line();
@@ -304,6 +308,7 @@ static void parse()
             state       = STATE_ERRORS;
             read_line();
         }
+
         if (strncmp(line, "#document", 9) == 0)
         {
             state       = STATE_DOCUMENT;
@@ -322,31 +327,12 @@ static void parse()
             uint32_t level = find_level();
             dom_node_t* node = NULL;
 
-            if (line_is_comment())
-            {
-                node = parse_comment();
-            }
-            else if (line_is_element())
-            {
-                node = parse_element();
-            }
-            else if (line_is_text())
-            {
-                node = parse_text();
-            }
-            else if (line_is_attr())
-            {
-                node = parse_attr(last);
-            }
-            else if (line_is_doctype())
-            {
-                node = parse_doctype();
-            }
-            else
-            {
-                printf("%s\n", line);
-                assert(false);
-            }
+            if (line_is_comment())      { node = parse_comment(); }
+            else if (line_is_element()) { node = parse_element(); }
+            else if (line_is_text())    { node = parse_text(); }
+            else if (line_is_attr())    { node = parse_attr(last); }
+            else if (line_is_doctype()) { node = parse_doctype(); }
+            else                        { printf("%s\n", line); assert(false); }
 
             assert(node);
 
@@ -392,23 +378,28 @@ static void parse()
 
         read_line();
     }
-}
 
-
-static void run()
-{
     html_parser_init();
     dom_node_t* actual = html_parser_run(buffer, buffer_size);
     ASSERT_NODE(actual, document);
-    // print_document_tree(document, 0);
-    // print_document_tree(actual, 0);
+
+    if (!TEST_SUCCEEDED())
+    {
+        printf("\n========== Test %u ==========\n", test_line);
+        printf("%s\n", buffer);
+        printf("\n-- Actual Tree --\n");
+        print_document_tree(document, 0);
+        printf("\n-- Expected Tree --\n");
+        print_document_tree(actual, 0);
+    }
+    
     dom_node_free(document);
     dom_node_free(actual);
     html_parser_free();
 }
 
 
-void html5lib_parser_tests()
+void html_parser_test()
 {
     is_eof = false;
     // const unsigned char* files[] = { "./test/html/parser/data/debug.data" };
@@ -424,10 +415,6 @@ void html5lib_parser_tests()
             return;
         }
 
-        while (!is_eof)
-        {
-            parse();
-            run();
-        }
+        while (!is_eof) { TEST_CASE(run_test) }
     }
 }

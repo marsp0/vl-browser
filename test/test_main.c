@@ -28,7 +28,7 @@ int32_t main()
     TEST_GROUP(test_html_node);
 
     // external tests
-    TEST_GROUP(html5lib_parser_tests);
+    TEST_GROUP(html_parser_test);
 
     TESTS_SUMMARY();
 
