@@ -23,18 +23,43 @@ typedef enum
     STATE_SCRIPT
 } html5lib_parse_state_e;
 
+static FILE* file = NULL;
+static bool file_done = false;
+static unsigned char file_buffer[4096] = { 0 };
+static uint32_t file_buffer_cursor = 0;
+static uint32_t file_buffer_size = 0;
+
 static unsigned char line[2048] = { 0 };
 static uint32_t line_size = 0;
 static uint32_t is_eof = false;
-static FILE* file = NULL;
 static uint32_t line_num = 0;
 static uint32_t test_line = 0;
 static uint32_t level = 0;
 
 // test data
-static unsigned char buffer[2048] = { 0 };
-static uint32_t buffer_size = 0;
+static unsigned char test_data[2048] = { 0 };
+static uint32_t test_data_size = 0;
 static dom_node_t* document = NULL;
+
+static int32_t get_char()
+{
+    if (file_done && file_buffer_cursor == file_buffer_size)
+    {
+        return -1;
+    }
+
+    if (file_buffer_cursor >= file_buffer_size)
+    {
+        file_buffer_size = (uint32_t)fread(file_buffer, 1, sizeof(file_buffer), file);
+        file_buffer_cursor = 0;
+
+        if (file_buffer_size < sizeof(file_buffer)) { file_done = true; }
+    }
+
+    int32_t c = file_buffer[file_buffer_cursor++];
+
+    return c;
+}
 
 static void read_line()
 {
@@ -44,8 +69,8 @@ static void read_line()
 
     while (c != '\n')
     {
-        c = fgetc(file);
-        if (c == EOF)
+        c = get_char(file);
+        if (c == -1)
         {
             is_eof = true;
             return;
@@ -176,8 +201,8 @@ static dom_node_t* parse_doctype()
 
 static void run_test()
 {
-    memset(buffer, 0, 2048);
-    buffer_size = 0;
+    memset(test_data, 0, 2048);
+    test_data_size = 0;
 
     // #data
     read_line();
@@ -186,8 +211,8 @@ static void run_test()
 
     // #test-data
     read_line();
-    memcpy(buffer, line, line_size);
-    buffer_size = line_size;
+    memcpy(test_data, line, line_size);
+    test_data_size = line_size;
 
     // next header
     read_line();
@@ -275,13 +300,13 @@ static void run_test()
     }
 
     html_parser_init();
-    dom_node_t* actual = html_parser_run(buffer, buffer_size);
+    dom_node_t* actual = html_parser_run(test_data, test_data_size);
     ASSERT_NODE(actual, document);
 
     if (!TEST_SUCCEEDED())
     {
         printf("\n========== Test %u ==========\n", test_line);
-        printf("%s\n", buffer);
+        printf("%s\n", test_data);
         printf("\n-- Actual Tree --\n");
         print_document_tree(document, 0);
         printf("\n-- Expected Tree --\n");
