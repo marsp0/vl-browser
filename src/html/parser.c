@@ -1365,10 +1365,12 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     unsigned char compat[]  = "about:legacy-compat";
                     uint32_t compat_size    = sizeof(compat) - 1;
-                    bool name_is_html       = t.name_size == 4 && strncmp(t.name, "html", 4) == 0;
+                    bool name_is_html       = t_name == html_tag_html();
                     bool public_id_missing  = t.public_id_size == 0;
                     bool system_id_missing  = t.system_id_size == 0;
                     bool is_legacy_compat   = t.system_id_size == compat_size && strncmp(t.system_id, compat, compat_size);
+                    dom_node_t* doctype     = dom_doctype_new(document, t.name, t.name_size, NULL, 0, NULL, 0);
+                    dom_document_set_doctype(dom_document_from_node(document), dom_doctype_from_node(doctype));
 
                     if (!name_is_html || !public_id_missing || !system_id_missing || !is_legacy_compat)
                     {

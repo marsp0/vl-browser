@@ -22,9 +22,14 @@ do                                                                              
 #define ASSERT_NODE_DOCTYPE(a, e)                                                       \
 do                                                                                      \
 {                                                                                       \
-    ASSERT_HASH_STRING(a->name, e->name);                                               \
-    ASSERT_HASH_STRING(a->public_id, e->public_id);                                     \
-    ASSERT_HASH_STRING(a->system_id, e->system_id);                                     \
+    if (!a || !e)                                                                       \
+    {                                                                                   \
+        ASSERT_POINTER(a, e);                                                           \
+    }                                                                                   \
+    else                                                                                \
+    {                                                                                   \
+        ASSERT_HASH_STRING(a->name, e->name);                                           \
+    }                                                                                   \
 } while (0);
 
 
@@ -80,6 +85,7 @@ do                                                                              
     ASSERT_HASH_STRING(a->compat_mode, e->compat_mode);                                 \
     ASSERT_HASH_STRING(a->character_set, e->character_set);                             \
     ASSERT_HASH_STRING(a->content_type, e->content_type);                               \
+    ASSERT_NODE_DOCTYPE(a->doctype, e->doctype);                                        \
 } while (0);
 
 

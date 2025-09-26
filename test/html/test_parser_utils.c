@@ -42,6 +42,16 @@ void print_document_tree(dom_node_t* node, uint32_t level)
     else if (dom_node_is_document(node))
     {
         printf("#document\n");
+        dom_document_t* doc = dom_document_from_node(node);
+        if (doc->doctype)
+        {
+            for (uint32_t i = 0; i < level + 1; i++)
+            {
+                printf("  ");
+            }
+
+            printf("DOCTYPE %s\n", hash_str_get(doc->doctype->name));
+        }
     }
     else if (dom_node_is_text(node))
     {

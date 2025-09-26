@@ -29,6 +29,7 @@ static uint32_t is_eof = false;
 static FILE* file = NULL;
 static uint32_t line_num = 0;
 static uint32_t test_line = 0;
+static uint32_t level = 0;
 
 // test data
 static unsigned char buffer[2048] = { 0 };
@@ -75,133 +76,70 @@ static uint32_t find_level()
 
 static bool line_is_comment()
 {
-    for (uint32_t i = 0; i < line_size; i++)
-    {
-        if (line[i] == '|' || line[i] == ' ') { continue; }
-
-        return line[i] == '<' && line[i + 1] == '!' && line[i + 2] == '-' && line[i + 3] == '-';
-    }
-
-    return false;
+    uint32_t i = level * 2;
+    return line[i] == '<' && line[i + 1] == '!' && line[i + 2] == '-' && line[i + 3] == '-';
 }
 
 
 static bool line_is_text()
 {
-    for (uint32_t i = 0; i < line_size; i++)
-    {
-        if (line[i] == '|' || line[i] == ' ') { continue; }
-
-        return line[i] == '"';
-    }
-
-    return false;
+    return line[level * 2] == '"';
 }
 
 
 static bool line_is_element()
 {
-    for (uint32_t i = 0; i < line_size; i++)
-    {
-        if (line[i] == '|' || line[i] == ' ') { continue; }
-
-        return line[i] == '<' && utf8_is_alpha(line[i + 1]);
-    }
-
-    return false;
+    uint32_t i = level * 2;
+    return line[i] == '<' && utf8_is_alpha(line[i + 1]);
 }
 
 
 static bool line_is_attr()
 {
-    for (uint32_t i = 0; i < line_size; i++)
-    {
-        if (line[i] == '|' || line[i] == ' ') { continue; }
-
-        return utf8_is_alpha(line[i]);
-    }
-
-    return false;
+    uint32_t i = level * 2;
+    return utf8_is_alpha(line[i]);
 }
 
 
 static bool line_is_doctype()
 {
-    for (uint32_t i = 0; i < line_size; i++)
-    {
-        if (line[i] == '|' || line[i] == ' ') { continue; }
-
-        return line[i] == '<' && line[i + 1] == '!' && line[i + 2] == 'D';
-    }
-    return false;
+    uint32_t i = level * 2;
+    return line[i] == '<' && line[i + 1] == '!' && line[i + 2] == 'D';
 }
 
 
 static dom_node_t* parse_comment()
 {
-    uint32_t start = 0;
-
-    for (uint32_t i = 0; i < line_size - 4; i++)
-    {
-        if (line[i] == '|' || line[i] == ' ') { continue; }
-
-        start = i + 5;
-        break;
-    }
-
-    return dom_comment_new(document, &line[start], line_size - 4 - start);
+    uint32_t start = level * 2 + 5;
+    uint32_t size = line_size - 4 - start;
+    return dom_comment_new(document, &line[start], size);
 }
 
 
 static dom_node_t* parse_element()
 {
-    uint32_t start = 0;
-
-    for (uint32_t i = 0; i < line_size - 1; i++)
-    {
-        if (line[i] == '|' || line[i] == ' ') { continue; }
-
-        start = i + 1;
-        break;
-    }
-
-    hash_str_t name = hash_str_new(&line[start], line_size - 1 - start);
+    uint32_t start = level * 2 + 1;
+    uint32_t size = line_size - 1 - start;
+    hash_str_t name = hash_str_new(&line[start], size);
     return dom_element_new(document, name);
 }
 
 
 static dom_node_t* parse_text()
 {
-    uint32_t start = 0;
-
-    for (uint32_t i = 0; i < line_size - 1; i++)
-    {
-        if (line[i] == '|' || line[i] == ' ') { continue; }
-
-        start = i + 1;
-        break;
-    }
-
-    return dom_text_new(document, &line[start], line_size - 1 - start);
+    uint32_t start = level * 2 + 1;
+    uint32_t size = line_size - 1 - start;
+    return dom_text_new(document, &line[start], size);
 }
 
 
 static dom_node_t* parse_attr(dom_node_t* element)
 {
-    uint32_t name_start = 0;
-    uint32_t name_end = line_size;
-    uint32_t val_start = 0;
-    uint32_t val_end = line_size;
-
-    for (uint32_t i = 0; i < line_size; i++)
-    {
-        if (line[i] == '|' || line[i] == ' ') { continue; }
-
-        name_start = i;
-        break;
-    }
-    
-    for (uint32_t i = 0; i < line_size; i++)
+    uint32_t name = 0;
+    uint32_t name_start = level * 2;
+    uint32_t name_size = line_size;
+    uint32_t name_end = name_start;
+    for (uint32_t i = name_start; i < line_size; i++)
     {
         if (line[i] == '=')
         {
@@ -209,36 +147,19 @@ static dom_node_t* parse_attr(dom_node_t* element)
             break;
         }
     }
-
-    uint32_t name_size = name_end - name_start;
+    name_size = name_end - name_start;
     name_size = name_size > 64 ? 64 : name_size;
+    name = hash_str_new(&line[name_start], name_size);
 
-    hash_str_t name = hash_str_new(&line[name_start], name_size);
-    hash_str_t val = 0;
+    uint32_t val = 0;
+    uint32_t val_start = name_end + 2;
+    uint32_t val_end = line_size - 1;
+    uint32_t val_size = val_end - val_start;
+    val_size = val_size > 64 ? 64 : val_size;
 
-    for (uint32_t i = 0; i < line_size; i++)
+    if (val_size > 0)
     {
-        if (line[i] == '"')
-        {
-            val_start = i + 1;
-            break;
-        }
-    }
-    
-    for (uint32_t i = val_start; i < line_size; i++)
-    {
-        if (line[i] == '"')
-        {
-            val_end = i;
-            break;
-        }
-    }
-
-    if (val_end > val_start)
-    {
-        uint32_t size = val_end - val_start;
-        size = size > 64 ? 64 : size;
-        val = hash_str_new(&line[val_start], size);
+        val = hash_str_new(&line[val_start], val_size);
     }
 
     return dom_attr_new(name, val, element);
@@ -247,35 +168,9 @@ static dom_node_t* parse_attr(dom_node_t* element)
 
 static dom_node_t* parse_doctype()
 {
-    uint32_t line_start = 0;
-    uint32_t name_start = 0;
-    uint32_t name_end = line_size;
-
-    for (uint32_t i = 0; i < line_size; i++)
-    {
-        if (line[i] == '|' || line[i] == ' ') { continue; }
-
-        line_start = i;
-        break;
-    }
-
-    for (uint32_t i = line_start; i < line_size; i++)
-    {
-        if (line[i] == ' ')
-        {
-            name_start = i + 1;
-        }
-    }
-
-    for (uint32_t i = name_start; i < line_size; i++)
-    {
-        if (line[i] == ' ')
-        {
-            name_end = i;
-        }
-    }
-
-    return dom_doctype_new(document, &line[name_start], name_end - name_start, NULL, 0, NULL, 0);
+    uint32_t start = level * 2 + 10;
+    uint32_t size = line_size - 1 - start;
+    return dom_doctype_new(document, &line[start], size, NULL, 0, NULL, 0);
 }
 
 
@@ -324,7 +219,7 @@ static void run_test()
         }
         else if (state == STATE_DOCUMENT)
         {
-            uint32_t level = find_level();
+            level = find_level();
             dom_node_t* node = NULL;
 
             if (line_is_comment())      { node = parse_comment(); }

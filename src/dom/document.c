@@ -20,6 +20,7 @@ dom_node_t* dom_document_new()
     document->character_set     = 0;
     document->content_set       = 0;
     document->content_type      = 0;
+    document->doctype           = NULL;
 
     document->parser_cannot_change_mode = false;
 
