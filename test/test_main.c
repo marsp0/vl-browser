@@ -2,12 +2,10 @@
 
 #include "util/test_utf8.h"
 #include "html/test_tokenizer.h"
-#include "html/test_parser.h"
-#include "html/test_parser_2.h"
-#include "html/test_parser_3.h"
-#include "html/test_parser_4.h"
 #include "dom/test_hash_str.h"
 #include "dom/test_node.h"
+
+#include "html/parser/runner.h"
 
 #include "dom/hash_str.h"
 #include "util/hash_str_constants.h"
@@ -28,10 +26,9 @@ int32_t main()
     TEST_GROUP(test_html_tokenizer_script_data);
     TEST_GROUP(test_dom_hash_string);
     TEST_GROUP(test_html_node);
-    TEST_GROUP(test_html_parser_test1);
-    TEST_GROUP(test_html_parser_test2);
-    TEST_GROUP(test_html_parser_test3);
-    TEST_GROUP(test_html_parser_test4);
+
+    // external tests
+    TEST_GROUP(html_parser_test);
 
     TESTS_SUMMARY();
 

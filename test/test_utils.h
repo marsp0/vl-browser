@@ -23,6 +23,7 @@ uint32_t    get_test_assert_counter();
 void        TESTS_INIT();
 void        TESTS_SUMMARY();
 uint32_t    TESTS_FAIL_COUNT();
+bool        TEST_SUCCEEDED();
 
 
 #define GET_COMPARISON_UNEQUAL(a, b) _Generic(  a,                                          \
@@ -127,23 +128,23 @@ do                                                                              
 } while(0);
 
 
-#define ASSERT_HASH_STRING(a, b)                                                            \
+#define ASSERT_HASH_STRING(a, e)                                                            \
 do                                                                                          \
 {                                                                                           \
-    if (a == 0 || b == 0)                                                                   \
+    if (a == 0 || e == 0)                                                                   \
     {                                                                                       \
-        ASSERT_EQUAL(a, b);                                                                 \
+        ASSERT_EQUAL(a, e);                                                                 \
     }                                                                                       \
     else                                                                                    \
     {                                                                                       \
         const unsigned char* adata  = hash_str_get(a);                                      \
         const uint32_t asize        = hash_str_get_size(a);                                 \
-        const unsigned char* bdata  = hash_str_get(b);                                      \
-        const uint32_t bsize        = hash_str_get_size(b);                                 \
-        ASSERT_EQUAL(asize, bsize);                                                         \
-        if (adata && bdata && asize == bsize)                                               \
+        const unsigned char* edata  = hash_str_get(e);                                      \
+        const uint32_t esize        = hash_str_get_size(e);                                 \
+        ASSERT_EQUAL(asize, esize);                                                         \
+        if (adata && edata && asize == esize)                                               \
         {                                                                                   \
-            ASSERT_STRING((char)adata, (char)bdata, asize);                                 \
+            ASSERT_STRING((char)adata, (char)edata, asize);                                 \
         }                                                                                   \
     }                                                                                       \
 } while(0);
@@ -152,13 +153,16 @@ do                                                                              
 #define TEST_CASE(test)                                                                     \
 do                                                                                          \
 {                                                                                           \
-    printf("  %s\n", #test);                                                                \
     reset_test_assert_counter();                                                            \
     test();                                                                                 \
     uint32_t count = get_test_assert_counter();                                             \
     if (count > 10)                                                                         \
     {                                                                                       \
         printf("    ... %u more assert fails\n", count - 10);                               \
+    }                                                                                       \
+    if (!TEST_SUCCEEDED())                                                                  \
+    {                                                                                       \
+        printf("  TEST_NAME: %s\n", #test);                                                 \
     }                                                                                       \
 } while(0);
 

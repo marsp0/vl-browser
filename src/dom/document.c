@@ -20,6 +20,7 @@ dom_node_t* dom_document_new()
     document->character_set     = 0;
     document->content_set       = 0;
     document->content_type      = 0;
+    document->doctype           = NULL;
 
     document->parser_cannot_change_mode = false;
 
@@ -30,6 +31,12 @@ dom_node_t* dom_document_new()
 bool dom_node_is_document(dom_node_t* node)
 {
     return node->type & DOM_NODE_DOCUMENT;
+}
+
+
+void dom_document_set_doctype(dom_document_t* doc, dom_doctype_t* doctype)
+{
+    doc->doctype = doctype;
 }
 
 

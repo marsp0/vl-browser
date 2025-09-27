@@ -18,6 +18,7 @@ void reset_test_assert_counter()
     assert_count = 0;
 }
 
+
 void increment_test_assert_counter()
 {
     if (assert_count == 0)
@@ -27,10 +28,12 @@ void increment_test_assert_counter()
     assert_count++;
 }
 
+
 uint32_t get_test_assert_counter()
 {
     return assert_count;
 }
+
 
 void TESTS_INIT()
 {
@@ -38,10 +41,18 @@ void TESTS_INIT()
     failed = 0;
 }
 
+
 uint32_t TESTS_FAIL_COUNT()
 {
     return failed;
 }
+
+
+bool TEST_SUCCEEDED()
+{
+    return get_test_assert_counter() == 0;
+}
+
 
 void TESTS_SUMMARY()
 {

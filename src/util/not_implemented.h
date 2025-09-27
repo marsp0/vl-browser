@@ -16,5 +16,5 @@ do                                                                  \
 #define INCOMPLETE_IMPLEMENTATION(msg)                                              \
 do                                                                                  \
 {                                                                                   \
-    printf("Section not fully implemented: %s:%d - %s\n", __func__, __LINE__, msg); \
+    /*printf("Section not fully implemented: %s:%d - %s\n", __func__, __LINE__, msg);*/ \
 } while(0);
