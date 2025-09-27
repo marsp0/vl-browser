@@ -321,13 +321,19 @@ static void run_test()
 
 void html_parser_test()
 {
-    is_eof = false;
     // const unsigned char* files[] = { "./test/html/parser/data/debug.data" };
-    const unsigned char* files[] = { "./test/html/parser/data/tests1.data" };
+    const unsigned char* files[] = {
+                                    "./test/html/parser/data/tests1.data",
+                                    };
     uint32_t len = sizeof(files) / sizeof(char*);
 
     for (uint32_t i = 0; i < len; i++)
     {
+        file_buffer_cursor = 0;
+        file_buffer_size = 0;
+        file_done = false;
+        is_eof = false;
+
         file = fopen(files[i], "r");
         if (!file)
         {

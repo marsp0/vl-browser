@@ -2013,8 +2013,83 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && (t_name == html_tag_dt() || t_name == html_tag_dd()))
                 {
-                    // todo: implement
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
+
+                    dom_node_t* node    = stack[stack_idx];
+                    uint32_t idx        = stack_idx;
+                    uint32_t step       = 3;
+                    bool run            = true;
+
+                    while (run)
+                    {
+                        switch (step)
+                        {
+                        case 3:
+                            if (node->name == html_tag_dd())
+                            {
+                                generate_implied_end_tags(html_tag_dd());
+
+                                if (stack[stack_idx]->name != html_tag_dd())
+                                {
+                                    INCOMPLETE_IMPLEMENTATION("parse error");
+                                }
+
+                                pop_elements_until_name_included(html_tag_dd());
+                                step = 7;
+                            }
+                            else
+                            {
+                                step = 4;
+                            }
+                            break;
+
+                        case 4:
+                            if (node->name == html_tag_dt())
+                            {
+                                generate_implied_end_tags(html_tag_dt());
+
+                                if (stack[stack_idx]->name != html_tag_dt())
+                                {
+                                    INCOMPLETE_IMPLEMENTATION("parse error");
+                                }
+
+                                pop_elements_until_name_included(html_tag_dt());
+                                step = 7;
+                            }
+                            else
+                            {
+                                step = 5;
+                            }
+                            break;
+
+                        case 5:
+                            if (is_special(node) && (node->name != html_tag_address() && node->name != html_tag_div() && node->name != html_tag_p()))
+                            {
+                                step = 7;
+                            }
+                            else
+                            {
+                                step = 6;
+                            }
+                            break;
+
+                        case 6:
+                            idx--;
+                            node = stack[idx];
+                            step = 3;
+                            break;
+
+                        case 7:
+                            if (in_scope(html_tag_p(), BUTTON_SCOPE))
+                            {
+                                close_p_element();
+                            }
+                            run = false;
+                            break;
+                        }
+                    }
+
+                    insert_html_element(t_name, &t);
                 }
                 else if (is_start && t_name == html_tag_plaintext())
                 {
@@ -2757,7 +2832,16 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_end && (t_name == html_tag_tbody() || t_name == html_tag_tfoot() || t_name == html_tag_thead() ))
                 {
-                    NOT_IMPLEMENTED
+                    if (!in_scope(t_name, TABLE_SCOPE))
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                        break;
+                    }
+
+                    clear_stack_back_to_table_body();
+                    stack_pop();
+                    mode = HTML_PARSER_MODE_IN_TABLE;
+                    consume = false;
                 }
                 else if ((is_start && (t_name == html_tag_caption()   ||
                                        t_name == html_tag_col()       ||
@@ -2847,7 +2931,21 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_end && (t_name == html_tag_tbody() || t_name == html_tag_thead() || t_name == html_tag_tfoot()))
                 {
-                    NOT_IMPLEMENTED
+                    if (!in_scope(t_name, TABLE_SCOPE))
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                        break;
+                    }
+
+                    if (!in_scope(html_tag_tr(), TABLE_SCOPE))
+                    {
+                        break;
+                    }
+
+                    clear_stack_back_to_table_row();
+                    stack_pop();
+                    mode = HTML_PARSER_MODE_IN_TABLE_BODY;
+                    consume = false;
                 }
                 else if (is_end && (t_name == html_tag_body()     ||
                                     t_name == html_tag_caption()  ||
@@ -3031,7 +3129,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
             case HTML_PARSER_MODE_IN_FRAMESET:
                 if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
                 {
-                    NOT_IMPLEMENTED
+                    insert_character(t.data, t.data_size);
                 }
                 else if (is_comment)
                 {
@@ -3039,7 +3137,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_doctype)
                 {
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("parse error");
                 }
                 else if (is_start && t_name == html_tag_html())
                 {
@@ -3084,7 +3182,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else
                 {
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("parse error");
                 }
                 break;
 
