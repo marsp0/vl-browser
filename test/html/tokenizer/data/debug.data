@@ -1,0 +1,10 @@
+#description
+Unescaped ampersand in attribute value
+#data
+<h a='&'>
+#errors
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" "&"
