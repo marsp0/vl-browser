@@ -19,12 +19,12 @@ int32_t main()
     hash_str_constants_initialize();
 
     TEST_GROUP(test_utf8);
-    // TEST_GROUP(test_html_tokenizer_test1);
-    // TEST_GROUP(test_html_tokenizer_test2);
-    // TEST_GROUP(test_html_tokenizer_test3);
-    // TEST_GROUP(test_html_tokenizer_rcdata);
-    // TEST_GROUP(test_html_tokenizer_rawtext);
-    // TEST_GROUP(test_html_tokenizer_script_data);
+    TEST_GROUP(test_html_tokenizer_test1);
+    TEST_GROUP(test_html_tokenizer_test2);
+    TEST_GROUP(test_html_tokenizer_test3);
+    TEST_GROUP(test_html_tokenizer_rcdata);
+    TEST_GROUP(test_html_tokenizer_rawtext);
+    TEST_GROUP(test_html_tokenizer_script_data);
     TEST_GROUP(test_dom_hash_string);
     TEST_GROUP(test_html_node);
 
