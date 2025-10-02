@@ -327,7 +327,7 @@ static void run_test()
         else if (state == STATE_DATA)
         {
             memcpy(test_data, line, line_size);
-            printf("%s - %u\n", test_data, line_size);
+            // printf("\"%s\" - %u - %u\n", test_data, line_size, test_line);
             test_data_size = line_size;
         }
         else if (state == STATE_OUTPUT)
@@ -380,6 +380,14 @@ static void run_test()
 
                 ASSERT_TOKEN(token_a, token_e);
             }
+
+            if (!TEST_SUCCEEDED())
+            {
+                printf("\n========== Test %u ==========\n", test_line);
+                printf("%s\n", test_data);
+            }
+
+            html_tokenizer_free();
         }
     }
 }
@@ -391,6 +399,7 @@ void html_tokenizer_test()
                                     // "./test/html/tokenizer/data/debug.data",
                                     "./test/html/tokenizer/data/test1.data",
                                     "./test/html/tokenizer/data/test2.data",
+                                    "./test/html/tokenizer/data/test3.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 

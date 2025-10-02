@@ -15,7 +15,9 @@ def write_line(file, string):
     file.write(string + '\n')
 
 def write_array(file, arr):
-    file.write(' '.join([get_val(x) for x in arr]) + '\n')
+    arr = ' '.join([get_val(x) for x in arr])
+    arr = arr.replace('\n', '\\n')
+    file.write(arr + '\n')
 
 def json_2_data(args):
     i_path = args['i']
