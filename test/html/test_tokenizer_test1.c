@@ -214,11 +214,7 @@ static void end_tag_with_attribute()
     const uint32_t sizes[]                      = { 1, 1, 1 };
     const html_tokenizer_error_e errors[]       = { HTML_TOKENIZER_OK, HTML_TOKENIZER_OK, HTML_TOKENIZER_OK };
     const html_token_t tokens_e[][MAX_TOKENS]   = { { { .is_valid = true, .type = HTML_START_TOKEN, .name_size = 1, .name = { [0] = 'h' } } },
-                                                    { { .is_valid = true, .type = HTML_END_TOKEN, .name_size = 1, .name = { [0] = 'h' }, .attributes_size = 1,
-                                                        .attributes = { { .name = { [0] = 'a'}, 
-                                                                          .name_size = 1, 
-                                                                          .value = { [0] = 'b' }, 
-                                                                          .value_size = 1 } } } },
+                                                    { { .is_valid = true, .type = HTML_END_TOKEN, .name_size = 1, .name = { [0] = 'h' } } },
                                                     { { .is_valid = true, .type = HTML_EOF_TOKEN } } };
 
     RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e);

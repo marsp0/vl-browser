@@ -561,6 +561,13 @@ static void emit_token()
 {
     token_idx++;
 
+    // reset any parsed attributes for an end token
+    if (tokens[token_idx - 1].type == HTML_END_TOKEN && tokens[token_idx - 1].attributes_size > 0)
+    {
+        memset(tokens[token_idx - 1].attributes, 0, tokens[token_idx - 1].attributes_size * sizeof(html_token_attribute_t));
+        tokens[token_idx - 1].attributes_size = 0;
+    }
+
     // save the name of start tokens
     if (tokens[token_idx - 1].type != HTML_START_TOKEN) { return; }
 
