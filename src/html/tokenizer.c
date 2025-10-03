@@ -154,11 +154,11 @@ static void clear_tokens()
 
 static void init_char_token()
 {
+    memset(&tokens[token_idx], 0, sizeof(html_token_t));
+
     tokens[token_idx].is_valid  = true;
     tokens[token_idx].type      = HTML_CHARACTER_TOKEN;
     tokens[token_idx].data_size = 0;
-
-    memset(tokens[token_idx].data, 0, sizeof(tokens[token_idx].data));
 }
 
 static void create_char_token_from_buffer()

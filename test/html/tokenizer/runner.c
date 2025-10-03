@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 #include "test_utils.h"
-#include "html/test_tokenizer.h"
 
 #include "dom/node.h"
 #include "dom/document.h"
@@ -14,6 +13,9 @@
 #include "dom/attribute.h"
 #include "dom/text.h"
 #include "util/utf8.h"
+#include "html/tokenizer.h"
+
+#define MAX_TOKENS 10
 
 typedef enum
 {
@@ -248,14 +250,8 @@ static void parse_token()
         memcpy(token->system_id, &line[system_start], system_size);
         token->system_id_size = system_size;
 
-        // printf("name: %u %u %u\n", name_start, name_end, name_size);
-        // printf("public: %u %u %u\n", public_start, public_end, public_size);
-        // printf("system: %u %u %u\n", system_start, system_end, system_size);
-
         uint32_t quirks_start = system_end + 2;
         uint32_t quirks_size = line_size - quirks_start;
-        // printf("quirks: %u %u %u\n", quirks_start, line_size, quirks_size);
-        // printf("\"%s\" - %u\n", line, line_size);
         token->force_quirks = false;
 
         if (quirks_size == 5)
@@ -327,7 +323,6 @@ static void run_test()
         else if (state == STATE_DATA)
         {
             memcpy(test_data, line, line_size);
-            // printf("\"%s\" - %u - %u\n", test_data, line_size, test_line);
             test_data_size = line_size;
         }
         else if (state == STATE_OUTPUT)
@@ -370,25 +365,55 @@ static void run_test()
 
             for (uint32_t i = 0; i < size; i++)
             {
-                html_token_t token_a = tokens_a[i];
-                html_token_t token_e = tokens[current_token++];
-                if (token_a.type == HTML_EOF_TOKEN)
+                html_token_t a = tokens_a[i];
+                html_token_t e = tokens[current_token++];
+                if (a.type == HTML_EOF_TOKEN)
                 {
                     run = false;
                     break;
                 }
 
-                ASSERT_TOKEN(token_a, token_e);
-            }
+                    ASSERT_TRUE(a.is_valid);
+                    ASSERT_EQUAL(a.type, e.type);
 
-            if (!TEST_SUCCEEDED())
-            {
-                printf("\n========== Test %u ==========\n", test_line);
-                printf("%s\n", test_data);
-            }
+                    ASSERT_EQUAL(a.name_size, e.name_size);
+                    if (a.name_size == e.name_size)             { ASSERT_STRING((char)a.name, (char)e.name, a.name_size); }
 
-            html_tokenizer_free();
+                    ASSERT_EQUAL(a.public_id_size, e.public_id_size);
+                    if (a.public_id_size == e.public_id_size)   { ASSERT_STRING((char)a.public_id, (char)e.public_id, a.public_id_size); }
+
+                    ASSERT_EQUAL(a.system_id_size, e.system_id_size);
+                    if (a.system_id_size == e.system_id_size)   { ASSERT_STRING((char)a.system_id, (char)e.system_id, a.system_id_size); }
+
+                    ASSERT_EQUAL(a.data_size, e.data_size);
+                    if (a.data_size == e.data_size)             { ASSERT_STRING((char)a.data, (char)e.data, a.data_size); }
+
+                    ASSERT_EQUAL(a.force_quirks, e.force_quirks);
+                    ASSERT_EQUAL(a.self_closing, e.self_closing);
+
+                    ASSERT_EQUAL(a.attributes_size, e.attributes_size);
+
+                    for (uint32_t k = 0; k < a.attributes_size; k++)
+                    {
+                        html_token_attribute_t a_attr = a.attributes[k];
+                        html_token_attribute_t e_attr = e.attributes[k];
+
+                        ASSERT_EQUAL(a_attr.name_size, e_attr.name_size);
+                        if (a_attr.name_size == e_attr.name_size)   { ASSERT_STRING((char)a_attr.name, (char)e_attr.name, a_attr.name_size); }
+
+                        ASSERT_EQUAL(a_attr.value_size, e_attr.value_size);
+                        if (a_attr.value_size == e_attr.value_size)   { ASSERT_STRING((char)a_attr.value, (char)e_attr.value, a_attr.value_size); }
+                    }
+            }
         }
+
+        if (!TEST_SUCCEEDED())
+        {
+            printf("\n========== Test %u ==========\n", test_line);
+            printf("%s\n", test_data);
+        }
+
+        html_tokenizer_free();
     }
 }
 
