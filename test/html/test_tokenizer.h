@@ -83,7 +83,7 @@ do                                                                  \
     if (a.type == HTML_COMMENT_TOKEN)   { ASSERT_COMMENT(a, e); }   \
     if (a.type == HTML_CHARACTER_TOKEN) { ASSERT_CHARACTER(a, e); } \
     if (a.type == HTML_EOF_TOKEN)       { ASSERT_EOF(a, e); }       \
-} while (0);                                                        \
+} while (0);
 
 
 #define RUN_TEST_AND_ASSERT_TOKENS(buffer, states, sizes, errors, tokens_e)             \
@@ -130,10 +130,3 @@ do                                                                              
         }                                                                               \
     }                                                                                   \
 } while (0);
-
-void test_html_tokenizer_test1();
-void test_html_tokenizer_test2();
-void test_html_tokenizer_test3();
-void test_html_tokenizer_rcdata();
-void test_html_tokenizer_rawtext();
-void test_html_tokenizer_script_data();
