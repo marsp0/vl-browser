@@ -400,6 +400,7 @@ void html_tokenizer_test()
                                     "./test/html/tokenizer/data/test1.data",
                                     "./test/html/tokenizer/data/test2.data",
                                     "./test/html/tokenizer/data/test3.data",
+                                    "./test/html/tokenizer/data/numericEntities.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 

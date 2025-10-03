@@ -129,7 +129,7 @@ do                                                                              
             }                                                                           \
         }                                                                               \
     }                                                                                   \
-} while (0);                                                                            \
+} while (0);
 
 void test_html_tokenizer_test1();
 void test_html_tokenizer_test2();

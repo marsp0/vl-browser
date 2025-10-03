@@ -47,5 +47,7 @@
     "<!DOCTYPE a SYSTEM'\"",
     "<!DOCTYPE \"",
     "<!DOCTYPE a PUBLIC'\"",
-    "<!----!CR>"
+    "<!----!CR>",
+
+    "Invalid numeric entity character U+10FFFF"
 ]

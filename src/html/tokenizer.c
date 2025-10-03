@@ -681,6 +681,7 @@ void html_tokenizer_init(const unsigned char* new_buffer, const uint32_t new_siz
 
     character_reference_code    = 0;
 
+    memset(last_emitted_start_tag, 0, sizeof(last_emitted_start_tag));
     clear_temp_buffer();
 }
 
