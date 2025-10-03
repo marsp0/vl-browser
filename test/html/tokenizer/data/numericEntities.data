@@ -1,0 +1,3463 @@
+#description
+Invalid unterminated numeric entity character overflow before EOF
+#data
+&#11111111111
+#errors
+(1, 14): missing-semicolon-after-character-reference
+(1, 14): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+
+#description
+Invalid unterminated numeric entity character overflow before EOF
+#data
+&#1111111111
+#errors
+(1, 13): missing-semicolon-after-character-reference
+(1, 13): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+
+#description
+Invalid unterminated numeric entity character overflow before EOF
+#data
+&#111111111111
+#errors
+(1, 15): missing-semicolon-after-character-reference
+(1, 15): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+
+#description
+Invalid unterminated numeric entity character overflow
+#data
+&#11111111111x
+#errors
+(1, 14): missing-semicolon-after-character-reference
+(1, 14): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+Character x
+
+#description
+Invalid unterminated numeric entity character overflow
+#data
+&#1111111111x
+#errors
+(1, 13): missing-semicolon-after-character-reference
+(1, 13): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+Character x
+
+#description
+Invalid unterminated numeric entity character overflow
+#data
+&#111111111111x
+#errors
+(1, 15): missing-semicolon-after-character-reference
+(1, 15): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+Character x
+
+#description
+Invalid numeric entity character overflow
+#data
+&#11111111111;
+#errors
+(1, 15): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+
+#description
+Invalid numeric entity character overflow
+#data
+&#1111111111;
+#errors
+(1, 14): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+
+#description
+Invalid numeric entity character overflow
+#data
+&#111111111111;
+#errors
+(1, 16): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+
+#description
+Invalid numeric entity character U+0000
+#data
+&#x0000;
+#errors
+(1, 9): null-character-reference
+#states
+Data state
+#output
+Character �
+
+#description
+Invalid numeric entity character U+0001
+#data
+&#x0001;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0002
+#data
+&#x0002;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0003
+#data
+&#x0003;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0004
+#data
+&#x0004;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0005
+#data
+&#x0005;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0006
+#data
+&#x0006;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0007
+#data
+&#x0007;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0008
+#data
+&#x0008;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+000B
+#data
+&#x000b;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+000E
+#data
+&#x000e;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+000F
+#data
+&#x000f;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0010
+#data
+&#x0010;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0011
+#data
+&#x0011;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0012
+#data
+&#x0012;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0013
+#data
+&#x0013;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0014
+#data
+&#x0014;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0015
+#data
+&#x0015;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0016
+#data
+&#x0016;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0017
+#data
+&#x0017;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0018
+#data
+&#x0018;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+0019
+#data
+&#x0019;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+001A
+#data
+&#x001a;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+001B
+#data
+&#x001b;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+001C
+#data
+&#x001c;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+001D
+#data
+&#x001d;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+001E
+#data
+&#x001e;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+001F
+#data
+&#x001f;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+007F
+#data
+&#x007f;
+#errors
+(1, 9): control-character-reference
+#states
+Data state
+#output
+Character 
+
+#description
+Invalid numeric entity character U+D800
+#data
+&#xd800;
+#errors
+(1, 9): surrogate-character-reference
+#states
+Data state
+#output
+Character �
+
+#description
+Invalid numeric entity character U+DFFF
+#data
+&#xdfff;
+#errors
+(1, 9): surrogate-character-reference
+#states
+Data state
+#output
+Character �
+
+#description
+Invalid numeric entity character U+FDD0
+#data
+&#xfdd0;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷐
+
+#description
+Invalid numeric entity character U+FDD1
+#data
+&#xfdd1;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷑
+
+#description
+Invalid numeric entity character U+FDD2
+#data
+&#xfdd2;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷒
+
+#description
+Invalid numeric entity character U+FDD3
+#data
+&#xfdd3;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷓
+
+#description
+Invalid numeric entity character U+FDD4
+#data
+&#xfdd4;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷔
+
+#description
+Invalid numeric entity character U+FDD5
+#data
+&#xfdd5;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷕
+
+#description
+Invalid numeric entity character U+FDD6
+#data
+&#xfdd6;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷖
+
+#description
+Invalid numeric entity character U+FDD7
+#data
+&#xfdd7;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷗
+
+#description
+Invalid numeric entity character U+FDD8
+#data
+&#xfdd8;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷘
+
+#description
+Invalid numeric entity character U+FDD9
+#data
+&#xfdd9;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷙
+
+#description
+Invalid numeric entity character U+FDDA
+#data
+&#xfdda;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷚
+
+#description
+Invalid numeric entity character U+FDDB
+#data
+&#xfddb;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷛
+
+#description
+Invalid numeric entity character U+FDDC
+#data
+&#xfddc;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷜
+
+#description
+Invalid numeric entity character U+FDDD
+#data
+&#xfddd;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷝
+
+#description
+Invalid numeric entity character U+FDDE
+#data
+&#xfdde;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷞
+
+#description
+Invalid numeric entity character U+FDDF
+#data
+&#xfddf;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷟
+
+#description
+Invalid numeric entity character U+FDE0
+#data
+&#xfde0;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷠
+
+#description
+Invalid numeric entity character U+FDE1
+#data
+&#xfde1;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷡
+
+#description
+Invalid numeric entity character U+FDE2
+#data
+&#xfde2;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷢
+
+#description
+Invalid numeric entity character U+FDE3
+#data
+&#xfde3;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷣
+
+#description
+Invalid numeric entity character U+FDE4
+#data
+&#xfde4;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷤
+
+#description
+Invalid numeric entity character U+FDE5
+#data
+&#xfde5;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷥
+
+#description
+Invalid numeric entity character U+FDE6
+#data
+&#xfde6;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷦
+
+#description
+Invalid numeric entity character U+FDE7
+#data
+&#xfde7;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷧
+
+#description
+Invalid numeric entity character U+FDE8
+#data
+&#xfde8;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷨
+
+#description
+Invalid numeric entity character U+FDE9
+#data
+&#xfde9;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷩
+
+#description
+Invalid numeric entity character U+FDEA
+#data
+&#xfdea;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷪
+
+#description
+Invalid numeric entity character U+FDEB
+#data
+&#xfdeb;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷫
+
+#description
+Invalid numeric entity character U+FDEC
+#data
+&#xfdec;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷬
+
+#description
+Invalid numeric entity character U+FDED
+#data
+&#xfded;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷭
+
+#description
+Invalid numeric entity character U+FDEE
+#data
+&#xfdee;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷮
+
+#description
+Invalid numeric entity character U+FDEF
+#data
+&#xfdef;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ﷯
+
+#description
+Invalid numeric entity character U+FFFE
+#data
+&#xfffe;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ￾
+
+#description
+Invalid numeric entity character U+FFFF
+#data
+&#xffff;
+#errors
+(1, 9): noncharacter-character-reference
+#states
+Data state
+#output
+Character ￿
+
+#description
+Invalid numeric entity character U+1FFFE
+#data
+&#x1fffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 🿾
+
+#description
+Invalid numeric entity character U+1FFFF
+#data
+&#x1ffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 🿿
+
+#description
+Invalid numeric entity character U+2FFFE
+#data
+&#x2fffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 𯿾
+
+#description
+Invalid numeric entity character U+2FFFF
+#data
+&#x2ffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 𯿿
+
+#description
+Invalid numeric entity character U+3FFFE
+#data
+&#x3fffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 𿿾
+
+#description
+Invalid numeric entity character U+3FFFF
+#data
+&#x3ffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 𿿿
+
+#description
+Invalid numeric entity character U+4FFFE
+#data
+&#x4fffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 񏿾
+
+#description
+Invalid numeric entity character U+4FFFF
+#data
+&#x4ffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 񏿿
+
+#description
+Invalid numeric entity character U+5FFFE
+#data
+&#x5fffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 񟿾
+
+#description
+Invalid numeric entity character U+5FFFF
+#data
+&#x5ffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 񟿿
+
+#description
+Invalid numeric entity character U+6FFFE
+#data
+&#x6fffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 񯿾
+
+#description
+Invalid numeric entity character U+6FFFF
+#data
+&#x6ffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 񯿿
+
+#description
+Invalid numeric entity character U+7FFFE
+#data
+&#x7fffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 񿿾
+
+#description
+Invalid numeric entity character U+7FFFF
+#data
+&#x7ffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 񿿿
+
+#description
+Invalid numeric entity character U+8FFFE
+#data
+&#x8fffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 򏿾
+
+#description
+Invalid numeric entity character U+8FFFF
+#data
+&#x8ffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 򏿿
+
+#description
+Invalid numeric entity character U+9FFFE
+#data
+&#x9fffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 򟿾
+
+#description
+Invalid numeric entity character U+9FFFF
+#data
+&#x9ffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 򟿿
+
+#description
+Invalid numeric entity character U+AFFFE
+#data
+&#xafffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 򯿾
+
+#description
+Invalid numeric entity character U+AFFFF
+#data
+&#xaffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 򯿿
+
+#description
+Invalid numeric entity character U+BFFFE
+#data
+&#xbfffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 򿿾
+
+#description
+Invalid numeric entity character U+BFFFF
+#data
+&#xbffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 򿿿
+
+#description
+Invalid numeric entity character U+CFFFE
+#data
+&#xcfffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 󏿾
+
+#description
+Invalid numeric entity character U+CFFFF
+#data
+&#xcffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 󏿿
+
+#description
+Invalid numeric entity character U+DFFFE
+#data
+&#xdfffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 󟿾
+
+#description
+Invalid numeric entity character U+DFFFF
+#data
+&#xdffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 󟿿
+
+#description
+Invalid numeric entity character U+EFFFE
+#data
+&#xefffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 󯿾
+
+#description
+Invalid numeric entity character U+EFFFF
+#data
+&#xeffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 󯿿
+
+#description
+Invalid numeric entity character U+FFFFE
+#data
+&#xffffe;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 󿿾
+
+#description
+Invalid numeric entity character U+FFFFF
+#data
+&#xfffff;
+#errors
+(1, 10): noncharacter-character-reference
+#states
+Data state
+#output
+Character 󿿿
+
+#description
+Invalid numeric entity character U+10FFFE
+#data
+&#x10fffe;
+#errors
+(1, 11): noncharacter-character-reference
+#states
+Data state
+#output
+Character 􏿾
+
+#description
+Valid numeric entity character U+0009
+#data
+&#x0009;
+#errors
+#states
+Data state
+#output
+Character 	
+
+#description
+Valid numeric entity character U+000A
+#data
+&#x000a;
+#errors
+#states
+Data state
+#output
+Character \n
+
+#description
+Valid numeric entity character U+0020
+#data
+&#x0020;
+#errors
+#states
+Data state
+#output
+Character  
+
+#description
+Valid numeric entity character U+0021
+#data
+&#x0021;
+#errors
+#states
+Data state
+#output
+Character !
+
+#description
+Valid numeric entity character U+0022
+#data
+&#x0022;
+#errors
+#states
+Data state
+#output
+Character "
+
+#description
+Valid numeric entity character U+0023
+#data
+&#x0023;
+#errors
+#states
+Data state
+#output
+Character #
+
+#description
+Valid numeric entity character U+0024
+#data
+&#x0024;
+#errors
+#states
+Data state
+#output
+Character $
+
+#description
+Valid numeric entity character U+0025
+#data
+&#x0025;
+#errors
+#states
+Data state
+#output
+Character %
+
+#description
+Valid numeric entity character U+0026
+#data
+&#x0026;
+#errors
+#states
+Data state
+#output
+Character &
+
+#description
+Valid numeric entity character U+0027
+#data
+&#x0027;
+#errors
+#states
+Data state
+#output
+Character '
+
+#description
+Valid numeric entity character U+0028
+#data
+&#x0028;
+#errors
+#states
+Data state
+#output
+Character (
+
+#description
+Valid numeric entity character U+0029
+#data
+&#x0029;
+#errors
+#states
+Data state
+#output
+Character )
+
+#description
+Valid numeric entity character U+002A
+#data
+&#x002a;
+#errors
+#states
+Data state
+#output
+Character *
+
+#description
+Valid numeric entity character U+002B
+#data
+&#x002b;
+#errors
+#states
+Data state
+#output
+Character +
+
+#description
+Valid numeric entity character U+002C
+#data
+&#x002c;
+#errors
+#states
+Data state
+#output
+Character ,
+
+#description
+Valid numeric entity character U+002D
+#data
+&#x002d;
+#errors
+#states
+Data state
+#output
+Character -
+
+#description
+Valid numeric entity character U+002E
+#data
+&#x002e;
+#errors
+#states
+Data state
+#output
+Character .
+
+#description
+Valid numeric entity character U+002F
+#data
+&#x002f;
+#errors
+#states
+Data state
+#output
+Character /
+
+#description
+Valid numeric entity character U+0030
+#data
+&#x0030;
+#errors
+#states
+Data state
+#output
+Character 0
+
+#description
+Valid numeric entity character U+0031
+#data
+&#x0031;
+#errors
+#states
+Data state
+#output
+Character 1
+
+#description
+Valid numeric entity character U+0032
+#data
+&#x0032;
+#errors
+#states
+Data state
+#output
+Character 2
+
+#description
+Valid numeric entity character U+0033
+#data
+&#x0033;
+#errors
+#states
+Data state
+#output
+Character 3
+
+#description
+Valid numeric entity character U+0034
+#data
+&#x0034;
+#errors
+#states
+Data state
+#output
+Character 4
+
+#description
+Valid numeric entity character U+0035
+#data
+&#x0035;
+#errors
+#states
+Data state
+#output
+Character 5
+
+#description
+Valid numeric entity character U+0036
+#data
+&#x0036;
+#errors
+#states
+Data state
+#output
+Character 6
+
+#description
+Valid numeric entity character U+0037
+#data
+&#x0037;
+#errors
+#states
+Data state
+#output
+Character 7
+
+#description
+Valid numeric entity character U+0038
+#data
+&#x0038;
+#errors
+#states
+Data state
+#output
+Character 8
+
+#description
+Valid numeric entity character U+0039
+#data
+&#x0039;
+#errors
+#states
+Data state
+#output
+Character 9
+
+#description
+Valid numeric entity character U+003A
+#data
+&#x003a;
+#errors
+#states
+Data state
+#output
+Character :
+
+#description
+Valid numeric entity character U+003B
+#data
+&#x003b;
+#errors
+#states
+Data state
+#output
+Character ;
+
+#description
+Valid numeric entity character U+003C
+#data
+&#x003c;
+#errors
+#states
+Data state
+#output
+Character <
+
+#description
+Valid numeric entity character U+003D
+#data
+&#x003d;
+#errors
+#states
+Data state
+#output
+Character =
+
+#description
+Valid numeric entity character U+003E
+#data
+&#x003e;
+#errors
+#states
+Data state
+#output
+Character >
+
+#description
+Valid numeric entity character U+003F
+#data
+&#x003f;
+#errors
+#states
+Data state
+#output
+Character ?
+
+#description
+Valid numeric entity character U+0040
+#data
+&#x0040;
+#errors
+#states
+Data state
+#output
+Character @
+
+#description
+Valid numeric entity character U+0041
+#data
+&#x0041;
+#errors
+#states
+Data state
+#output
+Character A
+
+#description
+Valid numeric entity character U+0042
+#data
+&#x0042;
+#errors
+#states
+Data state
+#output
+Character B
+
+#description
+Valid numeric entity character U+0043
+#data
+&#x0043;
+#errors
+#states
+Data state
+#output
+Character C
+
+#description
+Valid numeric entity character U+0044
+#data
+&#x0044;
+#errors
+#states
+Data state
+#output
+Character D
+
+#description
+Valid numeric entity character U+0045
+#data
+&#x0045;
+#errors
+#states
+Data state
+#output
+Character E
+
+#description
+Valid numeric entity character U+0046
+#data
+&#x0046;
+#errors
+#states
+Data state
+#output
+Character F
+
+#description
+Valid numeric entity character U+0047
+#data
+&#x0047;
+#errors
+#states
+Data state
+#output
+Character G
+
+#description
+Valid numeric entity character U+0048
+#data
+&#x0048;
+#errors
+#states
+Data state
+#output
+Character H
+
+#description
+Valid numeric entity character U+0049
+#data
+&#x0049;
+#errors
+#states
+Data state
+#output
+Character I
+
+#description
+Valid numeric entity character U+004A
+#data
+&#x004a;
+#errors
+#states
+Data state
+#output
+Character J
+
+#description
+Valid numeric entity character U+004B
+#data
+&#x004b;
+#errors
+#states
+Data state
+#output
+Character K
+
+#description
+Valid numeric entity character U+004C
+#data
+&#x004c;
+#errors
+#states
+Data state
+#output
+Character L
+
+#description
+Valid numeric entity character U+004D
+#data
+&#x004d;
+#errors
+#states
+Data state
+#output
+Character M
+
+#description
+Valid numeric entity character U+004E
+#data
+&#x004e;
+#errors
+#states
+Data state
+#output
+Character N
+
+#description
+Valid numeric entity character U+004F
+#data
+&#x004f;
+#errors
+#states
+Data state
+#output
+Character O
+
+#description
+Valid numeric entity character U+0050
+#data
+&#x0050;
+#errors
+#states
+Data state
+#output
+Character P
+
+#description
+Valid numeric entity character U+0051
+#data
+&#x0051;
+#errors
+#states
+Data state
+#output
+Character Q
+
+#description
+Valid numeric entity character U+0052
+#data
+&#x0052;
+#errors
+#states
+Data state
+#output
+Character R
+
+#description
+Valid numeric entity character U+0053
+#data
+&#x0053;
+#errors
+#states
+Data state
+#output
+Character S
+
+#description
+Valid numeric entity character U+0054
+#data
+&#x0054;
+#errors
+#states
+Data state
+#output
+Character T
+
+#description
+Valid numeric entity character U+0055
+#data
+&#x0055;
+#errors
+#states
+Data state
+#output
+Character U
+
+#description
+Valid numeric entity character U+0056
+#data
+&#x0056;
+#errors
+#states
+Data state
+#output
+Character V
+
+#description
+Valid numeric entity character U+0057
+#data
+&#x0057;
+#errors
+#states
+Data state
+#output
+Character W
+
+#description
+Valid numeric entity character U+0058
+#data
+&#x0058;
+#errors
+#states
+Data state
+#output
+Character X
+
+#description
+Valid numeric entity character U+0059
+#data
+&#x0059;
+#errors
+#states
+Data state
+#output
+Character Y
+
+#description
+Valid numeric entity character U+005A
+#data
+&#x005a;
+#errors
+#states
+Data state
+#output
+Character Z
+
+#description
+Valid numeric entity character U+005B
+#data
+&#x005b;
+#errors
+#states
+Data state
+#output
+Character [
+
+#description
+Valid numeric entity character U+005C
+#data
+&#x005c;
+#errors
+#states
+Data state
+#output
+Character \
+
+#description
+Valid numeric entity character U+005D
+#data
+&#x005d;
+#errors
+#states
+Data state
+#output
+Character ]
+
+#description
+Valid numeric entity character U+005E
+#data
+&#x005e;
+#errors
+#states
+Data state
+#output
+Character ^
+
+#description
+Valid numeric entity character U+005F
+#data
+&#x005f;
+#errors
+#states
+Data state
+#output
+Character _
+
+#description
+Valid numeric entity character U+0060
+#data
+&#x0060;
+#errors
+#states
+Data state
+#output
+Character `
+
+#description
+Valid numeric entity character U+0061
+#data
+&#x0061;
+#errors
+#states
+Data state
+#output
+Character a
+
+#description
+Valid numeric entity character U+0062
+#data
+&#x0062;
+#errors
+#states
+Data state
+#output
+Character b
+
+#description
+Valid numeric entity character U+0063
+#data
+&#x0063;
+#errors
+#states
+Data state
+#output
+Character c
+
+#description
+Valid numeric entity character U+0064
+#data
+&#x0064;
+#errors
+#states
+Data state
+#output
+Character d
+
+#description
+Valid numeric entity character U+0065
+#data
+&#x0065;
+#errors
+#states
+Data state
+#output
+Character e
+
+#description
+Valid numeric entity character U+0066
+#data
+&#x0066;
+#errors
+#states
+Data state
+#output
+Character f
+
+#description
+Valid numeric entity character U+0067
+#data
+&#x0067;
+#errors
+#states
+Data state
+#output
+Character g
+
+#description
+Valid numeric entity character U+0068
+#data
+&#x0068;
+#errors
+#states
+Data state
+#output
+Character h
+
+#description
+Valid numeric entity character U+0069
+#data
+&#x0069;
+#errors
+#states
+Data state
+#output
+Character i
+
+#description
+Valid numeric entity character U+006A
+#data
+&#x006a;
+#errors
+#states
+Data state
+#output
+Character j
+
+#description
+Valid numeric entity character U+006B
+#data
+&#x006b;
+#errors
+#states
+Data state
+#output
+Character k
+
+#description
+Valid numeric entity character U+006C
+#data
+&#x006c;
+#errors
+#states
+Data state
+#output
+Character l
+
+#description
+Valid numeric entity character U+006D
+#data
+&#x006d;
+#errors
+#states
+Data state
+#output
+Character m
+
+#description
+Valid numeric entity character U+006E
+#data
+&#x006e;
+#errors
+#states
+Data state
+#output
+Character n
+
+#description
+Valid numeric entity character U+006F
+#data
+&#x006f;
+#errors
+#states
+Data state
+#output
+Character o
+
+#description
+Valid numeric entity character U+0070
+#data
+&#x0070;
+#errors
+#states
+Data state
+#output
+Character p
+
+#description
+Valid numeric entity character U+0071
+#data
+&#x0071;
+#errors
+#states
+Data state
+#output
+Character q
+
+#description
+Valid numeric entity character U+0072
+#data
+&#x0072;
+#errors
+#states
+Data state
+#output
+Character r
+
+#description
+Valid numeric entity character U+0073
+#data
+&#x0073;
+#errors
+#states
+Data state
+#output
+Character s
+
+#description
+Valid numeric entity character U+0074
+#data
+&#x0074;
+#errors
+#states
+Data state
+#output
+Character t
+
+#description
+Valid numeric entity character U+0075
+#data
+&#x0075;
+#errors
+#states
+Data state
+#output
+Character u
+
+#description
+Valid numeric entity character U+0076
+#data
+&#x0076;
+#errors
+#states
+Data state
+#output
+Character v
+
+#description
+Valid numeric entity character U+0077
+#data
+&#x0077;
+#errors
+#states
+Data state
+#output
+Character w
+
+#description
+Valid numeric entity character U+0078
+#data
+&#x0078;
+#errors
+#states
+Data state
+#output
+Character x
+
+#description
+Valid numeric entity character U+0079
+#data
+&#x0079;
+#errors
+#states
+Data state
+#output
+Character y
+
+#description
+Valid numeric entity character U+007A
+#data
+&#x007a;
+#errors
+#states
+Data state
+#output
+Character z
+
+#description
+Valid numeric entity character U+007B
+#data
+&#x007b;
+#errors
+#states
+Data state
+#output
+Character {
+
+#description
+Valid numeric entity character U+007C
+#data
+&#x007c;
+#errors
+#states
+Data state
+#output
+Character |
+
+#description
+Valid numeric entity character U+007D
+#data
+&#x007d;
+#errors
+#states
+Data state
+#output
+Character }
+
+#description
+Valid numeric entity character U+007E
+#data
+&#x007e;
+#errors
+#states
+Data state
+#output
+Character ~
+
+#description
+Valid numeric entity character U+00A0
+#data
+&#x00a0;
+#errors
+#states
+Data state
+#output
+Character  
+
+#description
+Valid numeric entity character U+00A1
+#data
+&#x00a1;
+#errors
+#states
+Data state
+#output
+Character ¡
+
+#description
+Valid numeric entity character U+00A2
+#data
+&#x00a2;
+#errors
+#states
+Data state
+#output
+Character ¢
+
+#description
+Valid numeric entity character U+00A3
+#data
+&#x00a3;
+#errors
+#states
+Data state
+#output
+Character £
+
+#description
+Valid numeric entity character U+00A4
+#data
+&#x00a4;
+#errors
+#states
+Data state
+#output
+Character ¤
+
+#description
+Valid numeric entity character U+00A5
+#data
+&#x00a5;
+#errors
+#states
+Data state
+#output
+Character ¥
+
+#description
+Valid numeric entity character U+00A6
+#data
+&#x00a6;
+#errors
+#states
+Data state
+#output
+Character ¦
+
+#description
+Valid numeric entity character U+00A7
+#data
+&#x00a7;
+#errors
+#states
+Data state
+#output
+Character §
+
+#description
+Valid numeric entity character U+00A8
+#data
+&#x00a8;
+#errors
+#states
+Data state
+#output
+Character ¨
+
+#description
+Valid numeric entity character U+00A9
+#data
+&#x00a9;
+#errors
+#states
+Data state
+#output
+Character ©
+
+#description
+Valid numeric entity character U+00AA
+#data
+&#x00aa;
+#errors
+#states
+Data state
+#output
+Character ª
+
+#description
+Valid numeric entity character U+00AB
+#data
+&#x00ab;
+#errors
+#states
+Data state
+#output
+Character «
+
+#description
+Valid numeric entity character U+00AC
+#data
+&#x00ac;
+#errors
+#states
+Data state
+#output
+Character ¬
+
+#description
+Valid numeric entity character U+00AD
+#data
+&#x00ad;
+#errors
+#states
+Data state
+#output
+Character ­
+
+#description
+Valid numeric entity character U+00AE
+#data
+&#x00ae;
+#errors
+#states
+Data state
+#output
+Character ®
+
+#description
+Valid numeric entity character U+00AF
+#data
+&#x00af;
+#errors
+#states
+Data state
+#output
+Character ¯
+
+#description
+Valid numeric entity character U+00B0
+#data
+&#x00b0;
+#errors
+#states
+Data state
+#output
+Character °
+
+#description
+Valid numeric entity character U+00B1
+#data
+&#x00b1;
+#errors
+#states
+Data state
+#output
+Character ±
+
+#description
+Valid numeric entity character U+00B2
+#data
+&#x00b2;
+#errors
+#states
+Data state
+#output
+Character ²
+
+#description
+Valid numeric entity character U+00B3
+#data
+&#x00b3;
+#errors
+#states
+Data state
+#output
+Character ³
+
+#description
+Valid numeric entity character U+00B4
+#data
+&#x00b4;
+#errors
+#states
+Data state
+#output
+Character ´
+
+#description
+Valid numeric entity character U+00B5
+#data
+&#x00b5;
+#errors
+#states
+Data state
+#output
+Character µ
+
+#description
+Valid numeric entity character U+00B6
+#data
+&#x00b6;
+#errors
+#states
+Data state
+#output
+Character ¶
+
+#description
+Valid numeric entity character U+00B7
+#data
+&#x00b7;
+#errors
+#states
+Data state
+#output
+Character ·
+
+#description
+Valid numeric entity character U+00B8
+#data
+&#x00b8;
+#errors
+#states
+Data state
+#output
+Character ¸
+
+#description
+Valid numeric entity character U+00B9
+#data
+&#x00b9;
+#errors
+#states
+Data state
+#output
+Character ¹
+
+#description
+Valid numeric entity character U+00BA
+#data
+&#x00ba;
+#errors
+#states
+Data state
+#output
+Character º
+
+#description
+Valid numeric entity character U+00BB
+#data
+&#x00bb;
+#errors
+#states
+Data state
+#output
+Character »
+
+#description
+Valid numeric entity character U+00BC
+#data
+&#x00bc;
+#errors
+#states
+Data state
+#output
+Character ¼
+
+#description
+Valid numeric entity character U+00BD
+#data
+&#x00bd;
+#errors
+#states
+Data state
+#output
+Character ½
+
+#description
+Valid numeric entity character U+00BE
+#data
+&#x00be;
+#errors
+#states
+Data state
+#output
+Character ¾
+
+#description
+Valid numeric entity character U+00BF
+#data
+&#x00bf;
+#errors
+#states
+Data state
+#output
+Character ¿
+
+#description
+Valid numeric entity character U+00C0
+#data
+&#x00c0;
+#errors
+#states
+Data state
+#output
+Character À
+
+#description
+Valid numeric entity character U+00C1
+#data
+&#x00c1;
+#errors
+#states
+Data state
+#output
+Character Á
+
+#description
+Valid numeric entity character U+00C2
+#data
+&#x00c2;
+#errors
+#states
+Data state
+#output
+Character Â
+
+#description
+Valid numeric entity character U+00C3
+#data
+&#x00c3;
+#errors
+#states
+Data state
+#output
+Character Ã
+
+#description
+Valid numeric entity character U+00C4
+#data
+&#x00c4;
+#errors
+#states
+Data state
+#output
+Character Ä
+
+#description
+Valid numeric entity character U+00C5
+#data
+&#x00c5;
+#errors
+#states
+Data state
+#output
+Character Å
+
+#description
+Valid numeric entity character U+00C6
+#data
+&#x00c6;
+#errors
+#states
+Data state
+#output
+Character Æ
+
+#description
+Valid numeric entity character U+00C7
+#data
+&#x00c7;
+#errors
+#states
+Data state
+#output
+Character Ç
+
+#description
+Valid numeric entity character U+00C8
+#data
+&#x00c8;
+#errors
+#states
+Data state
+#output
+Character È
+
+#description
+Valid numeric entity character U+00C9
+#data
+&#x00c9;
+#errors
+#states
+Data state
+#output
+Character É
+
+#description
+Valid numeric entity character U+00CA
+#data
+&#x00ca;
+#errors
+#states
+Data state
+#output
+Character Ê
+
+#description
+Valid numeric entity character U+00CB
+#data
+&#x00cb;
+#errors
+#states
+Data state
+#output
+Character Ë
+
+#description
+Valid numeric entity character U+00CC
+#data
+&#x00cc;
+#errors
+#states
+Data state
+#output
+Character Ì
+
+#description
+Valid numeric entity character U+00CD
+#data
+&#x00cd;
+#errors
+#states
+Data state
+#output
+Character Í
+
+#description
+Valid numeric entity character U+00CE
+#data
+&#x00ce;
+#errors
+#states
+Data state
+#output
+Character Î
+
+#description
+Valid numeric entity character U+00CF
+#data
+&#x00cf;
+#errors
+#states
+Data state
+#output
+Character Ï
+
+#description
+Valid numeric entity character U+00D0
+#data
+&#x00d0;
+#errors
+#states
+Data state
+#output
+Character Ð
+
+#description
+Valid numeric entity character U+00D1
+#data
+&#x00d1;
+#errors
+#states
+Data state
+#output
+Character Ñ
+
+#description
+Valid numeric entity character U+00D2
+#data
+&#x00d2;
+#errors
+#states
+Data state
+#output
+Character Ò
+
+#description
+Valid numeric entity character U+00D3
+#data
+&#x00d3;
+#errors
+#states
+Data state
+#output
+Character Ó
+
+#description
+Valid numeric entity character U+00D4
+#data
+&#x00d4;
+#errors
+#states
+Data state
+#output
+Character Ô
+
+#description
+Valid numeric entity character U+00D5
+#data
+&#x00d5;
+#errors
+#states
+Data state
+#output
+Character Õ
+
+#description
+Valid numeric entity character U+00D6
+#data
+&#x00d6;
+#errors
+#states
+Data state
+#output
+Character Ö
+
+#description
+Valid numeric entity character U+00D7
+#data
+&#x00d7;
+#errors
+#states
+Data state
+#output
+Character ×
+
+#description
+Valid numeric entity character U+00D8
+#data
+&#x00d8;
+#errors
+#states
+Data state
+#output
+Character Ø
+
+#description
+Valid numeric entity character U+00D9
+#data
+&#x00d9;
+#errors
+#states
+Data state
+#output
+Character Ù
+
+#description
+Valid numeric entity character U+00DA
+#data
+&#x00da;
+#errors
+#states
+Data state
+#output
+Character Ú
+
+#description
+Valid numeric entity character U+00DB
+#data
+&#x00db;
+#errors
+#states
+Data state
+#output
+Character Û
+
+#description
+Valid numeric entity character U+00DC
+#data
+&#x00dc;
+#errors
+#states
+Data state
+#output
+Character Ü
+
+#description
+Valid numeric entity character U+00DD
+#data
+&#x00dd;
+#errors
+#states
+Data state
+#output
+Character Ý
+
+#description
+Valid numeric entity character U+00DE
+#data
+&#x00de;
+#errors
+#states
+Data state
+#output
+Character Þ
+
+#description
+Valid numeric entity character U+00DF
+#data
+&#x00df;
+#errors
+#states
+Data state
+#output
+Character ß
+
+#description
+Valid numeric entity character U+00E0
+#data
+&#x00e0;
+#errors
+#states
+Data state
+#output
+Character à
+
+#description
+Valid numeric entity character U+00E1
+#data
+&#x00e1;
+#errors
+#states
+Data state
+#output
+Character á
+
+#description
+Valid numeric entity character U+00E2
+#data
+&#x00e2;
+#errors
+#states
+Data state
+#output
+Character â
+
+#description
+Valid numeric entity character U+00E3
+#data
+&#x00e3;
+#errors
+#states
+Data state
+#output
+Character ã
+
+#description
+Valid numeric entity character U+00E4
+#data
+&#x00e4;
+#errors
+#states
+Data state
+#output
+Character ä
+
+#description
+Valid numeric entity character U+00E5
+#data
+&#x00e5;
+#errors
+#states
+Data state
+#output
+Character å
+
+#description
+Valid numeric entity character U+00E6
+#data
+&#x00e6;
+#errors
+#states
+Data state
+#output
+Character æ
+
+#description
+Valid numeric entity character U+00E7
+#data
+&#x00e7;
+#errors
+#states
+Data state
+#output
+Character ç
+
+#description
+Valid numeric entity character U+00E8
+#data
+&#x00e8;
+#errors
+#states
+Data state
+#output
+Character è
+
+#description
+Valid numeric entity character U+00E9
+#data
+&#x00e9;
+#errors
+#states
+Data state
+#output
+Character é
+
+#description
+Valid numeric entity character U+00EA
+#data
+&#x00ea;
+#errors
+#states
+Data state
+#output
+Character ê
+
+#description
+Valid numeric entity character U+00EB
+#data
+&#x00eb;
+#errors
+#states
+Data state
+#output
+Character ë
+
+#description
+Valid numeric entity character U+00EC
+#data
+&#x00ec;
+#errors
+#states
+Data state
+#output
+Character ì
+
+#description
+Valid numeric entity character U+00ED
+#data
+&#x00ed;
+#errors
+#states
+Data state
+#output
+Character í
+
+#description
+Valid numeric entity character U+00EE
+#data
+&#x00ee;
+#errors
+#states
+Data state
+#output
+Character î
+
+#description
+Valid numeric entity character U+00EF
+#data
+&#x00ef;
+#errors
+#states
+Data state
+#output
+Character ï
+
+#description
+Valid numeric entity character U+00F0
+#data
+&#x00f0;
+#errors
+#states
+Data state
+#output
+Character ð
+
+#description
+Valid numeric entity character U+00F1
+#data
+&#x00f1;
+#errors
+#states
+Data state
+#output
+Character ñ
+
+#description
+Valid numeric entity character U+00F2
+#data
+&#x00f2;
+#errors
+#states
+Data state
+#output
+Character ò
+
+#description
+Valid numeric entity character U+00F3
+#data
+&#x00f3;
+#errors
+#states
+Data state
+#output
+Character ó
+
+#description
+Valid numeric entity character U+00F4
+#data
+&#x00f4;
+#errors
+#states
+Data state
+#output
+Character ô
+
+#description
+Valid numeric entity character U+00F5
+#data
+&#x00f5;
+#errors
+#states
+Data state
+#output
+Character õ
+
+#description
+Valid numeric entity character U+00F6
+#data
+&#x00f6;
+#errors
+#states
+Data state
+#output
+Character ö
+
+#description
+Valid numeric entity character U+00F7
+#data
+&#x00f7;
+#errors
+#states
+Data state
+#output
+Character ÷
+
+#description
+Valid numeric entity character U+00F8
+#data
+&#x00f8;
+#errors
+#states
+Data state
+#output
+Character ø
+
+#description
+Valid numeric entity character U+00F9
+#data
+&#x00f9;
+#errors
+#states
+Data state
+#output
+Character ù
+
+#description
+Valid numeric entity character U+00FA
+#data
+&#x00fa;
+#errors
+#states
+Data state
+#output
+Character ú
+
+#description
+Valid numeric entity character U+00FB
+#data
+&#x00fb;
+#errors
+#states
+Data state
+#output
+Character û
+
+#description
+Valid numeric entity character U+00FC
+#data
+&#x00fc;
+#errors
+#states
+Data state
+#output
+Character ü
+
+#description
+Valid numeric entity character U+00FD
+#data
+&#x00fd;
+#errors
+#states
+Data state
+#output
+Character ý
+
+#description
+Valid numeric entity character U+00FE
+#data
+&#x00fe;
+#errors
+#states
+Data state
+#output
+Character þ
+
+#description
+Valid numeric entity character U+00FF
+#data
+&#x00ff;
+#errors
+#states
+Data state
+#output
+Character ÿ
+
+#description
+Valid numeric entity character U+D7FF
+#data
+&#xd7ff;
+#errors
+#states
+Data state
+#output
+Character ퟿
+
+#description
+Valid numeric entity character U+E000
+#data
+&#xe000;
+#errors
+#states
+Data state
+#output
+Character 
+
+#description
+Valid numeric entity character U+FDCF
+#data
+&#xfdcf;
+#errors
+#states
+Data state
+#output
+Character ﷏
+
+#description
+Valid numeric entity character U+FDF0
+#data
+&#xfdf0;
+#errors
+#states
+Data state
+#output
+Character ﷰ
+
+#description
+Valid numeric entity character U+FFFD
+#data
+&#xfffd;
+#errors
+#states
+Data state
+#output
+Character �
+
+#description
+Valid numeric entity character U+10000
+#data
+&#x10000;
+#errors
+#states
+Data state
+#output
+Character 𐀀
+
+#description
+Valid numeric entity character U+1FFFD
+#data
+&#x1fffd;
+#errors
+#states
+Data state
+#output
+Character 🿽
+
+#description
+Valid numeric entity character U+20000
+#data
+&#x20000;
+#errors
+#states
+Data state
+#output
+Character 𠀀
+
+#description
+Valid numeric entity character U+2FFFD
+#data
+&#x2fffd;
+#errors
+#states
+Data state
+#output
+Character 𯿽
+
+#description
+Valid numeric entity character U+30000
+#data
+&#x30000;
+#errors
+#states
+Data state
+#output
+Character 𰀀
+
+#description
+Valid numeric entity character U+3FFFD
+#data
+&#x3fffd;
+#errors
+#states
+Data state
+#output
+Character 𿿽
+
+#description
+Valid numeric entity character U+40000
+#data
+&#x40000;
+#errors
+#states
+Data state
+#output
+Character 񀀀
+
+#description
+Valid numeric entity character U+4FFFD
+#data
+&#x4fffd;
+#errors
+#states
+Data state
+#output
+Character 񏿽
+
+#description
+Valid numeric entity character U+50000
+#data
+&#x50000;
+#errors
+#states
+Data state
+#output
+Character 񐀀
+
+#description
+Valid numeric entity character U+5FFFD
+#data
+&#x5fffd;
+#errors
+#states
+Data state
+#output
+Character 񟿽
+
+#description
+Valid numeric entity character U+60000
+#data
+&#x60000;
+#errors
+#states
+Data state
+#output
+Character 񠀀
+
+#description
+Valid numeric entity character U+6FFFD
+#data
+&#x6fffd;
+#errors
+#states
+Data state
+#output
+Character 񯿽
+
+#description
+Valid numeric entity character U+70000
+#data
+&#x70000;
+#errors
+#states
+Data state
+#output
+Character 񰀀
+
+#description
+Valid numeric entity character U+7FFFD
+#data
+&#x7fffd;
+#errors
+#states
+Data state
+#output
+Character 񿿽
+
+#description
+Valid numeric entity character U+80000
+#data
+&#x80000;
+#errors
+#states
+Data state
+#output
+Character 򀀀
+
+#description
+Valid numeric entity character U+8FFFD
+#data
+&#x8fffd;
+#errors
+#states
+Data state
+#output
+Character 򏿽
+
+#description
+Valid numeric entity character U+90000
+#data
+&#x90000;
+#errors
+#states
+Data state
+#output
+Character 򐀀
+
+#description
+Valid numeric entity character U+9FFFD
+#data
+&#x9fffd;
+#errors
+#states
+Data state
+#output
+Character 򟿽
+
+#description
+Valid numeric entity character U+A0000
+#data
+&#xa0000;
+#errors
+#states
+Data state
+#output
+Character 򠀀
+
+#description
+Valid numeric entity character U+AFFFD
+#data
+&#xafffd;
+#errors
+#states
+Data state
+#output
+Character 򯿽
+
+#description
+Valid numeric entity character U+B0000
+#data
+&#xb0000;
+#errors
+#states
+Data state
+#output
+Character 򰀀
+
+#description
+Valid numeric entity character U+BFFFD
+#data
+&#xbfffd;
+#errors
+#states
+Data state
+#output
+Character 򿿽
+
+#description
+Valid numeric entity character U+C0000
+#data
+&#xc0000;
+#errors
+#states
+Data state
+#output
+Character 󀀀
+
+#description
+Valid numeric entity character U+CFFFD
+#data
+&#xcfffd;
+#errors
+#states
+Data state
+#output
+Character 󏿽
+
+#description
+Valid numeric entity character U+D0000
+#data
+&#xd0000;
+#errors
+#states
+Data state
+#output
+Character 󐀀
+
+#description
+Valid numeric entity character U+DFFFD
+#data
+&#xdfffd;
+#errors
+#states
+Data state
+#output
+Character 󟿽
+
+#description
+Valid numeric entity character U+E0000
+#data
+&#xe0000;
+#errors
+#states
+Data state
+#output
+Character 󠀀
+
+#description
+Valid numeric entity character U+EFFFD
+#data
+&#xefffd;
+#errors
+#states
+Data state
+#output
+Character 󯿽
+
+#description
+Valid numeric entity character U+F0000
+#data
+&#xf0000;
+#errors
+#states
+Data state
+#output
+Character 󰀀
+
+#description
+Valid numeric entity character U+FFFFD
+#data
+&#xffffd;
+#errors
+#states
+Data state
+#output
+Character 󿿽
+
+#description
+Valid numeric entity character U+100000
+#data
+&#x100000;
+#errors
+#states
+Data state
+#output
+Character 􀀀
+
+#description
+Valid numeric entity character U+10FFFD
+#data
+&#x10fffd;
+#errors
+#states
+Data state
+#output
+Character 􏿽
