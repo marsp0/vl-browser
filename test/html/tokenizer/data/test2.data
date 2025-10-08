@@ -6,8 +6,11 @@ DOCTYPE without name
 (1, 10): missing-doctype-name
 #states
 Data state
-#output
-DOCTYPE "" "" "" false
+#doctype
+
+#doctype-quirks
+false
+#end-test
 
 #description
 DOCTYPE without space before name
@@ -17,8 +20,11 @@ DOCTYPE without space before name
 (1, 10): missing-whitespace-before-doctype-name
 #states
 Data state
-#output
-DOCTYPE "html" "" "" true
+#doctype
+html
+#doctype-quirks
+true
+#end-test
 
 #description
 Incorrect DOCTYPE without a space before name
@@ -28,8 +34,11 @@ Incorrect DOCTYPE without a space before name
 (1, 10): missing-whitespace-before-doctype-name
 #states
 Data state
-#output
-DOCTYPE "foo" "" "" true
+#doctype
+foo
+#doctype-quirks
+true
+#end-test
 
 #description
 DOCTYPE with publicId
@@ -38,8 +47,13 @@ DOCTYPE with publicId
 #errors
 #states
 Data state
-#output
-DOCTYPE "html" "-//W3C//DTD HTML Transitional 4.01//EN" "" true
+#doctype
+html
+#doctype-quirks
+true
+#doctype-public
+-//W3C//DTD HTML Transitional 4.01//EN
+#end-test
 
 #description
 DOCTYPE with EOF after PUBLIC
@@ -49,8 +63,11 @@ DOCTYPE with EOF after PUBLIC
 (1, 22): eof-in-doctype
 #states
 Data state
-#output
-DOCTYPE "html" "" "" false
+#doctype
+html
+#doctype-quirks
+false
+#end-test
 
 #description
 DOCTYPE with EOF after PUBLIC '
@@ -60,8 +77,11 @@ DOCTYPE with EOF after PUBLIC '
 (1, 24): eof-in-doctype
 #states
 Data state
-#output
-DOCTYPE "html" "" "" false
+#doctype
+html
+#doctype-quirks
+false
+#end-test
 
 #description
 DOCTYPE with EOF after PUBLIC 'x
@@ -71,8 +91,13 @@ DOCTYPE with EOF after PUBLIC 'x
 (1, 25): eof-in-doctype
 #states
 Data state
-#output
-DOCTYPE "html" "x" "" false
+#doctype
+html
+#doctype-quirks
+false
+#doctype-public
+x
+#end-test
 
 #description
 DOCTYPE with systemId
@@ -81,8 +106,13 @@ DOCTYPE with systemId
 #errors
 #states
 Data state
-#output
-DOCTYPE "html" "" "-//W3C//DTD HTML Transitional 4.01//EN" true
+#doctype
+html
+#doctype-quirks
+true
+#doctype-system
+-//W3C//DTD HTML Transitional 4.01//EN
+#end-test
 
 #description
 DOCTYPE with single-quoted systemId
@@ -91,8 +121,13 @@ DOCTYPE with single-quoted systemId
 #errors
 #states
 Data state
-#output
-DOCTYPE "html" "" "-//W3C//DTD HTML Transitional 4.01//EN" true
+#doctype
+html
+#doctype-quirks
+true
+#doctype-system
+-//W3C//DTD HTML Transitional 4.01//EN
+#end-test
 
 #description
 DOCTYPE with publicId and systemId
@@ -101,8 +136,15 @@ DOCTYPE with publicId and systemId
 #errors
 #states
 Data state
-#output
-DOCTYPE "html" "-//W3C//DTD HTML Transitional 4.01//EN" "-//W3C//DTD HTML Transitional 4.01//EN" true
+#doctype
+html
+#doctype-quirks
+true
+#doctype-public
+-//W3C//DTD HTML Transitional 4.01//EN
+#doctype-system
+-//W3C//DTD HTML Transitional 4.01//EN
+#end-test
 
 #description
 DOCTYPE with > in double-quoted publicId
@@ -112,9 +154,13 @@ DOCTYPE with > in double-quoted publicId
 (1, 24): abrupt-doctype-public-identifier
 #states
 Data state
-#output
-DOCTYPE "html" "" "" false
-Character x
+#doctype
+html
+#doctype-quirks
+false
+#character
+x
+#end-test
 
 #description
 DOCTYPE with > in single-quoted publicId
@@ -124,9 +170,13 @@ DOCTYPE with > in single-quoted publicId
 (1, 24): abrupt-doctype-public-identifier
 #states
 Data state
-#output
-DOCTYPE "html" "" "" false
-Character x
+#doctype
+html
+#doctype-quirks
+false
+#character
+x
+#end-test
 
 #description
 DOCTYPE with > in double-quoted systemId
@@ -136,9 +186,15 @@ DOCTYPE with > in double-quoted systemId
 (1, 30): abrupt-doctype-system-identifier
 #states
 Data state
-#output
-DOCTYPE "html" "foo" "" false
-Character x
+#doctype
+html
+#doctype-quirks
+false
+#doctype-public
+foo
+#character
+x
+#end-test
 
 #description
 DOCTYPE with > in single-quoted systemId
@@ -148,9 +204,15 @@ DOCTYPE with > in single-quoted systemId
 (1, 30): abrupt-doctype-system-identifier
 #states
 Data state
-#output
-DOCTYPE "html" "foo" "" false
-Character x
+#doctype
+html
+#doctype-quirks
+false
+#doctype-public
+foo
+#character
+x
+#end-test
 
 #description
 Incomplete doctype
@@ -160,8 +222,11 @@ Incomplete doctype
 (1, 16): eof-in-doctype
 #states
 Data state
-#output
-DOCTYPE "html" "" "" false
+#doctype
+html
+#doctype-quirks
+false
+#end-test
 
 #description
 Numeric entity representing the NUL character
@@ -171,8 +236,9 @@ Numeric entity representing the NUL character
 (1, 8): null-character-reference
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Hexadecimal entity representing the NUL character
@@ -182,8 +248,9 @@ Hexadecimal entity representing the NUL character
 (1, 9): null-character-reference
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Numeric entity representing a codepoint after 1114111 (U+10FFFF)
@@ -193,8 +260,9 @@ Numeric entity representing a codepoint after 1114111 (U+10FFFF)
 (1, 11): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Hexadecimal entity representing a codepoint after 1114111 (U+10FFFF)
@@ -204,8 +272,9 @@ Hexadecimal entity representing a codepoint after 1114111 (U+10FFFF)
 (1, 13): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Hexadecimal entity pair representing a surrogate pair
@@ -216,9 +285,11 @@ Hexadecimal entity pair representing a surrogate pair
 (1, 17): surrogate-character-reference
 #states
 Data state
-#output
-Character �
-Character �
+#character
+�
+#character
+�
+#end-test
 
 #description
 Hexadecimal entity with mixed uppercase and lowercase
@@ -227,8 +298,9 @@ Hexadecimal entity with mixed uppercase and lowercase
 #errors
 #states
 Data state
-#output
-Character ꯍ
+#character
+ꯍ
+#end-test
 
 #description
 Entity without a name
@@ -237,9 +309,11 @@ Entity without a name
 #errors
 #states
 Data state
-#output
-Character &
-Character ;
+#character
+&
+#character
+;
+#end-test
 
 #description
 Unescaped ampersand in attribute value
@@ -248,9 +322,13 @@ Unescaped ampersand in attribute value
 #errors
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" "&"
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&
+#end-test
 
 #description
 StartTag containing <
@@ -259,8 +337,9 @@ StartTag containing <
 #errors
 #states
 Data state
-#output
-StartTag "a<b"
+#start-tag
+a<b
+#end-test
 
 #description
 Non-void element containing trailing /
@@ -269,8 +348,11 @@ Non-void element containing trailing /
 #errors
 #states
 Data state
-#output
-StartTag "h" true
+#start-tag
+h
+#start-tag-self-close
+true
+#end-test
 
 #description
 Void element with permitted slash
@@ -279,8 +361,11 @@ Void element with permitted slash
 #errors
 #states
 Data state
-#output
-StartTag "br" true
+#start-tag
+br
+#start-tag-self-close
+true
+#end-test
 
 #description
 Void element with permitted slash (with attribute)
@@ -289,9 +374,15 @@ Void element with permitted slash (with attribute)
 #errors
 #states
 Data state
-#output
-StartTag "br" true
-Attr "foo" "bar"
+#start-tag
+br
+#start-tag-self-close
+true
+#attr-name
+foo
+#attr-value
+bar
+#end-test
 
 #description
 StartTag containing /
@@ -301,9 +392,13 @@ StartTag containing /
 (1, 4): unexpected-solidus-in-tag
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" "b"
+#start-tag
+h
+#attr-name
+a
+#attr-value
+b
+#end-test
 
 #description
 Double-quoted attribute value
@@ -312,9 +407,13 @@ Double-quoted attribute value
 #errors
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" "b"
+#start-tag
+h
+#attr-name
+a
+#attr-value
+b
+#end-test
 
 #description
 Unescaped </
@@ -324,9 +423,11 @@ Unescaped </
 (1, 3): eof-before-tag-name
 #states
 Data state
-#output
-Character <
-Character /
+#character
+<
+#character
+/
+#end-test
 
 #description
 Illegal end tag name
@@ -336,8 +437,9 @@ Illegal end tag name
 (1, 3): invalid-first-character-of-tag-name
 #states
 Data state
-#output
-Comment "1"
+#comment
+1
+#end-test
 
 #description
 Simili processing instruction
@@ -347,8 +449,9 @@ Simili processing instruction
 (1, 2): unexpected-question-mark-instead-of-tag-name
 #states
 Data state
-#output
-Comment "?namespace"
+#comment
+?namespace
+#end-test
 
 #description
 A bogus comment stops at >, even if preceded by two dashes
@@ -358,8 +461,9 @@ A bogus comment stops at >, even if preceded by two dashes
 (1, 2): unexpected-question-mark-instead-of-tag-name
 #states
 Data state
-#output
-Comment "?foo--"
+#comment
+?foo--
+#end-test
 
 #description
 Unescaped <
@@ -369,16 +473,25 @@ foo < bar
 (1, 6): invalid-first-character-of-tag-name
 #states
 Data state
-#output
-Character f
-Character o
-Character o
-Character  
-Character <
-Character  
-Character b
-Character a
-Character r
+#character
+f
+#character
+o
+#character
+o
+#character
+ 
+#character
+<
+#character
+ 
+#character
+b
+#character
+a
+#character
+r
+#end-test
 
 #description
 Comment with dash
@@ -388,8 +501,9 @@ Comment with dash
 (1, 7): eof-in-comment
 #states
 Data state
-#output
-Comment "-x"
+#comment
+-x
+#end-test
 
 #description
 Start tag with no attributes but space before the greater-than sign
@@ -398,8 +512,9 @@ Start tag with no attributes but space before the greater-than sign
 #errors
 #states
 Data state
-#output
-StartTag "h"
+#start-tag
+h
+#end-test
 
 #description
 Empty attribute followed by uppercase attribute
@@ -408,10 +523,17 @@ Empty attribute followed by uppercase attribute
 #errors
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" ""
-Attr "b" ""
+#start-tag
+h
+#attr-name
+a
+#attr-value
+
+#attr-name
+b
+#attr-value
+
+#end-test
 
 #description
 Double-quote after attribute name
@@ -421,10 +543,17 @@ Double-quote after attribute name
 (1, 6): unexpected-character-in-attribute-name
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" ""
-Attr "\"" ""
+#start-tag
+h
+#attr-name
+a
+#attr-value
+
+#attr-name
+"
+#attr-value
+
+#end-test
 
 #description
 Single-quote after attribute name
@@ -434,10 +563,17 @@ Single-quote after attribute name
 (1, 6): unexpected-character-in-attribute-name
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" ""
-Attr "'" ""
+#start-tag
+h
+#attr-name
+a
+#attr-value
+
+#attr-name
+'
+#attr-value
+
+#end-test
 
 #description
 Empty end tag with following characters
@@ -447,10 +583,13 @@ a</>bc
 (1, 4): missing-end-tag-name
 #states
 Data state
-#output
-Character a
-Character b
-Character c
+#character
+a
+#character
+b
+#character
+c
+#end-test
 
 #description
 Empty end tag with following tag
@@ -460,10 +599,13 @@ a</><b>c
 (1, 4): missing-end-tag-name
 #states
 Data state
-#output
-Character a
-StartTag "b"
-Character c
+#character
+a
+#start-tag
+b
+#character
+c
+#end-test
 
 #description
 Empty end tag with following comment
@@ -473,10 +615,13 @@ a</><!--b-->c
 (1, 4): missing-end-tag-name
 #states
 Data state
-#output
-Character a
-Comment "b"
-Character c
+#character
+a
+#comment
+b
+#character
+c
+#end-test
 
 #description
 Empty end tag with following end tag
@@ -486,7 +631,10 @@ a</></b>c
 (1, 4): missing-end-tag-name
 #states
 Data state
-#output
-Character a
-EndTag "b"
-Character c
+#character
+a
+#end-tag
+b
+#character
+c
+#end-test

@@ -5,8 +5,11 @@ Correct Doctype lowercase
 #errors
 #states
 Data state
-#output
-DOCTYPE "html" "" "" true
+#doctype
+html
+#doctype-quirks
+true
+#end-test
 
 #description
 Correct Doctype uppercase
@@ -15,8 +18,11 @@ Correct Doctype uppercase
 #errors
 #states
 Data state
-#output
-DOCTYPE "html" "" "" true
+#doctype
+html
+#doctype-quirks
+true
+#end-test
 
 #description
 Correct Doctype mixed case
@@ -25,8 +31,11 @@ Correct Doctype mixed case
 #errors
 #states
 Data state
-#output
-DOCTYPE "html" "" "" true
+#doctype
+html
+#doctype-quirks
+true
+#end-test
 
 #description
 Correct Doctype case with EOF
@@ -36,8 +45,11 @@ Correct Doctype case with EOF
 (1, 15): eof-in-doctype
 #states
 Data state
-#output
-DOCTYPE "html" "" "" false
+#doctype
+html
+#doctype-quirks
+false
+#end-test
 
 #description
 Truncated doctype start
@@ -47,8 +59,9 @@ Truncated doctype start
 (1, 3): incorrectly-opened-comment
 #states
 Data state
-#output
-Comment "DOC"
+#comment
+DOC
+#end-test
 
 #description
 Doctype in error
@@ -57,8 +70,11 @@ Doctype in error
 #errors
 #states
 Data state
-#output
-DOCTYPE "foo" "" "" true
+#doctype
+foo
+#doctype-quirks
+true
+#end-test
 
 #description
 Single Start Tag
@@ -67,8 +83,9 @@ Single Start Tag
 #errors
 #states
 Data state
-#output
-StartTag "h"
+#start-tag
+h
+#end-test
 
 #description
 Empty end tag
@@ -78,7 +95,7 @@ Empty end tag
 (1, 3): missing-end-tag-name
 #states
 Data state
-#output
+#end-test
 
 #description
 Empty start tag
@@ -88,9 +105,11 @@ Empty start tag
 (1, 2): invalid-first-character-of-tag-name
 #states
 Data state
-#output
-Character <
-Character >
+#character
+<
+#character
+>
+#end-test
 
 #description
 Start Tag w/attribute
@@ -99,9 +118,13 @@ Start Tag w/attribute
 #errors
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" "b"
+#start-tag
+h
+#attr-name
+a
+#attr-value
+b
+#end-test
 
 #description
 Start Tag w/attribute no quotes
@@ -110,9 +133,13 @@ Start Tag w/attribute no quotes
 #errors
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" "b"
+#start-tag
+h
+#attr-name
+a
+#attr-value
+b
+#end-test
 
 #description
 Start/End Tag
@@ -121,9 +148,11 @@ Start/End Tag
 #errors
 #states
 Data state
-#output
-StartTag "h"
-EndTag "h"
+#start-tag
+h
+#end-tag
+h
+#end-test
 
 #description
 Two unclosed start tags
@@ -132,15 +161,23 @@ Two unclosed start tags
 #errors
 #states
 Data state
-#output
-StartTag "p"
-Character O
-Character n
-Character e
-StartTag "p"
-Character T
-Character w
-Character o
+#start-tag
+p
+#character
+O
+#character
+n
+#character
+e
+#start-tag
+p
+#character
+T
+#character
+w
+#character
+o
+#end-test
 
 #description
 End Tag w/attribute
@@ -150,9 +187,11 @@ End Tag w/attribute
 (1, 13): end-tag-with-attributes
 #states
 Data state
-#output
-StartTag "h"
-EndTag "h"
+#start-tag
+h
+#end-tag
+h
+#end-test
 
 #description
 Multiple atts
@@ -161,10 +200,17 @@ Multiple atts
 #errors
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" "b"
-Attr "c" "d"
+#start-tag
+h
+#attr-name
+a
+#attr-value
+b
+#attr-name
+c
+#attr-value
+d
+#end-test
 
 #description
 Multiple atts no space
@@ -174,10 +220,17 @@ Multiple atts no space
 (1, 9): missing-whitespace-between-attributes
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" "b"
-Attr "c" "d"
+#start-tag
+h
+#attr-name
+a
+#attr-value
+b
+#attr-name
+c
+#attr-value
+d
+#end-test
 
 #description
 Repeated attr
@@ -187,9 +240,13 @@ Repeated attr
 (1, 11): duplicate-attribute
 #states
 Data state
-#output
-StartTag "h"
-Attr "a" "b"
+#start-tag
+h
+#attr-name
+a
+#attr-value
+b
+#end-test
 
 #description
 Simple comment
@@ -198,8 +255,9 @@ Simple comment
 #errors
 #states
 Data state
-#output
-Comment "comment"
+#comment
+comment
+#end-test
 
 #description
 Comment, Central dash no space
@@ -208,8 +266,9 @@ Comment, Central dash no space
 #errors
 #states
 Data state
-#output
-Comment "-"
+#comment
+-
+#end-test
 
 #description
 Comment, two central dashes
@@ -218,8 +277,9 @@ Comment, two central dashes
 #errors
 #states
 Data state
-#output
-Comment " --comment "
+#comment
+ --comment 
+#end-test
 
 #description
 Comment, central less-than bang
@@ -228,8 +288,9 @@ Comment, central less-than bang
 #errors
 #states
 Data state
-#output
-Comment "<!"
+#comment
+<!
+#end-test
 
 #description
 Unfinished comment
@@ -239,8 +300,9 @@ Unfinished comment
 (1, 12): eof-in-comment
 #states
 Data state
-#output
-Comment "comment"
+#comment
+comment
+#end-test
 
 #description
 Unfinished comment after start of nested comment
@@ -250,8 +312,9 @@ Unfinished comment after start of nested comment
 (1, 10): eof-in-comment
 #states
 Data state
-#output
-Comment " <!"
+#comment
+ <!
+#end-test
 
 #description
 Start of a comment
@@ -261,8 +324,9 @@ Start of a comment
 (1, 3): incorrectly-opened-comment
 #states
 Data state
-#output
-Comment "-"
+#comment
+-
+#end-test
 
 #description
 Short comment
@@ -272,8 +336,9 @@ Short comment
 (1, 5): abrupt-closing-of-empty-comment
 #states
 Data state
-#output
-Comment ""
+#comment
+
+#end-test
 
 #description
 Short comment two
@@ -283,8 +348,9 @@ Short comment two
 (1, 6): abrupt-closing-of-empty-comment
 #states
 Data state
-#output
-Comment ""
+#comment
+
+#end-test
 
 #description
 Short comment three
@@ -293,8 +359,9 @@ Short comment three
 #errors
 #states
 Data state
-#output
-Comment ""
+#comment
+
+#end-test
 
 #description
 < in comment
@@ -303,8 +370,9 @@ Comment ""
 #errors
 #states
 Data state
-#output
-Comment " <test"
+#comment
+ <test
+#end-test
 
 #description
 << in comment
@@ -313,8 +381,9 @@ Comment " <test"
 #errors
 #states
 Data state
-#output
-Comment "<<"
+#comment
+<<
+#end-test
 
 #description
 <! in comment
@@ -323,8 +392,9 @@ Comment "<<"
 #errors
 #states
 Data state
-#output
-Comment " <!test"
+#comment
+ <!test
+#end-test
 
 #description
 <!- in comment
@@ -333,8 +403,9 @@ Comment " <!test"
 #errors
 #states
 Data state
-#output
-Comment " <!-test"
+#comment
+ <!-test
+#end-test
 
 #description
 Nested comment
@@ -344,8 +415,9 @@ Nested comment
 (1, 10): nested-comment
 #states
 Data state
-#output
-Comment " <!--test"
+#comment
+ <!--test
+#end-test
 
 #description
 Nested comment with extra <
@@ -355,8 +427,9 @@ Nested comment with extra <
 (1, 11): nested-comment
 #states
 Data state
-#output
-Comment " <<!--test"
+#comment
+ <<!--test
+#end-test
 
 #description
 < in script data
@@ -365,15 +438,23 @@ Comment " <<!--test"
 #errors
 #states
 Script data state
-#output
-Character <
-Character t
-Character e
-Character s
-Character t
-Character -
-Character -
-Character >
+#character
+<
+#character
+t
+#character
+e
+#character
+s
+#character
+t
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 <! in script data
@@ -382,16 +463,25 @@ Character >
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character t
-Character e
-Character s
-Character t
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+t
+#character
+e
+#character
+s
+#character
+t
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 <!- in script data
@@ -400,17 +490,27 @@ Character >
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character t
-Character e
-Character s
-Character t
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+t
+#character
+e
+#character
+s
+#character
+t
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 Escaped script data
@@ -419,18 +519,29 @@ Escaped script data
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character -
-Character t
-Character e
-Character s
-Character t
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+-
+#character
+t
+#character
+e
+#character
+s
+#character
+t
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 < in script HTML comment
@@ -439,22 +550,37 @@ Character >
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character -
-Character  
-Character <
-Character  
-Character t
-Character e
-Character s
-Character t
-Character  
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+-
+#character
+ 
+#character
+<
+#character
+ 
+#character
+t
+#character
+e
+#character
+s
+#character
+t
+#character
+ 
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 </ in script HTML comment
@@ -463,23 +589,39 @@ Character >
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character -
-Character  
-Character <
-Character /
-Character  
-Character t
-Character e
-Character s
-Character t
-Character  
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+-
+#character
+ 
+#character
+<
+#character
+/
+#character
+ 
+#character
+t
+#character
+e
+#character
+s
+#character
+t
+#character
+ 
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 Start tag in script HTML comment
@@ -488,22 +630,37 @@ Start tag in script HTML comment
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character -
-Character  
-Character <
-Character t
-Character e
-Character s
-Character t
-Character >
-Character  
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+-
+#character
+ 
+#character
+<
+#character
+t
+#character
+e
+#character
+s
+#character
+t
+#character
+>
+#character
+ 
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 End tag in script HTML comment
@@ -512,23 +669,39 @@ End tag in script HTML comment
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character -
-Character  
-Character <
-Character /
-Character t
-Character e
-Character s
-Character t
-Character >
-Character  
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+-
+#character
+ 
+#character
+<
+#character
+/
+#character
+t
+#character
+e
+#character
+s
+#character
+t
+#character
+>
+#character
+ 
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 - in script HTML comment double escaped
@@ -537,32 +710,57 @@ Character >
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character -
-Character <
-Character s
-Character c
-Character r
-Character i
-Character p
-Character t
-Character >
-Character -
-Character <
-Character /
-Character s
-Character c
-Character r
-Character i
-Character p
-Character t
-Character >
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+-
+#character
+<
+#character
+s
+#character
+c
+#character
+r
+#character
+i
+#character
+p
+#character
+t
+#character
+>
+#character
+-
+#character
+<
+#character
+/
+#character
+s
+#character
+c
+#character
+r
+#character
+i
+#character
+p
+#character
+t
+#character
+>
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 -- in script HTML comment double escaped
@@ -571,33 +769,59 @@ Character >
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character -
-Character <
-Character s
-Character c
-Character r
-Character i
-Character p
-Character t
-Character >
-Character -
-Character -
-Character <
-Character /
-Character s
-Character c
-Character r
-Character i
-Character p
-Character t
-Character >
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+-
+#character
+<
+#character
+s
+#character
+c
+#character
+r
+#character
+i
+#character
+p
+#character
+t
+#character
+>
+#character
+-
+#character
+-
+#character
+<
+#character
+/
+#character
+s
+#character
+c
+#character
+r
+#character
+i
+#character
+p
+#character
+t
+#character
+>
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 --- in script HTML comment double escaped
@@ -606,34 +830,61 @@ Character >
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character -
-Character <
-Character s
-Character c
-Character r
-Character i
-Character p
-Character t
-Character >
-Character -
-Character -
-Character -
-Character <
-Character /
-Character s
-Character c
-Character r
-Character i
-Character p
-Character t
-Character >
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+-
+#character
+<
+#character
+s
+#character
+c
+#character
+r
+#character
+i
+#character
+p
+#character
+t
+#character
+>
+#character
+-
+#character
+-
+#character
+-
+#character
+<
+#character
+/
+#character
+s
+#character
+c
+#character
+r
+#character
+i
+#character
+p
+#character
+t
+#character
+>
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 - spaced in script HTML comment double escaped
@@ -642,34 +893,61 @@ Character >
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character -
-Character <
-Character s
-Character c
-Character r
-Character i
-Character p
-Character t
-Character >
-Character  
-Character -
-Character  
-Character <
-Character /
-Character s
-Character c
-Character r
-Character i
-Character p
-Character t
-Character >
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+-
+#character
+<
+#character
+s
+#character
+c
+#character
+r
+#character
+i
+#character
+p
+#character
+t
+#character
+>
+#character
+ 
+#character
+-
+#character
+ 
+#character
+<
+#character
+/
+#character
+s
+#character
+c
+#character
+r
+#character
+i
+#character
+p
+#character
+t
+#character
+>
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 -- spaced in script HTML comment double escaped
@@ -678,35 +956,63 @@ Character >
 #errors
 #states
 Script data state
-#output
-Character <
-Character !
-Character -
-Character -
-Character <
-Character s
-Character c
-Character r
-Character i
-Character p
-Character t
-Character >
-Character  
-Character -
-Character -
-Character  
-Character <
-Character /
-Character s
-Character c
-Character r
-Character i
-Character p
-Character t
-Character >
-Character -
-Character -
-Character >
+#character
+<
+#character
+!
+#character
+-
+#character
+-
+#character
+<
+#character
+s
+#character
+c
+#character
+r
+#character
+i
+#character
+p
+#character
+t
+#character
+>
+#character
+ 
+#character
+-
+#character
+-
+#character
+ 
+#character
+<
+#character
+/
+#character
+s
+#character
+c
+#character
+r
+#character
+i
+#character
+p
+#character
+t
+#character
+>
+#character
+-
+#character
+-
+#character
+>
+#end-test
 
 #description
 Ampersand EOF
@@ -715,8 +1021,9 @@ Ampersand EOF
 #errors
 #states
 Data state
-#output
-Character &
+#character
+&
+#end-test
 
 #description
 Ampersand ampersand EOF
@@ -725,9 +1032,11 @@ Ampersand ampersand EOF
 #errors
 #states
 Data state
-#output
-Character &
-Character &
+#character
+&
+#character
+&
+#end-test
 
 #description
 Ampersand space EOF
@@ -736,9 +1045,11 @@ Ampersand space EOF
 #errors
 #states
 Data state
-#output
-Character &
-Character  
+#character
+&
+#character
+ 
+#end-test
 
 #description
 Ampersand, number sign
@@ -748,9 +1059,11 @@ Ampersand, number sign
 (1, 3): absence-of-digits-in-numeric-character-reference
 #states
 Data state
-#output
-Character &
-Character #
+#character
+&
+#character
+#
+#end-test
 
 #description
 Unfinished numeric entity
@@ -760,10 +1073,13 @@ Unfinished numeric entity
 (1, 4): absence-of-digits-in-numeric-character-reference
 #states
 Data state
-#output
-Character &
-Character #
-Character x
+#character
+&
+#character
+#
+#character
+x
+#end-test
 
 #description
 Non-ASCII character reference name
@@ -772,10 +1088,13 @@ Non-ASCII character reference name
 #errors
 #states
 Data state
-#output
-Character &
-Character ¬
-Character ;
+#character
+&
+#character
+¬
+#character
+;
+#end-test
 
 #description
 ASCII decimal entity
@@ -784,8 +1103,9 @@ ASCII decimal entity
 #errors
 #states
 Data state
-#output
-Character $
+#character
+$
+#end-test
 
 #description
 ASCII hexadecimal entity
@@ -794,8 +1114,9 @@ ASCII hexadecimal entity
 #errors
 #states
 Data state
-#output
-Character ?
+#character
+?
+#end-test
 
 #description
 Unquoted attribute ending in ampersand
@@ -804,10 +1125,17 @@ Unquoted attribute ending in ampersand
 #errors
 #states
 Data state
-#output
-StartTag "s"
-Attr "o" "&"
-Attr "t" ""
+#start-tag
+s
+#attr-name
+o
+#attr-value
+&
+#attr-name
+t
+#attr-value
+
+#end-test
 
 #description
 Unquoted attribute at end of tag with final character of &, with tag followed by characters
@@ -816,12 +1144,19 @@ Unquoted attribute at end of tag with final character of &, with tag followed by
 #errors
 #states
 Data state
-#output
-StartTag "a"
-Attr "a" "a&"
-Character f
-Character o
-Character o
+#start-tag
+a
+#attr-name
+a
+#attr-value
+a&
+#character
+f
+#character
+o
+#character
+o
+#end-test
 
 #description
 plaintext element
@@ -830,14 +1165,21 @@ plaintext element
 #errors
 #states
 Data state
-#output
-StartTag "plaintext"
-Character f
-Character o
-Character o
-Character b
-Character a
-Character r
+#start-tag
+plaintext
+#character
+f
+#character
+o
+#character
+o
+#character
+b
+#character
+a
+#character
+r
+#end-test
 
 #description
 Open angled bracket in unquoted attribute value state
@@ -847,6 +1189,10 @@ Open angled bracket in unquoted attribute value state
 (1, 7): unexpected-character-in-unquoted-attribute-value
 #states
 Data state
-#output
-StartTag "a"
-Attr "a" "f<"
+#start-tag
+a
+#attr-name
+a
+#attr-value
+f<
+#end-test

@@ -1,0 +1,1247 @@
+#description
+< in attribute name
+#data
+<z/0  <>
+#errors
+(1, 4): unexpected-solidus-in-tag
+(1, 7): unexpected-character-in-attribute-name
+#states
+Data state
+#start-tag
+z
+#attr-name
+0
+#attr-value
+
+#attr-name
+<
+#attr-value
+
+#end-test
+
+#description
+< in unquoted attribute value
+#data
+<z x=<>
+#errors
+(1, 6): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#start-tag
+z
+#attr-name
+x
+#attr-value
+<
+#end-test
+
+#description
+= in unquoted attribute value
+#data
+<z z=z=z>
+#errors
+(1, 7): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#start-tag
+z
+#attr-name
+z
+#attr-value
+z=z
+#end-test
+
+#description
+= attribute
+#data
+<z =>
+#errors
+(1, 4): unexpected-equals-sign-before-attribute-name
+#states
+Data state
+#start-tag
+z
+#attr-name
+=
+#attr-value
+
+#end-test
+
+#description
+== attribute
+#data
+<z ==>
+#errors
+(1, 4): unexpected-equals-sign-before-attribute-name
+(1, 6): missing-attribute-value
+#states
+Data state
+#start-tag
+z
+#attr-name
+=
+#attr-value
+
+#end-test
+
+#description
+=== attribute
+#data
+<z ===>
+#errors
+(1, 4): unexpected-equals-sign-before-attribute-name
+(1, 6): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#start-tag
+z
+#attr-name
+=
+#attr-value
+=
+#end-test
+
+#description
+==== attribute
+#data
+<z ====>
+#errors
+(1, 4): unexpected-equals-sign-before-attribute-name
+(1, 6): unexpected-character-in-unquoted-attribute-value
+(1, 7): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#start-tag
+z
+#attr-name
+=
+#attr-value
+==
+#end-test
+
+#description
+" after ampersand in double-quoted attribute value
+#data
+<z z="&">
+#errors
+#states
+Data state
+#start-tag
+z
+#attr-name
+z
+#attr-value
+&
+#end-test
+
+#description
+' after ampersand in double-quoted attribute value
+#data
+<z z="&'">
+#errors
+#states
+Data state
+#start-tag
+z
+#attr-name
+z
+#attr-value
+&'
+#end-test
+
+#description
+' after ampersand in single-quoted attribute value
+#data
+<z z='&'>
+#errors
+#states
+Data state
+#start-tag
+z
+#attr-name
+z
+#attr-value
+&
+#end-test
+
+#description
+" after ampersand in single-quoted attribute value
+#data
+<z z='&"'>
+#errors
+#states
+Data state
+#start-tag
+z
+#attr-name
+z
+#attr-value
+&"
+#end-test
+
+#description
+Text after bogus character reference
+#data
+<z z='&xlink_xmlns;'>bar<z>
+#errors
+#states
+Data state
+#start-tag
+z
+#attr-name
+z
+#attr-value
+&xlink_xmlns;
+#character
+b
+#character
+a
+#character
+r
+#start-tag
+z
+#end-test
+
+#description
+Text after hex character reference
+#data
+<z z='&#x0020; foo'>bar<z>
+#errors
+#states
+Data state
+#start-tag
+z
+#attr-name
+z
+#attr-value
+  foo
+#character
+b
+#character
+a
+#character
+r
+#start-tag
+z
+#end-test
+
+#description
+Attribute name starting with "
+#data
+<foo "='bar'>
+#errors
+(1, 6): unexpected-character-in-attribute-name
+#states
+Data state
+#start-tag
+foo
+#attr-name
+"
+#attr-value
+bar
+#end-test
+
+#description
+Attribute name starting with '
+#data
+<foo '='bar'>
+#errors
+(1, 6): unexpected-character-in-attribute-name
+#states
+Data state
+#start-tag
+foo
+#attr-name
+'
+#attr-value
+bar
+#end-test
+
+#description
+Attribute name containing "
+#data
+<foo a"b='bar'>
+#errors
+(1, 7): unexpected-character-in-attribute-name
+#states
+Data state
+#start-tag
+foo
+#attr-name
+a"b
+#attr-value
+bar
+#end-test
+
+#description
+Attribute name containing '
+#data
+<foo a'b='bar'>
+#errors
+(1, 7): unexpected-character-in-attribute-name
+#states
+Data state
+#start-tag
+foo
+#attr-name
+a'b
+#attr-value
+bar
+#end-test
+
+#description
+Unquoted attribute value containing '
+#data
+<foo a=b'c>
+#errors
+(1, 9): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#start-tag
+foo
+#attr-name
+a
+#attr-value
+b'c
+#end-test
+
+#description
+Unquoted attribute value containing "
+#data
+<foo a=b"c>
+#errors
+(1, 9): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#start-tag
+foo
+#attr-name
+a
+#attr-value
+b"c
+#end-test
+
+#description
+Double-quoted attribute value not followed by whitespace
+#data
+<foo a="b"c>
+#errors
+(1, 11): missing-whitespace-between-attributes
+#states
+Data state
+#start-tag
+foo
+#attr-name
+a
+#attr-value
+b
+#attr-name
+c
+#attr-value
+
+#end-test
+
+#description
+Single-quoted attribute value not followed by whitespace
+#data
+<foo a='b'c>
+#errors
+(1, 11): missing-whitespace-between-attributes
+#states
+Data state
+#start-tag
+foo
+#attr-name
+a
+#attr-value
+b
+#attr-name
+c
+#attr-value
+
+#end-test
+
+#description
+Quoted attribute followed by permitted /
+#data
+<br a='b'/>
+#errors
+#states
+Data state
+#start-tag
+br
+#start-tag-self-close
+true
+#attr-name
+a
+#attr-value
+b
+#end-test
+
+#description
+Quoted attribute followed by non-permitted /
+#data
+<bar a='b'/>
+#errors
+#states
+Data state
+#start-tag
+bar
+#start-tag-self-close
+true
+#attr-name
+a
+#attr-value
+b
+#end-test
+
+#description
+CR EOF after doctype name
+#data
+<!doctype html 
+#errors
+(2, 1): eof-in-doctype
+#states
+Data state
+#doctype
+html
+#doctype-quirks
+false
+#end-test
+
+#description
+CR EOF in tag name
+#data
+<z
+#errors
+(2, 1): eof-in-tag
+#states
+Data state
+#end-test
+
+#description
+Slash EOF in tag name
+#data
+<z/
+#errors
+(1, 4): eof-in-tag
+#states
+Data state
+#end-test
+
+#description
+Zero hex numeric entity
+#data
+&#x0
+#errors
+(1, 5): missing-semicolon-after-character-reference
+(1, 5): null-character-reference
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+Zero decimal numeric entity
+#data
+&#0
+#errors
+(1, 4): missing-semicolon-after-character-reference
+(1, 4): null-character-reference
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+Zero-prefixed hex numeric entity
+#data
+&#x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000041;
+#errors
+#states
+Data state
+#character
+A
+#end-test
+
+#description
+Zero-prefixed decimal numeric entity
+#data
+&#000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000065;
+#errors
+#states
+Data state
+#character
+A
+#end-test
+
+#description
+Empty hex numeric entities
+#data
+&#x &#X 
+#errors
+(1, 4): absence-of-digits-in-numeric-character-reference
+(1, 8): absence-of-digits-in-numeric-character-reference
+#states
+Data state
+#character
+&
+#character
+#
+#character
+x
+#character
+ 
+#character
+&
+#character
+#
+#character
+X
+#character
+ 
+#end-test
+
+#description
+Invalid digit in hex numeric entity
+#data
+&#xZ
+#errors
+(1, 4): absence-of-digits-in-numeric-character-reference
+#states
+Data state
+#character
+&
+#character
+#
+#character
+x
+#character
+Z
+#end-test
+
+#description
+Empty decimal numeric entities
+#data
+&# &#; 
+#errors
+(1, 3): absence-of-digits-in-numeric-character-reference
+(1, 6): absence-of-digits-in-numeric-character-reference
+#states
+Data state
+#character
+&
+#character
+#
+#character
+ 
+#character
+&
+#character
+#
+#character
+;
+#character
+ 
+#end-test
+
+#description
+Invalid digit in decimal numeric entity
+#data
+&#A
+#errors
+(1, 3): absence-of-digits-in-numeric-character-reference
+#states
+Data state
+#character
+&
+#character
+#
+#character
+A
+#end-test
+
+#description
+Non-BMP numeric entity
+#data
+&#x10000;
+#errors
+#states
+Data state
+#character
+𐀀
+#end-test
+
+#description
+Maximum non-BMP numeric entity
+#data
+&#X10FFFF;
+#errors
+(1, 11): noncharacter-character-reference
+#states
+Data state
+#character
+􏿿
+#end-test
+
+#description
+Above maximum numeric entity
+#data
+&#x110000;
+#errors
+(1, 11): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+32-bit hex numeric entity
+#data
+&#x80000041;
+#errors
+(1, 13): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+33-bit hex numeric entity
+#data
+&#x100000041;
+#errors
+(1, 14): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+33-bit decimal numeric entity
+#data
+&#4294967361;
+#errors
+(1, 14): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+65-bit hex numeric entity
+#data
+&#x10000000000000041;
+#errors
+(1, 22): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+65-bit decimal numeric entity
+#data
+&#18446744073709551681;
+#errors
+(1, 24): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+Surrogate code point edge cases
+#data
+&#xD7FF;&#xD800;&#xD801;&#xDFFE;&#xDFFF;&#xE000;
+#errors
+(1, 17): surrogate-character-reference
+(1, 25): surrogate-character-reference
+(1, 33): surrogate-character-reference
+(1, 41): surrogate-character-reference
+#states
+Data state
+#character
+퟿
+#character
+�
+#character
+�
+#character
+�
+#character
+�
+#character
+
+#end-test
+
+#description
+Uppercase start tag name
+#data
+<X>
+#errors
+#states
+Data state
+#start-tag
+x
+#end-test
+
+#description
+Uppercase end tag name
+#data
+</X>
+#errors
+#states
+Data state
+#end-tag
+x
+#end-test
+
+#description
+Uppercase attribute name
+#data
+<x X>
+#errors
+#states
+Data state
+#start-tag
+x
+#attr-name
+x
+#attr-value
+
+#end-test
+
+#description
+Tag/attribute name case edge values
+#data
+<x@AZ[`az{ @AZ[`az{>
+#errors
+#states
+Data state
+#start-tag
+x@az[`az{
+#attr-name
+@az[`az{
+#attr-value
+
+#end-test
+
+#description
+Duplicate different-case attributes
+#data
+<x x=1 x=2 X=3>
+#errors
+(1, 9): duplicate-attribute
+(1, 13): duplicate-attribute
+#states
+Data state
+#start-tag
+x
+#attr-name
+x
+#attr-value
+1
+#end-test
+
+#description
+Uppercase close tag attributes
+#data
+</x X>
+#errors
+(1, 6): end-tag-with-attributes
+#states
+Data state
+#end-tag
+x
+#end-test
+
+#description
+Duplicate close tag attributes
+#data
+</x x x>
+#errors
+(1, 8): duplicate-attribute
+(1, 8): end-tag-with-attributes
+#states
+Data state
+#end-tag
+x
+#end-test
+
+#description
+Permitted slash
+#data
+<br/>
+#errors
+#states
+Data state
+#start-tag
+br
+#start-tag-self-close
+true
+#end-test
+
+#description
+Non-permitted slash
+#data
+<xr/>
+#errors
+#states
+Data state
+#start-tag
+xr
+#start-tag-self-close
+true
+#end-test
+
+#description
+Permitted slash but in close tag
+#data
+</br/>
+#errors
+(1, 6): end-tag-with-trailing-solidus
+#states
+Data state
+#end-tag
+br
+#end-test
+
+#description
+Doctype public case-sensitivity (1)
+#data
+<!DoCtYpE HtMl PuBlIc "AbC" "XyZ">
+#errors
+#states
+Data state
+#doctype
+html
+#doctype-quirks
+true
+#doctype-public
+AbC
+#doctype-system
+XyZ
+#end-test
+
+#description
+Doctype public case-sensitivity (2)
+#data
+<!dOcTyPe hTmL pUbLiC "aBc" "xYz">
+#errors
+#states
+Data state
+#doctype
+html
+#doctype-quirks
+true
+#doctype-public
+aBc
+#doctype-system
+xYz
+#end-test
+
+#description
+Doctype system case-sensitivity (1)
+#data
+<!DoCtYpE HtMl SyStEm "XyZ">
+#errors
+#states
+Data state
+#doctype
+html
+#doctype-quirks
+true
+#doctype-system
+XyZ
+#end-test
+
+#description
+Doctype system case-sensitivity (2)
+#data
+<!dOcTyPe hTmL sYsTeM "xYz">
+#errors
+#states
+Data state
+#doctype
+html
+#doctype-quirks
+true
+#doctype-system
+xYz
+#end-test
+
+#description
+U+0000 in lookahead region after non-matching character
+#data
+<!doc> 
+#errors
+(1, 3): incorrectly-opened-comment
+(1, 7): unexpected-null-character
+#states
+Data state
+#comment
+doc
+#character
+ 
+#end-test
+
+#description
+U+0000 in lookahead region
+#data
+<!doc 
+#errors
+(1, 3): incorrectly-opened-comment
+(1, 6): unexpected-null-character
+#states
+Data state
+#comment
+doc�
+#end-test
+
+#description
+U+0080 in lookahead region
+#data
+<!doc
+#errors
+(1, 3): incorrectly-opened-comment
+(1, 6): control-character-in-input-stream
+#states
+Data state
+#comment
+doc
+#end-test
+
+#description
+U+FDD1 in lookahead region
+#data
+<!doc﷑
+#errors
+(1, 3): incorrectly-opened-comment
+(1, 6): noncharacter-in-input-stream
+#states
+Data state
+#comment
+doc﷑
+#end-test
+
+#description
+U+1FFFF in lookahead region
+#data
+<!doc🿿
+#errors
+(1, 3): incorrectly-opened-comment
+(1, 6): noncharacter-in-input-stream
+#states
+Data state
+#comment
+doc🿿
+#end-test
+
+#description
+CR followed by non-LF
+#data
+?
+#errors
+#states
+Data state
+#character
+\n
+#character
+?
+#end-test
+
+#description
+CR at EOF
+#data
+
+#errors
+#states
+Data state
+#character
+\n
+#end-test
+
+#description
+LF at EOF
+#data
+\n
+#errors
+#states
+Data state
+#character
+\n
+#end-test
+
+#description
+CR LF
+#data
+\n
+#errors
+#states
+Data state
+#character
+\n
+#end-test
+
+#description
+CR CR
+#data
+
+#errors
+#states
+Data state
+#character
+\n
+#character
+\n
+#end-test
+
+#description
+LF LF
+#data
+\n\n
+#errors
+#states
+Data state
+#character
+\n
+#character
+\n
+#end-test
+
+#description
+LF CR
+#data
+\n
+#errors
+#states
+Data state
+#character
+\n
+#character
+\n
+#end-test
+
+#description
+text CR CR CR text
+#data
+texttext
+#errors
+#states
+Data state
+#character
+t
+#character
+e
+#character
+x
+#character
+t
+#character
+\n
+#character
+\n
+#character
+\n
+#character
+t
+#character
+e
+#character
+x
+#character
+t
+#end-test
+
+#description
+Doctype publik
+#data
+<!DOCTYPE html PUBLIK "AbC" "XyZ">
+#errors
+(1, 16): invalid-character-sequence-after-doctype-name
+#states
+Data state
+#doctype
+html
+#doctype-quirks
+false
+#end-test
+
+#description
+Doctype publi
+#data
+<!DOCTYPE html PUBLI
+#errors
+(1, 16): invalid-character-sequence-after-doctype-name
+#states
+Data state
+#doctype
+html
+#doctype-quirks
+false
+#end-test
+
+#description
+Doctype sistem
+#data
+<!DOCTYPE html SISTEM "AbC">
+#errors
+(1, 16): invalid-character-sequence-after-doctype-name
+#states
+Data state
+#doctype
+html
+#doctype-quirks
+false
+#end-test
+
+#description
+Doctype sys
+#data
+<!DOCTYPE html SYS
+#errors
+(1, 16): invalid-character-sequence-after-doctype-name
+#states
+Data state
+#doctype
+html
+#doctype-quirks
+false
+#end-test
+
+#description
+Doctype html x>text
+#data
+<!DOCTYPE html x>text
+#errors
+(1, 16): invalid-character-sequence-after-doctype-name
+#states
+Data state
+#doctype
+html
+#doctype-quirks
+false
+#character
+t
+#character
+e
+#character
+x
+#character
+t
+#end-test
+
+#description
+Grave accent in unquoted attribute
+#data
+<a a=aa`>
+#errors
+(1, 8): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#start-tag
+a
+#attr-name
+a
+#attr-value
+aa`
+#end-test
+
+#description
+EOF in tag name state 
+#data
+<a
+#errors
+(1, 3): eof-in-tag
+#states
+Data state
+#end-test
+
+#description
+EOF in before attribute name state
+#data
+<a 
+#errors
+(1, 4): eof-in-tag
+#states
+Data state
+#end-test
+
+#description
+EOF in attribute name state
+#data
+<a a
+#errors
+(1, 5): eof-in-tag
+#states
+Data state
+#end-test
+
+#description
+EOF in after attribute name state
+#data
+<a a 
+#errors
+(1, 6): eof-in-tag
+#states
+Data state
+#end-test
+
+#description
+EOF in before attribute value state
+#data
+<a a =
+#errors
+(1, 7): eof-in-tag
+#states
+Data state
+#end-test
+
+#description
+EOF in attribute value (double quoted) state
+#data
+<a a ="a
+#errors
+(1, 9): eof-in-tag
+#states
+Data state
+#end-test
+
+#description
+EOF in attribute value (single quoted) state
+#data
+<a a ='a
+#errors
+(1, 9): eof-in-tag
+#states
+Data state
+#end-test
+
+#description
+EOF in attribute value (unquoted) state
+#data
+<a a =a
+#errors
+(1, 8): eof-in-tag
+#states
+Data state
+#end-test
+
+#description
+EOF in after attribute value state
+#data
+<a a ='a'
+#errors
+(1, 10): eof-in-tag
+#states
+Data state
+#end-test
