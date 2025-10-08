@@ -1,0 +1,492 @@
+#description
+DOCTYPE without name
+#data
+<!DOCTYPE>
+#errors
+(1, 10): missing-doctype-name
+#states
+Data state
+#output
+DOCTYPE "" "" "" false
+
+#description
+DOCTYPE without space before name
+#data
+<!DOCTYPEhtml>
+#errors
+(1, 10): missing-whitespace-before-doctype-name
+#states
+Data state
+#output
+DOCTYPE "html" "" "" true
+
+#description
+Incorrect DOCTYPE without a space before name
+#data
+<!DOCTYPEfoo>
+#errors
+(1, 10): missing-whitespace-before-doctype-name
+#states
+Data state
+#output
+DOCTYPE "foo" "" "" true
+
+#description
+DOCTYPE with publicId
+#data
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML Transitional 4.01//EN">
+#errors
+#states
+Data state
+#output
+DOCTYPE "html" "-//W3C//DTD HTML Transitional 4.01//EN" "" true
+
+#description
+DOCTYPE with EOF after PUBLIC
+#data
+<!DOCTYPE html PUBLIC
+#errors
+(1, 22): eof-in-doctype
+#states
+Data state
+#output
+DOCTYPE "html" "" "" false
+
+#description
+DOCTYPE with EOF after PUBLIC '
+#data
+<!DOCTYPE html PUBLIC '
+#errors
+(1, 24): eof-in-doctype
+#states
+Data state
+#output
+DOCTYPE "html" "" "" false
+
+#description
+DOCTYPE with EOF after PUBLIC 'x
+#data
+<!DOCTYPE html PUBLIC 'x
+#errors
+(1, 25): eof-in-doctype
+#states
+Data state
+#output
+DOCTYPE "html" "x" "" false
+
+#description
+DOCTYPE with systemId
+#data
+<!DOCTYPE html SYSTEM "-//W3C//DTD HTML Transitional 4.01//EN">
+#errors
+#states
+Data state
+#output
+DOCTYPE "html" "" "-//W3C//DTD HTML Transitional 4.01//EN" true
+
+#description
+DOCTYPE with single-quoted systemId
+#data
+<!DOCTYPE html SYSTEM '-//W3C//DTD HTML Transitional 4.01//EN'>
+#errors
+#states
+Data state
+#output
+DOCTYPE "html" "" "-//W3C//DTD HTML Transitional 4.01//EN" true
+
+#description
+DOCTYPE with publicId and systemId
+#data
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML Transitional 4.01//EN" "-//W3C//DTD HTML Transitional 4.01//EN">
+#errors
+#states
+Data state
+#output
+DOCTYPE "html" "-//W3C//DTD HTML Transitional 4.01//EN" "-//W3C//DTD HTML Transitional 4.01//EN" true
+
+#description
+DOCTYPE with > in double-quoted publicId
+#data
+<!DOCTYPE html PUBLIC ">x
+#errors
+(1, 24): abrupt-doctype-public-identifier
+#states
+Data state
+#output
+DOCTYPE "html" "" "" false
+Character x
+
+#description
+DOCTYPE with > in single-quoted publicId
+#data
+<!DOCTYPE html PUBLIC '>x
+#errors
+(1, 24): abrupt-doctype-public-identifier
+#states
+Data state
+#output
+DOCTYPE "html" "" "" false
+Character x
+
+#description
+DOCTYPE with > in double-quoted systemId
+#data
+<!DOCTYPE html PUBLIC "foo" ">x
+#errors
+(1, 30): abrupt-doctype-system-identifier
+#states
+Data state
+#output
+DOCTYPE "html" "foo" "" false
+Character x
+
+#description
+DOCTYPE with > in single-quoted systemId
+#data
+<!DOCTYPE html PUBLIC 'foo' '>x
+#errors
+(1, 30): abrupt-doctype-system-identifier
+#states
+Data state
+#output
+DOCTYPE "html" "foo" "" false
+Character x
+
+#description
+Incomplete doctype
+#data
+<!DOCTYPE html 
+#errors
+(1, 16): eof-in-doctype
+#states
+Data state
+#output
+DOCTYPE "html" "" "" false
+
+#description
+Numeric entity representing the NUL character
+#data
+&#0000;
+#errors
+(1, 8): null-character-reference
+#states
+Data state
+#output
+Character �
+
+#description
+Hexadecimal entity representing the NUL character
+#data
+&#x0000;
+#errors
+(1, 9): null-character-reference
+#states
+Data state
+#output
+Character �
+
+#description
+Numeric entity representing a codepoint after 1114111 (U+10FFFF)
+#data
+&#2225222;
+#errors
+(1, 11): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+
+#description
+Hexadecimal entity representing a codepoint after 1114111 (U+10FFFF)
+#data
+&#x1010FFFF;
+#errors
+(1, 13): character-reference-outside-unicode-range
+#states
+Data state
+#output
+Character �
+
+#description
+Hexadecimal entity pair representing a surrogate pair
+#data
+&#xD869;&#xDED6;
+#errors
+(1, 9): surrogate-character-reference
+(1, 17): surrogate-character-reference
+#states
+Data state
+#output
+Character �
+Character �
+
+#description
+Hexadecimal entity with mixed uppercase and lowercase
+#data
+&#xaBcD;
+#errors
+#states
+Data state
+#output
+Character ꯍ
+
+#description
+Entity without a name
+#data
+&;
+#errors
+#states
+Data state
+#output
+Character &
+Character ;
+
+#description
+Unescaped ampersand in attribute value
+#data
+<h a='&'>
+#errors
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" "&"
+
+#description
+StartTag containing <
+#data
+<a<b>
+#errors
+#states
+Data state
+#output
+StartTag "a<b"
+
+#description
+Non-void element containing trailing /
+#data
+<h/>
+#errors
+#states
+Data state
+#output
+StartTag "h" true
+
+#description
+Void element with permitted slash
+#data
+<br/>
+#errors
+#states
+Data state
+#output
+StartTag "br" true
+
+#description
+Void element with permitted slash (with attribute)
+#data
+<br foo='bar'/>
+#errors
+#states
+Data state
+#output
+StartTag "br" true
+Attr "foo" "bar"
+
+#description
+StartTag containing /
+#data
+<h/a='b'>
+#errors
+(1, 4): unexpected-solidus-in-tag
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" "b"
+
+#description
+Double-quoted attribute value
+#data
+<h a="b">
+#errors
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" "b"
+
+#description
+Unescaped </
+#data
+</
+#errors
+(1, 3): eof-before-tag-name
+#states
+Data state
+#output
+Character <
+Character /
+
+#description
+Illegal end tag name
+#data
+</1>
+#errors
+(1, 3): invalid-first-character-of-tag-name
+#states
+Data state
+#output
+Comment "1"
+
+#description
+Simili processing instruction
+#data
+<?namespace>
+#errors
+(1, 2): unexpected-question-mark-instead-of-tag-name
+#states
+Data state
+#output
+Comment "?namespace"
+
+#description
+A bogus comment stops at >, even if preceded by two dashes
+#data
+<?foo-->
+#errors
+(1, 2): unexpected-question-mark-instead-of-tag-name
+#states
+Data state
+#output
+Comment "?foo--"
+
+#description
+Unescaped <
+#data
+foo < bar
+#errors
+(1, 6): invalid-first-character-of-tag-name
+#states
+Data state
+#output
+Character f
+Character o
+Character o
+Character  
+Character <
+Character  
+Character b
+Character a
+Character r
+
+#description
+Comment with dash
+#data
+<!---x
+#errors
+(1, 7): eof-in-comment
+#states
+Data state
+#output
+Comment "-x"
+
+#description
+Start tag with no attributes but space before the greater-than sign
+#data
+<h >
+#errors
+#states
+Data state
+#output
+StartTag "h"
+
+#description
+Empty attribute followed by uppercase attribute
+#data
+<h a B=''>
+#errors
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" ""
+Attr "b" ""
+
+#description
+Double-quote after attribute name
+#data
+<h a ">
+#errors
+(1, 6): unexpected-character-in-attribute-name
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" ""
+Attr "\"" ""
+
+#description
+Single-quote after attribute name
+#data
+<h a '>
+#errors
+(1, 6): unexpected-character-in-attribute-name
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" ""
+Attr "'" ""
+
+#description
+Empty end tag with following characters
+#data
+a</>bc
+#errors
+(1, 4): missing-end-tag-name
+#states
+Data state
+#output
+Character a
+Character b
+Character c
+
+#description
+Empty end tag with following tag
+#data
+a</><b>c
+#errors
+(1, 4): missing-end-tag-name
+#states
+Data state
+#output
+Character a
+StartTag "b"
+Character c
+
+#description
+Empty end tag with following comment
+#data
+a</><!--b-->c
+#errors
+(1, 4): missing-end-tag-name
+#states
+Data state
+#output
+Character a
+Comment "b"
+Character c
+
+#description
+Empty end tag with following end tag
+#data
+a</></b>c
+#errors
+(1, 4): missing-end-tag-name
+#states
+Data state
+#output
+Character a
+EndTag "b"
+Character c

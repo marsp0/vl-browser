@@ -1,0 +1,852 @@
+#description
+Correct Doctype lowercase
+#data
+<!DOCTYPE html>
+#errors
+#states
+Data state
+#output
+DOCTYPE "html" "" "" true
+
+#description
+Correct Doctype uppercase
+#data
+<!DOCTYPE HTML>
+#errors
+#states
+Data state
+#output
+DOCTYPE "html" "" "" true
+
+#description
+Correct Doctype mixed case
+#data
+<!DOCTYPE HtMl>
+#errors
+#states
+Data state
+#output
+DOCTYPE "html" "" "" true
+
+#description
+Correct Doctype case with EOF
+#data
+<!DOCTYPE HtMl
+#errors
+(1, 15): eof-in-doctype
+#states
+Data state
+#output
+DOCTYPE "html" "" "" false
+
+#description
+Truncated doctype start
+#data
+<!DOC>
+#errors
+(1, 3): incorrectly-opened-comment
+#states
+Data state
+#output
+Comment "DOC"
+
+#description
+Doctype in error
+#data
+<!DOCTYPE foo>
+#errors
+#states
+Data state
+#output
+DOCTYPE "foo" "" "" true
+
+#description
+Single Start Tag
+#data
+<h>
+#errors
+#states
+Data state
+#output
+StartTag "h"
+
+#description
+Empty end tag
+#data
+</>
+#errors
+(1, 3): missing-end-tag-name
+#states
+Data state
+#output
+
+#description
+Empty start tag
+#data
+<>
+#errors
+(1, 2): invalid-first-character-of-tag-name
+#states
+Data state
+#output
+Character <
+Character >
+
+#description
+Start Tag w/attribute
+#data
+<h a='b'>
+#errors
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" "b"
+
+#description
+Start Tag w/attribute no quotes
+#data
+<h a=b>
+#errors
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" "b"
+
+#description
+Start/End Tag
+#data
+<h></h>
+#errors
+#states
+Data state
+#output
+StartTag "h"
+EndTag "h"
+
+#description
+Two unclosed start tags
+#data
+<p>One<p>Two
+#errors
+#states
+Data state
+#output
+StartTag "p"
+Character O
+Character n
+Character e
+StartTag "p"
+Character T
+Character w
+Character o
+
+#description
+End Tag w/attribute
+#data
+<h></h a='b'>
+#errors
+(1, 13): end-tag-with-attributes
+#states
+Data state
+#output
+StartTag "h"
+EndTag "h"
+
+#description
+Multiple atts
+#data
+<h a='b' c='d'>
+#errors
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" "b"
+Attr "c" "d"
+
+#description
+Multiple atts no space
+#data
+<h a='b'c='d'>
+#errors
+(1, 9): missing-whitespace-between-attributes
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" "b"
+Attr "c" "d"
+
+#description
+Repeated attr
+#data
+<h a='b' a='d'>
+#errors
+(1, 11): duplicate-attribute
+#states
+Data state
+#output
+StartTag "h"
+Attr "a" "b"
+
+#description
+Simple comment
+#data
+<!--comment-->
+#errors
+#states
+Data state
+#output
+Comment "comment"
+
+#description
+Comment, Central dash no space
+#data
+<!----->
+#errors
+#states
+Data state
+#output
+Comment "-"
+
+#description
+Comment, two central dashes
+#data
+<!-- --comment -->
+#errors
+#states
+Data state
+#output
+Comment " --comment "
+
+#description
+Comment, central less-than bang
+#data
+<!--<!-->
+#errors
+#states
+Data state
+#output
+Comment "<!"
+
+#description
+Unfinished comment
+#data
+<!--comment
+#errors
+(1, 12): eof-in-comment
+#states
+Data state
+#output
+Comment "comment"
+
+#description
+Unfinished comment after start of nested comment
+#data
+<!-- <!--
+#errors
+(1, 10): eof-in-comment
+#states
+Data state
+#output
+Comment " <!"
+
+#description
+Start of a comment
+#data
+<!-
+#errors
+(1, 3): incorrectly-opened-comment
+#states
+Data state
+#output
+Comment "-"
+
+#description
+Short comment
+#data
+<!-->
+#errors
+(1, 5): abrupt-closing-of-empty-comment
+#states
+Data state
+#output
+Comment ""
+
+#description
+Short comment two
+#data
+<!--->
+#errors
+(1, 6): abrupt-closing-of-empty-comment
+#states
+Data state
+#output
+Comment ""
+
+#description
+Short comment three
+#data
+<!---->
+#errors
+#states
+Data state
+#output
+Comment ""
+
+#description
+< in comment
+#data
+<!-- <test-->
+#errors
+#states
+Data state
+#output
+Comment " <test"
+
+#description
+<< in comment
+#data
+<!--<<-->
+#errors
+#states
+Data state
+#output
+Comment "<<"
+
+#description
+<! in comment
+#data
+<!-- <!test-->
+#errors
+#states
+Data state
+#output
+Comment " <!test"
+
+#description
+<!- in comment
+#data
+<!-- <!-test-->
+#errors
+#states
+Data state
+#output
+Comment " <!-test"
+
+#description
+Nested comment
+#data
+<!-- <!--test-->
+#errors
+(1, 10): nested-comment
+#states
+Data state
+#output
+Comment " <!--test"
+
+#description
+Nested comment with extra <
+#data
+<!-- <<!--test-->
+#errors
+(1, 11): nested-comment
+#states
+Data state
+#output
+Comment " <<!--test"
+
+#description
+< in script data
+#data
+<test-->
+#errors
+#states
+Script data state
+#output
+Character <
+Character t
+Character e
+Character s
+Character t
+Character -
+Character -
+Character >
+
+#description
+<! in script data
+#data
+<!test-->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character t
+Character e
+Character s
+Character t
+Character -
+Character -
+Character >
+
+#description
+<!- in script data
+#data
+<!-test-->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character t
+Character e
+Character s
+Character t
+Character -
+Character -
+Character >
+
+#description
+Escaped script data
+#data
+<!--test-->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character -
+Character t
+Character e
+Character s
+Character t
+Character -
+Character -
+Character >
+
+#description
+< in script HTML comment
+#data
+<!-- < test -->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character -
+Character  
+Character <
+Character  
+Character t
+Character e
+Character s
+Character t
+Character  
+Character -
+Character -
+Character >
+
+#description
+</ in script HTML comment
+#data
+<!-- </ test -->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character -
+Character  
+Character <
+Character /
+Character  
+Character t
+Character e
+Character s
+Character t
+Character  
+Character -
+Character -
+Character >
+
+#description
+Start tag in script HTML comment
+#data
+<!-- <test> -->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character -
+Character  
+Character <
+Character t
+Character e
+Character s
+Character t
+Character >
+Character  
+Character -
+Character -
+Character >
+
+#description
+End tag in script HTML comment
+#data
+<!-- </test> -->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character -
+Character  
+Character <
+Character /
+Character t
+Character e
+Character s
+Character t
+Character >
+Character  
+Character -
+Character -
+Character >
+
+#description
+- in script HTML comment double escaped
+#data
+<!--<script>-</script>-->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character -
+Character <
+Character s
+Character c
+Character r
+Character i
+Character p
+Character t
+Character >
+Character -
+Character <
+Character /
+Character s
+Character c
+Character r
+Character i
+Character p
+Character t
+Character >
+Character -
+Character -
+Character >
+
+#description
+-- in script HTML comment double escaped
+#data
+<!--<script>--</script>-->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character -
+Character <
+Character s
+Character c
+Character r
+Character i
+Character p
+Character t
+Character >
+Character -
+Character -
+Character <
+Character /
+Character s
+Character c
+Character r
+Character i
+Character p
+Character t
+Character >
+Character -
+Character -
+Character >
+
+#description
+--- in script HTML comment double escaped
+#data
+<!--<script>---</script>-->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character -
+Character <
+Character s
+Character c
+Character r
+Character i
+Character p
+Character t
+Character >
+Character -
+Character -
+Character -
+Character <
+Character /
+Character s
+Character c
+Character r
+Character i
+Character p
+Character t
+Character >
+Character -
+Character -
+Character >
+
+#description
+- spaced in script HTML comment double escaped
+#data
+<!--<script> - </script>-->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character -
+Character <
+Character s
+Character c
+Character r
+Character i
+Character p
+Character t
+Character >
+Character  
+Character -
+Character  
+Character <
+Character /
+Character s
+Character c
+Character r
+Character i
+Character p
+Character t
+Character >
+Character -
+Character -
+Character >
+
+#description
+-- spaced in script HTML comment double escaped
+#data
+<!--<script> -- </script>-->
+#errors
+#states
+Script data state
+#output
+Character <
+Character !
+Character -
+Character -
+Character <
+Character s
+Character c
+Character r
+Character i
+Character p
+Character t
+Character >
+Character  
+Character -
+Character -
+Character  
+Character <
+Character /
+Character s
+Character c
+Character r
+Character i
+Character p
+Character t
+Character >
+Character -
+Character -
+Character >
+
+#description
+Ampersand EOF
+#data
+&
+#errors
+#states
+Data state
+#output
+Character &
+
+#description
+Ampersand ampersand EOF
+#data
+&&
+#errors
+#states
+Data state
+#output
+Character &
+Character &
+
+#description
+Ampersand space EOF
+#data
+& 
+#errors
+#states
+Data state
+#output
+Character &
+Character  
+
+#description
+Ampersand, number sign
+#data
+&#
+#errors
+(1, 3): absence-of-digits-in-numeric-character-reference
+#states
+Data state
+#output
+Character &
+Character #
+
+#description
+Unfinished numeric entity
+#data
+&#x
+#errors
+(1, 4): absence-of-digits-in-numeric-character-reference
+#states
+Data state
+#output
+Character &
+Character #
+Character x
+
+#description
+Non-ASCII character reference name
+#data
+&¬;
+#errors
+#states
+Data state
+#output
+Character &
+Character ¬
+Character ;
+
+#description
+ASCII decimal entity
+#data
+&#0036;
+#errors
+#states
+Data state
+#output
+Character $
+
+#description
+ASCII hexadecimal entity
+#data
+&#x3f;
+#errors
+#states
+Data state
+#output
+Character ?
+
+#description
+Unquoted attribute ending in ampersand
+#data
+<s o=& t>
+#errors
+#states
+Data state
+#output
+StartTag "s"
+Attr "o" "&"
+Attr "t" ""
+
+#description
+Unquoted attribute at end of tag with final character of &, with tag followed by characters
+#data
+<a a=a&>foo
+#errors
+#states
+Data state
+#output
+StartTag "a"
+Attr "a" "a&"
+Character f
+Character o
+Character o
+
+#description
+plaintext element
+#data
+<plaintext>foobar
+#errors
+#states
+Data state
+#output
+StartTag "plaintext"
+Character f
+Character o
+Character o
+Character b
+Character a
+Character r
+
+#description
+Open angled bracket in unquoted attribute value state
+#data
+<a a=f<>
+#errors
+(1, 7): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#output
+StartTag "a"
+Attr "a" "f<"

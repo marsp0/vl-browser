@@ -1,0 +1,11 @@
+#description
+Open angled bracket in unquoted attribute value state
+#data
+<a a=f<>
+#errors
+(1, 7): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#output
+StartTag "a"
+Attr "a" "f<"

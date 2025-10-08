@@ -226,19 +226,14 @@ static void run_test()
         if (strncmp(line, "#errors", 7) == 0 || strncmp(line, "#new-errors", 7) == 0)
         {
             state       = STATE_ERRORS;
-            read_line();
         }
-
-        if (strncmp(line, "#document", 9) == 0)
+        else if (strncmp(line, "#document", 9) == 0)
         {
             state       = STATE_DOCUMENT;
             document    = dom_document_new();
             last        = document;
-
-            read_line();
         }
-
-        if (state == STATE_ERRORS)
+        else if (state == STATE_ERRORS)
         {
             // pass - not sure yet what to do with these errors
         }
