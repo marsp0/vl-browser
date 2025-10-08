@@ -337,7 +337,7 @@ Illegal end tag name
 #states
 Data state
 #output
-Comment 1
+Comment "1"
 
 #description
 Simili processing instruction
@@ -348,7 +348,7 @@ Simili processing instruction
 #states
 Data state
 #output
-Comment ?namespace
+Comment "?namespace"
 
 #description
 A bogus comment stops at >, even if preceded by two dashes
@@ -359,7 +359,7 @@ A bogus comment stops at >, even if preceded by two dashes
 #states
 Data state
 #output
-Comment ?foo--
+Comment "?foo--"
 
 #description
 Unescaped <
@@ -389,7 +389,7 @@ Comment with dash
 #states
 Data state
 #output
-Comment -x
+Comment "-x"
 
 #description
 Start tag with no attributes but space before the greater-than sign
@@ -475,7 +475,7 @@ a</><!--b-->c
 Data state
 #output
 Character a
-Comment b
+Comment "b"
 Character c
 
 #description

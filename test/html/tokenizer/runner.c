@@ -26,6 +26,7 @@ typedef enum
     STATE_STATES
 } test_state_e;
 
+static const unsigned char* test_file = NULL;
 static FILE* file = NULL;
 static bool file_done = false;
 static unsigned char file_buffer[4096] = { 0 };
@@ -34,6 +35,7 @@ static uint32_t file_buffer_size = 0;
 static unsigned char prev = 0;
 
 static unsigned char line[2048] = { 0 };
+static uint32_t line_cursor = 0;
 static uint32_t line_size = 0;
 static uint32_t is_eof = false;
 static uint32_t line_num = 0;
@@ -76,6 +78,7 @@ static void read_line()
 {
     memset(line, 0, 2048);
     line_size = 0;
+    line_cursor = 0;
     int32_t c = 0;
 
     while (c != '\n')
@@ -102,9 +105,48 @@ static void read_line()
 }
 
 
+static void consume_word(unsigned char* dest, uint32_t* dest_size)
+{
+    uint32_t start = line_cursor;
+    // uint32_t end = line_cursor;
+    unsigned char p = line[0];
+
+    while (line[line_cursor] != '"')
+    {
+        line_cursor++;
+    }
+
+    line_cursor++;
+    start = line_cursor;
+
+    while (!(p != '\\' && line[line_cursor] == '"'))
+    {
+        p = line[line_cursor];
+        line_cursor++;
+    }
+
+    uint32_t size = 0;
+
+    for (uint32_t i = start; i < line_cursor; i++)
+    {
+        if (line[i - 1] == '\\' && line[i] == '"')
+        {
+            dest[size - 1] = '"';
+        }
+        else
+        {
+            dest[size] = line[i];
+            size++;
+        }
+    }
+
+    *dest_size = size;
+    line_cursor++;
+}
+
+
 static void parse_token()
 {
-    // todo make all this strings static const chars / defines
     if (strncmp("Character", line, 9) == 0)
     {
         uint32_t start = 10;
@@ -118,143 +160,57 @@ static void parse_token()
     }
     else if (strncmp("Comment", line, 7) == 0)
     {
-        uint32_t start = 8;
-        uint32_t size = line_size - start;
-
         html_token_t* token = &tokens[tokens_size++];
         token->is_valid = true;
         token->type = HTML_COMMENT_TOKEN;
-        memcpy(token->data, &line[start], size);
-        token->data_size = size;
+
+        consume_word(token->data, &(token->data_size));
     }
     else if (strncmp("StartTag", line, 8) == 0)
     {
-        uint32_t name_start = 10;
-        uint32_t name_end = name_start;
-
-        for (uint32_t i = name_start; i < line_size; i++)
-        {
-            if (line[i] == '"') { name_end = i; break; }
-        }
-        uint32_t name_size = name_end - name_start;
-
         html_token_t* token = &tokens[tokens_size];
-        token->is_valid = true;
-        token->type = HTML_START_TOKEN;
-        memcpy(token->name, &line[name_start], name_size);
-        token->name_size = name_size;
-        last_element = tokens_size;
+        token->is_valid     = true;
+        token->type         = HTML_START_TOKEN;
+        last_element        = tokens_size;
         tokens_size++;
 
-        uint32_t self_close = line_size - name_end;
+        consume_word(token->name, &token->name_size);
+
+        uint32_t self_close = line_size - line_cursor;
         if (self_close > 1) { token->self_closing = true; }
+
     }
     else if (strncmp("EndTag", line, 6) == 0)
     {
-        uint32_t start = 8;
-        uint32_t size = line_size - 1 - start;
-
         html_token_t* token = &tokens[tokens_size];
         token->is_valid = true;
         token->type = HTML_END_TOKEN;
-        memcpy(token->name, &line[start], size);
-        token->name_size = size;
         last_element = tokens_size;
         tokens_size++;
+
+        consume_word(token->name, &(token->name_size));
     }
     else if (strncmp("Attr", line, 4) == 0)
     {
-        uint32_t name_start = 6;
-        uint32_t name_end = name_start;
-
-        for (uint32_t i = name_start; i < line_size; i++)
-        {
-            if (line[i] == '"' && line[i-1] != '\\') { name_end = i; break; }
-        }
-
-        uint32_t val_start = name_end + 3;
-        uint32_t val_end = name_end;
-
-        for (uint32_t i = val_start; i < line_size; i++)
-        {
-            if (line[i] == '"') { val_end = i; break; }
-        }
-
         html_token_t* token = &tokens[last_element];
         html_token_attribute_t* attr = &token->attributes[token->attributes_size++];
 
-        attr->name_size = name_end - name_start;
-        uint32_t i = 0;
-        while(name_start < name_end)
-        {
-            if (line[name_start - 1] == '\\' && line[name_start] == '"')
-            {
-                attr->name[i - 1] = '"';
-                attr->name_size--;
-            }
-            else
-            {
-                attr->name[i] = line[name_start];
-                i++;
-            }
-
-            name_start++;
-        }
-        // memcpy(attr->name, &line[name_start], name_end - name_start);
-        // attr->name_size = name_end - name_start;
-
-        memcpy(attr->value, &line[val_start], val_end - val_start);
-        attr->value_size = val_end - val_start;
+        consume_word(attr->name, &(attr->name_size));
+        consume_word(attr->value, &(attr->value_size));
     }
     else if (strncmp("DOCTYPE", line, 7) == 0)
     {
-        uint32_t name_start = 9;
-        uint32_t name_end = name_start;
-
-        for (uint32_t i = name_start; i < line_size; i++)
-        {
-            if (line[i] == '"') { name_end = i; break; }
-        }
-        uint32_t name_size = name_end - name_start;
-
-        // public id
-        uint32_t public_start = name_end + 3;
-        uint32_t public_end = public_start;
-
-        for (uint32_t i = public_start; i < line_size; i++)
-        {
-            if (line[i] == '"') { public_end = i; break; }
-        }
-        uint32_t public_size = public_end - public_start;
-
-        // system id
-        uint32_t system_start = public_end + 3;
-        uint32_t system_end = system_start;
-
-        for (uint32_t i = system_start; i < line_size; i++)
-        {
-            if (line[i] == '"') { system_end = i; break; }
-        }
-        uint32_t system_size = system_end - system_start;
-
         html_token_t* token = &tokens[tokens_size++];
         token->is_valid = true;
         token->type = HTML_DOCTYPE_TOKEN;
 
-        memcpy(token->name, &line[name_start], name_size);
-        token->name_size = name_size;
+        consume_word(token->name, &(token->name_size));
+        consume_word(token->public_id, &(token->public_id_size));
+        consume_word(token->system_id, &(token->system_id_size));
 
-        memcpy(token->public_id, &line[public_start], public_size);
-        token->public_id_size = public_size;
-
-        memcpy(token->system_id, &line[system_start], system_size);
-        token->system_id_size = system_size;
-
-        uint32_t quirks_start = system_end + 2;
-        uint32_t quirks_size = line_size - quirks_start;
         token->force_quirks = false;
 
-        if (quirks_size == 5)
+        if (line_size - line_cursor > 5)
         {
             token->force_quirks = true;
         }
@@ -268,7 +224,7 @@ static void parse_token()
 }
 
 
-static void run_test()
+static void run_tokenizer_test()
 {
     tokens_size = 0;
     states_size = 0;
@@ -373,44 +329,45 @@ static void run_test()
                     break;
                 }
 
-                    ASSERT_TRUE(a.is_valid);
-                    ASSERT_EQUAL(a.type, e.type);
+                ASSERT_TRUE(a.is_valid);
+                ASSERT_EQUAL(a.type, e.type);
 
-                    ASSERT_EQUAL(a.name_size, e.name_size);
-                    if (a.name_size == e.name_size)             { ASSERT_STRING((char)a.name, (char)e.name, a.name_size); }
+                ASSERT_EQUAL(a.name_size, e.name_size);
+                if (a.name_size == e.name_size)             { ASSERT_STRING((char)a.name, (char)e.name, a.name_size); }
 
-                    ASSERT_EQUAL(a.public_id_size, e.public_id_size);
-                    if (a.public_id_size == e.public_id_size)   { ASSERT_STRING((char)a.public_id, (char)e.public_id, a.public_id_size); }
+                ASSERT_EQUAL(a.public_id_size, e.public_id_size);
+                if (a.public_id_size == e.public_id_size)   { ASSERT_STRING((char)a.public_id, (char)e.public_id, a.public_id_size); }
 
-                    ASSERT_EQUAL(a.system_id_size, e.system_id_size);
-                    if (a.system_id_size == e.system_id_size)   { ASSERT_STRING((char)a.system_id, (char)e.system_id, a.system_id_size); }
+                ASSERT_EQUAL(a.system_id_size, e.system_id_size);
+                if (a.system_id_size == e.system_id_size)   { ASSERT_STRING((char)a.system_id, (char)e.system_id, a.system_id_size); }
 
-                    ASSERT_EQUAL(a.data_size, e.data_size);
-                    if (a.data_size == e.data_size)             { ASSERT_STRING((char)a.data, (char)e.data, a.data_size); }
+                ASSERT_EQUAL(a.data_size, e.data_size);
+                if (a.data_size == e.data_size)             { ASSERT_STRING((char)a.data, (char)e.data, a.data_size); }
 
-                    ASSERT_EQUAL(a.force_quirks, e.force_quirks);
-                    ASSERT_EQUAL(a.self_closing, e.self_closing);
+                ASSERT_EQUAL(a.force_quirks, e.force_quirks);
+                ASSERT_EQUAL(a.self_closing, e.self_closing);
 
-                    ASSERT_EQUAL(a.attributes_size, e.attributes_size);
+                ASSERT_EQUAL(a.attributes_size, e.attributes_size);
 
-                    for (uint32_t k = 0; k < a.attributes_size; k++)
-                    {
-                        html_token_attribute_t a_attr = a.attributes[k];
-                        html_token_attribute_t e_attr = e.attributes[k];
+                for (uint32_t k = 0; k < a.attributes_size; k++)
+                {
+                    html_token_attribute_t a_attr = a.attributes[k];
+                    html_token_attribute_t e_attr = e.attributes[k];
 
-                        ASSERT_EQUAL(a_attr.name_size, e_attr.name_size);
-                        if (a_attr.name_size == e_attr.name_size)   { ASSERT_STRING((char)a_attr.name, (char)e_attr.name, a_attr.name_size); }
+                    ASSERT_EQUAL(a_attr.name_size, e_attr.name_size);
+                    if (a_attr.name_size == e_attr.name_size)   { ASSERT_STRING((char)a_attr.name, (char)e_attr.name, a_attr.name_size); }
 
-                        ASSERT_EQUAL(a_attr.value_size, e_attr.value_size);
-                        if (a_attr.value_size == e_attr.value_size)   { ASSERT_STRING((char)a_attr.value, (char)e_attr.value, a_attr.value_size); }
-                    }
+                    ASSERT_EQUAL(a_attr.value_size, e_attr.value_size);
+                    if (a_attr.value_size == e_attr.value_size)   { ASSERT_STRING((char)a_attr.value, (char)e_attr.value, a_attr.value_size); }
+                }
             }
         }
 
         if (!TEST_SUCCEEDED())
         {
             printf("\n========== Test %u ==========\n", test_line);
-            printf("%s\n", test_data);
+            printf("FILE: %s\n", test_file);
+            printf("TEST: %s\n", test_data);
         }
 
         html_tokenizer_free();
@@ -421,7 +378,7 @@ static void run_test()
 void html_tokenizer_test()
 {
     const unsigned char* files[] = {
-                                    // "./test/html/tokenizer/data/debug.data",
+                                    "./test/html/tokenizer/data/debug.data",
                                     "./test/html/tokenizer/data/test1.data",
                                     "./test/html/tokenizer/data/test2.data",
                                     "./test/html/tokenizer/data/test3.data",
@@ -446,6 +403,8 @@ void html_tokenizer_test()
             return;
         }
 
-        while (!is_eof) { TEST_CASE(run_test) }
+        test_file = files[i];
+
+        while (!is_eof) { TEST_CASE(run_tokenizer_test) }
     }
 }

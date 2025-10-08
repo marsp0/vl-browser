@@ -76,7 +76,9 @@ def json_2_data(args):
                                     write_line(f_out, f'{token[0]} {char}')
 
                             elif (t_type == "Comment"):
-                                write_array(f_out, token)
+                                comment = token[1].replace('"', '\\"')
+                                line = f'{token[0]} "{comment}"'
+                                write_line(f_out, line)
 
                             elif (t_type == "EndTag"):
                                 line = f'{token[0]} "{token[1]}"'

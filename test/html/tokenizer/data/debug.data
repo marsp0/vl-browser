@@ -1,10 +1,11 @@
 #description
-Unescaped ampersand in attribute value
+Open angled bracket in unquoted attribute value state
 #data
-<h a='&'>
+<a a=f<>
 #errors
+(1, 7): unexpected-character-in-unquoted-attribute-value
 #states
 Data state
 #output
-StartTag "h"
-Attr "a" "&"
+StartTag "a"
+Attr "a" "f<"

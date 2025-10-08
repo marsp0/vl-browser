@@ -48,7 +48,7 @@ Truncated doctype start
 #states
 Data state
 #output
-Comment DOC
+Comment "DOC"
 
 #description
 Doctype in error
@@ -199,7 +199,7 @@ Simple comment
 #states
 Data state
 #output
-Comment comment
+Comment "comment"
 
 #description
 Comment, Central dash no space
@@ -209,7 +209,7 @@ Comment, Central dash no space
 #states
 Data state
 #output
-Comment -
+Comment "-"
 
 #description
 Comment, two central dashes
@@ -219,7 +219,7 @@ Comment, two central dashes
 #states
 Data state
 #output
-Comment  --comment 
+Comment " --comment "
 
 #description
 Comment, central less-than bang
@@ -229,7 +229,7 @@ Comment, central less-than bang
 #states
 Data state
 #output
-Comment <!
+Comment "<!"
 
 #description
 Unfinished comment
@@ -240,7 +240,7 @@ Unfinished comment
 #states
 Data state
 #output
-Comment comment
+Comment "comment"
 
 #description
 Unfinished comment after start of nested comment
@@ -251,7 +251,7 @@ Unfinished comment after start of nested comment
 #states
 Data state
 #output
-Comment  <!
+Comment " <!"
 
 #description
 Start of a comment
@@ -262,7 +262,7 @@ Start of a comment
 #states
 Data state
 #output
-Comment -
+Comment "-"
 
 #description
 Short comment
@@ -273,7 +273,7 @@ Short comment
 #states
 Data state
 #output
-Comment 
+Comment ""
 
 #description
 Short comment two
@@ -284,7 +284,7 @@ Short comment two
 #states
 Data state
 #output
-Comment 
+Comment ""
 
 #description
 Short comment three
@@ -294,7 +294,7 @@ Short comment three
 #states
 Data state
 #output
-Comment 
+Comment ""
 
 #description
 < in comment
@@ -304,7 +304,7 @@ Comment
 #states
 Data state
 #output
-Comment  <test
+Comment " <test"
 
 #description
 << in comment
@@ -314,7 +314,7 @@ Comment  <test
 #states
 Data state
 #output
-Comment <<
+Comment "<<"
 
 #description
 <! in comment
@@ -324,7 +324,7 @@ Comment <<
 #states
 Data state
 #output
-Comment  <!test
+Comment " <!test"
 
 #description
 <!- in comment
@@ -334,7 +334,7 @@ Comment  <!test
 #states
 Data state
 #output
-Comment  <!-test
+Comment " <!-test"
 
 #description
 Nested comment
@@ -345,7 +345,7 @@ Nested comment
 #states
 Data state
 #output
-Comment  <!--test
+Comment " <!--test"
 
 #description
 Nested comment with extra <
@@ -356,7 +356,7 @@ Nested comment with extra <
 #states
 Data state
 #output
-Comment  <<!--test
+Comment " <<!--test"
 
 #description
 < in script data
