@@ -50,6 +50,7 @@ static uint32_t line_size = 0;
 static uint32_t is_eof = false;
 static uint32_t line_num = 0;
 static uint32_t test_line = 0;
+static unsigned char description[2048] = { 0 };
 
 // test data
 static unsigned char test_data[2048] = { 0 };
@@ -122,6 +123,7 @@ static void run_tokenizer_test()
     memset(tokens, 0, sizeof(tokens));
     memset(states, 0, sizeof(states));
 
+    memset(description, 0, 2048);
     memset(test_data, 0, 2048);
     test_data_size = 0;
 
@@ -132,6 +134,7 @@ static void run_tokenizer_test()
 
     // line containing test description
     read_line();
+    memcpy(description, line, line_size);
 
     // next header
     read_line();
@@ -411,7 +414,8 @@ static void run_tokenizer_test()
         {
             printf("\n========== Test %u ==========\n", test_line);
             printf("FILE: %s\n", test_file);
-            printf("TEST: %s\n", test_data);
+            printf("TEST: %s\n", description);
+            printf("INPUT: %s\n", test_data);
         }
 
         html_tokenizer_free();
@@ -427,6 +431,7 @@ void html_tokenizer_test()
                                     "./test/html/tokenizer/data/test2.data",
                                     "./test/html/tokenizer/data/test3.data",
                                     "./test/html/tokenizer/data/numericEntities.data",
+                                    "./test/html/tokenizer/data/test4.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 

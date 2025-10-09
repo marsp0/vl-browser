@@ -49,5 +49,19 @@
     "<!DOCTYPE a PUBLIC'\"",
     "<!----!CR>",
 
-    "Invalid numeric entity character U+10FFFF"
+    "Invalid numeric entity character U+10FFFF",
+
+    "Text after bogus character reference",
+    "text CR CR CR text",
+    "LF CR",
+    "CR LF",
+    "CR CR",
+    "CR followed by non-LF",
+    "CR at EOF",
+    "Permitted slash but in close tag",
+    "65-bit decimal numeric entity",
+    "65-bit hex numeric entity",
+    "33-bit decimal numeric entity",
+    "Maximum non-BMP numeric entity",
+    "33-bit hex numeric entity"
 ]

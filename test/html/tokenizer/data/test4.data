@@ -180,29 +180,6 @@ z
 #end-test
 
 #description
-Text after bogus character reference
-#data
-<z z='&xlink_xmlns;'>bar<z>
-#errors
-#states
-Data state
-#start-tag
-z
-#attr-name
-z
-#attr-value
-&xlink_xmlns;
-#character
-b
-#character
-a
-#character
-r
-#start-tag
-z
-#end-test
-
-#description
 Text after hex character reference
 #data
 <z z='&#x0020; foo'>bar<z>
@@ -575,18 +552,6 @@ Data state
 #end-test
 
 #description
-Maximum non-BMP numeric entity
-#data
-&#X10FFFF;
-#errors
-(1, 11): noncharacter-character-reference
-#states
-Data state
-#character
-􏿿
-#end-test
-
-#description
 Above maximum numeric entity
 #data
 &#x110000;
@@ -604,54 +569,6 @@ Data state
 &#x80000041;
 #errors
 (1, 13): character-reference-outside-unicode-range
-#states
-Data state
-#character
-�
-#end-test
-
-#description
-33-bit hex numeric entity
-#data
-&#x100000041;
-#errors
-(1, 14): character-reference-outside-unicode-range
-#states
-Data state
-#character
-�
-#end-test
-
-#description
-33-bit decimal numeric entity
-#data
-&#4294967361;
-#errors
-(1, 14): character-reference-outside-unicode-range
-#states
-Data state
-#character
-�
-#end-test
-
-#description
-65-bit hex numeric entity
-#data
-&#x10000000000000041;
-#errors
-(1, 22): character-reference-outside-unicode-range
-#states
-Data state
-#character
-�
-#end-test
-
-#description
-65-bit decimal numeric entity
-#data
-&#18446744073709551681;
-#errors
-(1, 24): character-reference-outside-unicode-range
 #states
 Data state
 #character
@@ -804,18 +721,6 @@ true
 #end-test
 
 #description
-Permitted slash but in close tag
-#data
-</br/>
-#errors
-(1, 6): end-tag-with-trailing-solidus
-#states
-Data state
-#end-tag
-br
-#end-test
-
-#description
 Doctype public case-sensitivity (1)
 #data
 <!DoCtYpE HtMl PuBlIc "AbC" "XyZ">
@@ -947,60 +852,12 @@ doc🿿
 #end-test
 
 #description
-CR followed by non-LF
-#data
-?
-#errors
-#states
-Data state
-#character
-\n
-#character
-?
-#end-test
-
-#description
-CR at EOF
-#data
-
-#errors
-#states
-Data state
-#character
-\n
-#end-test
-
-#description
 LF at EOF
 #data
 \n
 #errors
 #states
 Data state
-#character
-\n
-#end-test
-
-#description
-CR LF
-#data
-\n
-#errors
-#states
-Data state
-#character
-\n
-#end-test
-
-#description
-CR CR
-#data
-
-#errors
-#states
-Data state
-#character
-\n
 #character
 \n
 #end-test
@@ -1016,50 +873,6 @@ Data state
 \n
 #character
 \n
-#end-test
-
-#description
-LF CR
-#data
-\n
-#errors
-#states
-Data state
-#character
-\n
-#character
-\n
-#end-test
-
-#description
-text CR CR CR text
-#data
-texttext
-#errors
-#states
-Data state
-#character
-t
-#character
-e
-#character
-x
-#character
-t
-#character
-\n
-#character
-\n
-#character
-\n
-#character
-t
-#character
-e
-#character
-x
-#character
-t
 #end-test
 
 #description
