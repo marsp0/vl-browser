@@ -3537,6 +3537,20 @@ false
 #end-test
 
 #description
+<!DOCTYPE\u000D
+#data
+<!DOCTYPE
+#errors
+(2, 1): eof-in-doctype
+#states
+Data state
+#doctype
+
+#doctype-quirks
+false
+#end-test
+
+#description
 <!DOCTYPE\u001F
 #data
 <!DOCTYPE
@@ -3645,6 +3659,20 @@ false
 <!DOCTYPE 
 #errors
 (1, 12): eof-in-doctype
+#states
+Data state
+#doctype
+
+#doctype-quirks
+false
+#end-test
+
+#description
+<!DOCTYPE \u000D
+#data
+<!DOCTYPE 
+#errors
+(2, 1): eof-in-doctype
 #states
 Data state
 #doctype
@@ -4041,6 +4069,20 @@ false
 <!DOCTYPE a
 #errors
 (1, 13): eof-in-doctype
+#states
+Data state
+#doctype
+a
+#doctype-quirks
+false
+#end-test
+
+#description
+<!DOCTYPE a\u000D
+#data
+<!DOCTYPE a
+#errors
+(2, 1): eof-in-doctype
 #states
 Data state
 #doctype
@@ -7702,6 +7744,21 @@ false
 #end-test
 
 #description
+<!DOCTYPE a SYSTEM''\u000D
+#data
+<!DOCTYPE a SYSTEM''
+#errors
+(1, 19): missing-whitespace-after-doctype-system-keyword
+(2, 1): eof-in-doctype
+#states
+Data state
+#doctype
+a
+#doctype-quirks
+false
+#end-test
+
+#description
 <!DOCTYPE a SYSTEM''\u001F
 #data
 <!DOCTYPE a SYSTEM''
@@ -10168,6 +10225,21 @@ false
 #errors
 (1, 10): missing-whitespace-before-doctype-name
 (1, 12): eof-in-doctype
+#states
+Data state
+#doctype
+a
+#doctype-quirks
+false
+#end-test
+
+#description
+<!DOCTYPEa\u000D
+#data
+<!DOCTYPEa
+#errors
+(1, 10): missing-whitespace-before-doctype-name
+(2, 1): eof-in-doctype
 #states
 Data state
 #doctype
@@ -13924,6 +13996,22 @@ false
 #end-test
 
 #description
+<!DOCTYPEa SYSTEM''\u000D
+#data
+<!DOCTYPEa SYSTEM''
+#errors
+(1, 10): missing-whitespace-before-doctype-name
+(1, 18): missing-whitespace-after-doctype-system-keyword
+(2, 1): eof-in-doctype
+#states
+Data state
+#doctype
+a
+#doctype-quirks
+false
+#end-test
+
+#description
 <!DOCTYPEa SYSTEM''\u001F
 #data
 <!DOCTYPEa SYSTEM''
@@ -17362,6 +17450,17 @@ a
 #end-test
 
 #description
+<a\u000D>
+#data
+<a>
+#errors
+#states
+Data state
+#start-tag
+a
+#end-test
+
+#description
 <a\u001F>
 #data
 <a>
@@ -17458,6 +17557,17 @@ a
 <a \u000C>
 #data
 <a >
+#errors
+#states
+Data state
+#start-tag
+a
+#end-test
+
+#description
+<a \u000D>
+#data
+<a >
 #errors
 #states
 Data state
@@ -17944,6 +18054,21 @@ a
 #end-test
 
 #description
+<a a\u000D>
+#data
+<a a>
+#errors
+#states
+Data state
+#start-tag
+a
+#attr-name
+a
+#attr-value
+
+#end-test
+
+#description
 <a a\u001F>
 #data
 <a a>
@@ -18068,6 +18193,21 @@ a
 <a a \u000C>
 #data
 <a a >
+#errors
+#states
+Data state
+#start-tag
+a
+#attr-name
+a
+#attr-value
+
+#end-test
+
+#description
+<a a \u000D>
+#data
+<a a >
 #errors
 #states
 Data state
@@ -18921,6 +19061,22 @@ a
 <a a=>
 #errors
 (1, 7): missing-attribute-value
+#states
+Data state
+#start-tag
+a
+#attr-name
+a
+#attr-value
+
+#end-test
+
+#description
+<a a=\u000D>
+#data
+<a a=>
+#errors
+(2, 1): missing-attribute-value
 #states
 Data state
 #start-tag
@@ -19799,6 +19955,21 @@ a
 <a a=''\u000C>
 #data
 <a a=''>
+#errors
+#states
+Data state
+#start-tag
+a
+#attr-name
+a
+#attr-value
+
+#end-test
+
+#description
+<a a=''\u000D>
+#data
+<a a=''>
 #errors
 #states
 Data state
@@ -21027,6 +21198,21 @@ a
 <a a=a\u000C>
 #data
 <a a=a>
+#errors
+#states
+Data state
+#start-tag
+a
+#attr-name
+a
+#attr-value
+a
+#end-test
+
+#description
+<a a=a\u000D>
+#data
+<a a=a>
 #errors
 #states
 Data state
