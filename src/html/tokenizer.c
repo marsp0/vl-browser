@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "util/utf8.h"
 
@@ -33,7 +34,7 @@ typedef struct
     uint32_t value;
 } numeric_char_ref_t;
 
-static const unsigned char* buffer                                      = NULL;
+static unsigned char* buffer                                            = NULL;
 static uint32_t size                                                    = 0;
 static uint32_t cursor                                                  = 0;
 static html_token_t* tokens                                             = NULL;
@@ -662,17 +663,50 @@ static void flush_temp_buffer_to_attribute_value()
     }
 }
 
+static void normalize_line_endings()
+{
+    if (size == 0) { return; }
+
+    uint32_t new_size = size;
+
+    // replace \r\n with \n
+    for (uint32_t i = 0; i < size - 1; i++)
+    {
+        if (buffer[i] != '\r' || buffer[i + 1] != '\n') { continue; }
+
+        new_size--;
+
+        for (uint32_t j = i + 1; j < size - 1; j++)
+        {
+            buffer[j - 1] = buffer[j];
+        }
+    }
+
+    size = new_size;
+
+    // replace \r with \n
+    for (uint32_t i = 0; i < size; i++)
+    {
+        if (buffer[i] == '\r') { buffer[i] = '\n'; }
+    }
+}
+
 /********************/
 /* public functions */
 /********************/
 
 void html_tokenizer_init(const unsigned char* new_buffer, const uint32_t new_size, html_token_t* new_tokens, const uint32_t new_max_tokens)
 {
-    // assert(new_buffer);
+    assert(new_buffer);
 
-    buffer                      = new_buffer;
-    cursor                      = 0;
+    buffer                      = malloc(new_size + 1);
+    buffer[new_size]            = 0;
     size                        = new_size;
+    memcpy(buffer, new_buffer, new_size);
+
+    normalize_line_endings();
+
+    cursor                      = 0;
     tokens                      = new_tokens;
     max_tokens                  = new_max_tokens;
 
@@ -3091,5 +3125,6 @@ void html_tokenizer_set_state(html_tokenizer_state_e new_state)
 
 void html_tokenizer_free()
 {
-
+    if (buffer) { free(buffer); }
+    buffer = NULL;
 }

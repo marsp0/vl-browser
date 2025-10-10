@@ -852,12 +852,60 @@ doc🿿
 #end-test
 
 #description
+CR followed by non-LF
+#data
+?
+#errors
+#states
+Data state
+#character
+\n
+#character
+?
+#end-test
+
+#description
+CR at EOF
+#data
+
+#errors
+#states
+Data state
+#character
+\n
+#end-test
+
+#description
 LF at EOF
 #data
 \n
 #errors
 #states
 Data state
+#character
+\n
+#end-test
+
+#description
+CR LF
+#data
+\n
+#errors
+#states
+Data state
+#character
+\n
+#end-test
+
+#description
+CR CR
+#data
+
+#errors
+#states
+Data state
+#character
+\n
 #character
 \n
 #end-test
@@ -873,6 +921,50 @@ Data state
 \n
 #character
 \n
+#end-test
+
+#description
+LF CR
+#data
+\n
+#errors
+#states
+Data state
+#character
+\n
+#character
+\n
+#end-test
+
+#description
+text CR CR CR text
+#data
+texttext
+#errors
+#states
+Data state
+#character
+t
+#character
+e
+#character
+x
+#character
+t
+#character
+\n
+#character
+\n
+#character
+\n
+#character
+t
+#character
+e
+#character
+x
+#character
+t
 #end-test
 
 #description

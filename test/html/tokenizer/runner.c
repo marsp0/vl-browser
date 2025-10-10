@@ -389,7 +389,7 @@ static void run_tokenizer_test()
                 if (a.system_id_size == e.system_id_size)   { ASSERT_STRING((char)a.system_id, (char)e.system_id, a.system_id_size); }
 
                 ASSERT_EQUAL(a.data_size, e.data_size);
-                if (a.data_size == e.data_size)             { ASSERT_STRING((char)a.data, (char)e.data, a.data_size); }
+                if (a.data_size == e.data_size)             {  ASSERT_STRING((char)a.data, (char)e.data, a.data_size); }
 
                 ASSERT_EQUAL(a.force_quirks, e.force_quirks);
                 ASSERT_EQUAL(a.self_closing, e.self_closing);
