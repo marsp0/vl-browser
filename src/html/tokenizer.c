@@ -386,7 +386,7 @@ static void update_comment_token_replacement_char()
 
 static void update_comment_token_from_buffer()
 {
-    assert(bytes_read >= 0);
+    if (bytes_read <= 0) { return; }
 
     uint32_t read = (uint32_t)bytes_read;
     uint32_t data_size = tokens[token_idx].data_size;
@@ -2059,6 +2059,15 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#comment-less-than-sign-state
         case HTML_TOKENIZER_COMMENT_LESS_THAN_STATE:
+            if (is_eof)
+            {
+                emit_token();
+                create_eof_token();
+                emit_token();
+                status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
+                break;
+            }
+
             switch (code_point)
             {
             case '!':

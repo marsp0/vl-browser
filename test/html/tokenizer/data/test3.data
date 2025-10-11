@@ -1647,6 +1647,18 @@ Data state
 #end-test
 
 #description
+<!-- -<
+#data
+<!-- -<
+#errors
+(1, 8): eof-in-comment
+#states
+Data state
+#comment
+ -<
+#end-test
+
+#description
 <!-- -=
 #data
 <!-- -=
@@ -1884,6 +1896,18 @@ Data state
 Data state
 #comment
  9
+#end-test
+
+#description
+<!-- <
+#data
+<!-- <
+#errors
+(1, 7): eof-in-comment
+#states
+Data state
+#comment
+ <
 #end-test
 
 #description
@@ -2666,6 +2690,18 @@ Data state
 #end-test
 
 #description
+<!----<
+#data
+<!----<
+#errors
+(1, 8): eof-in-comment
+#states
+Data state
+#comment
+--<
+#end-test
+
+#description
 <!----=
 #data
 <!----=
@@ -2905,6 +2941,18 @@ Data state
 #end-test
 
 #description
+<!---<
+#data
+<!---<
+#errors
+(1, 7): eof-in-comment
+#states
+Data state
+#comment
+-<
+#end-test
+
+#description
 <!---=
 #data
 <!---=
@@ -3130,6 +3178,18 @@ Data state
 Data state
 #comment
 9
+#end-test
+
+#description
+<!--<
+#data
+<!--<
+#errors
+(1, 6): eof-in-comment
+#states
+Data state
+#comment
+<
 #end-test
 
 #description
