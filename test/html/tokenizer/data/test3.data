@@ -1,4 +1,27 @@
 #description
+[empty]
+#data
+
+#errors
+#states
+Data state
+PLAINTEXT state
+RCDATA state
+RAWTEXT state
+Script data state
+#end-test
+
+#description
+[empty]
+#data
+
+#errors
+(1, 1): eof-in-cdata
+#states
+CDATA section state
+#end-test
+
+#description
 \u0009
 #data
 	
@@ -2488,6 +2511,30 @@ Data state
 #end-test
 
 #description
+<!----!CR>
+#data
+<!----!>
+#errors
+(2, 2): eof-in-comment
+#states
+Data state
+#comment
+--!\n>
+#end-test
+
+#description
+<!----!CRLF>
+#data
+<!----!\n>
+#errors
+(2, 2): eof-in-comment
+#states
+Data state
+#comment
+--!\n>
+#end-test
+
+#description
 <!----!a
 #data
 <!----!a
@@ -3780,6 +3827,20 @@ false
 Data state
 #doctype
 !
+#doctype-quirks
+false
+#end-test
+
+#description
+<!DOCTYPE "
+#data
+<!DOCTYPE "
+#errors
+(1, 12): eof-in-doctype
+#states
+Data state
+#doctype
+"
 #doctype-quirks
 false
 #end-test
@@ -5442,6 +5503,23 @@ a
 false
 #doctype-public
 !
+#end-test
+
+#description
+<!DOCTYPE a PUBLIC'"
+#data
+<!DOCTYPE a PUBLIC'"
+#errors
+(1, 19): missing-whitespace-after-doctype-public-keyword
+(1, 21): eof-in-doctype
+#states
+Data state
+#doctype
+a
+#doctype-quirks
+false
+#doctype-public
+"
 #end-test
 
 #description
@@ -7679,6 +7757,23 @@ false
 #end-test
 
 #description
+<!DOCTYPE a SYSTEM'"
+#data
+<!DOCTYPE a SYSTEM'"
+#errors
+(1, 19): missing-whitespace-after-doctype-system-keyword
+(1, 21): eof-in-doctype
+#states
+Data state
+#doctype
+a
+#doctype-quirks
+false
+#doctype-system
+"
+#end-test
+
+#description
 <!DOCTYPE a SYSTEM'&
 #data
 <!DOCTYPE a SYSTEM'&
@@ -9512,6 +9607,20 @@ false
 #end-test
 
 #description
+<!DOCTYPE a"
+#data
+<!DOCTYPE a"
+#errors
+(1, 13): eof-in-doctype
+#states
+Data state
+#doctype
+a"
+#doctype-quirks
+false
+#end-test
+
+#description
 <!DOCTYPE a&
 #data
 <!DOCTYPE a&
@@ -9927,6 +10036,21 @@ false
 Data state
 #doctype
 !
+#doctype-quirks
+false
+#end-test
+
+#description
+<!DOCTYPE"
+#data
+<!DOCTYPE"
+#errors
+(1, 10): missing-whitespace-before-doctype-name
+(1, 11): eof-in-doctype
+#states
+Data state
+#doctype
+"
 #doctype-quirks
 false
 #end-test
@@ -11648,6 +11772,24 @@ a
 false
 #doctype-public
 !
+#end-test
+
+#description
+<!DOCTYPEa PUBLIC'"
+#data
+<!DOCTYPEa PUBLIC'"
+#errors
+(1, 10): missing-whitespace-before-doctype-name
+(1, 18): missing-whitespace-after-doctype-public-keyword
+(1, 20): eof-in-doctype
+#states
+Data state
+#doctype
+a
+#doctype-quirks
+false
+#doctype-public
+"
 #end-test
 
 #description
@@ -13923,6 +14065,24 @@ false
 #end-test
 
 #description
+<!DOCTYPEa SYSTEM'"
+#data
+<!DOCTYPEa SYSTEM'"
+#errors
+(1, 10): missing-whitespace-before-doctype-name
+(1, 18): missing-whitespace-after-doctype-system-keyword
+(1, 20): eof-in-doctype
+#states
+Data state
+#doctype
+a
+#doctype-quirks
+false
+#doctype-system
+"
+#end-test
+
+#description
 <!DOCTYPEa SYSTEM'&
 #data
 <!DOCTYPEa SYSTEM'&
@@ -15840,6 +16000,21 @@ false
 Data state
 #doctype
 a!
+#doctype-quirks
+false
+#end-test
+
+#description
+<!DOCTYPEa"
+#data
+<!DOCTYPEa"
+#errors
+(1, 10): missing-whitespace-before-doctype-name
+(1, 12): eof-in-doctype
+#states
+Data state
+#doctype
+a"
 #doctype-quirks
 false
 #end-test
@@ -18469,6 +18644,23 @@ a
 #end-test
 
 #description
+<a a />
+#data
+<a a />
+#errors
+#states
+Data state
+#start-tag
+a
+#start-tag-self-close
+true
+#attr-name
+a
+#attr-value
+
+#end-test
+
+#description
 <a a 0>
 #data
 <a a 0>
@@ -18954,6 +19146,23 @@ Data state
 a
 #attr-name
 a.
+#attr-value
+
+#end-test
+
+#description
+<a a/>
+#data
+<a a/>
+#errors
+#states
+Data state
+#start-tag
+a
+#start-tag-self-close
+true
+#attr-name
+a
 #attr-value
 
 #end-test
@@ -19871,6 +20080,21 @@ a
 a
 #attr-value
 !
+#end-test
+
+#description
+<a a='"'>
+#data
+<a a='"'>
+#errors
+#states
+Data state
+#start-tag
+a
+#attr-name
+a
+#attr-value
+"
 #end-test
 
 #description
@@ -21331,6 +21555,22 @@ a!
 #end-test
 
 #description
+<a a=a">
+#data
+<a a=a">
+#errors
+(1, 7): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#start-tag
+a
+#attr-name
+a
+#attr-value
+a"
+#end-test
+
+#description
 <a a=a#>
 #data
 <a a=a#>
@@ -22108,6 +22348,17 @@ a
 Data state
 #start-tag
 a!
+#end-test
+
+#description
+<a">
+#data
+<a">
+#errors
+#states
+Data state
+#start-tag
+a"
 #end-test
 
 #description

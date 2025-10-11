@@ -676,7 +676,7 @@ static void normalize_line_endings()
 
         new_size--;
 
-        for (uint32_t j = i + 1; j < size - 1; j++)
+        for (uint32_t j = i + 1; j < size; j++)
         {
             buffer[j - 1] = buffer[j];
         }
@@ -1915,6 +1915,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].self_closing  = true;
                 state                           = HTML_TOKENIZER_DATA_STATE;
+                emit_attribute();
                 emit_token();
             }
             else

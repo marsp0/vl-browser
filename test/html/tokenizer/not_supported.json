@@ -11,25 +11,7 @@
     "Entity in attribute without semicolon ending in i",
     "Entity in attribute without semicolon",
 
-    "Null Byte Replacement",
     "Entity + newline",
-
-    "[empty]",
-    "<a a/>",
-    "<a a />",
-    "<a a='\"'>",
-    "<a a=a\">",
-    "<a\">",
-    "<!DOCTYPEa\"",
-    "<!DOCTYPEa SYSTEM'\"",
-    "<!DOCTYPEa PUBLIC'\"",
-    "<!DOCTYPE\"",
-    "<!DOCTYPE a\"",
-    "<!----!CRLF>",
-    "<!DOCTYPE a SYSTEM'\"",
-    "<!DOCTYPE \"",
-    "<!DOCTYPE a PUBLIC'\"",
-    "<!----!CR>",
 
     "Invalid numeric entity character U+10FFFF",
 
