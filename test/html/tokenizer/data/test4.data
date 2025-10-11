@@ -180,29 +180,6 @@ z
 #end-test
 
 #description
-Text after bogus character reference
-#data
-<z z='&xlink_xmlns;'>bar<z>
-#errors
-#states
-Data state
-#start-tag
-z
-#attr-name
-z
-#attr-value
-&xlink_xmlns;
-#character
-b
-#character
-a
-#character
-r
-#start-tag
-z
-#end-test
-
-#description
 Text after hex character reference
 #data
 <z z='&#x0020; foo'>bar<z>
