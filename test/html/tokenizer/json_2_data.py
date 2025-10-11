@@ -61,44 +61,62 @@ def json_2_data(args):
                         for state in states:
                             write_line(f_out, f'{state}')
 
-                        write_line(f_out, '#output')
+                        # write_line(f_out, '#output')
                         for token in test.get('output', []):
                             t_type = token[0]
                             if (t_type == 'DOCTYPE'):
+
                                 name = token[1] or ''
                                 public = token[2] or ''
                                 system = token[3] or ''
-                                line = f'{token[0]} "{name}" "{public}" "{system}" {get_val(token[4])}'
-                                write_line(f_out, line)
+
+                                write_line(f_out, "#doctype")
+                                write_line(f_out, name)
+
+                                write_line(f_out, "#doctype-quirks")
+                                write_line(f_out, get_val(token[4]))
+
+                                if (public):
+                                    write_line(f_out, "#doctype-public")
+                                    write_line(f_out, public)
+                                if (system):
+                                    write_line(f_out, "#doctype-system")
+                                    write_line(f_out, system)
 
                             elif (t_type == "Character"):
                                 for char in token[1]:
-                                    write_line(f_out, f'{token[0]} {char}')
+                                    write_line(f_out, "#character")
+                                    write_line(f_out, char)
 
                             elif (t_type == "Comment"):
-                                comment = token[1].replace('"', '\\"')
-                                line = f'{token[0]} "{comment}"'
-                                write_line(f_out, line)
+                                write_line(f_out, "#comment")
+                                write_line(f_out, token[1])
 
                             elif (t_type == "EndTag"):
-                                line = f'{token[0]} "{token[1]}"'
-                                write_line(f_out, line)
+                                write_line(f_out, "#end-tag")
+                                write_line(f_out, token[1])
 
                             elif (t_type == "StartTag"):
                                 has_bool = len(token) == 4
-                                line = f'{token[0]} "{token[1]}"'
+
+                                write_line(f_out, "#start-tag")
+                                write_line(f_out, token[1])
 
                                 if has_bool: 
-                                    line += f' {get_val(token[3])}'
-                                write_line(f_out, line)
+                                    write_line(f_out, "#start-tag-self-close")
+                                    write_line(f_out, get_val(token[3]))
 
                                 for key in token[2].keys():
-                                    name = key.replace('"', '\\"')
-                                    write_line(f_out, f'Attr "{name}" "{token[2][key]}"')
+                                    val = token[2][key]
+                                    write_line(f_out, "#attr-name")
+                                    write_line(f_out, key)
+                                    write_line(f_out, "#attr-value")
+                                    write_line(f_out, val)
 
+                        write_line(f_out, "#end-test")
                         if i < (len(tests) - 1):
                             f_out.write("\n")
-                
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script that converts json files from html5-lib to data files')
