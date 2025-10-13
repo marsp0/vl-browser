@@ -721,6 +721,18 @@ true
 #end-test
 
 #description
+Permitted slash but in close tag
+#data
+</br/>
+#errors
+(1, 6): end-tag-with-trailing-solidus
+#states
+Data state
+#end-tag
+br
+#end-test
+
+#description
 Doctype public case-sensitivity (1)
 #data
 <!DoCtYpE HtMl PuBlIc "AbC" "XyZ">

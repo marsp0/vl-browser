@@ -1913,7 +1913,10 @@ html_tokenizer_error_e html_tokenizer_next()
 
             if (code_point == '>')
             {
-                tokens[token_idx].self_closing  = true;
+                if (tokens[token_idx].type == HTML_START_TOKEN)
+                {
+                    tokens[token_idx].self_closing  = true;
+                }
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_attribute();
                 emit_token();
