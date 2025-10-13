@@ -1,11 +1,13 @@
 #description
-Open angled bracket in unquoted attribute value state
+Correct Doctype lowercase
 #data
-<a a=f<>
+<!DOCTYPE html>
 #errors
-(1, 7): unexpected-character-in-unquoted-attribute-value
 #states
 Data state
-#output
-StartTag "a"
-Attr "a" "f<"
+#doctype
+#doctype-quirks
+true
+#doctype-name
+html
+#end-test

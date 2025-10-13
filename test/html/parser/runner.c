@@ -295,6 +295,7 @@ static void run_test()
     }
 
     html_parser_init();
+
     dom_node_t* actual = html_parser_run(test_data, test_data_size);
     ASSERT_NODE(actual, document);
 

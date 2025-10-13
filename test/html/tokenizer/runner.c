@@ -22,8 +22,18 @@ typedef enum
     STATE_DESCRIPTION,
     STATE_DATA,
     STATE_ERRORS,
-    STATE_OUTPUT,
-    STATE_STATES
+    STATE_STATES,
+    STATE_DOCTYPE,
+    STATE_DOCTYPE_PUBLIC,
+    STATE_DOCTYPE_SYSTEM,
+    STATE_DOCTYPE_QUIRKS,
+    STATE_COMMENT,
+    STATE_CHARACTER,
+    STATE_END_TAG,
+    STATE_START_TAG,
+    STATE_START_TAG_SELF_CLOSE,
+    STATE_ATTR_NAME,
+    STATE_ATTR_VALUE,
 } test_state_e;
 
 static const unsigned char* test_file = NULL;
@@ -40,6 +50,7 @@ static uint32_t line_size = 0;
 static uint32_t is_eof = false;
 static uint32_t line_num = 0;
 static uint32_t test_line = 0;
+static unsigned char description[2048] = { 0 };
 
 // test data
 static unsigned char test_data[2048] = { 0 };
@@ -47,7 +58,7 @@ static uint32_t test_data_size = 0;
 
 static html_token_t tokens[50] = { 0 };
 static uint32_t tokens_size = 0;
-static uint32_t last_element = 0;
+static uint32_t current = 0;
 
 static html_tokenizer_state_e states[10] = { 0 };
 static uint32_t states_size = 0;
@@ -105,125 +116,6 @@ static void read_line()
 }
 
 
-static void consume_word(unsigned char* dest, uint32_t* dest_size)
-{
-    uint32_t start = line_cursor;
-    // uint32_t end = line_cursor;
-    unsigned char p = line[0];
-
-    while (line[line_cursor] != '"')
-    {
-        line_cursor++;
-    }
-
-    line_cursor++;
-    start = line_cursor;
-
-    while (!(p != '\\' && line[line_cursor] == '"'))
-    {
-        p = line[line_cursor];
-        line_cursor++;
-    }
-
-    uint32_t size = 0;
-
-    for (uint32_t i = start; i < line_cursor; i++)
-    {
-        if (line[i - 1] == '\\' && line[i] == '"')
-        {
-            dest[size - 1] = '"';
-        }
-        else
-        {
-            dest[size] = line[i];
-            size++;
-        }
-    }
-
-    *dest_size = size;
-    line_cursor++;
-}
-
-
-static void parse_token()
-{
-    if (strncmp("Character", line, 9) == 0)
-    {
-        uint32_t start = 10;
-        uint32_t size = line_size - start;
-
-        html_token_t* token = &tokens[tokens_size++];
-        token->is_valid = true;
-        token->type = HTML_CHARACTER_TOKEN;
-        memcpy(token->data, &line[start], size);
-        token->data_size = size;
-    }
-    else if (strncmp("Comment", line, 7) == 0)
-    {
-        html_token_t* token = &tokens[tokens_size++];
-        token->is_valid = true;
-        token->type = HTML_COMMENT_TOKEN;
-
-        consume_word(token->data, &(token->data_size));
-    }
-    else if (strncmp("StartTag", line, 8) == 0)
-    {
-        html_token_t* token = &tokens[tokens_size];
-        token->is_valid     = true;
-        token->type         = HTML_START_TOKEN;
-        last_element        = tokens_size;
-        tokens_size++;
-
-        consume_word(token->name, &token->name_size);
-
-        uint32_t self_close = line_size - line_cursor;
-        if (self_close > 1) { token->self_closing = true; }
-
-    }
-    else if (strncmp("EndTag", line, 6) == 0)
-    {
-        html_token_t* token = &tokens[tokens_size];
-        token->is_valid = true;
-        token->type = HTML_END_TOKEN;
-        last_element = tokens_size;
-        tokens_size++;
-
-        consume_word(token->name, &(token->name_size));
-    }
-    else if (strncmp("Attr", line, 4) == 0)
-    {
-        html_token_t* token = &tokens[last_element];
-        html_token_attribute_t* attr = &token->attributes[token->attributes_size++];
-
-        consume_word(attr->name, &(attr->name_size));
-        consume_word(attr->value, &(attr->value_size));
-    }
-    else if (strncmp("DOCTYPE", line, 7) == 0)
-    {
-        html_token_t* token = &tokens[tokens_size++];
-        token->is_valid = true;
-        token->type = HTML_DOCTYPE_TOKEN;
-
-        consume_word(token->name, &(token->name_size));
-        consume_word(token->public_id, &(token->public_id_size));
-        consume_word(token->system_id, &(token->system_id_size));
-
-        token->force_quirks = false;
-
-        if (line_size - line_cursor > 5)
-        {
-            token->force_quirks = true;
-        }
-    }
-    else
-    {
-        assert(false);
-    }
-
-    assert(tokens_size < 50);
-}
-
-
 static void run_tokenizer_test()
 {
     tokens_size = 0;
@@ -231,6 +123,7 @@ static void run_tokenizer_test()
     memset(tokens, 0, sizeof(tokens));
     memset(states, 0, sizeof(states));
 
+    memset(description, 0, 2048);
     memset(test_data, 0, 2048);
     test_data_size = 0;
 
@@ -241,12 +134,14 @@ static void run_tokenizer_test()
 
     // line containing test description
     read_line();
+    memcpy(description, line, line_size);
 
     // next header
     read_line();
-    test_state_e state              = STATE_DESCRIPTION;
+    test_state_e state = STATE_DESCRIPTION;
+    bool should_continue = true;
 
-    while (line_size > 0)
+    while (should_continue)
     {
         if (strncmp(line, "#errors", 7) == 0)
         {
@@ -256,13 +151,57 @@ static void run_tokenizer_test()
         {
             state = STATE_DATA;
         }
-        else if (strncmp(line, "#output", 7) == 0)
-        {
-            state = STATE_OUTPUT;
-        }
         else if (strncmp(line, "#states", 7) == 0)
         {
             state = STATE_STATES;
+        }
+        else if (strncmp(line, "#doctype-public", 15) == 0)
+        {
+            state = STATE_DOCTYPE_PUBLIC;
+        }
+        else if (strncmp(line, "#doctype-system", 15) == 0)
+        {
+            state = STATE_DOCTYPE_SYSTEM;
+        }
+        else if (strncmp(line, "#doctype-quirks", 15) == 0)
+        {
+            state = STATE_DOCTYPE_QUIRKS;
+        }
+        else if (strncmp(line, "#doctype", 8) == 0)
+        {
+            state = STATE_DOCTYPE;
+        }
+        else if (strncmp(line, "#comment", 8) == 0)
+        {
+            state = STATE_COMMENT;
+        }
+        else if (strncmp(line, "#character", 10) == 0)
+        {
+            state = STATE_CHARACTER;
+        }
+        else if (strncmp(line, "#end-tag", 8) == 0)
+        {
+            state = STATE_END_TAG;
+        }
+        else if (strncmp(line, "#start-tag-self-close", 21) == 0)
+        {
+            state = STATE_START_TAG_SELF_CLOSE;
+        }
+        else if (strncmp(line, "#start-tag", 10) == 0)
+        {
+            state = STATE_START_TAG;
+        }
+        else if (strncmp(line, "#attr-name", 10) == 0)
+        {
+            state = STATE_ATTR_NAME;
+        }
+        else if (strncmp(line, "#attr-value", 11) == 0)
+        {
+            state = STATE_ATTR_VALUE;
+        }
+        else if (strncmp(line, "#end-test", 9) == 0)
+        {
+            should_continue = false;
         }
         else if (state == STATE_ERRORS)
         {
@@ -281,9 +220,117 @@ static void run_tokenizer_test()
             memcpy(test_data, line, line_size);
             test_data_size = line_size;
         }
-        else if (state == STATE_OUTPUT)
+        else if (state == STATE_DOCTYPE)
         {
-            parse_token();
+            current = tokens_size;
+            tokens_size++;
+
+            html_token_t* token = &tokens[current];
+            token->is_valid = true;
+            token->type = HTML_DOCTYPE_TOKEN;
+
+            memcpy(token->name, line, line_size);
+            token->name_size = line_size;
+        }
+        else if (state == STATE_DOCTYPE_PUBLIC)
+        {
+            html_token_t* token = &tokens[current];
+            memcpy(token->public_id, line, line_size);
+            token->public_id_size = line_size;
+        }
+        else if (state == STATE_DOCTYPE_SYSTEM)
+        {
+            html_token_t* token = &tokens[current];
+            memcpy(token->system_id, line, line_size);
+            token->system_id_size = line_size;
+        }
+        else if (state == STATE_DOCTYPE_QUIRKS)
+        {
+            html_token_t* token = &tokens[current];
+            if (strncmp(line, "true", 4) == 0)
+            {
+                token->force_quirks = false;
+            }
+            else
+            {
+                token->force_quirks = true;
+            }
+        }
+        else if (state == STATE_COMMENT)
+        {
+            current = tokens_size;
+            tokens_size++;
+
+            html_token_t* token = &tokens[current];
+            token->is_valid = true;
+            token->type = HTML_COMMENT_TOKEN;
+
+            memcpy(token->data, line, line_size);
+            token->data_size = line_size;
+        }
+        else if (state == STATE_CHARACTER)
+        {
+            current = tokens_size;
+            tokens_size++;
+
+            html_token_t* token = &tokens[current];
+            token->is_valid = true;
+            token->type = HTML_CHARACTER_TOKEN;
+
+            memcpy(token->data, line, line_size);
+            token->data_size = line_size;
+        }
+        else if (state == STATE_END_TAG)
+        {
+            current = tokens_size;
+            tokens_size++;
+
+            html_token_t* token = &tokens[current];
+            token->is_valid = true;
+            token->type = HTML_END_TOKEN;
+            memcpy(token->name, line, line_size);
+            token->name_size = line_size;
+        }
+        else if (state == STATE_START_TAG)
+        {
+            current = tokens_size;
+            tokens_size++;
+
+            html_token_t* token = &tokens[current];
+            token->is_valid = true;
+            token->type = HTML_START_TOKEN;
+            memcpy(token->name, line, line_size);
+            token->name_size = line_size;
+        }
+        else if (state == STATE_START_TAG_SELF_CLOSE)
+        {
+            html_token_t* token = &tokens[current];
+
+            if (strncmp(line, "true", 4) == 0)
+            {
+                token->self_closing = true;
+            }
+            else
+            {
+                token->self_closing = false;
+            }
+        }
+        else if (state == STATE_ATTR_NAME)
+        {
+            html_token_t* token = &tokens[current];
+            html_token_attribute_t* attr = &token->attributes[token->attributes_size];
+
+            memcpy(attr->name, line, line_size);
+            attr->name_size = line_size;
+        }
+        else if (state == STATE_ATTR_VALUE)
+        {
+            html_token_t* token = &tokens[current];
+            html_token_attribute_t* attr = &token->attributes[token->attributes_size];
+
+            memcpy(attr->value, line, line_size);
+            attr->value_size = line_size;
+            token->attributes_size++;
         }
         else
         {
@@ -342,7 +389,7 @@ static void run_tokenizer_test()
                 if (a.system_id_size == e.system_id_size)   { ASSERT_STRING((char)a.system_id, (char)e.system_id, a.system_id_size); }
 
                 ASSERT_EQUAL(a.data_size, e.data_size);
-                if (a.data_size == e.data_size)             { ASSERT_STRING((char)a.data, (char)e.data, a.data_size); }
+                if (a.data_size == e.data_size)             {  ASSERT_STRING((char)a.data, (char)e.data, a.data_size); }
 
                 ASSERT_EQUAL(a.force_quirks, e.force_quirks);
                 ASSERT_EQUAL(a.self_closing, e.self_closing);
@@ -367,7 +414,8 @@ static void run_tokenizer_test()
         {
             printf("\n========== Test %u ==========\n", test_line);
             printf("FILE: %s\n", test_file);
-            printf("TEST: %s\n", test_data);
+            printf("TEST: %s\n", description);
+            printf("INPUT: %s\n", test_data);
         }
 
         html_tokenizer_free();
@@ -383,6 +431,7 @@ void html_tokenizer_test()
                                     "./test/html/tokenizer/data/test2.data",
                                     "./test/html/tokenizer/data/test3.data",
                                     "./test/html/tokenizer/data/numericEntities.data",
+                                    "./test/html/tokenizer/data/test4.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 

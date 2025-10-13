@@ -7,8 +7,9 @@ Invalid unterminated numeric entity character overflow before EOF
 (1, 14): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Invalid unterminated numeric entity character overflow before EOF
@@ -19,8 +20,9 @@ Invalid unterminated numeric entity character overflow before EOF
 (1, 13): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Invalid unterminated numeric entity character overflow before EOF
@@ -31,8 +33,9 @@ Invalid unterminated numeric entity character overflow before EOF
 (1, 15): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Invalid unterminated numeric entity character overflow
@@ -43,9 +46,11 @@ Invalid unterminated numeric entity character overflow
 (1, 14): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
-Character x
+#character
+�
+#character
+x
+#end-test
 
 #description
 Invalid unterminated numeric entity character overflow
@@ -56,9 +61,11 @@ Invalid unterminated numeric entity character overflow
 (1, 13): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
-Character x
+#character
+�
+#character
+x
+#end-test
 
 #description
 Invalid unterminated numeric entity character overflow
@@ -69,9 +76,11 @@ Invalid unterminated numeric entity character overflow
 (1, 15): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
-Character x
+#character
+�
+#character
+x
+#end-test
 
 #description
 Invalid numeric entity character overflow
@@ -81,8 +90,9 @@ Invalid numeric entity character overflow
 (1, 15): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Invalid numeric entity character overflow
@@ -92,8 +102,9 @@ Invalid numeric entity character overflow
 (1, 14): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Invalid numeric entity character overflow
@@ -103,8 +114,9 @@ Invalid numeric entity character overflow
 (1, 16): character-reference-outside-unicode-range
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Invalid numeric entity character U+0000
@@ -114,8 +126,9 @@ Invalid numeric entity character U+0000
 (1, 9): null-character-reference
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Invalid numeric entity character U+0001
@@ -125,8 +138,9 @@ Invalid numeric entity character U+0001
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0002
@@ -136,8 +150,9 @@ Invalid numeric entity character U+0002
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0003
@@ -147,8 +162,9 @@ Invalid numeric entity character U+0003
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0004
@@ -158,8 +174,9 @@ Invalid numeric entity character U+0004
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0005
@@ -169,8 +186,9 @@ Invalid numeric entity character U+0005
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0006
@@ -180,8 +198,9 @@ Invalid numeric entity character U+0006
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0007
@@ -191,8 +210,9 @@ Invalid numeric entity character U+0007
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0008
@@ -202,8 +222,9 @@ Invalid numeric entity character U+0008
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+000B
@@ -213,8 +234,9 @@ Invalid numeric entity character U+000B
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+000E
@@ -224,8 +246,9 @@ Invalid numeric entity character U+000E
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+000F
@@ -235,8 +258,9 @@ Invalid numeric entity character U+000F
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0010
@@ -246,8 +270,9 @@ Invalid numeric entity character U+0010
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0011
@@ -257,8 +282,9 @@ Invalid numeric entity character U+0011
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0012
@@ -268,8 +294,9 @@ Invalid numeric entity character U+0012
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0013
@@ -279,8 +306,9 @@ Invalid numeric entity character U+0013
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0014
@@ -290,8 +318,9 @@ Invalid numeric entity character U+0014
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0015
@@ -301,8 +330,9 @@ Invalid numeric entity character U+0015
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0016
@@ -312,8 +342,9 @@ Invalid numeric entity character U+0016
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0017
@@ -323,8 +354,9 @@ Invalid numeric entity character U+0017
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0018
@@ -334,8 +366,9 @@ Invalid numeric entity character U+0018
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+0019
@@ -345,8 +378,9 @@ Invalid numeric entity character U+0019
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+001A
@@ -356,8 +390,9 @@ Invalid numeric entity character U+001A
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+001B
@@ -367,8 +402,9 @@ Invalid numeric entity character U+001B
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+001C
@@ -378,8 +414,9 @@ Invalid numeric entity character U+001C
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+001D
@@ -389,8 +426,9 @@ Invalid numeric entity character U+001D
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+001E
@@ -400,8 +438,9 @@ Invalid numeric entity character U+001E
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+001F
@@ -411,8 +450,9 @@ Invalid numeric entity character U+001F
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+007F
@@ -422,8 +462,9 @@ Invalid numeric entity character U+007F
 (1, 9): control-character-reference
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Invalid numeric entity character U+D800
@@ -433,8 +474,9 @@ Invalid numeric entity character U+D800
 (1, 9): surrogate-character-reference
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Invalid numeric entity character U+DFFF
@@ -444,8 +486,9 @@ Invalid numeric entity character U+DFFF
 (1, 9): surrogate-character-reference
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Invalid numeric entity character U+FDD0
@@ -455,8 +498,9 @@ Invalid numeric entity character U+FDD0
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷐
+#character
+﷐
+#end-test
 
 #description
 Invalid numeric entity character U+FDD1
@@ -466,8 +510,9 @@ Invalid numeric entity character U+FDD1
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷑
+#character
+﷑
+#end-test
 
 #description
 Invalid numeric entity character U+FDD2
@@ -477,8 +522,9 @@ Invalid numeric entity character U+FDD2
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷒
+#character
+﷒
+#end-test
 
 #description
 Invalid numeric entity character U+FDD3
@@ -488,8 +534,9 @@ Invalid numeric entity character U+FDD3
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷓
+#character
+﷓
+#end-test
 
 #description
 Invalid numeric entity character U+FDD4
@@ -499,8 +546,9 @@ Invalid numeric entity character U+FDD4
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷔
+#character
+﷔
+#end-test
 
 #description
 Invalid numeric entity character U+FDD5
@@ -510,8 +558,9 @@ Invalid numeric entity character U+FDD5
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷕
+#character
+﷕
+#end-test
 
 #description
 Invalid numeric entity character U+FDD6
@@ -521,8 +570,9 @@ Invalid numeric entity character U+FDD6
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷖
+#character
+﷖
+#end-test
 
 #description
 Invalid numeric entity character U+FDD7
@@ -532,8 +582,9 @@ Invalid numeric entity character U+FDD7
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷗
+#character
+﷗
+#end-test
 
 #description
 Invalid numeric entity character U+FDD8
@@ -543,8 +594,9 @@ Invalid numeric entity character U+FDD8
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷘
+#character
+﷘
+#end-test
 
 #description
 Invalid numeric entity character U+FDD9
@@ -554,8 +606,9 @@ Invalid numeric entity character U+FDD9
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷙
+#character
+﷙
+#end-test
 
 #description
 Invalid numeric entity character U+FDDA
@@ -565,8 +618,9 @@ Invalid numeric entity character U+FDDA
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷚
+#character
+﷚
+#end-test
 
 #description
 Invalid numeric entity character U+FDDB
@@ -576,8 +630,9 @@ Invalid numeric entity character U+FDDB
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷛
+#character
+﷛
+#end-test
 
 #description
 Invalid numeric entity character U+FDDC
@@ -587,8 +642,9 @@ Invalid numeric entity character U+FDDC
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷜
+#character
+﷜
+#end-test
 
 #description
 Invalid numeric entity character U+FDDD
@@ -598,8 +654,9 @@ Invalid numeric entity character U+FDDD
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷝
+#character
+﷝
+#end-test
 
 #description
 Invalid numeric entity character U+FDDE
@@ -609,8 +666,9 @@ Invalid numeric entity character U+FDDE
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷞
+#character
+﷞
+#end-test
 
 #description
 Invalid numeric entity character U+FDDF
@@ -620,8 +678,9 @@ Invalid numeric entity character U+FDDF
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷟
+#character
+﷟
+#end-test
 
 #description
 Invalid numeric entity character U+FDE0
@@ -631,8 +690,9 @@ Invalid numeric entity character U+FDE0
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷠
+#character
+﷠
+#end-test
 
 #description
 Invalid numeric entity character U+FDE1
@@ -642,8 +702,9 @@ Invalid numeric entity character U+FDE1
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷡
+#character
+﷡
+#end-test
 
 #description
 Invalid numeric entity character U+FDE2
@@ -653,8 +714,9 @@ Invalid numeric entity character U+FDE2
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷢
+#character
+﷢
+#end-test
 
 #description
 Invalid numeric entity character U+FDE3
@@ -664,8 +726,9 @@ Invalid numeric entity character U+FDE3
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷣
+#character
+﷣
+#end-test
 
 #description
 Invalid numeric entity character U+FDE4
@@ -675,8 +738,9 @@ Invalid numeric entity character U+FDE4
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷤
+#character
+﷤
+#end-test
 
 #description
 Invalid numeric entity character U+FDE5
@@ -686,8 +750,9 @@ Invalid numeric entity character U+FDE5
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷥
+#character
+﷥
+#end-test
 
 #description
 Invalid numeric entity character U+FDE6
@@ -697,8 +762,9 @@ Invalid numeric entity character U+FDE6
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷦
+#character
+﷦
+#end-test
 
 #description
 Invalid numeric entity character U+FDE7
@@ -708,8 +774,9 @@ Invalid numeric entity character U+FDE7
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷧
+#character
+﷧
+#end-test
 
 #description
 Invalid numeric entity character U+FDE8
@@ -719,8 +786,9 @@ Invalid numeric entity character U+FDE8
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷨
+#character
+﷨
+#end-test
 
 #description
 Invalid numeric entity character U+FDE9
@@ -730,8 +798,9 @@ Invalid numeric entity character U+FDE9
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷩
+#character
+﷩
+#end-test
 
 #description
 Invalid numeric entity character U+FDEA
@@ -741,8 +810,9 @@ Invalid numeric entity character U+FDEA
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷪
+#character
+﷪
+#end-test
 
 #description
 Invalid numeric entity character U+FDEB
@@ -752,8 +822,9 @@ Invalid numeric entity character U+FDEB
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷫
+#character
+﷫
+#end-test
 
 #description
 Invalid numeric entity character U+FDEC
@@ -763,8 +834,9 @@ Invalid numeric entity character U+FDEC
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷬
+#character
+﷬
+#end-test
 
 #description
 Invalid numeric entity character U+FDED
@@ -774,8 +846,9 @@ Invalid numeric entity character U+FDED
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷭
+#character
+﷭
+#end-test
 
 #description
 Invalid numeric entity character U+FDEE
@@ -785,8 +858,9 @@ Invalid numeric entity character U+FDEE
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷮
+#character
+﷮
+#end-test
 
 #description
 Invalid numeric entity character U+FDEF
@@ -796,8 +870,9 @@ Invalid numeric entity character U+FDEF
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ﷯
+#character
+﷯
+#end-test
 
 #description
 Invalid numeric entity character U+FFFE
@@ -807,8 +882,9 @@ Invalid numeric entity character U+FFFE
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ￾
+#character
+￾
+#end-test
 
 #description
 Invalid numeric entity character U+FFFF
@@ -818,8 +894,9 @@ Invalid numeric entity character U+FFFF
 (1, 9): noncharacter-character-reference
 #states
 Data state
-#output
-Character ￿
+#character
+￿
+#end-test
 
 #description
 Invalid numeric entity character U+1FFFE
@@ -829,8 +906,9 @@ Invalid numeric entity character U+1FFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 🿾
+#character
+🿾
+#end-test
 
 #description
 Invalid numeric entity character U+1FFFF
@@ -840,8 +918,9 @@ Invalid numeric entity character U+1FFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 🿿
+#character
+🿿
+#end-test
 
 #description
 Invalid numeric entity character U+2FFFE
@@ -851,8 +930,9 @@ Invalid numeric entity character U+2FFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 𯿾
+#character
+𯿾
+#end-test
 
 #description
 Invalid numeric entity character U+2FFFF
@@ -862,8 +942,9 @@ Invalid numeric entity character U+2FFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 𯿿
+#character
+𯿿
+#end-test
 
 #description
 Invalid numeric entity character U+3FFFE
@@ -873,8 +954,9 @@ Invalid numeric entity character U+3FFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 𿿾
+#character
+𿿾
+#end-test
 
 #description
 Invalid numeric entity character U+3FFFF
@@ -884,8 +966,9 @@ Invalid numeric entity character U+3FFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 𿿿
+#character
+𿿿
+#end-test
 
 #description
 Invalid numeric entity character U+4FFFE
@@ -895,8 +978,9 @@ Invalid numeric entity character U+4FFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 񏿾
+#character
+񏿾
+#end-test
 
 #description
 Invalid numeric entity character U+4FFFF
@@ -906,8 +990,9 @@ Invalid numeric entity character U+4FFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 񏿿
+#character
+񏿿
+#end-test
 
 #description
 Invalid numeric entity character U+5FFFE
@@ -917,8 +1002,9 @@ Invalid numeric entity character U+5FFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 񟿾
+#character
+񟿾
+#end-test
 
 #description
 Invalid numeric entity character U+5FFFF
@@ -928,8 +1014,9 @@ Invalid numeric entity character U+5FFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 񟿿
+#character
+񟿿
+#end-test
 
 #description
 Invalid numeric entity character U+6FFFE
@@ -939,8 +1026,9 @@ Invalid numeric entity character U+6FFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 񯿾
+#character
+񯿾
+#end-test
 
 #description
 Invalid numeric entity character U+6FFFF
@@ -950,8 +1038,9 @@ Invalid numeric entity character U+6FFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 񯿿
+#character
+񯿿
+#end-test
 
 #description
 Invalid numeric entity character U+7FFFE
@@ -961,8 +1050,9 @@ Invalid numeric entity character U+7FFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 񿿾
+#character
+񿿾
+#end-test
 
 #description
 Invalid numeric entity character U+7FFFF
@@ -972,8 +1062,9 @@ Invalid numeric entity character U+7FFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 񿿿
+#character
+񿿿
+#end-test
 
 #description
 Invalid numeric entity character U+8FFFE
@@ -983,8 +1074,9 @@ Invalid numeric entity character U+8FFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 򏿾
+#character
+򏿾
+#end-test
 
 #description
 Invalid numeric entity character U+8FFFF
@@ -994,8 +1086,9 @@ Invalid numeric entity character U+8FFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 򏿿
+#character
+򏿿
+#end-test
 
 #description
 Invalid numeric entity character U+9FFFE
@@ -1005,8 +1098,9 @@ Invalid numeric entity character U+9FFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 򟿾
+#character
+򟿾
+#end-test
 
 #description
 Invalid numeric entity character U+9FFFF
@@ -1016,8 +1110,9 @@ Invalid numeric entity character U+9FFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 򟿿
+#character
+򟿿
+#end-test
 
 #description
 Invalid numeric entity character U+AFFFE
@@ -1027,8 +1122,9 @@ Invalid numeric entity character U+AFFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 򯿾
+#character
+򯿾
+#end-test
 
 #description
 Invalid numeric entity character U+AFFFF
@@ -1038,8 +1134,9 @@ Invalid numeric entity character U+AFFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 򯿿
+#character
+򯿿
+#end-test
 
 #description
 Invalid numeric entity character U+BFFFE
@@ -1049,8 +1146,9 @@ Invalid numeric entity character U+BFFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 򿿾
+#character
+򿿾
+#end-test
 
 #description
 Invalid numeric entity character U+BFFFF
@@ -1060,8 +1158,9 @@ Invalid numeric entity character U+BFFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 򿿿
+#character
+򿿿
+#end-test
 
 #description
 Invalid numeric entity character U+CFFFE
@@ -1071,8 +1170,9 @@ Invalid numeric entity character U+CFFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 󏿾
+#character
+󏿾
+#end-test
 
 #description
 Invalid numeric entity character U+CFFFF
@@ -1082,8 +1182,9 @@ Invalid numeric entity character U+CFFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 󏿿
+#character
+󏿿
+#end-test
 
 #description
 Invalid numeric entity character U+DFFFE
@@ -1093,8 +1194,9 @@ Invalid numeric entity character U+DFFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 󟿾
+#character
+󟿾
+#end-test
 
 #description
 Invalid numeric entity character U+DFFFF
@@ -1104,8 +1206,9 @@ Invalid numeric entity character U+DFFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 󟿿
+#character
+󟿿
+#end-test
 
 #description
 Invalid numeric entity character U+EFFFE
@@ -1115,8 +1218,9 @@ Invalid numeric entity character U+EFFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 󯿾
+#character
+󯿾
+#end-test
 
 #description
 Invalid numeric entity character U+EFFFF
@@ -1126,8 +1230,9 @@ Invalid numeric entity character U+EFFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 󯿿
+#character
+󯿿
+#end-test
 
 #description
 Invalid numeric entity character U+FFFFE
@@ -1137,8 +1242,9 @@ Invalid numeric entity character U+FFFFE
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 󿿾
+#character
+󿿾
+#end-test
 
 #description
 Invalid numeric entity character U+FFFFF
@@ -1148,8 +1254,9 @@ Invalid numeric entity character U+FFFFF
 (1, 10): noncharacter-character-reference
 #states
 Data state
-#output
-Character 󿿿
+#character
+󿿿
+#end-test
 
 #description
 Invalid numeric entity character U+10FFFE
@@ -1159,8 +1266,9 @@ Invalid numeric entity character U+10FFFE
 (1, 11): noncharacter-character-reference
 #states
 Data state
-#output
-Character 􏿾
+#character
+􏿾
+#end-test
 
 #description
 Valid numeric entity character U+0009
@@ -1169,8 +1277,9 @@ Valid numeric entity character U+0009
 #errors
 #states
 Data state
-#output
-Character 	
+#character
+	
+#end-test
 
 #description
 Valid numeric entity character U+000A
@@ -1179,8 +1288,9 @@ Valid numeric entity character U+000A
 #errors
 #states
 Data state
-#output
-Character \n
+#character
+\n
+#end-test
 
 #description
 Valid numeric entity character U+0020
@@ -1189,8 +1299,9 @@ Valid numeric entity character U+0020
 #errors
 #states
 Data state
-#output
-Character  
+#character
+ 
+#end-test
 
 #description
 Valid numeric entity character U+0021
@@ -1199,8 +1310,9 @@ Valid numeric entity character U+0021
 #errors
 #states
 Data state
-#output
-Character !
+#character
+!
+#end-test
 
 #description
 Valid numeric entity character U+0022
@@ -1209,8 +1321,9 @@ Valid numeric entity character U+0022
 #errors
 #states
 Data state
-#output
-Character "
+#character
+"
+#end-test
 
 #description
 Valid numeric entity character U+0023
@@ -1219,8 +1332,9 @@ Valid numeric entity character U+0023
 #errors
 #states
 Data state
-#output
-Character #
+#character
+#
+#end-test
 
 #description
 Valid numeric entity character U+0024
@@ -1229,8 +1343,9 @@ Valid numeric entity character U+0024
 #errors
 #states
 Data state
-#output
-Character $
+#character
+$
+#end-test
 
 #description
 Valid numeric entity character U+0025
@@ -1239,8 +1354,9 @@ Valid numeric entity character U+0025
 #errors
 #states
 Data state
-#output
-Character %
+#character
+%
+#end-test
 
 #description
 Valid numeric entity character U+0026
@@ -1249,8 +1365,9 @@ Valid numeric entity character U+0026
 #errors
 #states
 Data state
-#output
-Character &
+#character
+&
+#end-test
 
 #description
 Valid numeric entity character U+0027
@@ -1259,8 +1376,9 @@ Valid numeric entity character U+0027
 #errors
 #states
 Data state
-#output
-Character '
+#character
+'
+#end-test
 
 #description
 Valid numeric entity character U+0028
@@ -1269,8 +1387,9 @@ Valid numeric entity character U+0028
 #errors
 #states
 Data state
-#output
-Character (
+#character
+(
+#end-test
 
 #description
 Valid numeric entity character U+0029
@@ -1279,8 +1398,9 @@ Valid numeric entity character U+0029
 #errors
 #states
 Data state
-#output
-Character )
+#character
+)
+#end-test
 
 #description
 Valid numeric entity character U+002A
@@ -1289,8 +1409,9 @@ Valid numeric entity character U+002A
 #errors
 #states
 Data state
-#output
-Character *
+#character
+*
+#end-test
 
 #description
 Valid numeric entity character U+002B
@@ -1299,8 +1420,9 @@ Valid numeric entity character U+002B
 #errors
 #states
 Data state
-#output
-Character +
+#character
++
+#end-test
 
 #description
 Valid numeric entity character U+002C
@@ -1309,8 +1431,9 @@ Valid numeric entity character U+002C
 #errors
 #states
 Data state
-#output
-Character ,
+#character
+,
+#end-test
 
 #description
 Valid numeric entity character U+002D
@@ -1319,8 +1442,9 @@ Valid numeric entity character U+002D
 #errors
 #states
 Data state
-#output
-Character -
+#character
+-
+#end-test
 
 #description
 Valid numeric entity character U+002E
@@ -1329,8 +1453,9 @@ Valid numeric entity character U+002E
 #errors
 #states
 Data state
-#output
-Character .
+#character
+.
+#end-test
 
 #description
 Valid numeric entity character U+002F
@@ -1339,8 +1464,9 @@ Valid numeric entity character U+002F
 #errors
 #states
 Data state
-#output
-Character /
+#character
+/
+#end-test
 
 #description
 Valid numeric entity character U+0030
@@ -1349,8 +1475,9 @@ Valid numeric entity character U+0030
 #errors
 #states
 Data state
-#output
-Character 0
+#character
+0
+#end-test
 
 #description
 Valid numeric entity character U+0031
@@ -1359,8 +1486,9 @@ Valid numeric entity character U+0031
 #errors
 #states
 Data state
-#output
-Character 1
+#character
+1
+#end-test
 
 #description
 Valid numeric entity character U+0032
@@ -1369,8 +1497,9 @@ Valid numeric entity character U+0032
 #errors
 #states
 Data state
-#output
-Character 2
+#character
+2
+#end-test
 
 #description
 Valid numeric entity character U+0033
@@ -1379,8 +1508,9 @@ Valid numeric entity character U+0033
 #errors
 #states
 Data state
-#output
-Character 3
+#character
+3
+#end-test
 
 #description
 Valid numeric entity character U+0034
@@ -1389,8 +1519,9 @@ Valid numeric entity character U+0034
 #errors
 #states
 Data state
-#output
-Character 4
+#character
+4
+#end-test
 
 #description
 Valid numeric entity character U+0035
@@ -1399,8 +1530,9 @@ Valid numeric entity character U+0035
 #errors
 #states
 Data state
-#output
-Character 5
+#character
+5
+#end-test
 
 #description
 Valid numeric entity character U+0036
@@ -1409,8 +1541,9 @@ Valid numeric entity character U+0036
 #errors
 #states
 Data state
-#output
-Character 6
+#character
+6
+#end-test
 
 #description
 Valid numeric entity character U+0037
@@ -1419,8 +1552,9 @@ Valid numeric entity character U+0037
 #errors
 #states
 Data state
-#output
-Character 7
+#character
+7
+#end-test
 
 #description
 Valid numeric entity character U+0038
@@ -1429,8 +1563,9 @@ Valid numeric entity character U+0038
 #errors
 #states
 Data state
-#output
-Character 8
+#character
+8
+#end-test
 
 #description
 Valid numeric entity character U+0039
@@ -1439,8 +1574,9 @@ Valid numeric entity character U+0039
 #errors
 #states
 Data state
-#output
-Character 9
+#character
+9
+#end-test
 
 #description
 Valid numeric entity character U+003A
@@ -1449,8 +1585,9 @@ Valid numeric entity character U+003A
 #errors
 #states
 Data state
-#output
-Character :
+#character
+:
+#end-test
 
 #description
 Valid numeric entity character U+003B
@@ -1459,8 +1596,9 @@ Valid numeric entity character U+003B
 #errors
 #states
 Data state
-#output
-Character ;
+#character
+;
+#end-test
 
 #description
 Valid numeric entity character U+003C
@@ -1469,8 +1607,9 @@ Valid numeric entity character U+003C
 #errors
 #states
 Data state
-#output
-Character <
+#character
+<
+#end-test
 
 #description
 Valid numeric entity character U+003D
@@ -1479,8 +1618,9 @@ Valid numeric entity character U+003D
 #errors
 #states
 Data state
-#output
-Character =
+#character
+=
+#end-test
 
 #description
 Valid numeric entity character U+003E
@@ -1489,8 +1629,9 @@ Valid numeric entity character U+003E
 #errors
 #states
 Data state
-#output
-Character >
+#character
+>
+#end-test
 
 #description
 Valid numeric entity character U+003F
@@ -1499,8 +1640,9 @@ Valid numeric entity character U+003F
 #errors
 #states
 Data state
-#output
-Character ?
+#character
+?
+#end-test
 
 #description
 Valid numeric entity character U+0040
@@ -1509,8 +1651,9 @@ Valid numeric entity character U+0040
 #errors
 #states
 Data state
-#output
-Character @
+#character
+@
+#end-test
 
 #description
 Valid numeric entity character U+0041
@@ -1519,8 +1662,9 @@ Valid numeric entity character U+0041
 #errors
 #states
 Data state
-#output
-Character A
+#character
+A
+#end-test
 
 #description
 Valid numeric entity character U+0042
@@ -1529,8 +1673,9 @@ Valid numeric entity character U+0042
 #errors
 #states
 Data state
-#output
-Character B
+#character
+B
+#end-test
 
 #description
 Valid numeric entity character U+0043
@@ -1539,8 +1684,9 @@ Valid numeric entity character U+0043
 #errors
 #states
 Data state
-#output
-Character C
+#character
+C
+#end-test
 
 #description
 Valid numeric entity character U+0044
@@ -1549,8 +1695,9 @@ Valid numeric entity character U+0044
 #errors
 #states
 Data state
-#output
-Character D
+#character
+D
+#end-test
 
 #description
 Valid numeric entity character U+0045
@@ -1559,8 +1706,9 @@ Valid numeric entity character U+0045
 #errors
 #states
 Data state
-#output
-Character E
+#character
+E
+#end-test
 
 #description
 Valid numeric entity character U+0046
@@ -1569,8 +1717,9 @@ Valid numeric entity character U+0046
 #errors
 #states
 Data state
-#output
-Character F
+#character
+F
+#end-test
 
 #description
 Valid numeric entity character U+0047
@@ -1579,8 +1728,9 @@ Valid numeric entity character U+0047
 #errors
 #states
 Data state
-#output
-Character G
+#character
+G
+#end-test
 
 #description
 Valid numeric entity character U+0048
@@ -1589,8 +1739,9 @@ Valid numeric entity character U+0048
 #errors
 #states
 Data state
-#output
-Character H
+#character
+H
+#end-test
 
 #description
 Valid numeric entity character U+0049
@@ -1599,8 +1750,9 @@ Valid numeric entity character U+0049
 #errors
 #states
 Data state
-#output
-Character I
+#character
+I
+#end-test
 
 #description
 Valid numeric entity character U+004A
@@ -1609,8 +1761,9 @@ Valid numeric entity character U+004A
 #errors
 #states
 Data state
-#output
-Character J
+#character
+J
+#end-test
 
 #description
 Valid numeric entity character U+004B
@@ -1619,8 +1772,9 @@ Valid numeric entity character U+004B
 #errors
 #states
 Data state
-#output
-Character K
+#character
+K
+#end-test
 
 #description
 Valid numeric entity character U+004C
@@ -1629,8 +1783,9 @@ Valid numeric entity character U+004C
 #errors
 #states
 Data state
-#output
-Character L
+#character
+L
+#end-test
 
 #description
 Valid numeric entity character U+004D
@@ -1639,8 +1794,9 @@ Valid numeric entity character U+004D
 #errors
 #states
 Data state
-#output
-Character M
+#character
+M
+#end-test
 
 #description
 Valid numeric entity character U+004E
@@ -1649,8 +1805,9 @@ Valid numeric entity character U+004E
 #errors
 #states
 Data state
-#output
-Character N
+#character
+N
+#end-test
 
 #description
 Valid numeric entity character U+004F
@@ -1659,8 +1816,9 @@ Valid numeric entity character U+004F
 #errors
 #states
 Data state
-#output
-Character O
+#character
+O
+#end-test
 
 #description
 Valid numeric entity character U+0050
@@ -1669,8 +1827,9 @@ Valid numeric entity character U+0050
 #errors
 #states
 Data state
-#output
-Character P
+#character
+P
+#end-test
 
 #description
 Valid numeric entity character U+0051
@@ -1679,8 +1838,9 @@ Valid numeric entity character U+0051
 #errors
 #states
 Data state
-#output
-Character Q
+#character
+Q
+#end-test
 
 #description
 Valid numeric entity character U+0052
@@ -1689,8 +1849,9 @@ Valid numeric entity character U+0052
 #errors
 #states
 Data state
-#output
-Character R
+#character
+R
+#end-test
 
 #description
 Valid numeric entity character U+0053
@@ -1699,8 +1860,9 @@ Valid numeric entity character U+0053
 #errors
 #states
 Data state
-#output
-Character S
+#character
+S
+#end-test
 
 #description
 Valid numeric entity character U+0054
@@ -1709,8 +1871,9 @@ Valid numeric entity character U+0054
 #errors
 #states
 Data state
-#output
-Character T
+#character
+T
+#end-test
 
 #description
 Valid numeric entity character U+0055
@@ -1719,8 +1882,9 @@ Valid numeric entity character U+0055
 #errors
 #states
 Data state
-#output
-Character U
+#character
+U
+#end-test
 
 #description
 Valid numeric entity character U+0056
@@ -1729,8 +1893,9 @@ Valid numeric entity character U+0056
 #errors
 #states
 Data state
-#output
-Character V
+#character
+V
+#end-test
 
 #description
 Valid numeric entity character U+0057
@@ -1739,8 +1904,9 @@ Valid numeric entity character U+0057
 #errors
 #states
 Data state
-#output
-Character W
+#character
+W
+#end-test
 
 #description
 Valid numeric entity character U+0058
@@ -1749,8 +1915,9 @@ Valid numeric entity character U+0058
 #errors
 #states
 Data state
-#output
-Character X
+#character
+X
+#end-test
 
 #description
 Valid numeric entity character U+0059
@@ -1759,8 +1926,9 @@ Valid numeric entity character U+0059
 #errors
 #states
 Data state
-#output
-Character Y
+#character
+Y
+#end-test
 
 #description
 Valid numeric entity character U+005A
@@ -1769,8 +1937,9 @@ Valid numeric entity character U+005A
 #errors
 #states
 Data state
-#output
-Character Z
+#character
+Z
+#end-test
 
 #description
 Valid numeric entity character U+005B
@@ -1779,8 +1948,9 @@ Valid numeric entity character U+005B
 #errors
 #states
 Data state
-#output
-Character [
+#character
+[
+#end-test
 
 #description
 Valid numeric entity character U+005C
@@ -1789,8 +1959,9 @@ Valid numeric entity character U+005C
 #errors
 #states
 Data state
-#output
-Character \
+#character
+\
+#end-test
 
 #description
 Valid numeric entity character U+005D
@@ -1799,8 +1970,9 @@ Valid numeric entity character U+005D
 #errors
 #states
 Data state
-#output
-Character ]
+#character
+]
+#end-test
 
 #description
 Valid numeric entity character U+005E
@@ -1809,8 +1981,9 @@ Valid numeric entity character U+005E
 #errors
 #states
 Data state
-#output
-Character ^
+#character
+^
+#end-test
 
 #description
 Valid numeric entity character U+005F
@@ -1819,8 +1992,9 @@ Valid numeric entity character U+005F
 #errors
 #states
 Data state
-#output
-Character _
+#character
+_
+#end-test
 
 #description
 Valid numeric entity character U+0060
@@ -1829,8 +2003,9 @@ Valid numeric entity character U+0060
 #errors
 #states
 Data state
-#output
-Character `
+#character
+`
+#end-test
 
 #description
 Valid numeric entity character U+0061
@@ -1839,8 +2014,9 @@ Valid numeric entity character U+0061
 #errors
 #states
 Data state
-#output
-Character a
+#character
+a
+#end-test
 
 #description
 Valid numeric entity character U+0062
@@ -1849,8 +2025,9 @@ Valid numeric entity character U+0062
 #errors
 #states
 Data state
-#output
-Character b
+#character
+b
+#end-test
 
 #description
 Valid numeric entity character U+0063
@@ -1859,8 +2036,9 @@ Valid numeric entity character U+0063
 #errors
 #states
 Data state
-#output
-Character c
+#character
+c
+#end-test
 
 #description
 Valid numeric entity character U+0064
@@ -1869,8 +2047,9 @@ Valid numeric entity character U+0064
 #errors
 #states
 Data state
-#output
-Character d
+#character
+d
+#end-test
 
 #description
 Valid numeric entity character U+0065
@@ -1879,8 +2058,9 @@ Valid numeric entity character U+0065
 #errors
 #states
 Data state
-#output
-Character e
+#character
+e
+#end-test
 
 #description
 Valid numeric entity character U+0066
@@ -1889,8 +2069,9 @@ Valid numeric entity character U+0066
 #errors
 #states
 Data state
-#output
-Character f
+#character
+f
+#end-test
 
 #description
 Valid numeric entity character U+0067
@@ -1899,8 +2080,9 @@ Valid numeric entity character U+0067
 #errors
 #states
 Data state
-#output
-Character g
+#character
+g
+#end-test
 
 #description
 Valid numeric entity character U+0068
@@ -1909,8 +2091,9 @@ Valid numeric entity character U+0068
 #errors
 #states
 Data state
-#output
-Character h
+#character
+h
+#end-test
 
 #description
 Valid numeric entity character U+0069
@@ -1919,8 +2102,9 @@ Valid numeric entity character U+0069
 #errors
 #states
 Data state
-#output
-Character i
+#character
+i
+#end-test
 
 #description
 Valid numeric entity character U+006A
@@ -1929,8 +2113,9 @@ Valid numeric entity character U+006A
 #errors
 #states
 Data state
-#output
-Character j
+#character
+j
+#end-test
 
 #description
 Valid numeric entity character U+006B
@@ -1939,8 +2124,9 @@ Valid numeric entity character U+006B
 #errors
 #states
 Data state
-#output
-Character k
+#character
+k
+#end-test
 
 #description
 Valid numeric entity character U+006C
@@ -1949,8 +2135,9 @@ Valid numeric entity character U+006C
 #errors
 #states
 Data state
-#output
-Character l
+#character
+l
+#end-test
 
 #description
 Valid numeric entity character U+006D
@@ -1959,8 +2146,9 @@ Valid numeric entity character U+006D
 #errors
 #states
 Data state
-#output
-Character m
+#character
+m
+#end-test
 
 #description
 Valid numeric entity character U+006E
@@ -1969,8 +2157,9 @@ Valid numeric entity character U+006E
 #errors
 #states
 Data state
-#output
-Character n
+#character
+n
+#end-test
 
 #description
 Valid numeric entity character U+006F
@@ -1979,8 +2168,9 @@ Valid numeric entity character U+006F
 #errors
 #states
 Data state
-#output
-Character o
+#character
+o
+#end-test
 
 #description
 Valid numeric entity character U+0070
@@ -1989,8 +2179,9 @@ Valid numeric entity character U+0070
 #errors
 #states
 Data state
-#output
-Character p
+#character
+p
+#end-test
 
 #description
 Valid numeric entity character U+0071
@@ -1999,8 +2190,9 @@ Valid numeric entity character U+0071
 #errors
 #states
 Data state
-#output
-Character q
+#character
+q
+#end-test
 
 #description
 Valid numeric entity character U+0072
@@ -2009,8 +2201,9 @@ Valid numeric entity character U+0072
 #errors
 #states
 Data state
-#output
-Character r
+#character
+r
+#end-test
 
 #description
 Valid numeric entity character U+0073
@@ -2019,8 +2212,9 @@ Valid numeric entity character U+0073
 #errors
 #states
 Data state
-#output
-Character s
+#character
+s
+#end-test
 
 #description
 Valid numeric entity character U+0074
@@ -2029,8 +2223,9 @@ Valid numeric entity character U+0074
 #errors
 #states
 Data state
-#output
-Character t
+#character
+t
+#end-test
 
 #description
 Valid numeric entity character U+0075
@@ -2039,8 +2234,9 @@ Valid numeric entity character U+0075
 #errors
 #states
 Data state
-#output
-Character u
+#character
+u
+#end-test
 
 #description
 Valid numeric entity character U+0076
@@ -2049,8 +2245,9 @@ Valid numeric entity character U+0076
 #errors
 #states
 Data state
-#output
-Character v
+#character
+v
+#end-test
 
 #description
 Valid numeric entity character U+0077
@@ -2059,8 +2256,9 @@ Valid numeric entity character U+0077
 #errors
 #states
 Data state
-#output
-Character w
+#character
+w
+#end-test
 
 #description
 Valid numeric entity character U+0078
@@ -2069,8 +2267,9 @@ Valid numeric entity character U+0078
 #errors
 #states
 Data state
-#output
-Character x
+#character
+x
+#end-test
 
 #description
 Valid numeric entity character U+0079
@@ -2079,8 +2278,9 @@ Valid numeric entity character U+0079
 #errors
 #states
 Data state
-#output
-Character y
+#character
+y
+#end-test
 
 #description
 Valid numeric entity character U+007A
@@ -2089,8 +2289,9 @@ Valid numeric entity character U+007A
 #errors
 #states
 Data state
-#output
-Character z
+#character
+z
+#end-test
 
 #description
 Valid numeric entity character U+007B
@@ -2099,8 +2300,9 @@ Valid numeric entity character U+007B
 #errors
 #states
 Data state
-#output
-Character {
+#character
+{
+#end-test
 
 #description
 Valid numeric entity character U+007C
@@ -2109,8 +2311,9 @@ Valid numeric entity character U+007C
 #errors
 #states
 Data state
-#output
-Character |
+#character
+|
+#end-test
 
 #description
 Valid numeric entity character U+007D
@@ -2119,8 +2322,9 @@ Valid numeric entity character U+007D
 #errors
 #states
 Data state
-#output
-Character }
+#character
+}
+#end-test
 
 #description
 Valid numeric entity character U+007E
@@ -2129,8 +2333,9 @@ Valid numeric entity character U+007E
 #errors
 #states
 Data state
-#output
-Character ~
+#character
+~
+#end-test
 
 #description
 Valid numeric entity character U+00A0
@@ -2139,8 +2344,9 @@ Valid numeric entity character U+00A0
 #errors
 #states
 Data state
-#output
-Character  
+#character
+ 
+#end-test
 
 #description
 Valid numeric entity character U+00A1
@@ -2149,8 +2355,9 @@ Valid numeric entity character U+00A1
 #errors
 #states
 Data state
-#output
-Character ¡
+#character
+¡
+#end-test
 
 #description
 Valid numeric entity character U+00A2
@@ -2159,8 +2366,9 @@ Valid numeric entity character U+00A2
 #errors
 #states
 Data state
-#output
-Character ¢
+#character
+¢
+#end-test
 
 #description
 Valid numeric entity character U+00A3
@@ -2169,8 +2377,9 @@ Valid numeric entity character U+00A3
 #errors
 #states
 Data state
-#output
-Character £
+#character
+£
+#end-test
 
 #description
 Valid numeric entity character U+00A4
@@ -2179,8 +2388,9 @@ Valid numeric entity character U+00A4
 #errors
 #states
 Data state
-#output
-Character ¤
+#character
+¤
+#end-test
 
 #description
 Valid numeric entity character U+00A5
@@ -2189,8 +2399,9 @@ Valid numeric entity character U+00A5
 #errors
 #states
 Data state
-#output
-Character ¥
+#character
+¥
+#end-test
 
 #description
 Valid numeric entity character U+00A6
@@ -2199,8 +2410,9 @@ Valid numeric entity character U+00A6
 #errors
 #states
 Data state
-#output
-Character ¦
+#character
+¦
+#end-test
 
 #description
 Valid numeric entity character U+00A7
@@ -2209,8 +2421,9 @@ Valid numeric entity character U+00A7
 #errors
 #states
 Data state
-#output
-Character §
+#character
+§
+#end-test
 
 #description
 Valid numeric entity character U+00A8
@@ -2219,8 +2432,9 @@ Valid numeric entity character U+00A8
 #errors
 #states
 Data state
-#output
-Character ¨
+#character
+¨
+#end-test
 
 #description
 Valid numeric entity character U+00A9
@@ -2229,8 +2443,9 @@ Valid numeric entity character U+00A9
 #errors
 #states
 Data state
-#output
-Character ©
+#character
+©
+#end-test
 
 #description
 Valid numeric entity character U+00AA
@@ -2239,8 +2454,9 @@ Valid numeric entity character U+00AA
 #errors
 #states
 Data state
-#output
-Character ª
+#character
+ª
+#end-test
 
 #description
 Valid numeric entity character U+00AB
@@ -2249,8 +2465,9 @@ Valid numeric entity character U+00AB
 #errors
 #states
 Data state
-#output
-Character «
+#character
+«
+#end-test
 
 #description
 Valid numeric entity character U+00AC
@@ -2259,8 +2476,9 @@ Valid numeric entity character U+00AC
 #errors
 #states
 Data state
-#output
-Character ¬
+#character
+¬
+#end-test
 
 #description
 Valid numeric entity character U+00AD
@@ -2269,8 +2487,9 @@ Valid numeric entity character U+00AD
 #errors
 #states
 Data state
-#output
-Character ­
+#character
+­
+#end-test
 
 #description
 Valid numeric entity character U+00AE
@@ -2279,8 +2498,9 @@ Valid numeric entity character U+00AE
 #errors
 #states
 Data state
-#output
-Character ®
+#character
+®
+#end-test
 
 #description
 Valid numeric entity character U+00AF
@@ -2289,8 +2509,9 @@ Valid numeric entity character U+00AF
 #errors
 #states
 Data state
-#output
-Character ¯
+#character
+¯
+#end-test
 
 #description
 Valid numeric entity character U+00B0
@@ -2299,8 +2520,9 @@ Valid numeric entity character U+00B0
 #errors
 #states
 Data state
-#output
-Character °
+#character
+°
+#end-test
 
 #description
 Valid numeric entity character U+00B1
@@ -2309,8 +2531,9 @@ Valid numeric entity character U+00B1
 #errors
 #states
 Data state
-#output
-Character ±
+#character
+±
+#end-test
 
 #description
 Valid numeric entity character U+00B2
@@ -2319,8 +2542,9 @@ Valid numeric entity character U+00B2
 #errors
 #states
 Data state
-#output
-Character ²
+#character
+²
+#end-test
 
 #description
 Valid numeric entity character U+00B3
@@ -2329,8 +2553,9 @@ Valid numeric entity character U+00B3
 #errors
 #states
 Data state
-#output
-Character ³
+#character
+³
+#end-test
 
 #description
 Valid numeric entity character U+00B4
@@ -2339,8 +2564,9 @@ Valid numeric entity character U+00B4
 #errors
 #states
 Data state
-#output
-Character ´
+#character
+´
+#end-test
 
 #description
 Valid numeric entity character U+00B5
@@ -2349,8 +2575,9 @@ Valid numeric entity character U+00B5
 #errors
 #states
 Data state
-#output
-Character µ
+#character
+µ
+#end-test
 
 #description
 Valid numeric entity character U+00B6
@@ -2359,8 +2586,9 @@ Valid numeric entity character U+00B6
 #errors
 #states
 Data state
-#output
-Character ¶
+#character
+¶
+#end-test
 
 #description
 Valid numeric entity character U+00B7
@@ -2369,8 +2597,9 @@ Valid numeric entity character U+00B7
 #errors
 #states
 Data state
-#output
-Character ·
+#character
+·
+#end-test
 
 #description
 Valid numeric entity character U+00B8
@@ -2379,8 +2608,9 @@ Valid numeric entity character U+00B8
 #errors
 #states
 Data state
-#output
-Character ¸
+#character
+¸
+#end-test
 
 #description
 Valid numeric entity character U+00B9
@@ -2389,8 +2619,9 @@ Valid numeric entity character U+00B9
 #errors
 #states
 Data state
-#output
-Character ¹
+#character
+¹
+#end-test
 
 #description
 Valid numeric entity character U+00BA
@@ -2399,8 +2630,9 @@ Valid numeric entity character U+00BA
 #errors
 #states
 Data state
-#output
-Character º
+#character
+º
+#end-test
 
 #description
 Valid numeric entity character U+00BB
@@ -2409,8 +2641,9 @@ Valid numeric entity character U+00BB
 #errors
 #states
 Data state
-#output
-Character »
+#character
+»
+#end-test
 
 #description
 Valid numeric entity character U+00BC
@@ -2419,8 +2652,9 @@ Valid numeric entity character U+00BC
 #errors
 #states
 Data state
-#output
-Character ¼
+#character
+¼
+#end-test
 
 #description
 Valid numeric entity character U+00BD
@@ -2429,8 +2663,9 @@ Valid numeric entity character U+00BD
 #errors
 #states
 Data state
-#output
-Character ½
+#character
+½
+#end-test
 
 #description
 Valid numeric entity character U+00BE
@@ -2439,8 +2674,9 @@ Valid numeric entity character U+00BE
 #errors
 #states
 Data state
-#output
-Character ¾
+#character
+¾
+#end-test
 
 #description
 Valid numeric entity character U+00BF
@@ -2449,8 +2685,9 @@ Valid numeric entity character U+00BF
 #errors
 #states
 Data state
-#output
-Character ¿
+#character
+¿
+#end-test
 
 #description
 Valid numeric entity character U+00C0
@@ -2459,8 +2696,9 @@ Valid numeric entity character U+00C0
 #errors
 #states
 Data state
-#output
-Character À
+#character
+À
+#end-test
 
 #description
 Valid numeric entity character U+00C1
@@ -2469,8 +2707,9 @@ Valid numeric entity character U+00C1
 #errors
 #states
 Data state
-#output
-Character Á
+#character
+Á
+#end-test
 
 #description
 Valid numeric entity character U+00C2
@@ -2479,8 +2718,9 @@ Valid numeric entity character U+00C2
 #errors
 #states
 Data state
-#output
-Character Â
+#character
+Â
+#end-test
 
 #description
 Valid numeric entity character U+00C3
@@ -2489,8 +2729,9 @@ Valid numeric entity character U+00C3
 #errors
 #states
 Data state
-#output
-Character Ã
+#character
+Ã
+#end-test
 
 #description
 Valid numeric entity character U+00C4
@@ -2499,8 +2740,9 @@ Valid numeric entity character U+00C4
 #errors
 #states
 Data state
-#output
-Character Ä
+#character
+Ä
+#end-test
 
 #description
 Valid numeric entity character U+00C5
@@ -2509,8 +2751,9 @@ Valid numeric entity character U+00C5
 #errors
 #states
 Data state
-#output
-Character Å
+#character
+Å
+#end-test
 
 #description
 Valid numeric entity character U+00C6
@@ -2519,8 +2762,9 @@ Valid numeric entity character U+00C6
 #errors
 #states
 Data state
-#output
-Character Æ
+#character
+Æ
+#end-test
 
 #description
 Valid numeric entity character U+00C7
@@ -2529,8 +2773,9 @@ Valid numeric entity character U+00C7
 #errors
 #states
 Data state
-#output
-Character Ç
+#character
+Ç
+#end-test
 
 #description
 Valid numeric entity character U+00C8
@@ -2539,8 +2784,9 @@ Valid numeric entity character U+00C8
 #errors
 #states
 Data state
-#output
-Character È
+#character
+È
+#end-test
 
 #description
 Valid numeric entity character U+00C9
@@ -2549,8 +2795,9 @@ Valid numeric entity character U+00C9
 #errors
 #states
 Data state
-#output
-Character É
+#character
+É
+#end-test
 
 #description
 Valid numeric entity character U+00CA
@@ -2559,8 +2806,9 @@ Valid numeric entity character U+00CA
 #errors
 #states
 Data state
-#output
-Character Ê
+#character
+Ê
+#end-test
 
 #description
 Valid numeric entity character U+00CB
@@ -2569,8 +2817,9 @@ Valid numeric entity character U+00CB
 #errors
 #states
 Data state
-#output
-Character Ë
+#character
+Ë
+#end-test
 
 #description
 Valid numeric entity character U+00CC
@@ -2579,8 +2828,9 @@ Valid numeric entity character U+00CC
 #errors
 #states
 Data state
-#output
-Character Ì
+#character
+Ì
+#end-test
 
 #description
 Valid numeric entity character U+00CD
@@ -2589,8 +2839,9 @@ Valid numeric entity character U+00CD
 #errors
 #states
 Data state
-#output
-Character Í
+#character
+Í
+#end-test
 
 #description
 Valid numeric entity character U+00CE
@@ -2599,8 +2850,9 @@ Valid numeric entity character U+00CE
 #errors
 #states
 Data state
-#output
-Character Î
+#character
+Î
+#end-test
 
 #description
 Valid numeric entity character U+00CF
@@ -2609,8 +2861,9 @@ Valid numeric entity character U+00CF
 #errors
 #states
 Data state
-#output
-Character Ï
+#character
+Ï
+#end-test
 
 #description
 Valid numeric entity character U+00D0
@@ -2619,8 +2872,9 @@ Valid numeric entity character U+00D0
 #errors
 #states
 Data state
-#output
-Character Ð
+#character
+Ð
+#end-test
 
 #description
 Valid numeric entity character U+00D1
@@ -2629,8 +2883,9 @@ Valid numeric entity character U+00D1
 #errors
 #states
 Data state
-#output
-Character Ñ
+#character
+Ñ
+#end-test
 
 #description
 Valid numeric entity character U+00D2
@@ -2639,8 +2894,9 @@ Valid numeric entity character U+00D2
 #errors
 #states
 Data state
-#output
-Character Ò
+#character
+Ò
+#end-test
 
 #description
 Valid numeric entity character U+00D3
@@ -2649,8 +2905,9 @@ Valid numeric entity character U+00D3
 #errors
 #states
 Data state
-#output
-Character Ó
+#character
+Ó
+#end-test
 
 #description
 Valid numeric entity character U+00D4
@@ -2659,8 +2916,9 @@ Valid numeric entity character U+00D4
 #errors
 #states
 Data state
-#output
-Character Ô
+#character
+Ô
+#end-test
 
 #description
 Valid numeric entity character U+00D5
@@ -2669,8 +2927,9 @@ Valid numeric entity character U+00D5
 #errors
 #states
 Data state
-#output
-Character Õ
+#character
+Õ
+#end-test
 
 #description
 Valid numeric entity character U+00D6
@@ -2679,8 +2938,9 @@ Valid numeric entity character U+00D6
 #errors
 #states
 Data state
-#output
-Character Ö
+#character
+Ö
+#end-test
 
 #description
 Valid numeric entity character U+00D7
@@ -2689,8 +2949,9 @@ Valid numeric entity character U+00D7
 #errors
 #states
 Data state
-#output
-Character ×
+#character
+×
+#end-test
 
 #description
 Valid numeric entity character U+00D8
@@ -2699,8 +2960,9 @@ Valid numeric entity character U+00D8
 #errors
 #states
 Data state
-#output
-Character Ø
+#character
+Ø
+#end-test
 
 #description
 Valid numeric entity character U+00D9
@@ -2709,8 +2971,9 @@ Valid numeric entity character U+00D9
 #errors
 #states
 Data state
-#output
-Character Ù
+#character
+Ù
+#end-test
 
 #description
 Valid numeric entity character U+00DA
@@ -2719,8 +2982,9 @@ Valid numeric entity character U+00DA
 #errors
 #states
 Data state
-#output
-Character Ú
+#character
+Ú
+#end-test
 
 #description
 Valid numeric entity character U+00DB
@@ -2729,8 +2993,9 @@ Valid numeric entity character U+00DB
 #errors
 #states
 Data state
-#output
-Character Û
+#character
+Û
+#end-test
 
 #description
 Valid numeric entity character U+00DC
@@ -2739,8 +3004,9 @@ Valid numeric entity character U+00DC
 #errors
 #states
 Data state
-#output
-Character Ü
+#character
+Ü
+#end-test
 
 #description
 Valid numeric entity character U+00DD
@@ -2749,8 +3015,9 @@ Valid numeric entity character U+00DD
 #errors
 #states
 Data state
-#output
-Character Ý
+#character
+Ý
+#end-test
 
 #description
 Valid numeric entity character U+00DE
@@ -2759,8 +3026,9 @@ Valid numeric entity character U+00DE
 #errors
 #states
 Data state
-#output
-Character Þ
+#character
+Þ
+#end-test
 
 #description
 Valid numeric entity character U+00DF
@@ -2769,8 +3037,9 @@ Valid numeric entity character U+00DF
 #errors
 #states
 Data state
-#output
-Character ß
+#character
+ß
+#end-test
 
 #description
 Valid numeric entity character U+00E0
@@ -2779,8 +3048,9 @@ Valid numeric entity character U+00E0
 #errors
 #states
 Data state
-#output
-Character à
+#character
+à
+#end-test
 
 #description
 Valid numeric entity character U+00E1
@@ -2789,8 +3059,9 @@ Valid numeric entity character U+00E1
 #errors
 #states
 Data state
-#output
-Character á
+#character
+á
+#end-test
 
 #description
 Valid numeric entity character U+00E2
@@ -2799,8 +3070,9 @@ Valid numeric entity character U+00E2
 #errors
 #states
 Data state
-#output
-Character â
+#character
+â
+#end-test
 
 #description
 Valid numeric entity character U+00E3
@@ -2809,8 +3081,9 @@ Valid numeric entity character U+00E3
 #errors
 #states
 Data state
-#output
-Character ã
+#character
+ã
+#end-test
 
 #description
 Valid numeric entity character U+00E4
@@ -2819,8 +3092,9 @@ Valid numeric entity character U+00E4
 #errors
 #states
 Data state
-#output
-Character ä
+#character
+ä
+#end-test
 
 #description
 Valid numeric entity character U+00E5
@@ -2829,8 +3103,9 @@ Valid numeric entity character U+00E5
 #errors
 #states
 Data state
-#output
-Character å
+#character
+å
+#end-test
 
 #description
 Valid numeric entity character U+00E6
@@ -2839,8 +3114,9 @@ Valid numeric entity character U+00E6
 #errors
 #states
 Data state
-#output
-Character æ
+#character
+æ
+#end-test
 
 #description
 Valid numeric entity character U+00E7
@@ -2849,8 +3125,9 @@ Valid numeric entity character U+00E7
 #errors
 #states
 Data state
-#output
-Character ç
+#character
+ç
+#end-test
 
 #description
 Valid numeric entity character U+00E8
@@ -2859,8 +3136,9 @@ Valid numeric entity character U+00E8
 #errors
 #states
 Data state
-#output
-Character è
+#character
+è
+#end-test
 
 #description
 Valid numeric entity character U+00E9
@@ -2869,8 +3147,9 @@ Valid numeric entity character U+00E9
 #errors
 #states
 Data state
-#output
-Character é
+#character
+é
+#end-test
 
 #description
 Valid numeric entity character U+00EA
@@ -2879,8 +3158,9 @@ Valid numeric entity character U+00EA
 #errors
 #states
 Data state
-#output
-Character ê
+#character
+ê
+#end-test
 
 #description
 Valid numeric entity character U+00EB
@@ -2889,8 +3169,9 @@ Valid numeric entity character U+00EB
 #errors
 #states
 Data state
-#output
-Character ë
+#character
+ë
+#end-test
 
 #description
 Valid numeric entity character U+00EC
@@ -2899,8 +3180,9 @@ Valid numeric entity character U+00EC
 #errors
 #states
 Data state
-#output
-Character ì
+#character
+ì
+#end-test
 
 #description
 Valid numeric entity character U+00ED
@@ -2909,8 +3191,9 @@ Valid numeric entity character U+00ED
 #errors
 #states
 Data state
-#output
-Character í
+#character
+í
+#end-test
 
 #description
 Valid numeric entity character U+00EE
@@ -2919,8 +3202,9 @@ Valid numeric entity character U+00EE
 #errors
 #states
 Data state
-#output
-Character î
+#character
+î
+#end-test
 
 #description
 Valid numeric entity character U+00EF
@@ -2929,8 +3213,9 @@ Valid numeric entity character U+00EF
 #errors
 #states
 Data state
-#output
-Character ï
+#character
+ï
+#end-test
 
 #description
 Valid numeric entity character U+00F0
@@ -2939,8 +3224,9 @@ Valid numeric entity character U+00F0
 #errors
 #states
 Data state
-#output
-Character ð
+#character
+ð
+#end-test
 
 #description
 Valid numeric entity character U+00F1
@@ -2949,8 +3235,9 @@ Valid numeric entity character U+00F1
 #errors
 #states
 Data state
-#output
-Character ñ
+#character
+ñ
+#end-test
 
 #description
 Valid numeric entity character U+00F2
@@ -2959,8 +3246,9 @@ Valid numeric entity character U+00F2
 #errors
 #states
 Data state
-#output
-Character ò
+#character
+ò
+#end-test
 
 #description
 Valid numeric entity character U+00F3
@@ -2969,8 +3257,9 @@ Valid numeric entity character U+00F3
 #errors
 #states
 Data state
-#output
-Character ó
+#character
+ó
+#end-test
 
 #description
 Valid numeric entity character U+00F4
@@ -2979,8 +3268,9 @@ Valid numeric entity character U+00F4
 #errors
 #states
 Data state
-#output
-Character ô
+#character
+ô
+#end-test
 
 #description
 Valid numeric entity character U+00F5
@@ -2989,8 +3279,9 @@ Valid numeric entity character U+00F5
 #errors
 #states
 Data state
-#output
-Character õ
+#character
+õ
+#end-test
 
 #description
 Valid numeric entity character U+00F6
@@ -2999,8 +3290,9 @@ Valid numeric entity character U+00F6
 #errors
 #states
 Data state
-#output
-Character ö
+#character
+ö
+#end-test
 
 #description
 Valid numeric entity character U+00F7
@@ -3009,8 +3301,9 @@ Valid numeric entity character U+00F7
 #errors
 #states
 Data state
-#output
-Character ÷
+#character
+÷
+#end-test
 
 #description
 Valid numeric entity character U+00F8
@@ -3019,8 +3312,9 @@ Valid numeric entity character U+00F8
 #errors
 #states
 Data state
-#output
-Character ø
+#character
+ø
+#end-test
 
 #description
 Valid numeric entity character U+00F9
@@ -3029,8 +3323,9 @@ Valid numeric entity character U+00F9
 #errors
 #states
 Data state
-#output
-Character ù
+#character
+ù
+#end-test
 
 #description
 Valid numeric entity character U+00FA
@@ -3039,8 +3334,9 @@ Valid numeric entity character U+00FA
 #errors
 #states
 Data state
-#output
-Character ú
+#character
+ú
+#end-test
 
 #description
 Valid numeric entity character U+00FB
@@ -3049,8 +3345,9 @@ Valid numeric entity character U+00FB
 #errors
 #states
 Data state
-#output
-Character û
+#character
+û
+#end-test
 
 #description
 Valid numeric entity character U+00FC
@@ -3059,8 +3356,9 @@ Valid numeric entity character U+00FC
 #errors
 #states
 Data state
-#output
-Character ü
+#character
+ü
+#end-test
 
 #description
 Valid numeric entity character U+00FD
@@ -3069,8 +3367,9 @@ Valid numeric entity character U+00FD
 #errors
 #states
 Data state
-#output
-Character ý
+#character
+ý
+#end-test
 
 #description
 Valid numeric entity character U+00FE
@@ -3079,8 +3378,9 @@ Valid numeric entity character U+00FE
 #errors
 #states
 Data state
-#output
-Character þ
+#character
+þ
+#end-test
 
 #description
 Valid numeric entity character U+00FF
@@ -3089,8 +3389,9 @@ Valid numeric entity character U+00FF
 #errors
 #states
 Data state
-#output
-Character ÿ
+#character
+ÿ
+#end-test
 
 #description
 Valid numeric entity character U+D7FF
@@ -3099,8 +3400,9 @@ Valid numeric entity character U+D7FF
 #errors
 #states
 Data state
-#output
-Character ퟿
+#character
+퟿
+#end-test
 
 #description
 Valid numeric entity character U+E000
@@ -3109,8 +3411,9 @@ Valid numeric entity character U+E000
 #errors
 #states
 Data state
-#output
-Character 
+#character
+
+#end-test
 
 #description
 Valid numeric entity character U+FDCF
@@ -3119,8 +3422,9 @@ Valid numeric entity character U+FDCF
 #errors
 #states
 Data state
-#output
-Character ﷏
+#character
+﷏
+#end-test
 
 #description
 Valid numeric entity character U+FDF0
@@ -3129,8 +3433,9 @@ Valid numeric entity character U+FDF0
 #errors
 #states
 Data state
-#output
-Character ﷰ
+#character
+ﷰ
+#end-test
 
 #description
 Valid numeric entity character U+FFFD
@@ -3139,8 +3444,9 @@ Valid numeric entity character U+FFFD
 #errors
 #states
 Data state
-#output
-Character �
+#character
+�
+#end-test
 
 #description
 Valid numeric entity character U+10000
@@ -3149,8 +3455,9 @@ Valid numeric entity character U+10000
 #errors
 #states
 Data state
-#output
-Character 𐀀
+#character
+𐀀
+#end-test
 
 #description
 Valid numeric entity character U+1FFFD
@@ -3159,8 +3466,9 @@ Valid numeric entity character U+1FFFD
 #errors
 #states
 Data state
-#output
-Character 🿽
+#character
+🿽
+#end-test
 
 #description
 Valid numeric entity character U+20000
@@ -3169,8 +3477,9 @@ Valid numeric entity character U+20000
 #errors
 #states
 Data state
-#output
-Character 𠀀
+#character
+𠀀
+#end-test
 
 #description
 Valid numeric entity character U+2FFFD
@@ -3179,8 +3488,9 @@ Valid numeric entity character U+2FFFD
 #errors
 #states
 Data state
-#output
-Character 𯿽
+#character
+𯿽
+#end-test
 
 #description
 Valid numeric entity character U+30000
@@ -3189,8 +3499,9 @@ Valid numeric entity character U+30000
 #errors
 #states
 Data state
-#output
-Character 𰀀
+#character
+𰀀
+#end-test
 
 #description
 Valid numeric entity character U+3FFFD
@@ -3199,8 +3510,9 @@ Valid numeric entity character U+3FFFD
 #errors
 #states
 Data state
-#output
-Character 𿿽
+#character
+𿿽
+#end-test
 
 #description
 Valid numeric entity character U+40000
@@ -3209,8 +3521,9 @@ Valid numeric entity character U+40000
 #errors
 #states
 Data state
-#output
-Character 񀀀
+#character
+񀀀
+#end-test
 
 #description
 Valid numeric entity character U+4FFFD
@@ -3219,8 +3532,9 @@ Valid numeric entity character U+4FFFD
 #errors
 #states
 Data state
-#output
-Character 񏿽
+#character
+񏿽
+#end-test
 
 #description
 Valid numeric entity character U+50000
@@ -3229,8 +3543,9 @@ Valid numeric entity character U+50000
 #errors
 #states
 Data state
-#output
-Character 񐀀
+#character
+񐀀
+#end-test
 
 #description
 Valid numeric entity character U+5FFFD
@@ -3239,8 +3554,9 @@ Valid numeric entity character U+5FFFD
 #errors
 #states
 Data state
-#output
-Character 񟿽
+#character
+񟿽
+#end-test
 
 #description
 Valid numeric entity character U+60000
@@ -3249,8 +3565,9 @@ Valid numeric entity character U+60000
 #errors
 #states
 Data state
-#output
-Character 񠀀
+#character
+񠀀
+#end-test
 
 #description
 Valid numeric entity character U+6FFFD
@@ -3259,8 +3576,9 @@ Valid numeric entity character U+6FFFD
 #errors
 #states
 Data state
-#output
-Character 񯿽
+#character
+񯿽
+#end-test
 
 #description
 Valid numeric entity character U+70000
@@ -3269,8 +3587,9 @@ Valid numeric entity character U+70000
 #errors
 #states
 Data state
-#output
-Character 񰀀
+#character
+񰀀
+#end-test
 
 #description
 Valid numeric entity character U+7FFFD
@@ -3279,8 +3598,9 @@ Valid numeric entity character U+7FFFD
 #errors
 #states
 Data state
-#output
-Character 񿿽
+#character
+񿿽
+#end-test
 
 #description
 Valid numeric entity character U+80000
@@ -3289,8 +3609,9 @@ Valid numeric entity character U+80000
 #errors
 #states
 Data state
-#output
-Character 򀀀
+#character
+򀀀
+#end-test
 
 #description
 Valid numeric entity character U+8FFFD
@@ -3299,8 +3620,9 @@ Valid numeric entity character U+8FFFD
 #errors
 #states
 Data state
-#output
-Character 򏿽
+#character
+򏿽
+#end-test
 
 #description
 Valid numeric entity character U+90000
@@ -3309,8 +3631,9 @@ Valid numeric entity character U+90000
 #errors
 #states
 Data state
-#output
-Character 򐀀
+#character
+򐀀
+#end-test
 
 #description
 Valid numeric entity character U+9FFFD
@@ -3319,8 +3642,9 @@ Valid numeric entity character U+9FFFD
 #errors
 #states
 Data state
-#output
-Character 򟿽
+#character
+򟿽
+#end-test
 
 #description
 Valid numeric entity character U+A0000
@@ -3329,8 +3653,9 @@ Valid numeric entity character U+A0000
 #errors
 #states
 Data state
-#output
-Character 򠀀
+#character
+򠀀
+#end-test
 
 #description
 Valid numeric entity character U+AFFFD
@@ -3339,8 +3664,9 @@ Valid numeric entity character U+AFFFD
 #errors
 #states
 Data state
-#output
-Character 򯿽
+#character
+򯿽
+#end-test
 
 #description
 Valid numeric entity character U+B0000
@@ -3349,8 +3675,9 @@ Valid numeric entity character U+B0000
 #errors
 #states
 Data state
-#output
-Character 򰀀
+#character
+򰀀
+#end-test
 
 #description
 Valid numeric entity character U+BFFFD
@@ -3359,8 +3686,9 @@ Valid numeric entity character U+BFFFD
 #errors
 #states
 Data state
-#output
-Character 򿿽
+#character
+򿿽
+#end-test
 
 #description
 Valid numeric entity character U+C0000
@@ -3369,8 +3697,9 @@ Valid numeric entity character U+C0000
 #errors
 #states
 Data state
-#output
-Character 󀀀
+#character
+󀀀
+#end-test
 
 #description
 Valid numeric entity character U+CFFFD
@@ -3379,8 +3708,9 @@ Valid numeric entity character U+CFFFD
 #errors
 #states
 Data state
-#output
-Character 󏿽
+#character
+󏿽
+#end-test
 
 #description
 Valid numeric entity character U+D0000
@@ -3389,8 +3719,9 @@ Valid numeric entity character U+D0000
 #errors
 #states
 Data state
-#output
-Character 󐀀
+#character
+󐀀
+#end-test
 
 #description
 Valid numeric entity character U+DFFFD
@@ -3399,8 +3730,9 @@ Valid numeric entity character U+DFFFD
 #errors
 #states
 Data state
-#output
-Character 󟿽
+#character
+󟿽
+#end-test
 
 #description
 Valid numeric entity character U+E0000
@@ -3409,8 +3741,9 @@ Valid numeric entity character U+E0000
 #errors
 #states
 Data state
-#output
-Character 󠀀
+#character
+󠀀
+#end-test
 
 #description
 Valid numeric entity character U+EFFFD
@@ -3419,8 +3752,9 @@ Valid numeric entity character U+EFFFD
 #errors
 #states
 Data state
-#output
-Character 󯿽
+#character
+󯿽
+#end-test
 
 #description
 Valid numeric entity character U+F0000
@@ -3429,8 +3763,9 @@ Valid numeric entity character U+F0000
 #errors
 #states
 Data state
-#output
-Character 󰀀
+#character
+󰀀
+#end-test
 
 #description
 Valid numeric entity character U+FFFFD
@@ -3439,8 +3774,9 @@ Valid numeric entity character U+FFFFD
 #errors
 #states
 Data state
-#output
-Character 󿿽
+#character
+󿿽
+#end-test
 
 #description
 Valid numeric entity character U+100000
@@ -3449,8 +3785,9 @@ Valid numeric entity character U+100000
 #errors
 #states
 Data state
-#output
-Character 􀀀
+#character
+􀀀
+#end-test
 
 #description
 Valid numeric entity character U+10FFFD
@@ -3459,5 +3796,6 @@ Valid numeric entity character U+10FFFD
 #errors
 #states
 Data state
-#output
-Character 􏿽
+#character
+􏿽
+#end-test

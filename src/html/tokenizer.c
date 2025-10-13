@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "util/utf8.h"
 
@@ -33,7 +34,7 @@ typedef struct
     uint32_t value;
 } numeric_char_ref_t;
 
-static const unsigned char* buffer                                      = NULL;
+static unsigned char* buffer                                            = NULL;
 static uint32_t size                                                    = 0;
 static uint32_t cursor                                                  = 0;
 static html_token_t* tokens                                             = NULL;
@@ -385,7 +386,7 @@ static void update_comment_token_replacement_char()
 
 static void update_comment_token_from_buffer()
 {
-    assert(bytes_read >= 0);
+    if (bytes_read <= 0) { return; }
 
     uint32_t read = (uint32_t)bytes_read;
     uint32_t data_size = tokens[token_idx].data_size;
@@ -662,17 +663,50 @@ static void flush_temp_buffer_to_attribute_value()
     }
 }
 
+static void normalize_line_endings()
+{
+    if (size == 0) { return; }
+
+    uint32_t new_size = size;
+
+    // replace \r\n with \n
+    for (uint32_t i = 0; i < size - 1; i++)
+    {
+        if (buffer[i] != '\r' || buffer[i + 1] != '\n') { continue; }
+
+        new_size--;
+
+        for (uint32_t j = i + 1; j < size; j++)
+        {
+            buffer[j - 1] = buffer[j];
+        }
+    }
+
+    size = new_size;
+
+    // replace \r with \n
+    for (uint32_t i = 0; i < size; i++)
+    {
+        if (buffer[i] == '\r') { buffer[i] = '\n'; }
+    }
+}
+
 /********************/
 /* public functions */
 /********************/
 
 void html_tokenizer_init(const unsigned char* new_buffer, const uint32_t new_size, html_token_t* new_tokens, const uint32_t new_max_tokens)
 {
-    // assert(new_buffer);
+    assert(new_buffer);
 
-    buffer                      = new_buffer;
-    cursor                      = 0;
+    buffer                      = malloc(new_size + 1);
+    buffer[new_size]            = 0;
     size                        = new_size;
+    memcpy(buffer, new_buffer, new_size);
+
+    normalize_line_endings();
+
+    cursor                      = 0;
     tokens                      = new_tokens;
     max_tokens                  = new_max_tokens;
 
@@ -1879,8 +1913,12 @@ html_tokenizer_error_e html_tokenizer_next()
 
             if (code_point == '>')
             {
-                tokens[token_idx].self_closing  = true;
+                if (tokens[token_idx].type == HTML_START_TOKEN)
+                {
+                    tokens[token_idx].self_closing  = true;
+                }
                 state                           = HTML_TOKENIZER_DATA_STATE;
+                emit_attribute();
                 emit_token();
             }
             else
@@ -2025,6 +2063,15 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#comment-less-than-sign-state
         case HTML_TOKENIZER_COMMENT_LESS_THAN_STATE:
+            if (is_eof)
+            {
+                emit_token();
+                create_eof_token();
+                emit_token();
+                status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
+                break;
+            }
+
             switch (code_point)
             {
             case '!':
@@ -3091,5 +3138,6 @@ void html_tokenizer_set_state(html_tokenizer_state_e new_state)
 
 void html_tokenizer_free()
 {
-
+    if (buffer) { free(buffer); }
+    buffer = NULL;
 }
