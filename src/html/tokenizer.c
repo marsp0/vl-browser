@@ -2909,95 +2909,53 @@ html_tokenizer_error_e html_tokenizer_next()
         // https://html.spec.whatwg.org/multipage/parsing.html#named-character-reference-state
         case HTML_TOKENIZER_NAMED_CHARACTER_REFERENCE_STATE:
             ;
-            bool entity_found = false;
+
             // maximum possible size of named chars
-            uint32_t max_normal_size    = 33;
-            uint32_t max_size           = cursor + max_normal_size > size ? size : cursor + max_normal_size;
-            uint32_t semicolon_idx      = 0;
+            uint32_t max_size    = cursor + 33;
+            max_size = max_size > size ? size : max_size;
+            bool found = false;
 
             for (uint32_t i = cursor; i < max_size; i++)
             {
-                if (buffer[i] == ';') { semicolon_idx = i + 1; break; }
+                update_temp_buffer(buffer[i]);
             }
 
-            // maximum possible size of named refs that do not end in ;
-            uint32_t max_abnormal_size = 7;
-
-            // either invalid entity or one that does not end with ;
-            if (semicolon_idx < cursor)
+            while (!found)
             {
-                max_size = cursor + max_abnormal_size > size ? size : cursor + max_abnormal_size;
+                if (temp_buffer_size == 1) { break; }
 
-                for (uint32_t i = cursor; i < max_size; i++)
-                {
-                    update_temp_buffer(buffer[i]);
-                }
-
-                uint32_t original_temp_buf_size = temp_buffer_size;
-
-                while (true)
-                {
-                    if (temp_buffer_size == 1) { break; }
-
-                    hash_str_t hash_val = hash_str_compute(temp_buffer, temp_buffer_size);
-                    uint32_t named_cp = html_get_named_char_ref(hash_val);
-                    if (named_cp > 0)
-                    {
-                        uint32_t old_size = temp_buffer_size;
-                        clear_temp_buffer();
-                        int32_t bytes = utf8_encode(named_cp, temp_buffer);
-        
-                        if (bytes <= 0) { break; }
-        
-                        temp_buffer_size    = (uint32_t)bytes;
-                        emit_temp_buffer();
-        
-                        cursor              = cursor + old_size + 1;
-                        consume             = false;
-                        state               = return_state;
-                        entity_found        = true;
-                        break;
-                    }
-                    temp_buffer_size--;
-                }
-
-                if (!entity_found)
-                {
-                    emit_temp_buffer();
-                    temp_buffer_size = original_temp_buf_size;
-                    cursor              = cursor + original_temp_buf_size;
-                    consume             = false;
-                    state               = return_state;
-                }
-            }
-            // entity that ends with ;
-            else
-            {
-                for (uint32_t i = cursor; i < semicolon_idx; i++)
-                {
-                    update_temp_buffer(buffer[i]);
-                }
-    
                 hash_str_t hash_val = hash_str_compute(temp_buffer, temp_buffer_size);
-    
                 uint32_t named_cp = html_get_named_char_ref(hash_val);
+
                 if (named_cp > 0)
                 {
+                    cursor  = cursor + temp_buffer_size + 1;
+                    consume = false;
+                    state   = return_state;
+                    found   = true;
+
                     clear_temp_buffer();
                     int32_t bytes = utf8_encode(named_cp, temp_buffer);
     
-                    if (bytes <= 0) { break; }
-    
                     temp_buffer_size    = (uint32_t)bytes;
                     emit_temp_buffer();
-    
-                    cursor              = semicolon_idx;
-                    consume             = false;
-                    state               = return_state;
-                    entity_found        = true;
+                    break;
                 }
+
+                temp_buffer_size--;
+            }
+            
+            if (found) { break; }
+
+            for (uint32_t i = cursor; i < max_size; i++)
+            {
+                update_temp_buffer(buffer[i]);
             }
 
+            emit_temp_buffer();
+            cursor              = cursor + temp_buffer_size - 1;
+            consume             = false;
+            state               = return_state;
             break;
 
         // https://html.spec.whatwg.org/multipage/parsing.html#ambiguous-ampersand-state

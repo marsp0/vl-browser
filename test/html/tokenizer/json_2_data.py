@@ -20,8 +20,8 @@ def write_array(file, arr):
     file.write(arr + '\n')
 
 def json_2_data(args):
-    i_path = args['i']
-    o_path = args['o']
+    i_path = args['i'] or './input'
+    o_path = args['o'] or './data'
     not_supported = set([])
 
     with open(os.path.join(i_path, '..', 'not_supported.json'), 'r') as f:
@@ -120,8 +120,8 @@ def json_2_data(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script that converts json files from html5-lib to data files')
-    parser.add_argument('-i', help='input folder', required=True)
-    parser.add_argument('-o', help='output folder', required=True)
+    parser.add_argument('-i', help='input folder')
+    parser.add_argument('-o', help='output folder')
     args = vars(parser.parse_args())
     json_2_data(args)
     

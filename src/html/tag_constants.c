@@ -552,8 +552,6 @@ void html_populate_tags()
 
     spacer          = hash_str_new("spacer", 6);
     SPACER          = hash_str_new("SPACER", 6);
-
-    hash_str_pool_stats();
 }
 
 hash_str_t html_tag_html()
