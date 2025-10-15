@@ -1,9 +1,5 @@
 [
     "Hexadecimal entity in attribute",
-    "Entity in attribute without semicolon ending in x",
-    "Entity in attribute without semicolon ending in 1",
-    "Entity in attribute without semicolon ending in i",
-    "Entity in attribute without semicolon",
 
     "Invalid numeric entity character U+10FFFF",
 

@@ -1245,6 +1245,67 @@ Data state
 #end-test
 
 #description
+Entity in attribute without semicolon ending in x
+#data
+<h a='&notx'>
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&notx
+#end-test
+
+#description
+Entity in attribute without semicolon ending in 1
+#data
+<h a='&not1'>
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&not1
+#end-test
+
+#description
+Entity in attribute without semicolon ending in i
+#data
+<h a='&noti'>
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&noti
+#end-test
+
+#description
+Entity in attribute without semicolon
+#data
+<h a='&COPY'>
+#errors
+(1, 12): missing-semicolon-after-character-reference
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+©
+#end-test
+
+#description
 Unquoted attribute ending in ampersand
 #data
 <s o=& t>

@@ -2909,7 +2909,6 @@ html_tokenizer_error_e html_tokenizer_next()
         // https://html.spec.whatwg.org/multipage/parsing.html#named-character-reference-state
         case HTML_TOKENIZER_NAMED_CHARACTER_REFERENCE_STATE:
             ;
-
             // maximum possible size of named chars
             uint32_t max_size    = cursor + 33;
             max_size = max_size > size ? size : max_size;
@@ -2934,11 +2933,24 @@ html_tokenizer_error_e html_tokenizer_next()
                     state   = return_state;
                     found   = true;
 
-                    clear_temp_buffer();
-                    int32_t bytes = utf8_encode(named_cp, temp_buffer);
-    
-                    temp_buffer_size    = (uint32_t)bytes;
-                    emit_temp_buffer();
+                    if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
+                        return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
+                        return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
+                    {
+                        for (uint32_t i = 0; i < temp_buffer_size; i++)
+                        {
+                            update_attribute_value(temp_buffer[i]);
+                        }
+                    }
+                    else
+                    {
+                        clear_temp_buffer();
+                        int32_t bytes = utf8_encode(named_cp, temp_buffer);
+
+                        temp_buffer_size    = (uint32_t)bytes;
+                        emit_temp_buffer();
+                    }
+
                     break;
                 }
 
