@@ -15,8 +15,8 @@
 /********************/
 
 // todo: make this reallocation automatic
-#define INITIAL_SIZE 120
-#define INITIAL_MULTIPLIER 6
+#define INITIAL_SIZE 600
+#define INITIAL_MULTIPLIER 30
 
 /********************/
 /* static variables */

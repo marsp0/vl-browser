@@ -1052,6 +1052,19 @@ Data state
 #end-test
 
 #description
+Unfinished entity
+#data
+&f
+#errors
+#states
+Data state
+#character
+&
+#character
+f
+#end-test
+
+#description
 Ampersand, number sign
 #data
 &#
@@ -1079,6 +1092,119 @@ Data state
 #
 #character
 x
+#end-test
+
+#description
+Entity with trailing semicolon (1)
+#data
+I'm &not;it
+#errors
+#states
+Data state
+#character
+I
+#character
+'
+#character
+m
+#character
+ 
+#character
+¬
+#character
+i
+#character
+t
+#end-test
+
+#description
+Entity with trailing semicolon (2)
+#data
+I'm &notin;
+#errors
+#states
+Data state
+#character
+I
+#character
+'
+#character
+m
+#character
+ 
+#character
+∉
+#end-test
+
+#description
+Entity without trailing semicolon (1)
+#data
+I'm &notit
+#errors
+(1, 9): missing-semicolon-after-character-reference
+#states
+Data state
+#character
+I
+#character
+'
+#character
+m
+#character
+ 
+#character
+¬
+#character
+i
+#character
+t
+#end-test
+
+#description
+Entity without trailing semicolon (2)
+#data
+I'm &notin
+#errors
+(1, 9): missing-semicolon-after-character-reference
+#states
+Data state
+#character
+I
+#character
+'
+#character
+m
+#character
+ 
+#character
+¬
+#character
+i
+#character
+n
+#end-test
+
+#description
+Partial entity match at end of file
+#data
+I'm &no
+#errors
+#states
+Data state
+#character
+I
+#character
+'
+#character
+m
+#character
+ 
+#character
+&
+#character
+n
+#character
+o
 #end-test
 
 #description
