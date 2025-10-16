@@ -433,6 +433,8 @@ void html_tokenizer_test()
                                     "./test/html/tokenizer/data/numericEntities.data",
                                     "./test/html/tokenizer/data/test4.data",
                                     "./test/html/tokenizer/data/namedEntities.data",
+                                    "./test/html/tokenizer/data/unicodeChars.data",
+                                    "./test/html/tokenizer/data/unicodeCharsProblematic.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 

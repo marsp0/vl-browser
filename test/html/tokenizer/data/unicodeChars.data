@@ -1,0 +1,3646 @@
+#description
+Invalid Unicode character U+0001
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0002
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0003
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0004
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0005
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0006
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0007
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0008
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+000B
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+000E
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+000F
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0010
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0011
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0012
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0013
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0014
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0015
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0016
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0017
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0018
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+0019
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+001A
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+001B
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+001C
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+001D
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+001E
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+001F
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+007F
+#data
+
+#errors
+(1, 1): control-character-in-input-stream
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Invalid Unicode character U+FDD0
+#data
+﷐
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷐
+#end-test
+
+#description
+Invalid Unicode character U+FDD1
+#data
+﷑
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷑
+#end-test
+
+#description
+Invalid Unicode character U+FDD2
+#data
+﷒
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷒
+#end-test
+
+#description
+Invalid Unicode character U+FDD3
+#data
+﷓
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷓
+#end-test
+
+#description
+Invalid Unicode character U+FDD4
+#data
+﷔
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷔
+#end-test
+
+#description
+Invalid Unicode character U+FDD5
+#data
+﷕
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷕
+#end-test
+
+#description
+Invalid Unicode character U+FDD6
+#data
+﷖
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷖
+#end-test
+
+#description
+Invalid Unicode character U+FDD7
+#data
+﷗
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷗
+#end-test
+
+#description
+Invalid Unicode character U+FDD8
+#data
+﷘
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷘
+#end-test
+
+#description
+Invalid Unicode character U+FDD9
+#data
+﷙
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷙
+#end-test
+
+#description
+Invalid Unicode character U+FDDA
+#data
+﷚
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷚
+#end-test
+
+#description
+Invalid Unicode character U+FDDB
+#data
+﷛
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷛
+#end-test
+
+#description
+Invalid Unicode character U+FDDC
+#data
+﷜
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷜
+#end-test
+
+#description
+Invalid Unicode character U+FDDD
+#data
+﷝
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷝
+#end-test
+
+#description
+Invalid Unicode character U+FDDE
+#data
+﷞
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷞
+#end-test
+
+#description
+Invalid Unicode character U+FDDF
+#data
+﷟
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷟
+#end-test
+
+#description
+Invalid Unicode character U+FDE0
+#data
+﷠
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷠
+#end-test
+
+#description
+Invalid Unicode character U+FDE1
+#data
+﷡
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷡
+#end-test
+
+#description
+Invalid Unicode character U+FDE2
+#data
+﷢
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷢
+#end-test
+
+#description
+Invalid Unicode character U+FDE3
+#data
+﷣
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷣
+#end-test
+
+#description
+Invalid Unicode character U+FDE4
+#data
+﷤
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷤
+#end-test
+
+#description
+Invalid Unicode character U+FDE5
+#data
+﷥
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷥
+#end-test
+
+#description
+Invalid Unicode character U+FDE6
+#data
+﷦
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷦
+#end-test
+
+#description
+Invalid Unicode character U+FDE7
+#data
+﷧
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷧
+#end-test
+
+#description
+Invalid Unicode character U+FDE8
+#data
+﷨
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷨
+#end-test
+
+#description
+Invalid Unicode character U+FDE9
+#data
+﷩
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷩
+#end-test
+
+#description
+Invalid Unicode character U+FDEA
+#data
+﷪
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷪
+#end-test
+
+#description
+Invalid Unicode character U+FDEB
+#data
+﷫
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷫
+#end-test
+
+#description
+Invalid Unicode character U+FDEC
+#data
+﷬
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷬
+#end-test
+
+#description
+Invalid Unicode character U+FDED
+#data
+﷭
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷭
+#end-test
+
+#description
+Invalid Unicode character U+FDEE
+#data
+﷮
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷮
+#end-test
+
+#description
+Invalid Unicode character U+FDEF
+#data
+﷯
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+﷯
+#end-test
+
+#description
+Invalid Unicode character U+FFFE
+#data
+￾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+￾
+#end-test
+
+#description
+Invalid Unicode character U+FFFF
+#data
+￿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+￿
+#end-test
+
+#description
+Invalid Unicode character U+1FFFE
+#data
+🿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+🿾
+#end-test
+
+#description
+Invalid Unicode character U+1FFFF
+#data
+🿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+🿿
+#end-test
+
+#description
+Invalid Unicode character U+2FFFE
+#data
+𯿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+𯿾
+#end-test
+
+#description
+Invalid Unicode character U+2FFFF
+#data
+𯿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+𯿿
+#end-test
+
+#description
+Invalid Unicode character U+3FFFE
+#data
+𿿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+𿿾
+#end-test
+
+#description
+Invalid Unicode character U+3FFFF
+#data
+𿿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+𿿿
+#end-test
+
+#description
+Invalid Unicode character U+4FFFE
+#data
+񏿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+񏿾
+#end-test
+
+#description
+Invalid Unicode character U+4FFFF
+#data
+񏿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+񏿿
+#end-test
+
+#description
+Invalid Unicode character U+5FFFE
+#data
+񟿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+񟿾
+#end-test
+
+#description
+Invalid Unicode character U+5FFFF
+#data
+񟿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+񟿿
+#end-test
+
+#description
+Invalid Unicode character U+6FFFE
+#data
+񯿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+񯿾
+#end-test
+
+#description
+Invalid Unicode character U+6FFFF
+#data
+񯿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+񯿿
+#end-test
+
+#description
+Invalid Unicode character U+7FFFE
+#data
+񿿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+񿿾
+#end-test
+
+#description
+Invalid Unicode character U+7FFFF
+#data
+񿿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+񿿿
+#end-test
+
+#description
+Invalid Unicode character U+8FFFE
+#data
+򏿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+򏿾
+#end-test
+
+#description
+Invalid Unicode character U+8FFFF
+#data
+򏿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+򏿿
+#end-test
+
+#description
+Invalid Unicode character U+9FFFE
+#data
+򟿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+򟿾
+#end-test
+
+#description
+Invalid Unicode character U+9FFFF
+#data
+򟿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+򟿿
+#end-test
+
+#description
+Invalid Unicode character U+AFFFE
+#data
+򯿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+򯿾
+#end-test
+
+#description
+Invalid Unicode character U+AFFFF
+#data
+򯿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+򯿿
+#end-test
+
+#description
+Invalid Unicode character U+BFFFE
+#data
+򿿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+򿿾
+#end-test
+
+#description
+Invalid Unicode character U+BFFFF
+#data
+򿿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+򿿿
+#end-test
+
+#description
+Invalid Unicode character U+CFFFE
+#data
+󏿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+󏿾
+#end-test
+
+#description
+Invalid Unicode character U+CFFFF
+#data
+󏿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+󏿿
+#end-test
+
+#description
+Invalid Unicode character U+DFFFE
+#data
+󟿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+󟿾
+#end-test
+
+#description
+Invalid Unicode character U+DFFFF
+#data
+󟿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+󟿿
+#end-test
+
+#description
+Invalid Unicode character U+EFFFE
+#data
+󯿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+󯿾
+#end-test
+
+#description
+Invalid Unicode character U+EFFFF
+#data
+󯿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+󯿿
+#end-test
+
+#description
+Invalid Unicode character U+FFFFE
+#data
+󿿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+󿿾
+#end-test
+
+#description
+Invalid Unicode character U+FFFFF
+#data
+󿿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+󿿿
+#end-test
+
+#description
+Invalid Unicode character U+10FFFE
+#data
+􏿾
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+􏿾
+#end-test
+
+#description
+Invalid Unicode character U+10FFFF
+#data
+􏿿
+#errors
+(1, 1): noncharacter-in-input-stream
+#states
+Data state
+#character
+􏿿
+#end-test
+
+#description
+Valid Unicode character U+0009
+#data
+	
+#errors
+#states
+Data state
+#character
+	
+#end-test
+
+#description
+Valid Unicode character U+000A
+#data
+\n
+#errors
+#states
+Data state
+#character
+\n
+#end-test
+
+#description
+Valid Unicode character U+0020
+#data
+ 
+#errors
+#states
+Data state
+#character
+ 
+#end-test
+
+#description
+Valid Unicode character U+0021
+#data
+!
+#errors
+#states
+Data state
+#character
+!
+#end-test
+
+#description
+Valid Unicode character U+0022
+#data
+"
+#errors
+#states
+Data state
+#character
+"
+#end-test
+
+#description
+Valid Unicode character U+0023
+#data
+#
+#errors
+#states
+Data state
+#character
+#
+#end-test
+
+#description
+Valid Unicode character U+0024
+#data
+$
+#errors
+#states
+Data state
+#character
+$
+#end-test
+
+#description
+Valid Unicode character U+0025
+#data
+%
+#errors
+#states
+Data state
+#character
+%
+#end-test
+
+#description
+Valid Unicode character U+0026
+#data
+&
+#errors
+#states
+Data state
+#character
+&
+#end-test
+
+#description
+Valid Unicode character U+0027
+#data
+'
+#errors
+#states
+Data state
+#character
+'
+#end-test
+
+#description
+Valid Unicode character U+0028
+#data
+(
+#errors
+#states
+Data state
+#character
+(
+#end-test
+
+#description
+Valid Unicode character U+0029
+#data
+)
+#errors
+#states
+Data state
+#character
+)
+#end-test
+
+#description
+Valid Unicode character U+002A
+#data
+*
+#errors
+#states
+Data state
+#character
+*
+#end-test
+
+#description
+Valid Unicode character U+002B
+#data
++
+#errors
+#states
+Data state
+#character
++
+#end-test
+
+#description
+Valid Unicode character U+002C
+#data
+,
+#errors
+#states
+Data state
+#character
+,
+#end-test
+
+#description
+Valid Unicode character U+002D
+#data
+-
+#errors
+#states
+Data state
+#character
+-
+#end-test
+
+#description
+Valid Unicode character U+002E
+#data
+.
+#errors
+#states
+Data state
+#character
+.
+#end-test
+
+#description
+Valid Unicode character U+002F
+#data
+/
+#errors
+#states
+Data state
+#character
+/
+#end-test
+
+#description
+Valid Unicode character U+0030
+#data
+0
+#errors
+#states
+Data state
+#character
+0
+#end-test
+
+#description
+Valid Unicode character U+0031
+#data
+1
+#errors
+#states
+Data state
+#character
+1
+#end-test
+
+#description
+Valid Unicode character U+0032
+#data
+2
+#errors
+#states
+Data state
+#character
+2
+#end-test
+
+#description
+Valid Unicode character U+0033
+#data
+3
+#errors
+#states
+Data state
+#character
+3
+#end-test
+
+#description
+Valid Unicode character U+0034
+#data
+4
+#errors
+#states
+Data state
+#character
+4
+#end-test
+
+#description
+Valid Unicode character U+0035
+#data
+5
+#errors
+#states
+Data state
+#character
+5
+#end-test
+
+#description
+Valid Unicode character U+0036
+#data
+6
+#errors
+#states
+Data state
+#character
+6
+#end-test
+
+#description
+Valid Unicode character U+0037
+#data
+7
+#errors
+#states
+Data state
+#character
+7
+#end-test
+
+#description
+Valid Unicode character U+0038
+#data
+8
+#errors
+#states
+Data state
+#character
+8
+#end-test
+
+#description
+Valid Unicode character U+0039
+#data
+9
+#errors
+#states
+Data state
+#character
+9
+#end-test
+
+#description
+Valid Unicode character U+003A
+#data
+:
+#errors
+#states
+Data state
+#character
+:
+#end-test
+
+#description
+Valid Unicode character U+003B
+#data
+;
+#errors
+#states
+Data state
+#character
+;
+#end-test
+
+#description
+Valid Unicode character U+003D
+#data
+=
+#errors
+#states
+Data state
+#character
+=
+#end-test
+
+#description
+Valid Unicode character U+003E
+#data
+>
+#errors
+#states
+Data state
+#character
+>
+#end-test
+
+#description
+Valid Unicode character U+003F
+#data
+?
+#errors
+#states
+Data state
+#character
+?
+#end-test
+
+#description
+Valid Unicode character U+0040
+#data
+@
+#errors
+#states
+Data state
+#character
+@
+#end-test
+
+#description
+Valid Unicode character U+0041
+#data
+A
+#errors
+#states
+Data state
+#character
+A
+#end-test
+
+#description
+Valid Unicode character U+0042
+#data
+B
+#errors
+#states
+Data state
+#character
+B
+#end-test
+
+#description
+Valid Unicode character U+0043
+#data
+C
+#errors
+#states
+Data state
+#character
+C
+#end-test
+
+#description
+Valid Unicode character U+0044
+#data
+D
+#errors
+#states
+Data state
+#character
+D
+#end-test
+
+#description
+Valid Unicode character U+0045
+#data
+E
+#errors
+#states
+Data state
+#character
+E
+#end-test
+
+#description
+Valid Unicode character U+0046
+#data
+F
+#errors
+#states
+Data state
+#character
+F
+#end-test
+
+#description
+Valid Unicode character U+0047
+#data
+G
+#errors
+#states
+Data state
+#character
+G
+#end-test
+
+#description
+Valid Unicode character U+0048
+#data
+H
+#errors
+#states
+Data state
+#character
+H
+#end-test
+
+#description
+Valid Unicode character U+0049
+#data
+I
+#errors
+#states
+Data state
+#character
+I
+#end-test
+
+#description
+Valid Unicode character U+004A
+#data
+J
+#errors
+#states
+Data state
+#character
+J
+#end-test
+
+#description
+Valid Unicode character U+004B
+#data
+K
+#errors
+#states
+Data state
+#character
+K
+#end-test
+
+#description
+Valid Unicode character U+004C
+#data
+L
+#errors
+#states
+Data state
+#character
+L
+#end-test
+
+#description
+Valid Unicode character U+004D
+#data
+M
+#errors
+#states
+Data state
+#character
+M
+#end-test
+
+#description
+Valid Unicode character U+004E
+#data
+N
+#errors
+#states
+Data state
+#character
+N
+#end-test
+
+#description
+Valid Unicode character U+004F
+#data
+O
+#errors
+#states
+Data state
+#character
+O
+#end-test
+
+#description
+Valid Unicode character U+0050
+#data
+P
+#errors
+#states
+Data state
+#character
+P
+#end-test
+
+#description
+Valid Unicode character U+0051
+#data
+Q
+#errors
+#states
+Data state
+#character
+Q
+#end-test
+
+#description
+Valid Unicode character U+0052
+#data
+R
+#errors
+#states
+Data state
+#character
+R
+#end-test
+
+#description
+Valid Unicode character U+0053
+#data
+S
+#errors
+#states
+Data state
+#character
+S
+#end-test
+
+#description
+Valid Unicode character U+0054
+#data
+T
+#errors
+#states
+Data state
+#character
+T
+#end-test
+
+#description
+Valid Unicode character U+0055
+#data
+U
+#errors
+#states
+Data state
+#character
+U
+#end-test
+
+#description
+Valid Unicode character U+0056
+#data
+V
+#errors
+#states
+Data state
+#character
+V
+#end-test
+
+#description
+Valid Unicode character U+0057
+#data
+W
+#errors
+#states
+Data state
+#character
+W
+#end-test
+
+#description
+Valid Unicode character U+0058
+#data
+X
+#errors
+#states
+Data state
+#character
+X
+#end-test
+
+#description
+Valid Unicode character U+0059
+#data
+Y
+#errors
+#states
+Data state
+#character
+Y
+#end-test
+
+#description
+Valid Unicode character U+005A
+#data
+Z
+#errors
+#states
+Data state
+#character
+Z
+#end-test
+
+#description
+Valid Unicode character U+005B
+#data
+[
+#errors
+#states
+Data state
+#character
+[
+#end-test
+
+#description
+Valid Unicode character U+005C
+#data
+\
+#errors
+#states
+Data state
+#character
+\
+#end-test
+
+#description
+Valid Unicode character U+005D
+#data
+]
+#errors
+#states
+Data state
+#character
+]
+#end-test
+
+#description
+Valid Unicode character U+005E
+#data
+^
+#errors
+#states
+Data state
+#character
+^
+#end-test
+
+#description
+Valid Unicode character U+005F
+#data
+_
+#errors
+#states
+Data state
+#character
+_
+#end-test
+
+#description
+Valid Unicode character U+0060
+#data
+`
+#errors
+#states
+Data state
+#character
+`
+#end-test
+
+#description
+Valid Unicode character U+0061
+#data
+a
+#errors
+#states
+Data state
+#character
+a
+#end-test
+
+#description
+Valid Unicode character U+0062
+#data
+b
+#errors
+#states
+Data state
+#character
+b
+#end-test
+
+#description
+Valid Unicode character U+0063
+#data
+c
+#errors
+#states
+Data state
+#character
+c
+#end-test
+
+#description
+Valid Unicode character U+0064
+#data
+d
+#errors
+#states
+Data state
+#character
+d
+#end-test
+
+#description
+Valid Unicode character U+0065
+#data
+e
+#errors
+#states
+Data state
+#character
+e
+#end-test
+
+#description
+Valid Unicode character U+0066
+#data
+f
+#errors
+#states
+Data state
+#character
+f
+#end-test
+
+#description
+Valid Unicode character U+0067
+#data
+g
+#errors
+#states
+Data state
+#character
+g
+#end-test
+
+#description
+Valid Unicode character U+0068
+#data
+h
+#errors
+#states
+Data state
+#character
+h
+#end-test
+
+#description
+Valid Unicode character U+0069
+#data
+i
+#errors
+#states
+Data state
+#character
+i
+#end-test
+
+#description
+Valid Unicode character U+006A
+#data
+j
+#errors
+#states
+Data state
+#character
+j
+#end-test
+
+#description
+Valid Unicode character U+006B
+#data
+k
+#errors
+#states
+Data state
+#character
+k
+#end-test
+
+#description
+Valid Unicode character U+006C
+#data
+l
+#errors
+#states
+Data state
+#character
+l
+#end-test
+
+#description
+Valid Unicode character U+006D
+#data
+m
+#errors
+#states
+Data state
+#character
+m
+#end-test
+
+#description
+Valid Unicode character U+006E
+#data
+n
+#errors
+#states
+Data state
+#character
+n
+#end-test
+
+#description
+Valid Unicode character U+006F
+#data
+o
+#errors
+#states
+Data state
+#character
+o
+#end-test
+
+#description
+Valid Unicode character U+0070
+#data
+p
+#errors
+#states
+Data state
+#character
+p
+#end-test
+
+#description
+Valid Unicode character U+0071
+#data
+q
+#errors
+#states
+Data state
+#character
+q
+#end-test
+
+#description
+Valid Unicode character U+0072
+#data
+r
+#errors
+#states
+Data state
+#character
+r
+#end-test
+
+#description
+Valid Unicode character U+0073
+#data
+s
+#errors
+#states
+Data state
+#character
+s
+#end-test
+
+#description
+Valid Unicode character U+0074
+#data
+t
+#errors
+#states
+Data state
+#character
+t
+#end-test
+
+#description
+Valid Unicode character U+0075
+#data
+u
+#errors
+#states
+Data state
+#character
+u
+#end-test
+
+#description
+Valid Unicode character U+0076
+#data
+v
+#errors
+#states
+Data state
+#character
+v
+#end-test
+
+#description
+Valid Unicode character U+0077
+#data
+w
+#errors
+#states
+Data state
+#character
+w
+#end-test
+
+#description
+Valid Unicode character U+0078
+#data
+x
+#errors
+#states
+Data state
+#character
+x
+#end-test
+
+#description
+Valid Unicode character U+0079
+#data
+y
+#errors
+#states
+Data state
+#character
+y
+#end-test
+
+#description
+Valid Unicode character U+007A
+#data
+z
+#errors
+#states
+Data state
+#character
+z
+#end-test
+
+#description
+Valid Unicode character U+007B
+#data
+{
+#errors
+#states
+Data state
+#character
+{
+#end-test
+
+#description
+Valid Unicode character U+007C
+#data
+|
+#errors
+#states
+Data state
+#character
+|
+#end-test
+
+#description
+Valid Unicode character U+007D
+#data
+}
+#errors
+#states
+Data state
+#character
+}
+#end-test
+
+#description
+Valid Unicode character U+007E
+#data
+~
+#errors
+#states
+Data state
+#character
+~
+#end-test
+
+#description
+Valid Unicode character U+00A0
+#data
+ 
+#errors
+#states
+Data state
+#character
+ 
+#end-test
+
+#description
+Valid Unicode character U+00A1
+#data
+¡
+#errors
+#states
+Data state
+#character
+¡
+#end-test
+
+#description
+Valid Unicode character U+00A2
+#data
+¢
+#errors
+#states
+Data state
+#character
+¢
+#end-test
+
+#description
+Valid Unicode character U+00A3
+#data
+£
+#errors
+#states
+Data state
+#character
+£
+#end-test
+
+#description
+Valid Unicode character U+00A4
+#data
+¤
+#errors
+#states
+Data state
+#character
+¤
+#end-test
+
+#description
+Valid Unicode character U+00A5
+#data
+¥
+#errors
+#states
+Data state
+#character
+¥
+#end-test
+
+#description
+Valid Unicode character U+00A6
+#data
+¦
+#errors
+#states
+Data state
+#character
+¦
+#end-test
+
+#description
+Valid Unicode character U+00A7
+#data
+§
+#errors
+#states
+Data state
+#character
+§
+#end-test
+
+#description
+Valid Unicode character U+00A8
+#data
+¨
+#errors
+#states
+Data state
+#character
+¨
+#end-test
+
+#description
+Valid Unicode character U+00A9
+#data
+©
+#errors
+#states
+Data state
+#character
+©
+#end-test
+
+#description
+Valid Unicode character U+00AA
+#data
+ª
+#errors
+#states
+Data state
+#character
+ª
+#end-test
+
+#description
+Valid Unicode character U+00AB
+#data
+«
+#errors
+#states
+Data state
+#character
+«
+#end-test
+
+#description
+Valid Unicode character U+00AC
+#data
+¬
+#errors
+#states
+Data state
+#character
+¬
+#end-test
+
+#description
+Valid Unicode character U+00AD
+#data
+­
+#errors
+#states
+Data state
+#character
+­
+#end-test
+
+#description
+Valid Unicode character U+00AE
+#data
+®
+#errors
+#states
+Data state
+#character
+®
+#end-test
+
+#description
+Valid Unicode character U+00AF
+#data
+¯
+#errors
+#states
+Data state
+#character
+¯
+#end-test
+
+#description
+Valid Unicode character U+00B0
+#data
+°
+#errors
+#states
+Data state
+#character
+°
+#end-test
+
+#description
+Valid Unicode character U+00B1
+#data
+±
+#errors
+#states
+Data state
+#character
+±
+#end-test
+
+#description
+Valid Unicode character U+00B2
+#data
+²
+#errors
+#states
+Data state
+#character
+²
+#end-test
+
+#description
+Valid Unicode character U+00B3
+#data
+³
+#errors
+#states
+Data state
+#character
+³
+#end-test
+
+#description
+Valid Unicode character U+00B4
+#data
+´
+#errors
+#states
+Data state
+#character
+´
+#end-test
+
+#description
+Valid Unicode character U+00B5
+#data
+µ
+#errors
+#states
+Data state
+#character
+µ
+#end-test
+
+#description
+Valid Unicode character U+00B6
+#data
+¶
+#errors
+#states
+Data state
+#character
+¶
+#end-test
+
+#description
+Valid Unicode character U+00B7
+#data
+·
+#errors
+#states
+Data state
+#character
+·
+#end-test
+
+#description
+Valid Unicode character U+00B8
+#data
+¸
+#errors
+#states
+Data state
+#character
+¸
+#end-test
+
+#description
+Valid Unicode character U+00B9
+#data
+¹
+#errors
+#states
+Data state
+#character
+¹
+#end-test
+
+#description
+Valid Unicode character U+00BA
+#data
+º
+#errors
+#states
+Data state
+#character
+º
+#end-test
+
+#description
+Valid Unicode character U+00BB
+#data
+»
+#errors
+#states
+Data state
+#character
+»
+#end-test
+
+#description
+Valid Unicode character U+00BC
+#data
+¼
+#errors
+#states
+Data state
+#character
+¼
+#end-test
+
+#description
+Valid Unicode character U+00BD
+#data
+½
+#errors
+#states
+Data state
+#character
+½
+#end-test
+
+#description
+Valid Unicode character U+00BE
+#data
+¾
+#errors
+#states
+Data state
+#character
+¾
+#end-test
+
+#description
+Valid Unicode character U+00BF
+#data
+¿
+#errors
+#states
+Data state
+#character
+¿
+#end-test
+
+#description
+Valid Unicode character U+00C0
+#data
+À
+#errors
+#states
+Data state
+#character
+À
+#end-test
+
+#description
+Valid Unicode character U+00C1
+#data
+Á
+#errors
+#states
+Data state
+#character
+Á
+#end-test
+
+#description
+Valid Unicode character U+00C2
+#data
+Â
+#errors
+#states
+Data state
+#character
+Â
+#end-test
+
+#description
+Valid Unicode character U+00C3
+#data
+Ã
+#errors
+#states
+Data state
+#character
+Ã
+#end-test
+
+#description
+Valid Unicode character U+00C4
+#data
+Ä
+#errors
+#states
+Data state
+#character
+Ä
+#end-test
+
+#description
+Valid Unicode character U+00C5
+#data
+Å
+#errors
+#states
+Data state
+#character
+Å
+#end-test
+
+#description
+Valid Unicode character U+00C6
+#data
+Æ
+#errors
+#states
+Data state
+#character
+Æ
+#end-test
+
+#description
+Valid Unicode character U+00C7
+#data
+Ç
+#errors
+#states
+Data state
+#character
+Ç
+#end-test
+
+#description
+Valid Unicode character U+00C8
+#data
+È
+#errors
+#states
+Data state
+#character
+È
+#end-test
+
+#description
+Valid Unicode character U+00C9
+#data
+É
+#errors
+#states
+Data state
+#character
+É
+#end-test
+
+#description
+Valid Unicode character U+00CA
+#data
+Ê
+#errors
+#states
+Data state
+#character
+Ê
+#end-test
+
+#description
+Valid Unicode character U+00CB
+#data
+Ë
+#errors
+#states
+Data state
+#character
+Ë
+#end-test
+
+#description
+Valid Unicode character U+00CC
+#data
+Ì
+#errors
+#states
+Data state
+#character
+Ì
+#end-test
+
+#description
+Valid Unicode character U+00CD
+#data
+Í
+#errors
+#states
+Data state
+#character
+Í
+#end-test
+
+#description
+Valid Unicode character U+00CE
+#data
+Î
+#errors
+#states
+Data state
+#character
+Î
+#end-test
+
+#description
+Valid Unicode character U+00CF
+#data
+Ï
+#errors
+#states
+Data state
+#character
+Ï
+#end-test
+
+#description
+Valid Unicode character U+00D0
+#data
+Ð
+#errors
+#states
+Data state
+#character
+Ð
+#end-test
+
+#description
+Valid Unicode character U+00D1
+#data
+Ñ
+#errors
+#states
+Data state
+#character
+Ñ
+#end-test
+
+#description
+Valid Unicode character U+00D2
+#data
+Ò
+#errors
+#states
+Data state
+#character
+Ò
+#end-test
+
+#description
+Valid Unicode character U+00D3
+#data
+Ó
+#errors
+#states
+Data state
+#character
+Ó
+#end-test
+
+#description
+Valid Unicode character U+00D4
+#data
+Ô
+#errors
+#states
+Data state
+#character
+Ô
+#end-test
+
+#description
+Valid Unicode character U+00D5
+#data
+Õ
+#errors
+#states
+Data state
+#character
+Õ
+#end-test
+
+#description
+Valid Unicode character U+00D6
+#data
+Ö
+#errors
+#states
+Data state
+#character
+Ö
+#end-test
+
+#description
+Valid Unicode character U+00D7
+#data
+×
+#errors
+#states
+Data state
+#character
+×
+#end-test
+
+#description
+Valid Unicode character U+00D8
+#data
+Ø
+#errors
+#states
+Data state
+#character
+Ø
+#end-test
+
+#description
+Valid Unicode character U+00D9
+#data
+Ù
+#errors
+#states
+Data state
+#character
+Ù
+#end-test
+
+#description
+Valid Unicode character U+00DA
+#data
+Ú
+#errors
+#states
+Data state
+#character
+Ú
+#end-test
+
+#description
+Valid Unicode character U+00DB
+#data
+Û
+#errors
+#states
+Data state
+#character
+Û
+#end-test
+
+#description
+Valid Unicode character U+00DC
+#data
+Ü
+#errors
+#states
+Data state
+#character
+Ü
+#end-test
+
+#description
+Valid Unicode character U+00DD
+#data
+Ý
+#errors
+#states
+Data state
+#character
+Ý
+#end-test
+
+#description
+Valid Unicode character U+00DE
+#data
+Þ
+#errors
+#states
+Data state
+#character
+Þ
+#end-test
+
+#description
+Valid Unicode character U+00DF
+#data
+ß
+#errors
+#states
+Data state
+#character
+ß
+#end-test
+
+#description
+Valid Unicode character U+00E0
+#data
+à
+#errors
+#states
+Data state
+#character
+à
+#end-test
+
+#description
+Valid Unicode character U+00E1
+#data
+á
+#errors
+#states
+Data state
+#character
+á
+#end-test
+
+#description
+Valid Unicode character U+00E2
+#data
+â
+#errors
+#states
+Data state
+#character
+â
+#end-test
+
+#description
+Valid Unicode character U+00E3
+#data
+ã
+#errors
+#states
+Data state
+#character
+ã
+#end-test
+
+#description
+Valid Unicode character U+00E4
+#data
+ä
+#errors
+#states
+Data state
+#character
+ä
+#end-test
+
+#description
+Valid Unicode character U+00E5
+#data
+å
+#errors
+#states
+Data state
+#character
+å
+#end-test
+
+#description
+Valid Unicode character U+00E6
+#data
+æ
+#errors
+#states
+Data state
+#character
+æ
+#end-test
+
+#description
+Valid Unicode character U+00E7
+#data
+ç
+#errors
+#states
+Data state
+#character
+ç
+#end-test
+
+#description
+Valid Unicode character U+00E8
+#data
+è
+#errors
+#states
+Data state
+#character
+è
+#end-test
+
+#description
+Valid Unicode character U+00E9
+#data
+é
+#errors
+#states
+Data state
+#character
+é
+#end-test
+
+#description
+Valid Unicode character U+00EA
+#data
+ê
+#errors
+#states
+Data state
+#character
+ê
+#end-test
+
+#description
+Valid Unicode character U+00EB
+#data
+ë
+#errors
+#states
+Data state
+#character
+ë
+#end-test
+
+#description
+Valid Unicode character U+00EC
+#data
+ì
+#errors
+#states
+Data state
+#character
+ì
+#end-test
+
+#description
+Valid Unicode character U+00ED
+#data
+í
+#errors
+#states
+Data state
+#character
+í
+#end-test
+
+#description
+Valid Unicode character U+00EE
+#data
+î
+#errors
+#states
+Data state
+#character
+î
+#end-test
+
+#description
+Valid Unicode character U+00EF
+#data
+ï
+#errors
+#states
+Data state
+#character
+ï
+#end-test
+
+#description
+Valid Unicode character U+00F0
+#data
+ð
+#errors
+#states
+Data state
+#character
+ð
+#end-test
+
+#description
+Valid Unicode character U+00F1
+#data
+ñ
+#errors
+#states
+Data state
+#character
+ñ
+#end-test
+
+#description
+Valid Unicode character U+00F2
+#data
+ò
+#errors
+#states
+Data state
+#character
+ò
+#end-test
+
+#description
+Valid Unicode character U+00F3
+#data
+ó
+#errors
+#states
+Data state
+#character
+ó
+#end-test
+
+#description
+Valid Unicode character U+00F4
+#data
+ô
+#errors
+#states
+Data state
+#character
+ô
+#end-test
+
+#description
+Valid Unicode character U+00F5
+#data
+õ
+#errors
+#states
+Data state
+#character
+õ
+#end-test
+
+#description
+Valid Unicode character U+00F6
+#data
+ö
+#errors
+#states
+Data state
+#character
+ö
+#end-test
+
+#description
+Valid Unicode character U+00F7
+#data
+÷
+#errors
+#states
+Data state
+#character
+÷
+#end-test
+
+#description
+Valid Unicode character U+00F8
+#data
+ø
+#errors
+#states
+Data state
+#character
+ø
+#end-test
+
+#description
+Valid Unicode character U+00F9
+#data
+ù
+#errors
+#states
+Data state
+#character
+ù
+#end-test
+
+#description
+Valid Unicode character U+00FA
+#data
+ú
+#errors
+#states
+Data state
+#character
+ú
+#end-test
+
+#description
+Valid Unicode character U+00FB
+#data
+û
+#errors
+#states
+Data state
+#character
+û
+#end-test
+
+#description
+Valid Unicode character U+00FC
+#data
+ü
+#errors
+#states
+Data state
+#character
+ü
+#end-test
+
+#description
+Valid Unicode character U+00FD
+#data
+ý
+#errors
+#states
+Data state
+#character
+ý
+#end-test
+
+#description
+Valid Unicode character U+00FE
+#data
+þ
+#errors
+#states
+Data state
+#character
+þ
+#end-test
+
+#description
+Valid Unicode character U+00FF
+#data
+ÿ
+#errors
+#states
+Data state
+#character
+ÿ
+#end-test
+
+#description
+Valid Unicode character U+D7FF
+#data
+퟿
+#errors
+#states
+Data state
+#character
+퟿
+#end-test
+
+#description
+Valid Unicode character U+E000
+#data
+
+#errors
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Valid Unicode character U+FDCF
+#data
+﷏
+#errors
+#states
+Data state
+#character
+﷏
+#end-test
+
+#description
+Valid Unicode character U+FDF0
+#data
+ﷰ
+#errors
+#states
+Data state
+#character
+ﷰ
+#end-test
+
+#description
+Valid Unicode character U+FFFD
+#data
+�
+#errors
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+Valid Unicode character U+10000
+#data
+𐀀
+#errors
+#states
+Data state
+#character
+𐀀
+#end-test
+
+#description
+Valid Unicode character U+1FFFD
+#data
+🿽
+#errors
+#states
+Data state
+#character
+🿽
+#end-test
+
+#description
+Valid Unicode character U+20000
+#data
+𠀀
+#errors
+#states
+Data state
+#character
+𠀀
+#end-test
+
+#description
+Valid Unicode character U+2FFFD
+#data
+𯿽
+#errors
+#states
+Data state
+#character
+𯿽
+#end-test
+
+#description
+Valid Unicode character U+30000
+#data
+𰀀
+#errors
+#states
+Data state
+#character
+𰀀
+#end-test
+
+#description
+Valid Unicode character U+3FFFD
+#data
+𿿽
+#errors
+#states
+Data state
+#character
+𿿽
+#end-test
+
+#description
+Valid Unicode character U+40000
+#data
+񀀀
+#errors
+#states
+Data state
+#character
+񀀀
+#end-test
+
+#description
+Valid Unicode character U+4FFFD
+#data
+񏿽
+#errors
+#states
+Data state
+#character
+񏿽
+#end-test
+
+#description
+Valid Unicode character U+50000
+#data
+񐀀
+#errors
+#states
+Data state
+#character
+񐀀
+#end-test
+
+#description
+Valid Unicode character U+5FFFD
+#data
+񟿽
+#errors
+#states
+Data state
+#character
+񟿽
+#end-test
+
+#description
+Valid Unicode character U+60000
+#data
+񠀀
+#errors
+#states
+Data state
+#character
+񠀀
+#end-test
+
+#description
+Valid Unicode character U+6FFFD
+#data
+񯿽
+#errors
+#states
+Data state
+#character
+񯿽
+#end-test
+
+#description
+Valid Unicode character U+70000
+#data
+񰀀
+#errors
+#states
+Data state
+#character
+񰀀
+#end-test
+
+#description
+Valid Unicode character U+7FFFD
+#data
+񿿽
+#errors
+#states
+Data state
+#character
+񿿽
+#end-test
+
+#description
+Valid Unicode character U+80000
+#data
+򀀀
+#errors
+#states
+Data state
+#character
+򀀀
+#end-test
+
+#description
+Valid Unicode character U+8FFFD
+#data
+򏿽
+#errors
+#states
+Data state
+#character
+򏿽
+#end-test
+
+#description
+Valid Unicode character U+90000
+#data
+򐀀
+#errors
+#states
+Data state
+#character
+򐀀
+#end-test
+
+#description
+Valid Unicode character U+9FFFD
+#data
+򟿽
+#errors
+#states
+Data state
+#character
+򟿽
+#end-test
+
+#description
+Valid Unicode character U+A0000
+#data
+򠀀
+#errors
+#states
+Data state
+#character
+򠀀
+#end-test
+
+#description
+Valid Unicode character U+AFFFD
+#data
+򯿽
+#errors
+#states
+Data state
+#character
+򯿽
+#end-test
+
+#description
+Valid Unicode character U+B0000
+#data
+򰀀
+#errors
+#states
+Data state
+#character
+򰀀
+#end-test
+
+#description
+Valid Unicode character U+BFFFD
+#data
+򿿽
+#errors
+#states
+Data state
+#character
+򿿽
+#end-test
+
+#description
+Valid Unicode character U+C0000
+#data
+󀀀
+#errors
+#states
+Data state
+#character
+󀀀
+#end-test
+
+#description
+Valid Unicode character U+CFFFD
+#data
+󏿽
+#errors
+#states
+Data state
+#character
+󏿽
+#end-test
+
+#description
+Valid Unicode character U+D0000
+#data
+󐀀
+#errors
+#states
+Data state
+#character
+󐀀
+#end-test
+
+#description
+Valid Unicode character U+DFFFD
+#data
+󟿽
+#errors
+#states
+Data state
+#character
+󟿽
+#end-test
+
+#description
+Valid Unicode character U+E0000
+#data
+󠀀
+#errors
+#states
+Data state
+#character
+󠀀
+#end-test
+
+#description
+Valid Unicode character U+EFFFD
+#data
+󯿽
+#errors
+#states
+Data state
+#character
+󯿽
+#end-test
+
+#description
+Valid Unicode character U+F0000
+#data
+󰀀
+#errors
+#states
+Data state
+#character
+󰀀
+#end-test
+
+#description
+Valid Unicode character U+FFFFD
+#data
+󿿽
+#errors
+#states
+Data state
+#character
+󿿽
+#end-test
+
+#description
+Valid Unicode character U+100000
+#data
+􀀀
+#errors
+#states
+Data state
+#character
+􀀀
+#end-test
+
+#description
+Valid Unicode character U+10FFFD
+#data
+􏿽
+#errors
+#states
+Data state
+#character
+􏿽
+#end-test
