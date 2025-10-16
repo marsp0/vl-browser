@@ -3089,6 +3089,8 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#hexadecimal-character-reference-state
         case HTML_TOKENIZER_HEXADECIMAL_CHARACTER_REFERENCE_STATE:
+            ;
+            uint32_t old_hex_val                        = character_reference_code;
             if (is_eof)
             {
                 consume                             = false;
@@ -3120,6 +3122,11 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
                 status                              = HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE;
             }
+
+            if (old_hex_val > character_reference_code)
+            {
+                character_reference_code        = 0xFFFFFFFF;
+            }
             break;
 
         // https://html.spec.whatwg.org/multipage/parsing.html#decimal-character-reference-state
@@ -3132,8 +3139,14 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (utf8_is_digit(code_point))
             {
+                uint32_t old_val                    = character_reference_code;
                 character_reference_code           *= 10;
                 character_reference_code           += code_point - 0x30;
+
+                if (old_val > character_reference_code)
+                {
+                    character_reference_code        = 0xFFFFFFFF;
+                }
             }
             else if (code_point == ';')
             {

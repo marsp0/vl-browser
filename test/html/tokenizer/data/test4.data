@@ -575,6 +575,18 @@ Data state
 #end-test
 
 #description
+Maximum non-BMP numeric entity
+#data
+&#X10FFFF;
+#errors
+(1, 11): noncharacter-character-reference
+#states
+Data state
+#character
+􏿿
+#end-test
+
+#description
 Above maximum numeric entity
 #data
 &#x110000;
@@ -592,6 +604,42 @@ Data state
 &#x80000041;
 #errors
 (1, 13): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+33-bit hex numeric entity
+#data
+&#x100000041;
+#errors
+(1, 14): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+33-bit decimal numeric entity
+#data
+&#4294967361;
+#errors
+(1, 14): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+65-bit hex numeric entity
+#data
+&#x10000000000000041;
+#errors
+(1, 22): character-reference-outside-unicode-range
 #states
 Data state
 #character
