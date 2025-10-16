@@ -180,6 +180,29 @@ z
 #end-test
 
 #description
+Text after bogus character reference
+#data
+<z z='&xlink_xmlns;'>bar<z>
+#errors
+#states
+Data state
+#start-tag
+z
+#attr-name
+z
+#attr-value
+&xlink_xmlns;
+#character
+b
+#character
+a
+#character
+r
+#start-tag
+z
+#end-test
+
+#description
 Text after hex character reference
 #data
 <z z='&#x0020; foo'>bar<z>
@@ -552,6 +575,18 @@ Data state
 #end-test
 
 #description
+Maximum non-BMP numeric entity
+#data
+&#X10FFFF;
+#errors
+(1, 11): noncharacter-character-reference
+#states
+Data state
+#character
+􏿿
+#end-test
+
+#description
 Above maximum numeric entity
 #data
 &#x110000;
@@ -569,6 +604,54 @@ Data state
 &#x80000041;
 #errors
 (1, 13): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+33-bit hex numeric entity
+#data
+&#x100000041;
+#errors
+(1, 14): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+33-bit decimal numeric entity
+#data
+&#4294967361;
+#errors
+(1, 14): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+65-bit hex numeric entity
+#data
+&#x10000000000000041;
+#errors
+(1, 22): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+65-bit decimal numeric entity
+#data
+&#18446744073709551681;
+#errors
+(1, 24): character-reference-outside-unicode-range
 #states
 Data state
 #character

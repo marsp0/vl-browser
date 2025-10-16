@@ -8,14 +8,13 @@
 #include "html/tokenizer/runner.h"
 
 #include "dom/hash_str.h"
-#include "util/hash_str_constants.h"
+#include "global_modules.h"
 
 int32_t main()
 {
     TESTS_INIT();
 
-    hash_str_pool_new();
-    hash_str_constants_initialize();
+    global_modules_init();
 
     TEST_GROUP(test_utf8);
     TEST_GROUP(test_dom_hash_string);
@@ -29,7 +28,7 @@ int32_t main()
 
     int32_t exit_code = TESTS_FAIL_COUNT() > 0 ? 1 : 0;
 
-    hash_str_pool_free();
+    global_modules_free();
 
     return exit_code;
 }

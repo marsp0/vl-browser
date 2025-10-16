@@ -1,24 +1,3 @@
 [
-    "Unfinished entity",
-    "Entity with trailing semicolon (1)",
-    "Entity with trailing semicolon (2)",
-    "Entity without trailing semicolon (1)",
-    "Entity without trailing semicolon (2)",
-    "Partial entity match at end of file",
-    "Hexadecimal entity in attribute",
-    "Entity in attribute without semicolon ending in x",
-    "Entity in attribute without semicolon ending in 1",
-    "Entity in attribute without semicolon ending in i",
-    "Entity in attribute without semicolon",
-
-    "Entity + newline",
-
-    "Invalid numeric entity character U+10FFFF",
-
-    "Text after bogus character reference",
-    "65-bit decimal numeric entity",
-    "65-bit hex numeric entity",
-    "33-bit decimal numeric entity",
-    "Maximum non-BMP numeric entity",
-    "33-bit hex numeric entity"
+    
 ]

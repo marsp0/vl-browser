@@ -6,6 +6,8 @@
 #include <stdlib.h>
 
 #include "util/utf8.h"
+#include "dom/hash_str.h"
+#include "html/named_char_refs.h"
 
 /*
  * Notes
@@ -688,6 +690,24 @@ static void normalize_line_endings()
     for (uint32_t i = 0; i < size; i++)
     {
         if (buffer[i] == '\r') { buffer[i] = '\n'; }
+    }
+}
+
+
+static void flush_code_points_consumed_as_char_ref(html_tokenizer_state_e s)
+{
+    if (s == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
+        s == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
+        s == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
+    {
+        for (uint32_t i = 0; i < temp_buffer_size; i++)
+        {
+            update_attribute_value(temp_buffer[i]);
+        }
+    }
+    else
+    {
+        emit_temp_buffer();
     }
 }
 
@@ -2906,7 +2926,66 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#named-character-reference-state
         case HTML_TOKENIZER_NAMED_CHARACTER_REFERENCE_STATE:
-            // todo: add support - https://trello.com/c/r9A2c0oE/25-tokenizer-add-support-for-named-character-reference-state
+            ;
+            // maximum possible size of named chars
+            uint32_t max_size    = cursor + 33;
+            max_size = max_size > size ? size : max_size;
+            bool found = false;
+
+            for (uint32_t i = cursor; i < max_size; i++)
+            {
+                update_temp_buffer(buffer[i]);
+                if (buffer[i] == ';') { break; }
+            }
+
+            while (!found)
+            {
+                if (temp_buffer_size == 1) { break; }
+
+                hash_str_t hash_val = hash_str_compute(temp_buffer, temp_buffer_size);
+                uint32_t named_cp = html_get_named_char_ref(hash_val);
+
+                if (named_cp > 0)
+                {
+                    cursor  = cursor + temp_buffer_size + 1;
+                    consume = false;
+                    state   = return_state;
+                    found   = true;
+
+                    // todo: this is ugly af
+                    if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
+                        return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
+                        return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
+                    {
+                        flush_code_points_consumed_as_char_ref(return_state);
+                    }
+                    else
+                    {
+                        clear_temp_buffer();
+                        int32_t bytes = utf8_encode(named_cp, temp_buffer);
+
+                        temp_buffer_size    = (uint32_t)bytes;
+                        emit_temp_buffer();
+                    }
+
+                    break;
+                }
+
+                temp_buffer_size--;
+            }
+            
+            if (found) { break; }
+
+            for (uint32_t i = cursor; i < max_size; i++)
+            {
+                update_temp_buffer(buffer[i]);
+                if (buffer[i] == ';') { break; }
+            }
+
+            flush_code_points_consumed_as_char_ref(return_state);
+            cursor              = cursor + temp_buffer_size - 1;
+            consume             = false;
+            state               = return_state;
             break;
 
         // https://html.spec.whatwg.org/multipage/parsing.html#ambiguous-ampersand-state
@@ -3010,6 +3089,8 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#hexadecimal-character-reference-state
         case HTML_TOKENIZER_HEXADECIMAL_CHARACTER_REFERENCE_STATE:
+            ;
+            uint32_t old_hex_val                        = character_reference_code;
             if (is_eof)
             {
                 consume                             = false;
@@ -3041,6 +3122,11 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
                 status                              = HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE;
             }
+
+            if (old_hex_val > character_reference_code)
+            {
+                character_reference_code        = 0xFFFFFFFF;
+            }
             break;
 
         // https://html.spec.whatwg.org/multipage/parsing.html#decimal-character-reference-state
@@ -3053,8 +3139,14 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (utf8_is_digit(code_point))
             {
+                uint32_t old_val                    = character_reference_code;
                 character_reference_code           *= 10;
                 character_reference_code           += code_point - 0x30;
+
+                if (old_val > character_reference_code)
+                {
+                    character_reference_code        = 0xFFFFFFFF;
+                }
             }
             else if (code_point == ';')
             {
@@ -3075,7 +3167,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 status                              = HTML_TOKENIZER_NULL_CHARACTER_REFERENCE;
                 character_reference_code            = 0xfffd;
             }
-            else if (character_reference_code >= 0x10ffff)
+            else if (character_reference_code > 0x10ffff)
             {
                 status                              = HTML_TOKENIZER_CHARACTER_REFERENCE_OUTSIDE_UNICODE_RANGE;
                 character_reference_code            = 0xfffd;
