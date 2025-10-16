@@ -1245,6 +1245,23 @@ Data state
 #end-test
 
 #description
+Hexadecimal entity in attribute
+#data
+<h a='&#x3f;'></h>
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+?
+#end-tag
+h
+#end-test
+
+#description
 Entity in attribute without semicolon ending in x
 #data
 <h a='&notx'>

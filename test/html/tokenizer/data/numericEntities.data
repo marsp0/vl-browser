@@ -1271,6 +1271,18 @@ Data state
 #end-test
 
 #description
+Invalid numeric entity character U+10FFFF
+#data
+&#x10ffff;
+#errors
+(1, 11): noncharacter-character-reference
+#states
+Data state
+#character
+􏿿
+#end-test
+
+#description
 Valid numeric entity character U+0009
 #data
 &#x0009;

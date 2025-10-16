@@ -1,8 +1,4 @@
 [
-    "Hexadecimal entity in attribute",
-
-    "Invalid numeric entity character U+10FFFF",
-
     "Text after bogus character reference",
     "65-bit decimal numeric entity",
     "65-bit hex numeric entity",

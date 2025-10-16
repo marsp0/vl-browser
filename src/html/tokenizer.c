@@ -3136,7 +3136,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 status                              = HTML_TOKENIZER_NULL_CHARACTER_REFERENCE;
                 character_reference_code            = 0xfffd;
             }
-            else if (character_reference_code >= 0x10ffff)
+            else if (character_reference_code > 0x10ffff)
             {
                 status                              = HTML_TOKENIZER_CHARACTER_REFERENCE_OUTSIDE_UNICODE_RANGE;
                 character_reference_code            = 0xfffd;
