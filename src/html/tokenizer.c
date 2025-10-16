@@ -46,7 +46,7 @@ static html_tokenizer_state_e state                                     = HTML_T
 static html_tokenizer_state_e return_state                              = HTML_TOKENIZER_DATA_STATE;
 static unsigned char temp_buffer[MAX_TEMP_BUFFER_SIZE]                  = { 0 };
 static uint32_t temp_buffer_size                                        = 0;
-static unsigned char last_emitted_start_tag[HTML_TOKEN_MAX_NAME_LEN]    = { 0 };
+static hash_str_t last_emitted_start_tag                                = 0;
 static int32_t bytes_read                                               = 0;
 static uint32_t character_reference_code                                = 0;
 static unsigned char hyphen_segment[]                                   = "--";
@@ -574,7 +574,8 @@ static void emit_token()
     // save the name of start tokens
     if (tokens[token_idx - 1].type != HTML_START_TOKEN) { return; }
 
-    memcpy(last_emitted_start_tag, tokens[token_idx - 1].name, sizeof(tokens[token_idx - 1].name));
+    hash_str_t t_name = hash_str_new(tokens[token_idx - 1].name, tokens[token_idx - 1].name_size);
+    last_emitted_start_tag = t_name;
 }
 
 static bool match_segment(unsigned char* segment, uint32_t segment_size, match_type_e match_type)
@@ -602,8 +603,8 @@ static bool match_segment(unsigned char* segment, uint32_t segment_size, match_t
 
 static bool is_appropriate_end_tag()
 {
-    int32_t result = strncmp(tokens[token_idx].name, last_emitted_start_tag, sizeof(tokens[token_idx].name));
-    return result == 0;
+    hash_str_t new_name = hash_str_new(tokens[token_idx].name, tokens[token_idx].name_size);
+    return last_emitted_start_tag == new_name;
 }
 
 static void emit_temp_buffer()
@@ -735,7 +736,7 @@ void html_tokenizer_init(const unsigned char* new_buffer, const uint32_t new_siz
 
     character_reference_code    = 0;
 
-    memset(last_emitted_start_tag, 0, sizeof(last_emitted_start_tag));
+    last_emitted_start_tag      = 0;
     clear_temp_buffer();
 }
 
@@ -3222,11 +3223,19 @@ html_tokenizer_error_e html_tokenizer_next()
     return status;
 }
 
+
+void html_tokenizer_set_last_emitted_start_tag(hash_str_t tag)
+{
+    last_emitted_start_tag = tag;
+}
+
+
 void html_tokenizer_set_state(html_tokenizer_state_e new_state)
 {
     state           = new_state;
     return_state    = new_state;
 }
+
 
 void html_tokenizer_free()
 {

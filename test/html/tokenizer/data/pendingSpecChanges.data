@@ -1,0 +1,11 @@
+#description
+<!---- >
+#data
+<!---- >
+#errors
+(1, 9): eof-in-comment
+#states
+Data state
+#comment
+-- >
+#end-test

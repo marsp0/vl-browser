@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "dom/hash_str.h"
+
 #define HTML_TOKEN_MAX_NAME_LEN     64
 #define HTML_TOKEN_MAX_ATTRIBUTES   5
 
@@ -189,6 +191,7 @@ typedef struct
 } html_token_t;
 
 void                    html_tokenizer_init(const unsigned char* new_buffer, const uint32_t new_size, html_token_t* new_tokens, const uint32_t new_max_tokens);
+void                    html_tokenizer_set_last_emitted_start_tag(hash_str_t tag);
 void                    html_tokenizer_set_state(html_tokenizer_state_e new_state);
 html_tokenizer_error_e  html_tokenizer_next();
 void                    html_tokenizer_free();

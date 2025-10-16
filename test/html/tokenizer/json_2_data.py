@@ -61,7 +61,11 @@ def json_2_data(args):
                         for state in states:
                             write_line(f_out, f'{state}')
 
-                        # write_line(f_out, '#output')
+                        last_start_tag = test.get("lastStartTag") or ''
+                        if last_start_tag:
+                            write_line(f_out, '#last-start-tag')
+                            write_line(f_out, f'{last_start_tag}')
+
                         for token in test.get('output', []):
                             t_type = token[0]
                             if (t_type == 'DOCTYPE'):
