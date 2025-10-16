@@ -180,6 +180,29 @@ z
 #end-test
 
 #description
+Text after bogus character reference
+#data
+<z z='&xlink_xmlns;'>bar<z>
+#errors
+#states
+Data state
+#start-tag
+z
+#attr-name
+z
+#attr-value
+&xlink_xmlns;
+#character
+b
+#character
+a
+#character
+r
+#start-tag
+z
+#end-test
+
+#description
 Text after hex character reference
 #data
 <z z='&#x0020; foo'>bar<z>
@@ -569,6 +592,18 @@ Data state
 &#x80000041;
 #errors
 (1, 13): character-reference-outside-unicode-range
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+65-bit decimal numeric entity
+#data
+&#18446744073709551681;
+#errors
+(1, 24): character-reference-outside-unicode-range
 #states
 Data state
 #character

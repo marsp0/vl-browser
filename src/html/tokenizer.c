@@ -693,6 +693,24 @@ static void normalize_line_endings()
     }
 }
 
+
+static void flush_code_points_consumed_as_char_ref(html_tokenizer_state_e s)
+{
+    if (s == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
+        s == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
+        s == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
+    {
+        for (uint32_t i = 0; i < temp_buffer_size; i++)
+        {
+            update_attribute_value(temp_buffer[i]);
+        }
+    }
+    else
+    {
+        emit_temp_buffer();
+    }
+}
+
 /********************/
 /* public functions */
 /********************/
@@ -2917,6 +2935,7 @@ html_tokenizer_error_e html_tokenizer_next()
             for (uint32_t i = cursor; i < max_size; i++)
             {
                 update_temp_buffer(buffer[i]);
+                if (buffer[i] == ';') { break; }
             }
 
             while (!found)
@@ -2933,14 +2952,12 @@ html_tokenizer_error_e html_tokenizer_next()
                     state   = return_state;
                     found   = true;
 
+                    // todo: this is ugly af
                     if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
                         return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
                         return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
                     {
-                        for (uint32_t i = 0; i < temp_buffer_size; i++)
-                        {
-                            update_attribute_value(temp_buffer[i]);
-                        }
+                        flush_code_points_consumed_as_char_ref(return_state);
                     }
                     else
                     {
@@ -2962,9 +2979,10 @@ html_tokenizer_error_e html_tokenizer_next()
             for (uint32_t i = cursor; i < max_size; i++)
             {
                 update_temp_buffer(buffer[i]);
+                if (buffer[i] == ';') { break; }
             }
 
-            emit_temp_buffer();
+            flush_code_points_consumed_as_char_ref(return_state);
             cursor              = cursor + temp_buffer_size - 1;
             consume             = false;
             state               = return_state;
