@@ -2929,13 +2929,15 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_NAMED_CHARACTER_REFERENCE_STATE:
             ;
             // maximum possible size of named chars
-            uint32_t max_size    = cursor + 33;
-            max_size = max_size > size ? size : max_size;
-            bool found = false;
+            uint32_t max_size   = cursor + 33;
+            uint32_t cursor_offset = 0;
+            max_size            = max_size > size ? size : max_size;
+            bool found          = false;
 
             for (uint32_t i = cursor; i < max_size; i++)
             {
                 update_temp_buffer(buffer[i]);
+                cursor_offset += 1;
                 if (buffer[i] == ';') { break; }
             }
 
@@ -2948,15 +2950,16 @@ html_tokenizer_error_e html_tokenizer_next()
 
                 if (named_cp > 0)
                 {
-                    cursor  = cursor + temp_buffer_size + 1;
+                    cursor  = cursor + cursor_offset;
                     consume = false;
                     state   = return_state;
                     found   = true;
 
                     // todo: this is ugly af
-                    if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
+                    if ((return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
                         return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
-                        return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
+                        return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE) &&
+                        (buffer[cursor - 1] != ';' && (buffer[cursor] == '=' || utf8_is_alphanumeric(buffer[cursor]))))
                     {
                         flush_code_points_consumed_as_char_ref(return_state);
                     }
@@ -2966,25 +2969,29 @@ html_tokenizer_error_e html_tokenizer_next()
                         int32_t bytes = utf8_encode(named_cp, temp_buffer);
 
                         temp_buffer_size    = (uint32_t)bytes;
-                        emit_temp_buffer();
+                        flush_code_points_consumed_as_char_ref(return_state);
                     }
 
                     break;
                 }
 
+                cursor_offset--;
                 temp_buffer_size--;
             }
             
             if (found) { break; }
 
+            cursor_offset = 0;
+
             for (uint32_t i = cursor; i < max_size; i++)
             {
                 update_temp_buffer(buffer[i]);
+                cursor_offset += 1;
                 if (buffer[i] == ';') { break; }
             }
 
             flush_code_points_consumed_as_char_ref(return_state);
-            cursor              = cursor + temp_buffer_size - 1;
+            cursor              = cursor + cursor_offset;
             consume             = false;
             state               = return_state;
             break;
