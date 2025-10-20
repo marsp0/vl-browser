@@ -58,7 +58,7 @@ void TESTS_SUMMARY()
 {
     printf("\n");
     printf("+----------------------------------------+\n");
-    printf("|              Passed: %3d               |\n", passed);
-    printf("|              Failed: %3d               |\n", failed);
+    printf("|              Passed: %3d\n", passed);
+    printf("|              Failed: %3d\n", failed);
     printf("+----------------------------------------+\n");
 }

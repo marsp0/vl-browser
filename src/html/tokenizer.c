@@ -128,20 +128,24 @@ static bool is_noncharacter(uint32_t code_point)
             code_point == 0x10fffe || code_point == 0x10ffff;
 }
 
+
 static bool is_leading_surrogate(uint32_t code_point)
 {
     return code_point >= 0xd800 && code_point <= 0xdbff;
 }
+
 
 static bool is_trailing_surrogate(uint32_t code_point)
 {
     return code_point >= 0xdc00 && code_point <= 0xdfff;
 }
 
+
 static bool is_surrogate(uint32_t code_point)
 {
     return is_leading_surrogate(code_point) || is_trailing_surrogate(code_point);
 }
+
 
 static void clear_tmp_buf()
 {
@@ -149,11 +153,22 @@ static void clear_tmp_buf()
     tmp_buf_size = 0;
 }
 
+
 static void clear_tokens()
 {
     token_idx = 0;
     memset(tokens, 0, max_tokens * sizeof(html_token_t));
 }
+
+
+static void init_token(html_token_type_e type)
+{
+    memset(&tokens[token_idx], 0, sizeof(html_token_t));
+
+    tokens[token_idx].is_valid  = true;
+    tokens[token_idx].type      = type;
+}
+
 
 static void init_char_token()
 {
@@ -534,12 +549,6 @@ static void update_doctype_token_system_identifier_from_buffer()
     tokens[token_idx].system_id_size += read;
 }
 
-static void create_eof_token()
-{
-    tokens[token_idx].is_valid          = true;
-    tokens[token_idx].type              = HTML_EOF_TOKEN;
-}
-
 static void emit_attribute()
 {
     bool is_duplicate           = false;
@@ -754,8 +763,9 @@ html_tokenizer_error_e html_tokenizer_next()
     while (token_idx == 0)
     {
         assert(token_idx < max_tokens);
-        bytes_read = -1;
-        consume = true;
+
+        bytes_read  = -1;
+        consume     = true;
 
         if (buf_cur >= buf_size)
         {
@@ -773,7 +783,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_DATA_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 break;
             }
@@ -798,7 +808,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_RCDATA_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_OK;
                 break;
@@ -832,7 +842,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_RAWTEXT_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_OK;
                 break;
@@ -862,7 +872,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SCRIPT_DATA_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_OK;
                 break;
@@ -891,7 +901,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_PLAINTEXT_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_OK;
                 break;
@@ -916,7 +926,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 create_char_token('<');
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_BEFORE_TAG_NAME;
                 break;
@@ -961,7 +971,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 create_char_token('/');
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_BEFORE_TAG_NAME;
                 break;
@@ -992,7 +1002,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_TAG_NAME_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
@@ -1290,7 +1300,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
@@ -1319,7 +1329,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_DASH_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
@@ -1352,7 +1362,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_DASH_DASH_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
@@ -1504,7 +1514,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
@@ -1537,7 +1547,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
@@ -1572,7 +1582,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
@@ -1724,7 +1734,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_AFTER_ATTRIBUTE_NAME_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
@@ -1789,7 +1799,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
@@ -1819,7 +1829,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
@@ -1850,7 +1860,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
@@ -1891,7 +1901,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_AFTER_ATTRIBUTE_VALUE_QUOTED_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
@@ -1926,7 +1936,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SELF_CLOSING_START_TAG_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_TAG;
                 break;
@@ -1955,7 +1965,7 @@ html_tokenizer_error_e html_tokenizer_next()
             if (is_eof)
             {
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 break;
             }
@@ -2030,7 +2040,7 @@ html_tokenizer_error_e html_tokenizer_next()
             if (is_eof)
             {
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
                 break;
@@ -2058,7 +2068,7 @@ html_tokenizer_error_e html_tokenizer_next()
             if (is_eof)
             {
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
                 break;
@@ -2087,7 +2097,7 @@ html_tokenizer_error_e html_tokenizer_next()
             if (is_eof)
             {
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
                 break;
@@ -2149,7 +2159,7 @@ html_tokenizer_error_e html_tokenizer_next()
             if (is_eof)
             {
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
                 break;
@@ -2173,7 +2183,7 @@ html_tokenizer_error_e html_tokenizer_next()
             if (is_eof)
             {
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_COMMENT;
                 break;
@@ -2204,7 +2214,7 @@ html_tokenizer_error_e html_tokenizer_next()
             if (is_eof)
             {
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                          = HTML_TOKENIZER_EOF_IN_COMMENT;
                 break;
@@ -2239,7 +2249,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 create_doctype_token();
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2269,7 +2279,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 create_doctype_token();
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2318,7 +2328,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2355,7 +2365,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2400,7 +2410,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2444,7 +2454,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2486,7 +2496,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2520,7 +2530,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2554,7 +2564,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2596,7 +2606,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2636,7 +2646,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                              = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2680,7 +2690,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2722,7 +2732,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2754,7 +2764,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2786,7 +2796,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 tokens[token_idx].force_quirks = true;
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status = HTML_TOKENIZER_EOF_IN_DOCTYPE;
                 break;
@@ -2814,7 +2824,7 @@ html_tokenizer_error_e html_tokenizer_next()
             if (is_eof)
             {
                 emit_token();
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 break;
             }
@@ -2837,7 +2847,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_CDATA_SECTION_STATE:
             if (is_eof)
             {
-                create_eof_token();
+                init_token(HTML_EOF_TOKEN);
                 emit_token();
                 status                              = HTML_TOKENIZER_EOF_IN_CDATA;
                 break;
@@ -3194,6 +3204,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 status                              = HTML_TOKENIZER_CONTROL_CHARACTER_REFERENCE;
                 uint32_t result                     = 0;
                 int32_t char_idx                    = find_numeric_char_ref(character_reference_code, &result);
+
                 if (char_idx != -1) { character_reference_code = result; }
             }
 
