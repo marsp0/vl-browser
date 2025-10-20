@@ -11,7 +11,7 @@
 
 /*
  * Notes
- * 
+ *  todo - remove all the _segment strings and replace with hash_str_t
  */
 
 /********************/
@@ -36,9 +36,9 @@ typedef struct
     uint32_t value;
 } numeric_char_ref_t;
 
-static unsigned char* buffer                                            = NULL;
-static uint32_t size                                                    = 0;
-static uint32_t cursor                                                  = 0;
+static unsigned char* buf                                               = NULL;
+static uint32_t buf_size                                                = 0;
+static uint32_t buf_cur                                                 = 0;
 static html_token_t* tokens                                             = NULL;
 static uint32_t token_idx                                               = 0;
 static uint32_t max_tokens                                              = 0;
@@ -174,7 +174,7 @@ static void create_char_token_from_buffer()
 
     for (uint32_t i = 0; i < read; i++)
     {
-        tokens[token_idx].data[data_size + i] = buffer[cursor + i];
+        tokens[token_idx].data[data_size + i] = buf[buf_cur + i];
     }
     tokens[token_idx].data_size = data_size + read;
 }
@@ -223,7 +223,7 @@ static void update_tag_token_from_buffer()
 
     for (uint32_t i = 0; i < read; i++)
     {
-        tokens[token_idx].name[name_size + i] = buffer[cursor + i];
+        tokens[token_idx].name[name_size + i] = buf[buf_cur + i];
     }
 
     tokens[token_idx].name_size = name_size + read;
@@ -276,7 +276,7 @@ static void create_attribute_from_buffer()
 
     for (uint32_t i = 0; i < read; i++)
     {
-        attribute->name[name_size + i] = buffer[cursor + i];
+        attribute->name[name_size + i] = buf[buf_cur + i];
     }
 
     attribute->name_size = name_size + read;
@@ -328,7 +328,7 @@ static void update_attribute_value_from_buffer()
 
     for (uint32_t i = 0; i < read; i++)
     {
-        attribute->value[value_size + i] = buffer[cursor + i];
+        attribute->value[value_size + i] = buf[buf_cur + i];
     }
 
     attribute->value_size = value_size + read;
@@ -356,7 +356,7 @@ static void update_attribute_name_from_buffer()
 
     for (uint32_t i = 0; i < read; i++)
     {
-        attribute->name[name_size + i] = buffer[cursor + i];
+        attribute->name[name_size + i] = buf[buf_cur + i];
     }
 
     attribute->name_size = name_size + read;
@@ -397,7 +397,7 @@ static void update_comment_token_from_buffer()
 
     for (uint32_t i = 0; i < read; i++)
     {
-        tokens[token_idx].data[data_size + i] = buffer[cursor + i];
+        tokens[token_idx].data[data_size + i] = buf[buf_cur + i];
     }
 
     tokens[token_idx].data_size += read;
@@ -449,7 +449,7 @@ static void update_doctype_token_name_from_buffer()
 
     for (uint32_t i = 0; i < read; i++)
     {
-        tokens[token_idx].name[name_size + i] = buffer[cursor + i];
+        tokens[token_idx].name[name_size + i] = buf[buf_cur + i];
     }
 
     tokens[token_idx].name_size = name_size + read;
@@ -496,7 +496,7 @@ static void update_doctype_public_identifier_from_buffer()
 
     for (uint32_t i = 0; i < read; i++)
     {
-        tokens[token_idx].public_id[public_id_size + i] = buffer[cursor + i];
+        tokens[token_idx].public_id[public_id_size + i] = buf[buf_cur + i];
     }
 
     tokens[token_idx].public_id_size += read;
@@ -528,7 +528,7 @@ static void update_doctype_token_system_identifier_from_buffer()
 
     for (uint32_t i = 0; i < read; i++)
     {
-        tokens[token_idx].system_id[system_id_size + i] = buffer[cursor + i];
+        tokens[token_idx].system_id[system_id_size + i] = buf[buf_cur + i];
     }
 
     tokens[token_idx].system_id_size += read;
@@ -580,18 +580,18 @@ static void emit_token()
 
 static bool match_segment(unsigned char* segment, uint32_t segment_size, match_type_e match_type)
 {
-    if (cursor + segment_size > size)
+    if (buf_cur + segment_size > buf_size)
     {
         return false;
     }
     if (match_type == CASE_SENSITIVE_MATCH)
     {
-        return strncmp(&buffer[cursor], segment, segment_size) == 0;
+        return strncmp(&buf[buf_cur], segment, segment_size) == 0;
     }
 
     for (uint32_t i = 0; i < segment_size; i++)
     {
-        unsigned char a = buffer[cursor + i];
+        unsigned char a = buf[buf_cur + i];
         unsigned char b = segment[i];
         if (a < 'a')    { a += 0x20; }
         if (b < 'a')    { b += 0x20; }
@@ -643,7 +643,7 @@ static void update_temp_buffer_from_buffer()
 
     for (uint32_t i = 0; i < read; i++)
     {
-        temp_buffer[temp_buffer_size + i] = buffer[cursor + i];
+        temp_buffer[temp_buffer_size + i] = buf[buf_cur + i];
     }
     temp_buffer_size += read;
 }
@@ -668,29 +668,29 @@ static void flush_temp_buffer_to_attribute_value()
 
 static void normalize_line_endings()
 {
-    if (size == 0) { return; }
+    if (buf_size == 0) { return; }
 
-    uint32_t new_size = size;
+    uint32_t new_size = buf_size;
 
     // replace \r\n with \n
-    for (uint32_t i = 0; i < size - 1; i++)
+    for (uint32_t i = 0; i < buf_size - 1; i++)
     {
-        if (buffer[i] != '\r' || buffer[i + 1] != '\n') { continue; }
+        if (buf[i] != '\r' || buf[i + 1] != '\n') { continue; }
 
         new_size--;
 
-        for (uint32_t j = i + 1; j < size; j++)
+        for (uint32_t j = i + 1; j < buf_size; j++)
         {
-            buffer[j - 1] = buffer[j];
+            buf[j - 1] = buf[j];
         }
     }
 
-    size = new_size;
+    buf_size = new_size;
 
     // replace \r with \n
-    for (uint32_t i = 0; i < size; i++)
+    for (uint32_t i = 0; i < buf_size; i++)
     {
-        if (buffer[i] == '\r') { buffer[i] = '\n'; }
+        if (buf[i] == '\r') { buf[i] = '\n'; }
     }
 }
 
@@ -720,14 +720,14 @@ void html_tokenizer_init(const unsigned char* new_buffer, const uint32_t new_siz
 {
     assert(new_buffer);
 
-    buffer                      = malloc(new_size + 1);
-    buffer[new_size]            = 0;
-    size                        = new_size;
-    memcpy(buffer, new_buffer, new_size);
+    buf                      = malloc(new_size + 1);
+    buf[new_size]            = 0;
+    buf_size                 = new_size;
+    memcpy(buf, new_buffer, new_size);
 
     normalize_line_endings();
 
-    cursor                      = 0;
+    buf_cur                      = 0;
     tokens                      = new_tokens;
     max_tokens                  = new_max_tokens;
 
@@ -742,7 +742,7 @@ void html_tokenizer_init(const unsigned char* new_buffer, const uint32_t new_siz
 
 html_tokenizer_error_e html_tokenizer_next()
 {
-    assert(buffer);
+    assert(buf);
 
     clear_tokens();
 
@@ -757,13 +757,13 @@ html_tokenizer_error_e html_tokenizer_next()
         bytes_read = -1;
         consume = true;
 
-        if (cursor >= size)
+        if (buf_cur >= buf_size)
         {
             is_eof = true;
         }
         else
         {
-            bytes_read = utf8_decode(buffer, size, cursor, &code_point);
+            bytes_read = utf8_decode(buf, buf_size, buf_cur, &code_point);
             if (bytes_read <= -1) { return HTML_TOKENIZER_ERROR; }
         }
 
@@ -1981,19 +1981,19 @@ html_tokenizer_error_e html_tokenizer_next()
             if (code_point == '-' && match_segment(hyphen_segment, hyphen_segment_size, CASE_SENSITIVE_MATCH))
             {
                 create_comment_token();
-                cursor                         += hyphen_segment_size;
+                buf_cur                        += hyphen_segment_size;
                 state                           = HTML_TOKENIZER_COMMENT_START_STATE;
                 consume                         = false;
             }
             else if (match_segment(doctype_segment, doctype_segment_size, CASE_INSENSITIVE_MATCH))
             {
-                cursor                         += doctype_segment_size;
+                buf_cur                        += doctype_segment_size;
                 consume                         = false;
                 state                           = HTML_TOKENIZER_DOCTYPE_STATE;
             }
             else if (match_segment(cdata_segment, cdata_segment_size, CASE_SENSITIVE_MATCH))
             {
-                cursor                         += cdata_segment_size;
+                buf_cur                        += cdata_segment_size;
                 consume                         = false;
                 // todo: handle once implementation on parser has started
                 assert(false);
@@ -2374,13 +2374,13 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 if (match_segment(public_segment, public_segment_size, CASE_INSENSITIVE_MATCH))
                 {
-                    cursor                         += public_segment_size;
+                    buf_cur                        += public_segment_size;
                     state                           = HTML_TOKENIZER_AFTER_DOCTYPE_PUBLIC_KEYWORD_STATE;
                     consume                         = false;
                 }
                 else if (match_segment(system_segment, system_segment_size, CASE_INSENSITIVE_MATCH))
                 {
-                    cursor                         += system_segment_size;
+                    buf_cur                        += system_segment_size;
                     state                           = HTML_TOKENIZER_AFTER_DOCTYPE_SYSTEM_KEYWORD_STATE;
                     consume                         = false;
                 }
@@ -2929,16 +2929,16 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_NAMED_CHARACTER_REFERENCE_STATE:
             ;
             // maximum possible size of named chars
-            uint32_t max_size   = cursor + 33;
+            uint32_t max_size   = buf_cur + 33;
             uint32_t cursor_offset = 0;
-            max_size            = max_size > size ? size : max_size;
+            max_size            = max_size > buf_size ? buf_size : max_size;
             bool found          = false;
 
-            for (uint32_t i = cursor; i < max_size; i++)
+            for (uint32_t i = buf_cur; i < max_size; i++)
             {
-                update_temp_buffer(buffer[i]);
+                update_temp_buffer(buf[i]);
                 cursor_offset += 1;
-                if (buffer[i] == ';') { break; }
+                if (buf[i] == ';') { break; }
             }
 
             while (!found)
@@ -2950,7 +2950,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
                 if (named_cp > 0)
                 {
-                    cursor  = cursor + cursor_offset;
+                    buf_cur  = buf_cur + cursor_offset;
                     consume = false;
                     state   = return_state;
                     found   = true;
@@ -2959,7 +2959,7 @@ html_tokenizer_error_e html_tokenizer_next()
                     if ((return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
                         return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
                         return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE) &&
-                        (buffer[cursor - 1] != ';' && (buffer[cursor] == '=' || utf8_is_alphanumeric(buffer[cursor]))))
+                        (buf[buf_cur - 1] != ';' && (buf[buf_cur] == '=' || utf8_is_alphanumeric(buf[buf_cur]))))
                     {
                         flush_code_points_consumed_as_char_ref(return_state);
                     }
@@ -2983,15 +2983,15 @@ html_tokenizer_error_e html_tokenizer_next()
 
             cursor_offset = 0;
 
-            for (uint32_t i = cursor; i < max_size; i++)
+            for (uint32_t i = buf_cur; i < max_size; i++)
             {
-                update_temp_buffer(buffer[i]);
+                update_temp_buffer(buf[i]);
                 cursor_offset += 1;
-                if (buffer[i] == ';') { break; }
+                if (buf[i] == ';') { break; }
             }
 
             flush_code_points_consumed_as_char_ref(return_state);
-            cursor              = cursor + cursor_offset;
+            buf_cur              = buf_cur + cursor_offset;
             consume             = false;
             state               = return_state;
             break;
@@ -3223,7 +3223,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         if (consume && bytes_read > 0)
         {
-            cursor += (uint32_t)bytes_read;
+            buf_cur += (uint32_t)bytes_read;
         }
     }
 
@@ -3246,6 +3246,6 @@ void html_tokenizer_set_state(html_tokenizer_state_e new_state)
 
 void html_tokenizer_free()
 {
-    if (buffer) { free(buffer); }
-    buffer = NULL;
+    if (buf) { free(buf); }
+    buf = NULL;
 }
