@@ -92,44 +92,44 @@ static const numeric_char_ref_t numeric_char_refs[]                     = { { 0x
 /********************/
 
 
-static bool is_noncharacter(uint32_t code_point)
+static bool is_noncharacter(uint32_t cp)
 {
-    return (code_point >= 0xfdd0 && code_point <= 0xfdef) || 
-            code_point == 0xfffe || code_point == 0xffff ||
-            code_point == 0x1fffe || code_point == 0x1ffff ||
-            code_point == 0x2fffe || code_point == 0x2ffff ||
-            code_point == 0x3fffe || code_point == 0x3ffff ||
-            code_point == 0x4fffe || code_point == 0x4ffff || 
-            code_point == 0x5fffe || code_point == 0x5ffff ||
-            code_point == 0x6fffe || code_point == 0x6ffff ||
-            code_point == 0x7fffe || code_point == 0x7ffff ||
-            code_point == 0x8fffe || code_point == 0x8ffff ||
-            code_point == 0x9fffe || code_point == 0x9ffff || 
-            code_point == 0xafffe || code_point == 0xaffff || 
-            code_point == 0xbfffe || code_point == 0xbffff ||
-            code_point == 0xcfffe || code_point == 0xcffff ||
-            code_point == 0xdfffe || code_point == 0xdffff ||
-            code_point == 0xefffe || code_point == 0xeffff ||
-            code_point == 0xffffe || code_point == 0xfffff ||
-            code_point == 0x10fffe || code_point == 0x10ffff;
+    return (cp >= 0xfdd0 && cp <= 0xfdef) || 
+            cp == 0xfffe || cp == 0xffff ||
+            cp == 0x1fffe || cp == 0x1ffff ||
+            cp == 0x2fffe || cp == 0x2ffff ||
+            cp == 0x3fffe || cp == 0x3ffff ||
+            cp == 0x4fffe || cp == 0x4ffff || 
+            cp == 0x5fffe || cp == 0x5ffff ||
+            cp == 0x6fffe || cp == 0x6ffff ||
+            cp == 0x7fffe || cp == 0x7ffff ||
+            cp == 0x8fffe || cp == 0x8ffff ||
+            cp == 0x9fffe || cp == 0x9ffff || 
+            cp == 0xafffe || cp == 0xaffff || 
+            cp == 0xbfffe || cp == 0xbffff ||
+            cp == 0xcfffe || cp == 0xcffff ||
+            cp == 0xdfffe || cp == 0xdffff ||
+            cp == 0xefffe || cp == 0xeffff ||
+            cp == 0xffffe || cp == 0xfffff ||
+            cp == 0x10fffe || cp == 0x10ffff;
 }
 
 
-static bool is_leading_surrogate(uint32_t code_point)
+static bool is_leading_surrogate(uint32_t cp)
 {
-    return code_point >= 0xd800 && code_point <= 0xdbff;
+    return cp >= 0xd800 && cp <= 0xdbff;
 }
 
 
-static bool is_trailing_surrogate(uint32_t code_point)
+static bool is_trailing_surrogate(uint32_t cp)
 {
-    return code_point >= 0xdc00 && code_point <= 0xdfff;
+    return cp >= 0xdc00 && cp <= 0xdfff;
 }
 
 
-static bool is_surrogate(uint32_t code_point)
+static bool is_surrogate(uint32_t cp)
 {
-    return is_leading_surrogate(code_point) || is_trailing_surrogate(code_point);
+    return is_leading_surrogate(cp) || is_trailing_surrogate(cp);
 }
 
 
@@ -595,11 +595,11 @@ static bool is_appropriate_end_tag()
 static void emit_tmp_buf()
 {
     uint32_t cur = 0;
-    uint32_t code_point = 0;
+    uint32_t cp = 0;
     int32_t bytes = 0;
     while (cur < tmp_buf_size)
     {
-        bytes = utf8_decode(tmp_buf, tmp_buf_size, cur, &code_point);
+        bytes = utf8_decode(tmp_buf, tmp_buf_size, cur, &cp);
 
         assert(bytes > -1);
 
@@ -680,7 +680,7 @@ static void normalize_line_endings()
 }
 
 
-static void flush_code_points_consumed_as_char_ref(html_tokenizer_state_e s)
+static void flush_cps_consumed_as_char_ref(html_tokenizer_state_e s)
 {
     if (s == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
         s == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
@@ -733,7 +733,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
     bool is_eof = false;
     bool consume = true;
-    uint32_t code_point;
+    uint32_t cp;
     html_tokenizer_error_e status = HTML_TOKENIZER_OK;
 
     while (token_idx == 0)
@@ -749,7 +749,7 @@ html_tokenizer_error_e html_tokenizer_next()
         }
         else
         {
-            bytes_read = utf8_decode(buf, buf_size, buf_cur, &code_point);
+            bytes_read = utf8_decode(buf, buf_size, buf_cur, &cp);
             if (bytes_read <= -1) { return HTML_TOKENIZER_ERROR; }
         }
 
@@ -764,7 +764,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '&':
                 state                           = HTML_TOKENIZER_CHARACTER_REFERENCE_STATE;
@@ -774,7 +774,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                           = HTML_TOKENIZER_TAG_OPEN_STATE;
                 break;
             default:
-                if (code_point == 0) { status   = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER; }
+                if (cp == 0) { status   = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER; }
                 create_char_token_from_buffer();
                 emit_token();
             }
@@ -790,7 +790,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '&':
                 return_state                    = HTML_TOKENIZER_RCDATA_STATE;
@@ -800,7 +800,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                           = HTML_TOKENIZER_RCDATA_LESS_THAN_STATE;
                 break;
             default:
-                if (code_point == 0)
+                if (cp == 0)
                 {
                     create_replacement_char_token();
                     status                      = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
@@ -824,13 +824,13 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch(code_point)
+            switch(cp)
             {
             case '<':
                 state                           = HTML_TOKENIZER_RAWTEXT_LESS_THAN_STATE;
                 break;
             default:
-                if (code_point == 0)
+                if (cp == 0)
                 {
                     status                      = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                     create_replacement_char_token();
@@ -854,13 +854,13 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '<':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_LESS_THAN_STATE;
                 break;
             default:
-                if (code_point == 0)
+                if (cp == 0)
                 {
                     create_replacement_char_token();
                     status                      = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
@@ -883,7 +883,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == 0)
+            if (cp == 0)
             {
                 create_replacement_char_token();
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
@@ -908,21 +908,21 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '!')
+            if (cp == '!')
             {
                 state                           = HTML_TOKENIZER_MARKUP_DECLARATION_OPEN_STATE;
             }
-            else if (code_point == '/')
+            else if (cp == '/')
             {
                 state                           = HTML_TOKENIZER_END_TAG_OPEN_STATE;
             }
-            else if (utf8_is_alpha(code_point))
+            else if (utf8_is_alpha(cp))
             {
                 create_tag_token(HTML_START_TOKEN);
                 consume                         = false;
                 state                           = HTML_TOKENIZER_TAG_NAME_STATE;
             }
-            else if (code_point == '?')
+            else if (cp == '?')
             {
                 create_comment_token();
                 consume                         = false;
@@ -953,13 +953,13 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (utf8_is_alpha(code_point))
+            if (utf8_is_alpha(cp))
             {
                 create_tag_token(HTML_END_TOKEN);
                 consume                         = false;
                 state                           = HTML_TOKENIZER_TAG_NAME_STATE;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 status                          = HTML_TOKENIZER_MISSING_END_TAG_NAME;
@@ -984,25 +984,25 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
             }
-            else if (code_point == '/')
+            else if (cp == '/')
             {
                 state                           = HTML_TOKENIZER_SELF_CLOSING_START_TAG_STATE;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
             }
-            else if (utf8_is_upper_alpha(code_point))
+            else if (utf8_is_upper_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tag_token(c + 0x20);
             }
-            else if (code_point == 0)
+            else if (cp == 0)
             {
                 update_tag_token_replacement();
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
@@ -1016,7 +1016,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#rcdata-less-than-sign-state
         case HTML_TOKENIZER_RCDATA_LESS_THAN_STATE:
-            switch (code_point)
+            switch (cp)
             {
             case '/':
                 state                           = HTML_TOKENIZER_RCDATA_END_TAG_OPEN_STATE;
@@ -1031,7 +1031,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#rcdata-end-tag-open-state
         case HTML_TOKENIZER_RCDATA_END_TAG_OPEN_STATE:
-            if (utf8_is_alpha(code_point))
+            if (utf8_is_alpha(cp))
             {
                 create_tag_token(HTML_END_TOKEN);
                 consume                         = false;
@@ -1050,28 +1050,28 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#rcdata-end-tag-name-state
         case HTML_TOKENIZER_RCDATA_END_TAG_NAME_STATE:
-            if ((code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ') && is_appropriate_end_tag())
+            if ((cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ') && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
             }
-            else if (code_point == '/' && is_appropriate_end_tag())
+            else if (cp == '/' && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_SELF_CLOSING_START_TAG_STATE;
             }
-            else if (code_point == '>' && is_appropriate_end_tag())
+            else if (cp == '>' && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
             }
-            else if (utf8_is_upper_alpha(code_point))
+            else if (utf8_is_upper_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tag_token(c + 0x20);
                 update_tmp_buf_from_buffer();
             }
-            else if (utf8_is_lower_alpha(code_point))
+            else if (utf8_is_lower_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tag_token(c);
                 update_tmp_buf_from_buffer();
             }
@@ -1089,7 +1089,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#rawtext-less-than-sign-state
         case HTML_TOKENIZER_RAWTEXT_LESS_THAN_STATE:
-            switch (code_point)
+            switch (cp)
             {
             case '/':
                 clear_tmp_buf();
@@ -1105,7 +1105,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#rawtext-end-tag-open-state
         case HTML_TOKENIZER_RAWTEXT_END_TAG_OPEN_STATE:
-            if (utf8_is_alpha(code_point))
+            if (utf8_is_alpha(cp))
             {
                 create_tag_token(HTML_END_TOKEN);
                 consume                         = false;
@@ -1124,28 +1124,28 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#rawtext-end-tag-name-state
         case HTML_TOKENIZER_RAWTEXT_END_TAG_NAME_STATE:
-            if ((code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ') && is_appropriate_end_tag())
+            if ((cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ') && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
             }
-            else if (code_point == '/' && is_appropriate_end_tag())
+            else if (cp == '/' && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_SELF_CLOSING_START_TAG_STATE;
             }
-            else if (code_point == '>' && is_appropriate_end_tag())
+            else if (cp == '>' && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
             }
-            else if (utf8_is_upper_alpha(code_point))
+            else if (utf8_is_upper_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tag_token(c + 0x20);
                 update_tmp_buf_from_buffer();
             }
-            else if (utf8_is_lower_alpha(code_point))
+            else if (utf8_is_lower_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tag_token(c);
                 update_tmp_buf_from_buffer();
             }
@@ -1163,7 +1163,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-less-than-sign-state
         case HTML_TOKENIZER_SCRIPT_DATA_LESS_THAN_STATE:
-            switch (code_point)
+            switch (cp)
             {
             case '/':
                 clear_tmp_buf();
@@ -1186,7 +1186,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-end-tag-open-state
         case HTML_TOKENIZER_SCRIPT_DATA_END_TAG_OPEN_STATE:
-            if (utf8_is_alpha(code_point))
+            if (utf8_is_alpha(cp))
             {
                 create_tag_token(HTML_END_TOKEN);
                 consume                         = false;
@@ -1205,28 +1205,28 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-end-tag-name-state
         case HTML_TOKENIZER_SCRIPT_DATA_END_TAG_NAME_STATE:
-            if ((code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ') && is_appropriate_end_tag())
+            if ((cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ') && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
             }
-            else if (code_point == '/' && is_appropriate_end_tag())
+            else if (cp == '/' && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_SELF_CLOSING_START_TAG_STATE;
             }
-            else if (code_point == '>' && is_appropriate_end_tag())
+            else if (cp == '>' && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
             }
-            else if (utf8_is_upper_alpha(code_point))
+            else if (utf8_is_upper_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tag_token(c + 0x20);
                 update_tmp_buf_from_buffer();
             }
-            else if (utf8_is_lower_alpha(code_point))
+            else if (utf8_is_lower_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tag_token(c);
                 update_tmp_buf_from_buffer();
             }
@@ -1244,7 +1244,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escape-start-state
         case HTML_TOKENIZER_SCRIPT_DATA_ESCAPE_START_STATE:
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPE_START_DASH_STATE;
@@ -1259,7 +1259,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escape-start-dash-state
         case HTML_TOKENIZER_SCRIPT_DATA_ESCAPE_START_DASH_STATE:
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
@@ -1281,7 +1281,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 status                          = HTML_TOKENIZER_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT;
                 break;
             }
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_DASH_STATE;
@@ -1311,7 +1311,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
@@ -1344,7 +1344,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 create_char_token('-');
@@ -1368,12 +1368,12 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-less-than-sign-state
         case HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_LESS_THAN_STATE:
-            if (code_point == '/')
+            if (cp == '/')
             {
                 clear_tmp_buf();
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE;
             }
-            else if (utf8_is_alpha(code_point))
+            else if (utf8_is_alpha(cp))
             {
                 clear_tmp_buf();
                 create_char_token('<');
@@ -1392,7 +1392,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-end-tag-open-state
         case HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE:
-            if (utf8_is_alpha(code_point))
+            if (utf8_is_alpha(cp))
             {
                 create_tag_token(HTML_END_TOKEN);
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE;
@@ -1411,28 +1411,28 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-end-tag-name-state
         case HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE:
-            if ((code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ') && is_appropriate_end_tag())
+            if ((cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ') && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
             }
-            else if (code_point == '/' && is_appropriate_end_tag())
+            else if (cp == '/' && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_SELF_CLOSING_START_TAG_STATE;
             }
-            else if (code_point == '>' && is_appropriate_end_tag())
+            else if (cp == '>' && is_appropriate_end_tag())
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
             }
-            else if (utf8_is_upper_alpha(code_point))
+            else if (utf8_is_upper_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tag_token(c + 0x20);
                 update_tmp_buf_from_buffer();
             }
-            else if (utf8_is_lower_alpha(code_point))
+            else if (utf8_is_lower_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tag_token(c);
                 update_tmp_buf_from_buffer();
             }
@@ -1450,8 +1450,8 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escape-start-state
         case HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE:
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || 
-                code_point == ' '  || code_point == '/'  || code_point == '>')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || 
+                cp == ' '  || cp == '/'  || cp == '>')
             {
                 if (tmp_buf_size == 6 && strncmp(tmp_buf, "script", tmp_buf_size) == 0)
                 {
@@ -1465,16 +1465,16 @@ html_tokenizer_error_e html_tokenizer_next()
                 create_char_token_from_buffer();
                 emit_token();
             }
-            else if (utf8_is_upper_alpha(code_point))
+            else if (utf8_is_upper_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tmp_buf(c + 0x20);
                 create_char_token(c);
                 emit_token();
             }
-            else if (utf8_is_lower_alpha(code_point))
+            else if (utf8_is_lower_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tmp_buf(c);
                 create_char_token(c);
                 emit_token();
@@ -1496,7 +1496,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE;
@@ -1529,7 +1529,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE;
@@ -1564,7 +1564,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 create_char_token('-');
@@ -1595,7 +1595,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-less-than-sign-state
         case HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_STATE:
-            switch (code_point)
+            switch (cp)
             {
             case '/':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE;
@@ -1611,8 +1611,8 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escape-end-state
         case HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE:
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || 
-                code_point == ' '  || code_point == '/'  || code_point == '>')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || 
+                cp == ' '  || cp == '/'  || cp == '>')
             {
                 if (tmp_buf_size == 6 && strncmp(tmp_buf, "script", tmp_buf_size) == 0)
                 {
@@ -1626,16 +1626,16 @@ html_tokenizer_error_e html_tokenizer_next()
                 create_char_token_from_buffer();
                 emit_token();
             }
-            else if (utf8_is_upper_alpha(code_point))
+            else if (utf8_is_upper_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tmp_buf(c + 0x20);
                 create_char_token(c);
                 emit_token();
             }
-            else if (utf8_is_lower_alpha(code_point))
+            else if (utf8_is_lower_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tmp_buf(c);
                 create_char_token(c);
                 emit_token();
@@ -1649,16 +1649,16 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#before-attribute-name-state
         case HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE:
-            if (is_eof || code_point == '/'  || code_point == '>')
+            if (is_eof || cp == '/'  || cp == '>')
             {
                 consume                         = false;
                 state                           = HTML_TOKENIZER_AFTER_ATTRIBUTE_NAME_STATE;
             }
-            else if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            else if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 // ignore
             }
-            else if (code_point == '=')
+            else if (cp == '=')
             {
                 create_attribute_from_buffer();
                 state                           = HTML_TOKENIZER_ATTRIBUTE_NAME_STATE;
@@ -1674,29 +1674,29 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#attribute-name-state
         case HTML_TOKENIZER_ATTRIBUTE_NAME_STATE:
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || 
-                code_point == ' '  || code_point == '/'  || code_point == '>' || is_eof)
+            if (cp == '\t' || cp == '\n' || cp == '\f' || 
+                cp == ' '  || cp == '/'  || cp == '>' || is_eof)
             {
                 consume                         = false;
                 state                           = HTML_TOKENIZER_AFTER_ATTRIBUTE_NAME_STATE;
             }
-            else if (code_point == '=')
+            else if (cp == '=')
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_VALUE_STATE;
             }
-            else if (utf8_is_upper_alpha(code_point))
+            else if (utf8_is_upper_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_attribute_name(c + 0x20);
             }
-            else if (code_point == 0)
+            else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 update_attribute_name_replacement_char();
             }
             else
             {
-                if (code_point == '"' || code_point == '\'' || code_point == '<')
+                if (cp == '"' || cp == '\'' || cp == '<')
                 {
                     status                      = HTML_TOKENIZER_UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME;
                 }
@@ -1716,19 +1716,19 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
 
             }
-            else if (code_point == '/')
+            else if (cp == '/')
             {
                 state                           = HTML_TOKENIZER_SELF_CLOSING_START_TAG_STATE;
             }
-            else if (code_point == '=')
+            else if (cp == '=')
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_VALUE_STATE;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_attribute();
@@ -1745,19 +1745,19 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#before-attribute-value-state
         case HTML_TOKENIZER_BEFORE_ATTRIBUTE_VALUE_STATE:
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
 
             }
-            else if (code_point == '"')
+            else if (cp == '"')
             {
                 state                           = HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE;
             }
-            else if (code_point == '\'')
+            else if (cp == '\'')
             {
                 state                           = HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 status                          = HTML_TOKENIZER_MISSING_ATTRIBUTE_VALUE;
@@ -1781,16 +1781,16 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '"')
+            if (cp == '"')
             {
                 state                           = HTML_TOKENIZER_AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
             }
-            else if (code_point == '&')
+            else if (cp == '&')
             {
                 state                           = HTML_TOKENIZER_CHARACTER_REFERENCE_STATE;
                 return_state                    = HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE;
             }
-            else if (code_point == 0)
+            else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 update_attribute_value_replacement_char();
@@ -1811,16 +1811,16 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\'')
+            if (cp == '\'')
             {
                 state                           = HTML_TOKENIZER_AFTER_ATTRIBUTE_VALUE_QUOTED_STATE;
             }
-            else if (code_point == '&')
+            else if (cp == '&')
             {
                 state                           = HTML_TOKENIZER_CHARACTER_REFERENCE_STATE;
                 return_state                    = HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE;
             }
-            else if (code_point == 0)
+            else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 update_attribute_value_replacement_char();
@@ -1842,30 +1842,30 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
                 emit_attribute();
             }
-            else if (code_point == '&')
+            else if (cp == '&')
             {
                 state                           = HTML_TOKENIZER_CHARACTER_REFERENCE_STATE;
                 return_state                    = HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_attribute();
                 emit_token();
             }
-            else if (code_point == 0)
+            else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 update_attribute_value_replacement_char();
             }
             else
             {
-                if (code_point == '"' || code_point == '\'' || code_point == '<' || code_point == '=' || code_point == '`')
+                if (cp == '"' || cp == '\'' || cp == '<' || cp == '=' || cp == '`')
                 {
                     status                      = HTML_TOKENIZER_UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE;
                 }
@@ -1883,17 +1883,17 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
                 emit_attribute();
             }
-            else if (code_point == '/')
+            else if (cp == '/')
             {
                 state                           = HTML_TOKENIZER_SELF_CLOSING_START_TAG_STATE;
                 emit_attribute();
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_attribute();
@@ -1918,7 +1918,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '>')
+            if (cp == '>')
             {
                 if (tokens[token_idx].type == HTML_START_TOKEN)
                 {
@@ -1946,12 +1946,12 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '>')
+            if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
             }
-            else if (code_point == 0)
+            else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 update_comment_token_replacement_char();
@@ -1964,7 +1964,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state
         case HTML_TOKENIZER_MARKUP_DECLARATION_OPEN_STATE:
-            if (code_point == '-' && match_segment(hyphen_segment, hyphen_segment_size, CASE_SENSITIVE_MATCH))
+            if (cp == '-' && match_segment(hyphen_segment, hyphen_segment_size, CASE_SENSITIVE_MATCH))
             {
                 create_comment_token();
                 buf_cur                        += hyphen_segment_size;
@@ -1995,7 +1995,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#comment-start-state
         case HTML_TOKENIZER_COMMENT_START_STATE:
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_COMMENT_START_DASH_STATE;
@@ -2022,7 +2022,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_COMMENT_END_STATE;
@@ -2050,7 +2050,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '<':
                 update_comment_token_from_buffer();
@@ -2079,7 +2079,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '!':
                 update_comment_token_from_buffer();
@@ -2096,7 +2096,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#comment-less-than-sign-bang-state
         case HTML_TOKENIZER_COMMENT_LESS_THAN_BANG_STATE:
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_COMMENT_LESS_THAN_BANG_DASH_STATE;
@@ -2109,7 +2109,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#comment-less-than-sign-bang-dash-state
         case HTML_TOKENIZER_COMMENT_LESS_THAN_BANG_DASH_STATE:
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_COMMENT_LESS_THAN_BANG_DASH_DASH_STATE;
@@ -2122,7 +2122,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#comment-less-than-sign-bang-dash-dash-state
         case HTML_TOKENIZER_COMMENT_LESS_THAN_BANG_DASH_DASH_STATE:
-            if (!is_eof && code_point != '>')
+            if (!is_eof && cp != '>')
             {
                 status                          = HTML_TOKENIZER_NESTED_COMMENT;
             }
@@ -2141,7 +2141,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 state                           = HTML_TOKENIZER_COMMENT_END_STATE;
@@ -2165,7 +2165,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '>':
                 state                           = HTML_TOKENIZER_DATA_STATE;
@@ -2196,7 +2196,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '-':
                 update_comment_token('-');
@@ -2231,11 +2231,11 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 state                           = HTML_TOKENIZER_BEFORE_DOCTYPE_NAME_STATE;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 consume                         = false;
                 state                           = HTML_TOKENIZER_BEFORE_DOCTYPE_NAME_STATE;
@@ -2261,20 +2261,20 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 
             }
-            else if (utf8_is_upper_alpha(code_point))
+            else if (utf8_is_upper_alpha(cp))
             {
                 state                           = HTML_TOKENIZER_DOCTYPE_NAME_STATE;
 
                 create_doctype_token();
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_doctype_token_name(c + 0x20);
 
             }
-            else if (code_point == 0)
+            else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 state                           = HTML_TOKENIZER_DOCTYPE_NAME_STATE;
@@ -2282,7 +2282,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 create_doctype_token();
                 update_doctype_token_name_replacement_char();
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 create_doctype_token();
                 tokens[token_idx].force_quirks  = true;
@@ -2310,21 +2310,21 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 state                           = HTML_TOKENIZER_AFTER_DOCTYPE_NAME_STATE;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
             }
-            else if (utf8_is_upper_alpha(code_point))
+            else if (utf8_is_upper_alpha(cp))
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_doctype_token_name(c + 0x20);
             }
-            else if (code_point == 0)
+            else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 update_doctype_token_name_replacement_char();
@@ -2347,11 +2347,11 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
 
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
@@ -2392,23 +2392,23 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 state                               = HTML_TOKENIZER_BEFORE_DOCTYPE_PUBLIC_IDENTIFIER_STATE;
             }
-            else if (code_point == '"')
+            else if (cp == '"')
             {
                 // todo: missing vs empty identifier
                 state                               = HTML_TOKENIZER_DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE;
                 status                              = HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_PUBLIC_KEYWORD;
             }
-            else if (code_point == '\'')
+            else if (cp == '\'')
             {
                 // todo: missing vs empty identifier
                 state                               = HTML_TOKENIZER_DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE;
                 status                              = HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_PUBLIC_KEYWORD;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 tokens[token_idx].force_quirks      = true;
                 state                               = HTML_TOKENIZER_DATA_STATE;
@@ -2436,21 +2436,21 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
 
             }
-            else if (code_point == '"')
+            else if (cp == '"')
             {
                 // todo: missing vs empty identifier
                 state                               = HTML_TOKENIZER_DOCTYPE_PUBLIC_IDENTIFIER_DOUBLE_QUOTED_STATE;
             }
-            else if (code_point == '\'')
+            else if (cp == '\'')
             {
                 // todo: missing vs empty identifier
                 state                               = HTML_TOKENIZER_DOCTYPE_PUBLIC_IDENTIFIER_SINGLE_QUOTED_STATE;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 tokens[token_idx].force_quirks      = true;
                 state                               = HTML_TOKENIZER_DATA_STATE;
@@ -2478,16 +2478,16 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '"')
+            if (cp == '"')
             {
                 state                               = HTML_TOKENIZER_AFTER_DOCTYPE_PUBLIC_IDENTIFIER_STATE;
             }
-            else if (code_point == 0)
+            else if (cp == 0)
             {
                 status                              = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 update_doctype_token_public_identifier_replacement_char();
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 tokens[token_idx].force_quirks      = true;
                 state                               = HTML_TOKENIZER_DATA_STATE;
@@ -2512,16 +2512,16 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\'')
+            if (cp == '\'')
             {
                 state                               = HTML_TOKENIZER_AFTER_DOCTYPE_PUBLIC_IDENTIFIER_STATE;
             }
-            else if (code_point == 0)
+            else if (cp == 0)
             {
                 status                              = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 update_doctype_token_public_identifier_replacement_char();
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 tokens[token_idx].force_quirks      = true;
                 state                               = HTML_TOKENIZER_DATA_STATE;
@@ -2546,22 +2546,22 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 state                               = HTML_TOKENIZER_BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS_STATE;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                               = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
             }
-            else if (code_point == '"')
+            else if (cp == '"')
             {
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
                 status                              = HTML_TOKENIZER_MISSING_WHITESPACE_BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS;
             }
-            else if (code_point == '\'')
+            else if (cp == '\'')
             {
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
@@ -2588,21 +2588,21 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
 
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                               = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
             }
-            else if (code_point == '"')
+            else if (cp == '"')
             {
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
             }
-            else if (code_point == '\'')
+            else if (cp == '\'')
             {
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
@@ -2628,23 +2628,23 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 state                               = HTML_TOKENIZER_BEFORE_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
             }
-            else if (code_point == '"')
+            else if (cp == '"')
             {
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
                 status                              = HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_SYSTEM_KEYWORD;
             }
-            else if (code_point == '\'')
+            else if (cp == '\'')
             {
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
                 status                              = HTML_TOKENIZER_MISSING_WHITESPACE_AFTER_DOCTYPE_SYSTEM_KEYWORD;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 tokens[token_idx].force_quirks      = true;
                 state                               = HTML_TOKENIZER_DATA_STATE;
@@ -2672,21 +2672,21 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
 
             }
-            else if (code_point == '"')
+            else if (cp == '"')
             {
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_DOUBLE_QUOTED_STATE;
             }
-            else if (code_point == '\'')
+            else if (cp == '\'')
             {
                 // todo: missing vs empty system id
                 state                               = HTML_TOKENIZER_DOCTYPE_SYSTEM_IDENTIFIER_SINGLE_QUOTED_STATE;
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 tokens[token_idx].force_quirks      = true;
                 state                               = HTML_TOKENIZER_DATA_STATE;
@@ -2714,7 +2714,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '"':
                 state                               = HTML_TOKENIZER_AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
@@ -2746,7 +2746,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch (code_point)
+            switch (cp)
             {
             case '\'':
                 state                               = HTML_TOKENIZER_AFTER_DOCTYPE_SYSTEM_IDENTIFIER_STATE;
@@ -2778,11 +2778,11 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            if (code_point == '\t' || code_point == '\n' || code_point == '\f' || code_point == ' ')
+            if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
 
             }
-            else if (code_point == '>')
+            else if (cp == '>')
             {
                 state                               = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
@@ -2805,7 +2805,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch(code_point)
+            switch(cp)
             {
             case '>':
                 state                               = HTML_TOKENIZER_DATA_STATE;
@@ -2829,7 +2829,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             }
 
-            switch(code_point)
+            switch(cp)
             {
             case ']':
                 state                               = HTML_TOKENIZER_CDATA_SECTION_BRACKET_STATE;
@@ -2842,7 +2842,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#cdata-section-bracket-state
         case HTML_TOKENIZER_CDATA_SECTION_BRACKET_STATE:
-            switch(code_point)
+            switch(cp)
             {
             case ']':
                 create_char_token(']');
@@ -2861,7 +2861,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#cdata-section-end-state
         case HTML_TOKENIZER_CDATA_SECTION_END_STATE:
-            switch (code_point)
+            switch (cp)
             {
             case ']':
                 create_char_token(']');
@@ -2884,12 +2884,12 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_CHARACTER_REFERENCE_STATE:
             clear_tmp_buf();
             update_tmp_buf('&');
-            if (utf8_is_alphanumeric(code_point))
+            if (utf8_is_alphanumeric(cp))
             {
                 consume                             = false;
                 state                               = HTML_TOKENIZER_NAMED_CHARACTER_REFERENCE_STATE;
             }
-            else if (code_point == '#')
+            else if (cp == '#')
             {
                 update_tmp_buf('#');
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_STATE;
@@ -2947,7 +2947,7 @@ html_tokenizer_error_e html_tokenizer_next()
                         return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE) &&
                         (buf[buf_cur - 1] != ';' && (buf[buf_cur] == '=' || utf8_is_alphanumeric(buf[buf_cur]))))
                     {
-                        flush_code_points_consumed_as_char_ref(return_state);
+                        flush_cps_consumed_as_char_ref(return_state);
                     }
                     else
                     {
@@ -2955,7 +2955,7 @@ html_tokenizer_error_e html_tokenizer_next()
                         int32_t bytes = utf8_encode(named_cp, tmp_buf);
 
                         tmp_buf_size    = (uint32_t)bytes;
-                        flush_code_points_consumed_as_char_ref(return_state);
+                        flush_cps_consumed_as_char_ref(return_state);
                     }
 
                     break;
@@ -2976,7 +2976,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 if (buf[i] == ';') { break; }
             }
 
-            flush_code_points_consumed_as_char_ref(return_state);
+            flush_cps_consumed_as_char_ref(return_state);
             buf_cur              = buf_cur + cursor_offset;
             consume             = false;
             state               = return_state;
@@ -2984,23 +2984,23 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#ambiguous-ampersand-state
         case HTML_TOKENIZER_AMBIGUOUS_AMPERSAND_STATE:
-            if (utf8_is_alphanumeric(code_point))
+            if (utf8_is_alphanumeric(cp))
             {
                 if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE || 
                     return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
                     return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
                 {
-                    unsigned char c = (unsigned char)code_point;
+                    unsigned char c = (unsigned char)cp;
                     update_attribute_value(c);
                 }
                 else
                 {
-                    unsigned char c = (unsigned char)code_point;
+                    unsigned char c = (unsigned char)cp;
                     create_char_token(c);
                     emit_token();
                 }
             }
-            else if (code_point == ';')
+            else if (cp == ';')
             {
                 // todo: parse errors
                 consume                             = false;
@@ -3018,9 +3018,9 @@ html_tokenizer_error_e html_tokenizer_next()
 
             character_reference_code = 0;
 
-            if (code_point == 'x' || code_point == 'X')
+            if (cp == 'x' || cp == 'X')
             {
-                unsigned char c = (unsigned char)code_point;
+                unsigned char c = (unsigned char)cp;
                 update_tmp_buf(c);
                 state                               = HTML_TOKENIZER_HEXADECIMAL_CHARACTER_REFERENCE_START_STATE;
             }
@@ -3033,7 +3033,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#hexadecimal-character-reference-start-state
         case HTML_TOKENIZER_HEXADECIMAL_CHARACTER_REFERENCE_START_STATE:
-            if (utf8_is_hex(code_point))
+            if (utf8_is_hex(cp))
             {
                 consume                             = false;
                 state                               = HTML_TOKENIZER_HEXADECIMAL_CHARACTER_REFERENCE_STATE;
@@ -3058,7 +3058,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
         // https://html.spec.whatwg.org/multipage/parsing.html#decimal-character-reference-start-state
         case HTML_TOKENIZER_DECIMAL_CHARACTER_REFERENCE_START_STATE:
-            if (utf8_is_digit(code_point))
+            if (utf8_is_digit(cp))
             {
                 consume                             = false;
                 state                               = HTML_TOKENIZER_DECIMAL_CHARACTER_REFERENCE_STATE;
@@ -3091,22 +3091,22 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
                 status                              = HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE;
             }
-            else if (utf8_is_digit(code_point))
+            else if (utf8_is_digit(cp))
             {
                 character_reference_code            *= 16;
-                character_reference_code            += code_point - 0x30;
+                character_reference_code            += cp - 0x30;
             }
-            else if (utf8_is_upper_hex(code_point))
+            else if (utf8_is_upper_hex(cp))
             {
                 character_reference_code            *= 16;
-                character_reference_code            += code_point - 0x37;
+                character_reference_code            += cp - 0x37;
             }
-            else if (utf8_is_lower_hex(code_point))
+            else if (utf8_is_lower_hex(cp))
             {
                 character_reference_code            *= 16;
-                character_reference_code            += code_point - 0x57;
+                character_reference_code            += cp - 0x57;
             }
-            else if (code_point == ';')
+            else if (cp == ';')
             {
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
             }
@@ -3131,18 +3131,18 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
                 status                              = HTML_TOKENIZER_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE;
             }
-            else if (utf8_is_digit(code_point))
+            else if (utf8_is_digit(cp))
             {
                 uint32_t old_val                    = character_reference_code;
                 character_reference_code           *= 10;
-                character_reference_code           += code_point - 0x30;
+                character_reference_code           += cp - 0x30;
 
                 if (old_val > character_reference_code)
                 {
                     character_reference_code        = 0xFFFFFFFF;
                 }
             }
-            else if (code_point == ';')
+            else if (cp == ';')
             {
                 state                               = HTML_TOKENIZER_NUMERIC_CHARACTER_REFERENCE_END_STATE;
             }
