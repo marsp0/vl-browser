@@ -1,0 +1,1014 @@
+#description
+Undefined named entity in a double-quoted attribute value ending in semicolon and whose name starts with a known entity name.
+#data
+<h a="&noti;">
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&noti;
+#end-test
+
+#description
+Entity name requiring semicolon instead followed by the equals sign in a double-quoted attribute value.
+#data
+<h a="&lang=">
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&lang=
+#end-test
+
+#description
+Valid entity name followed by the equals sign in a double-quoted attribute value.
+#data
+<h a="&not=">
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&not=
+#end-test
+
+#description
+Undefined named entity in a single-quoted attribute value ending in semicolon and whose name starts with a known entity name.
+#data
+<h a='&noti;'>
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&noti;
+#end-test
+
+#description
+Entity name requiring semicolon instead followed by the equals sign in a single-quoted attribute value.
+#data
+<h a='&lang='>
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&lang=
+#end-test
+
+#description
+Valid entity name followed by the equals sign in a single-quoted attribute value.
+#data
+<h a='&not='>
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&not=
+#end-test
+
+#description
+Undefined named entity in an unquoted attribute value ending in semicolon and whose name starts with a known entity name.
+#data
+<h a=&noti;>
+#errors
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&noti;
+#end-test
+
+#description
+Entity name requiring semicolon instead followed by the equals sign in an unquoted attribute value.
+#data
+<h a=&lang=>
+#errors
+(1, 11): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&lang=
+#end-test
+
+#description
+Valid entity name followed by the equals sign in an unquoted attribute value.
+#data
+<h a=&not=>
+#errors
+(1, 10): unexpected-character-in-unquoted-attribute-value
+#states
+Data state
+#start-tag
+h
+#attr-name
+a
+#attr-value
+&not=
+#end-test
+
+#description
+Ambiguous ampersand.
+#data
+&rrrraannddom;
+#errors
+(1, 14): unknown-named-character-reference
+#states
+Data state
+#character
+&
+#character
+r
+#character
+r
+#character
+r
+#character
+r
+#character
+a
+#character
+a
+#character
+n
+#character
+n
+#character
+d
+#character
+d
+#character
+o
+#character
+m
+#character
+;
+#end-test
+
+#description
+Semicolonless named entity 'not' followed by 'i;' in body
+#data
+&noti;
+#errors
+(1, 5): missing-semicolon-after-character-reference
+#states
+Data state
+#character
+¬
+#character
+i
+#character
+;
+#end-test
+
+#description
+CR as numeric entity
+#data
+&#013;
+#errors
+(1, 7): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+CR as hexadecimal numeric entity
+#data
+&#x00D;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 EURO SIGN numeric entity.
+#data
+&#0128;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+€
+#end-test
+
+#description
+Windows-1252 REPLACEMENT CHAR numeric entity.
+#data
+&#0129;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 SINGLE LOW-9 QUOTATION MARK numeric entity.
+#data
+&#0130;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+‚
+#end-test
+
+#description
+Windows-1252 LATIN SMALL LETTER F WITH HOOK numeric entity.
+#data
+&#0131;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+ƒ
+#end-test
+
+#description
+Windows-1252 DOUBLE LOW-9 QUOTATION MARK numeric entity.
+#data
+&#0132;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+„
+#end-test
+
+#description
+Windows-1252 HORIZONTAL ELLIPSIS numeric entity.
+#data
+&#0133;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+…
+#end-test
+
+#description
+Windows-1252 DAGGER numeric entity.
+#data
+&#0134;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+†
+#end-test
+
+#description
+Windows-1252 DOUBLE DAGGER numeric entity.
+#data
+&#0135;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+‡
+#end-test
+
+#description
+Windows-1252 MODIFIER LETTER CIRCUMFLEX ACCENT numeric entity.
+#data
+&#0136;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+ˆ
+#end-test
+
+#description
+Windows-1252 PER MILLE SIGN numeric entity.
+#data
+&#0137;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+‰
+#end-test
+
+#description
+Windows-1252 LATIN CAPITAL LETTER S WITH CARON numeric entity.
+#data
+&#0138;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+Š
+#end-test
+
+#description
+Windows-1252 SINGLE LEFT-POINTING ANGLE QUOTATION MARK numeric entity.
+#data
+&#0139;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+‹
+#end-test
+
+#description
+Windows-1252 LATIN CAPITAL LIGATURE OE numeric entity.
+#data
+&#0140;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+Œ
+#end-test
+
+#description
+Windows-1252 REPLACEMENT CHAR numeric entity.
+#data
+&#0141;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 LATIN CAPITAL LETTER Z WITH CARON numeric entity.
+#data
+&#0142;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+Ž
+#end-test
+
+#description
+Windows-1252 REPLACEMENT CHAR numeric entity.
+#data
+&#0143;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 REPLACEMENT CHAR numeric entity.
+#data
+&#0144;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 LEFT SINGLE QUOTATION MARK numeric entity.
+#data
+&#0145;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+‘
+#end-test
+
+#description
+Windows-1252 RIGHT SINGLE QUOTATION MARK numeric entity.
+#data
+&#0146;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+’
+#end-test
+
+#description
+Windows-1252 LEFT DOUBLE QUOTATION MARK numeric entity.
+#data
+&#0147;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+“
+#end-test
+
+#description
+Windows-1252 RIGHT DOUBLE QUOTATION MARK numeric entity.
+#data
+&#0148;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+”
+#end-test
+
+#description
+Windows-1252 BULLET numeric entity.
+#data
+&#0149;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+•
+#end-test
+
+#description
+Windows-1252 EN DASH numeric entity.
+#data
+&#0150;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+–
+#end-test
+
+#description
+Windows-1252 EM DASH numeric entity.
+#data
+&#0151;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+—
+#end-test
+
+#description
+Windows-1252 SMALL TILDE numeric entity.
+#data
+&#0152;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+˜
+#end-test
+
+#description
+Windows-1252 TRADE MARK SIGN numeric entity.
+#data
+&#0153;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+™
+#end-test
+
+#description
+Windows-1252 LATIN SMALL LETTER S WITH CARON numeric entity.
+#data
+&#0154;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+š
+#end-test
+
+#description
+Windows-1252 SINGLE RIGHT-POINTING ANGLE QUOTATION MARK numeric entity.
+#data
+&#0155;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+›
+#end-test
+
+#description
+Windows-1252 LATIN SMALL LIGATURE OE numeric entity.
+#data
+&#0156;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+œ
+#end-test
+
+#description
+Windows-1252 REPLACEMENT CHAR numeric entity.
+#data
+&#0157;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 EURO SIGN hexadecimal numeric entity.
+#data
+&#x080;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+€
+#end-test
+
+#description
+Windows-1252 REPLACEMENT CHAR hexadecimal numeric entity.
+#data
+&#x081;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 SINGLE LOW-9 QUOTATION MARK hexadecimal numeric entity.
+#data
+&#x082;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+‚
+#end-test
+
+#description
+Windows-1252 LATIN SMALL LETTER F WITH HOOK hexadecimal numeric entity.
+#data
+&#x083;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+ƒ
+#end-test
+
+#description
+Windows-1252 DOUBLE LOW-9 QUOTATION MARK hexadecimal numeric entity.
+#data
+&#x084;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+„
+#end-test
+
+#description
+Windows-1252 HORIZONTAL ELLIPSIS hexadecimal numeric entity.
+#data
+&#x085;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+…
+#end-test
+
+#description
+Windows-1252 DAGGER hexadecimal numeric entity.
+#data
+&#x086;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+†
+#end-test
+
+#description
+Windows-1252 DOUBLE DAGGER hexadecimal numeric entity.
+#data
+&#x087;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+‡
+#end-test
+
+#description
+Windows-1252 MODIFIER LETTER CIRCUMFLEX ACCENT hexadecimal numeric entity.
+#data
+&#x088;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+ˆ
+#end-test
+
+#description
+Windows-1252 PER MILLE SIGN hexadecimal numeric entity.
+#data
+&#x089;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+‰
+#end-test
+
+#description
+Windows-1252 LATIN CAPITAL LETTER S WITH CARON hexadecimal numeric entity.
+#data
+&#x08A;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+Š
+#end-test
+
+#description
+Windows-1252 SINGLE LEFT-POINTING ANGLE QUOTATION MARK hexadecimal numeric entity.
+#data
+&#x08B;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+‹
+#end-test
+
+#description
+Windows-1252 LATIN CAPITAL LIGATURE OE hexadecimal numeric entity.
+#data
+&#x08C;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+Œ
+#end-test
+
+#description
+Windows-1252 REPLACEMENT CHAR hexadecimal numeric entity.
+#data
+&#x08D;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 LATIN CAPITAL LETTER Z WITH CARON hexadecimal numeric entity.
+#data
+&#x08E;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+Ž
+#end-test
+
+#description
+Windows-1252 REPLACEMENT CHAR hexadecimal numeric entity.
+#data
+&#x08F;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 REPLACEMENT CHAR hexadecimal numeric entity.
+#data
+&#x090;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 LEFT SINGLE QUOTATION MARK hexadecimal numeric entity.
+#data
+&#x091;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+‘
+#end-test
+
+#description
+Windows-1252 RIGHT SINGLE QUOTATION MARK hexadecimal numeric entity.
+#data
+&#x092;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+’
+#end-test
+
+#description
+Windows-1252 LEFT DOUBLE QUOTATION MARK hexadecimal numeric entity.
+#data
+&#x093;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+“
+#end-test
+
+#description
+Windows-1252 RIGHT DOUBLE QUOTATION MARK hexadecimal numeric entity.
+#data
+&#x094;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+”
+#end-test
+
+#description
+Windows-1252 BULLET hexadecimal numeric entity.
+#data
+&#x095;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+•
+#end-test
+
+#description
+Windows-1252 EN DASH hexadecimal numeric entity.
+#data
+&#x096;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+–
+#end-test
+
+#description
+Windows-1252 EM DASH hexadecimal numeric entity.
+#data
+&#x097;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+—
+#end-test
+
+#description
+Windows-1252 SMALL TILDE hexadecimal numeric entity.
+#data
+&#x098;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+˜
+#end-test
+
+#description
+Windows-1252 TRADE MARK SIGN hexadecimal numeric entity.
+#data
+&#x099;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+™
+#end-test
+
+#description
+Windows-1252 LATIN SMALL LETTER S WITH CARON hexadecimal numeric entity.
+#data
+&#x09A;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+š
+#end-test
+
+#description
+Windows-1252 SINGLE RIGHT-POINTING ANGLE QUOTATION MARK hexadecimal numeric entity.
+#data
+&#x09B;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+›
+#end-test
+
+#description
+Windows-1252 LATIN SMALL LIGATURE OE hexadecimal numeric entity.
+#data
+&#x09C;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+œ
+#end-test
+
+#description
+Windows-1252 REPLACEMENT CHAR hexadecimal numeric entity.
+#data
+&#x09D;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+
+#end-test
+
+#description
+Windows-1252 LATIN SMALL LETTER Z WITH CARON hexadecimal numeric entity.
+#data
+&#x09E;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+ž
+#end-test
+
+#description
+Windows-1252 LATIN CAPITAL LETTER Y WITH DIAERESIS hexadecimal numeric entity.
+#data
+&#x09F;
+#errors
+(1, 8): control-character-reference
+#states
+Data state
+#character
+Ÿ
+#end-test
+
+#description
+Decimal numeric entity followed by hex character a.
+#data
+&#97a
+#errors
+(1, 5): missing-semicolon-after-character-reference
+#states
+Data state
+#character
+a
+#character
+a
+#end-test
+
+#description
+Decimal numeric entity followed by hex character A.
+#data
+&#97A
+#errors
+(1, 5): missing-semicolon-after-character-reference
+#states
+Data state
+#character
+a
+#character
+A
+#end-test
+
+#description
+Decimal numeric entity followed by hex character f.
+#data
+&#97f
+#errors
+(1, 5): missing-semicolon-after-character-reference
+#states
+Data state
+#character
+a
+#character
+f
+#end-test
+
+#description
+Decimal numeric entity followed by hex character A.
+#data
+&#97F
+#errors
+(1, 5): missing-semicolon-after-character-reference
+#states
+Data state
+#character
+a
+#character
+F
+#end-test

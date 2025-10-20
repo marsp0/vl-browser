@@ -34,6 +34,7 @@ typedef enum
     STATE_START_TAG_SELF_CLOSE,
     STATE_ATTR_NAME,
     STATE_ATTR_VALUE,
+    STATE_LAST_START_TAG,
 } test_state_e;
 
 static const unsigned char* test_file = NULL;
@@ -55,6 +56,7 @@ static unsigned char description[2048] = { 0 };
 // test data
 static unsigned char test_data[2048] = { 0 };
 static uint32_t test_data_size = 0;
+static hash_str_t last_start_tag = 0;
 
 static html_token_t tokens[50] = { 0 };
 static uint32_t tokens_size = 0;
@@ -199,6 +201,10 @@ static void run_tokenizer_test()
         {
             state = STATE_ATTR_VALUE;
         }
+        else if (strncmp(line, "#last-start-tag", 11) == 0)
+        {
+            state = STATE_LAST_START_TAG;
+        }
         else if (strncmp(line, "#end-test", 9) == 0)
         {
             should_continue = false;
@@ -332,6 +338,10 @@ static void run_tokenizer_test()
             attr->value_size = line_size;
             token->attributes_size++;
         }
+        else if (state == STATE_LAST_START_TAG)
+        {
+            last_start_tag = hash_str_new(line, line_size);
+        }
         else
         {
             printf("unhandled state\n");
@@ -351,6 +361,10 @@ static void run_tokenizer_test()
         memset(tokens_a, 0, sizeof(tokens_a));
         html_tokenizer_init(test_data, test_data_size, tokens_a, MAX_TOKENS);
         html_tokenizer_set_state(states[s]);
+        if (last_start_tag > 0)
+        {
+            html_tokenizer_set_last_emitted_start_tag(last_start_tag);
+        }
 
         bool run = true;
         while (run)
@@ -435,6 +449,9 @@ void html_tokenizer_test()
                                     "./test/html/tokenizer/data/namedEntities.data",
                                     "./test/html/tokenizer/data/unicodeChars.data",
                                     "./test/html/tokenizer/data/unicodeCharsProblematic.data",
+                                    "./test/html/tokenizer/data/pendingSpecChanges.data",
+                                    "./test/html/tokenizer/data/escapeFlag.data",
+                                    "./test/html/tokenizer/data/entities.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 

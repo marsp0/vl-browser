@@ -46,7 +46,7 @@ static html_tokenizer_state_e state                                     = HTML_T
 static html_tokenizer_state_e return_state                              = HTML_TOKENIZER_DATA_STATE;
 static unsigned char temp_buffer[MAX_TEMP_BUFFER_SIZE]                  = { 0 };
 static uint32_t temp_buffer_size                                        = 0;
-static unsigned char last_emitted_start_tag[HTML_TOKEN_MAX_NAME_LEN]    = { 0 };
+static hash_str_t last_emitted_start_tag                                = 0;
 static int32_t bytes_read                                               = 0;
 static uint32_t character_reference_code                                = 0;
 static unsigned char hyphen_segment[]                                   = "--";
@@ -574,7 +574,8 @@ static void emit_token()
     // save the name of start tokens
     if (tokens[token_idx - 1].type != HTML_START_TOKEN) { return; }
 
-    memcpy(last_emitted_start_tag, tokens[token_idx - 1].name, sizeof(tokens[token_idx - 1].name));
+    hash_str_t t_name = hash_str_new(tokens[token_idx - 1].name, tokens[token_idx - 1].name_size);
+    last_emitted_start_tag = t_name;
 }
 
 static bool match_segment(unsigned char* segment, uint32_t segment_size, match_type_e match_type)
@@ -602,8 +603,8 @@ static bool match_segment(unsigned char* segment, uint32_t segment_size, match_t
 
 static bool is_appropriate_end_tag()
 {
-    int32_t result = strncmp(tokens[token_idx].name, last_emitted_start_tag, sizeof(tokens[token_idx].name));
-    return result == 0;
+    hash_str_t new_name = hash_str_new(tokens[token_idx].name, tokens[token_idx].name_size);
+    return last_emitted_start_tag == new_name;
 }
 
 static void emit_temp_buffer()
@@ -735,7 +736,7 @@ void html_tokenizer_init(const unsigned char* new_buffer, const uint32_t new_siz
 
     character_reference_code    = 0;
 
-    memset(last_emitted_start_tag, 0, sizeof(last_emitted_start_tag));
+    last_emitted_start_tag      = 0;
     clear_temp_buffer();
 }
 
@@ -2928,13 +2929,15 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_NAMED_CHARACTER_REFERENCE_STATE:
             ;
             // maximum possible size of named chars
-            uint32_t max_size    = cursor + 33;
-            max_size = max_size > size ? size : max_size;
-            bool found = false;
+            uint32_t max_size   = cursor + 33;
+            uint32_t cursor_offset = 0;
+            max_size            = max_size > size ? size : max_size;
+            bool found          = false;
 
             for (uint32_t i = cursor; i < max_size; i++)
             {
                 update_temp_buffer(buffer[i]);
+                cursor_offset += 1;
                 if (buffer[i] == ';') { break; }
             }
 
@@ -2947,15 +2950,16 @@ html_tokenizer_error_e html_tokenizer_next()
 
                 if (named_cp > 0)
                 {
-                    cursor  = cursor + temp_buffer_size + 1;
+                    cursor  = cursor + cursor_offset;
                     consume = false;
                     state   = return_state;
                     found   = true;
 
                     // todo: this is ugly af
-                    if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
+                    if ((return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
                         return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
-                        return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
+                        return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE) &&
+                        (buffer[cursor - 1] != ';' && (buffer[cursor] == '=' || utf8_is_alphanumeric(buffer[cursor]))))
                     {
                         flush_code_points_consumed_as_char_ref(return_state);
                     }
@@ -2965,25 +2969,29 @@ html_tokenizer_error_e html_tokenizer_next()
                         int32_t bytes = utf8_encode(named_cp, temp_buffer);
 
                         temp_buffer_size    = (uint32_t)bytes;
-                        emit_temp_buffer();
+                        flush_code_points_consumed_as_char_ref(return_state);
                     }
 
                     break;
                 }
 
+                cursor_offset--;
                 temp_buffer_size--;
             }
             
             if (found) { break; }
 
+            cursor_offset = 0;
+
             for (uint32_t i = cursor; i < max_size; i++)
             {
                 update_temp_buffer(buffer[i]);
+                cursor_offset += 1;
                 if (buffer[i] == ';') { break; }
             }
 
             flush_code_points_consumed_as_char_ref(return_state);
-            cursor              = cursor + temp_buffer_size - 1;
+            cursor              = cursor + cursor_offset;
             consume             = false;
             state               = return_state;
             break;
@@ -3222,11 +3230,19 @@ html_tokenizer_error_e html_tokenizer_next()
     return status;
 }
 
+
+void html_tokenizer_set_last_emitted_start_tag(hash_str_t tag)
+{
+    last_emitted_start_tag = tag;
+}
+
+
 void html_tokenizer_set_state(html_tokenizer_state_e new_state)
 {
     state           = new_state;
     return_state    = new_state;
 }
+
 
 void html_tokenizer_free()
 {
