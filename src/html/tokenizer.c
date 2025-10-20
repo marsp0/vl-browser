@@ -91,20 +91,6 @@ static const numeric_char_ref_t numeric_char_refs[]                     = { { 0x
 /* static functions */
 /********************/
 
-static int32_t find_numeric_char_ref(uint32_t code_point, uint32_t* out)
-{
-    int32_t result = -1;
-    for (uint32_t i = 0; i < sizeof(numeric_char_refs) / sizeof(numeric_char_ref_t); i++)
-    {
-        if (numeric_char_refs[i].key == code_point)
-        {
-            *out = numeric_char_refs[i].value;
-            result = (int32_t)i;
-        }
-    }
-
-    return result;
-}
 
 static bool is_noncharacter(uint32_t code_point)
 {
@@ -169,21 +155,11 @@ static void init_token(html_token_type_e type)
     tokens[token_idx].type      = type;
 }
 
-
-static void init_char_token()
-{
-    memset(&tokens[token_idx], 0, sizeof(html_token_t));
-
-    tokens[token_idx].is_valid  = true;
-    tokens[token_idx].type      = HTML_CHARACTER_TOKEN;
-    tokens[token_idx].data_size = 0;
-}
-
 static void create_char_token_from_buffer()
 {
     assert(bytes_read >= 0);
 
-    init_char_token();
+    init_token(HTML_CHARACTER_TOKEN);
     uint32_t read = (uint32_t)bytes_read;
     uint32_t data_size = tokens[token_idx].data_size;
 
@@ -197,7 +173,7 @@ static void create_char_token_from_buffer()
 static void create_replacement_char_token()
 {
     // u+FFFD = 0xef 0xbf 0xbd
-    init_char_token();
+    init_token(HTML_CHARACTER_TOKEN);
 
     uint32_t data_size = tokens[token_idx].data_size;
     tokens[token_idx].data[data_size] = 0xef;
@@ -211,7 +187,7 @@ static void create_replacement_char_token()
 
 static void create_char_token(unsigned char c)
 {
-    init_char_token();
+    init_token(HTML_CHARACTER_TOKEN);
 
     uint32_t data_size = tokens[token_idx].data_size;
     tokens[token_idx].data[data_size] = c;
@@ -627,7 +603,7 @@ static void emit_tmp_buf()
 
         assert(bytes > -1);
 
-        init_char_token();
+        init_token(HTML_CHARACTER_TOKEN);
         uint32_t read = (uint32_t)bytes;
         uint32_t data_size = tokens[token_idx].data_size;
 
@@ -3203,7 +3179,16 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 status                              = HTML_TOKENIZER_CONTROL_CHARACTER_REFERENCE;
                 uint32_t result                     = 0;
-                int32_t char_idx                    = find_numeric_char_ref(character_reference_code, &result);
+                int32_t char_idx                    = -1;
+
+                for (uint32_t k = 0; k < sizeof(numeric_char_refs) / sizeof(numeric_char_ref_t); k++)
+                {
+                    if (numeric_char_refs[k].key == character_reference_code)
+                    {
+                        result = numeric_char_refs[k].value;
+                        char_idx = (int32_t)k;
+                    }
+                }
 
                 if (char_idx != -1) { character_reference_code = result; }
             }
