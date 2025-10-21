@@ -45,10 +45,10 @@ static uint32_t token_idx                                               = 0;
 static uint32_t max_tokens                                              = 0;
 static html_tokenizer_state_e state                                     = HTML_TOKENIZER_DATA_STATE;
 static html_tokenizer_state_e return_state                              = HTML_TOKENIZER_DATA_STATE;
-static unsigned char tmp_buf[MAX_TEMP_BUFFER_SIZE]                  = { 0 };
-static uint32_t tmp_buf_size                                        = 0;
+static unsigned char tmp_buf[MAX_TEMP_BUFFER_SIZE]                      = { 0 };
+static uint32_t tmp_buf_size                                            = 0;
 static hash_str_t last_emitted_start_tag                                = 0;
-static int32_t cp_len                                               = 0;
+static int32_t cp_len                                                   = 0;
 static uint32_t character_reference_code                                = 0;
 static unsigned char hyphen_segment[]                                   = "--";
 static uint32_t hyphen_segment_size                                     = sizeof(hyphen_segment) - 1;
@@ -399,6 +399,12 @@ static void emit_tmp_buf()
 
 static void update_tmp_buf_from_buf()
 {
+    if (tmp_buf_size >= MAX_TEMP_BUFFER_SIZE)
+    {
+        tmp_buf_size = MAX_TEMP_BUFFER_SIZE;
+        return;
+    }
+
     assert(cp_len >= 0);
 
     uint32_t read = (uint32_t)cp_len;
@@ -412,6 +418,12 @@ static void update_tmp_buf_from_buf()
 
 static void update_tmp_buf(unsigned char c)
 {
+    if (tmp_buf_size >= MAX_TEMP_BUFFER_SIZE)
+    {
+        tmp_buf_size = MAX_TEMP_BUFFER_SIZE;
+        return;
+    }
+
     tmp_buf[tmp_buf_size] = c;
     tmp_buf_size++;
 }
@@ -1049,17 +1061,17 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 emit_token();
             }
-            else if (utf8_is_upper_alpha(cp))
+            else if (utf8_is_upper_alpha(cp) && !is_eof)
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c + 0x20);
-                update_tmp_buf_from_buf();
+                update_tmp_buf(c + 0x20);
             }
-            else if (utf8_is_lower_alpha(cp))
+            else if (utf8_is_lower_alpha(cp) && !is_eof)
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c);
-                update_tmp_buf_from_buf();
+                update_tmp_buf(c);
             }
             else
             {

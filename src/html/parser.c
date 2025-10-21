@@ -1742,12 +1742,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_body())
                 {
-                    // todo: parse error
-
-                    // If the stack of open elements has only one node on it, 
-                    // or if the second element on the stack of open elements is not a body element, 
-                    // or if there is a template element on the stack of open elements, 
-                    // then ignore the token. (fragment case or there is a template element on the stack)
+                    INCOMPLETE_IMPLEMENTATION("parse error");
 
                     if ((stack_size == 0) ||
                         (stack_size > 1 && stack[1]->name != html_tag_body()) ||
@@ -1757,8 +1752,69 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     }
                     else
                     {
-                        // todo: frameset-ok 
-                        // todo: handle attribute logic
+                        dom_node_t* node = document->first;
+                        uint32_t level = 0;
+
+                        while (true)
+                        {
+                            if (!node)
+                            {
+                                assert(false);
+                            }
+
+                            if (level == 0)
+                            {
+                                if (node->name != html_tag_html())
+                                {
+                                    node = node->next;
+                                }
+                                else
+                                {
+                                    node = node->first;
+                                    level++;
+                                }
+                            }
+                            else if (level == 1)
+                            {
+                                if (node->name != html_tag_body())
+                                {
+                                    node = node->next;
+                                }
+                                else
+                                {
+                                    level++;
+                                }
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        dom_element_t* dom_element = dom_element_from_node(node);
+
+                        for (uint32_t j = 0; j < t.attributes_size; j++)
+                        {
+                            html_token_attribute_t* attr = &t.attributes[j];
+                            hash_str_t attr_name = hash_str_new(attr->name, attr->name_size);
+                            bool found = false;
+
+                            dom_attr_t* dom_attr = dom_element->attr;
+
+                            while (dom_attr)
+                            {
+                                if (dom_attr->name == attr_name) { found = true; }
+                                dom_attr = dom_attr->next;
+                            }
+
+                            if (found) { continue; }
+
+                            dom_node_t* new_attr = dom_attr_new(attr_name,
+                                                                hash_str_new(attr->value, attr->value_size),
+                                                                dom_node_from_element(dom_element));
+
+                            dom_element_append_attr(dom_element, dom_attr_from_node(new_attr));
+                        }
                     }
                 }
                 else if (is_start && t_name == html_tag_frameset())
@@ -2093,8 +2149,13 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_plaintext())
                 {
-                    // todo: handle scope logic - If the stack of open elements has a p element in button scope, then close a p element.
-                    NOT_IMPLEMENTED
+                    if (in_scope(html_tag_p(), BUTTON_SCOPE))
+                    {
+                        close_p_element();
+                    }
+
+                    insert_html_element(t_name, &t);
+                    html_tokenizer_set_state(HTML_TOKENIZER_PLAINTEXT_STATE);
                 }
                 else if (is_start && t_name == html_tag_button())
                 {
