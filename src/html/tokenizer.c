@@ -307,20 +307,6 @@ static void update_attribute_name_from_buffer()
 }
 
 
-static void create_doctype_token()
-{
-    tokens[token_idx].is_valid          = true;
-    tokens[token_idx].type              = HTML_DOCTYPE_TOKEN;
-    tokens[token_idx].name_size         = 0;
-    tokens[token_idx].public_id_size    = 0;
-    tokens[token_idx].system_id_size    = 0;
-    tokens[token_idx].force_quirks      = false;
-
-    memset(tokens[token_idx].name, 0, sizeof(tokens[token_idx].name));
-    memset(tokens[token_idx].public_id, 0, sizeof(tokens[token_idx].public_id));
-    memset(tokens[token_idx].system_id, 0, sizeof(tokens[token_idx].system_id));
-}
-
 static void update_doctype_token_name(unsigned char c)
 {
     uint32_t name_size = tokens[token_idx].name_size;
@@ -2217,7 +2203,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_DOCTYPE_STATE:
             if (is_eof)
             {
-                create_doctype_token();
+                init_token(HTML_DOCTYPE_TOKEN);
                 tokens[token_idx].force_quirks = true;
                 emit_token();
                 init_token(HTML_EOF_TOKEN);
@@ -2247,7 +2233,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_BEFORE_DOCTYPE_NAME_STATE:
             if (is_eof)
             {
-                create_doctype_token();
+                init_token(HTML_DOCTYPE_TOKEN);
                 tokens[token_idx].force_quirks = true;
                 emit_token();
                 init_token(HTML_EOF_TOKEN);
@@ -2264,7 +2250,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 state                           = HTML_TOKENIZER_DOCTYPE_NAME_STATE;
 
-                create_doctype_token();
+                init_token(HTML_DOCTYPE_TOKEN);
                 unsigned char c = (unsigned char)cp;
                 update_doctype_token_name(c + 0x20);
 
@@ -2274,12 +2260,12 @@ html_tokenizer_error_e html_tokenizer_next()
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 state                           = HTML_TOKENIZER_DOCTYPE_NAME_STATE;
 
-                create_doctype_token();
+                init_token(HTML_DOCTYPE_TOKEN);
                 update_doctype_token_name_replacement_char();
             }
             else if (cp == '>')
             {
-                create_doctype_token();
+                init_token(HTML_DOCTYPE_TOKEN);
                 tokens[token_idx].force_quirks  = true;
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 status                          = HTML_TOKENIZER_MISSING_DOCTYPE_NAME;
@@ -2288,7 +2274,7 @@ html_tokenizer_error_e html_tokenizer_next()
             else
             {
                 state                           = HTML_TOKENIZER_DOCTYPE_NAME_STATE;
-                create_doctype_token();
+                init_token(HTML_DOCTYPE_TOKEN);
                 update_doctype_token_name_from_buffer();
             }
             break;
