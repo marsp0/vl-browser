@@ -155,44 +155,25 @@ static void init_token(html_token_type_e type)
     tokens[token_idx].type      = type;
 }
 
-static void create_char_token_from_buffer()
+
+static void update_data_field(unsigned char c)
 {
-    assert(cp_len >= 0);
+    html_token_t* t = &tokens[token_idx];
+    t->data[t->data_size] = c;
+    t->data_size++;
+}
 
-    init_token(HTML_CHARACTER_TOKEN);
-    uint32_t read = (uint32_t)cp_len;
-    uint32_t data_size = tokens[token_idx].data_size;
+static void update_data_field_from_buffer()
+{
+    html_token_t* t = &tokens[token_idx];
 
-    for (uint32_t i = 0; i < read; i++)
+    for (uint32_t i = buf_cur; i < buf_cur + (uint32_t)cp_len; i++)
     {
-        tokens[token_idx].data[data_size + i] = buf[buf_cur + i];
+        t->data[t->data_size] = buf[i];
+        t->data_size++;
     }
-    tokens[token_idx].data_size = data_size + read;
 }
 
-static void create_replacement_char_token()
-{
-    // u+FFFD = 0xef 0xbf 0xbd
-    init_token(HTML_CHARACTER_TOKEN);
-
-    uint32_t data_size = tokens[token_idx].data_size;
-    tokens[token_idx].data[data_size] = 0xef;
-    data_size++;
-    tokens[token_idx].data[data_size] = 0xbf;
-    data_size++;
-    tokens[token_idx].data[data_size] = 0xbd;
-    data_size++;
-    tokens[token_idx].data_size = data_size;
-}
-
-static void create_char_token(unsigned char c)
-{
-    init_token(HTML_CHARACTER_TOKEN);
-
-    uint32_t data_size = tokens[token_idx].data_size;
-    tokens[token_idx].data[data_size] = c;
-    tokens[token_idx].data_size++;
-}
 
 static void create_tag_token(html_token_type_e type)
 {
@@ -775,7 +756,8 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             default:
                 if (cp == 0) { status   = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER; }
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
                 emit_token();
             }
             break;
@@ -802,12 +784,16 @@ html_tokenizer_error_e html_tokenizer_next()
             default:
                 if (cp == 0)
                 {
-                    create_replacement_char_token();
+                    init_token(HTML_CHARACTER_TOKEN);
+                    update_data_field(0xef);
+                    update_data_field(0xbf);
+                    update_data_field(0xbd);
                     status                      = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 }
                 else
                 {
-                    create_char_token_from_buffer();
+                    init_token(HTML_CHARACTER_TOKEN);
+                    update_data_field_from_buffer();
                 }
 
                 emit_token();
@@ -833,11 +819,15 @@ html_tokenizer_error_e html_tokenizer_next()
                 if (cp == 0)
                 {
                     status                      = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                    create_replacement_char_token();
+                    init_token(HTML_CHARACTER_TOKEN);
+                    update_data_field(0xef);
+                    update_data_field(0xbf);
+                    update_data_field(0xbd);
                 }
                 else
                 {
-                    create_char_token_from_buffer();
+                    init_token(HTML_CHARACTER_TOKEN);
+                    update_data_field_from_buffer();
                 }
 
                 emit_token();
@@ -862,12 +852,16 @@ html_tokenizer_error_e html_tokenizer_next()
             default:
                 if (cp == 0)
                 {
-                    create_replacement_char_token();
+                    init_token(HTML_CHARACTER_TOKEN);
+                    update_data_field(0xef);
+                    update_data_field(0xbf);
+                    update_data_field(0xbd);
                     status                      = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 }
                 else
                 {
-                    create_char_token_from_buffer();
+                    init_token(HTML_CHARACTER_TOKEN);
+                    update_data_field_from_buffer();
                 }
                 emit_token();
             }
@@ -885,12 +879,16 @@ html_tokenizer_error_e html_tokenizer_next()
 
             if (cp == 0)
             {
-                create_replacement_char_token();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(0xef);
+                update_data_field(0xbf);
+                update_data_field(0xbd);
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
             }
             else
             {
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
             }
 
             emit_token();
@@ -900,7 +898,8 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_TAG_OPEN_STATE:
             if (is_eof)
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
                 init_token(HTML_EOF_TOKEN);
                 emit_token();
@@ -931,7 +930,8 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_DATA_STATE;
@@ -943,9 +943,11 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_END_TAG_OPEN_STATE:
             if (is_eof)
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
-                create_char_token('/');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('/');
                 emit_token();
                 init_token(HTML_EOF_TOKEN);
                 emit_token();
@@ -1022,7 +1024,8 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                           = HTML_TOKENIZER_RCDATA_END_TAG_OPEN_STATE;
                 break;
             default:
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_RCDATA_STATE;
@@ -1039,9 +1042,11 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
-                create_char_token('/');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('/');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_RCDATA_STATE;
@@ -1077,9 +1082,11 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
-                create_char_token('/');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('/');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_RCDATA_STATE;
@@ -1096,7 +1103,8 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                           = HTML_TOKENIZER_RAWTEXT_END_TAG_OPEN_STATE;
                 break;
             default:
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_RAWTEXT_STATE;
@@ -1113,9 +1121,11 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
-                create_char_token('/');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('/');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_RAWTEXT_STATE;
@@ -1151,9 +1161,11 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
-                create_char_token('/');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('/');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_RAWTEXT_STATE;
@@ -1171,15 +1183,18 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             case '!':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPE_START_STATE;
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
-                create_char_token('!');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('!');
                 emit_token();
                 break;
             default:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_STATE;
                 consume                         = false;
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
             }
             break;
@@ -1194,9 +1209,11 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
-                create_char_token('/');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('/');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_STATE;
@@ -1232,9 +1249,11 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
-                create_char_token('/');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('/');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_STATE;
@@ -1248,7 +1267,8 @@ html_tokenizer_error_e html_tokenizer_next()
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPE_START_DASH_STATE;
-                create_char_token('-');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('-');
                 emit_token();
                 break;
             default:
@@ -1263,7 +1283,8 @@ html_tokenizer_error_e html_tokenizer_next()
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
-                create_char_token('-');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('-');
                 emit_token();
                 break;
             default:
@@ -1285,18 +1306,23 @@ html_tokenizer_error_e html_tokenizer_next()
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_DASH_STATE;
-                create_char_token('-');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('-');
                 emit_token();
                 break;
             case '<':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_LESS_THAN_STATE;
                 break;
             case 0:
-                create_replacement_char_token();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(0xef);
+                update_data_field(0xbf);
+                update_data_field(0xbd);
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
                 break;
             default:
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
                 emit_token();
             }
             break;
@@ -1315,7 +1341,8 @@ html_tokenizer_error_e html_tokenizer_next()
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_DASH_DASH_STATE;
-                create_char_token('-');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('-');
                 emit_token();
                 break;
             case '<':
@@ -1324,12 +1351,16 @@ html_tokenizer_error_e html_tokenizer_next()
             case 0:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                create_replacement_char_token();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(0xef);
+                update_data_field(0xbf);
+                update_data_field(0xbd);
                 emit_token();
                 break;
             default:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
                 emit_token();
             }
             break;
@@ -1347,7 +1378,8 @@ html_tokenizer_error_e html_tokenizer_next()
             switch (cp)
             {
             case '-':
-                create_char_token('-');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('-');
                 emit_token();
                 break;
             case '<':
@@ -1356,12 +1388,16 @@ html_tokenizer_error_e html_tokenizer_next()
             case 0:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                create_replacement_char_token();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(0xef);
+                update_data_field(0xbf);
+                update_data_field(0xbd);
                 emit_token();
                 break;
             default:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
                 emit_token();
             }
             break;
@@ -1376,14 +1412,16 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (utf8_is_alpha(cp))
             {
                 clear_tmp_buf();
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPE_START_STATE;
             }
             else
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
@@ -1400,9 +1438,11 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
-                create_char_token('/');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('/');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
@@ -1438,9 +1478,11 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
-                create_char_token('/');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('/');
                 emit_token();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
@@ -1462,21 +1504,24 @@ html_tokenizer_error_e html_tokenizer_next()
                     state                       = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
                 }
                 
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
                 emit_token();
             }
             else if (utf8_is_upper_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
                 update_tmp_buf(c + 0x20);
-                create_char_token(c);
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(c);
                 emit_token();
             }
             else if (utf8_is_lower_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
                 update_tmp_buf(c);
-                create_char_token(c);
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(c);
                 emit_token();
             }
             else
@@ -1500,21 +1545,27 @@ html_tokenizer_error_e html_tokenizer_next()
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_DASH_STATE;
-                create_char_token('-');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('-');
                 emit_token();
                 break;
             case '<':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_STATE;
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
                 break;
             case 0:
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                create_replacement_char_token();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(0xef);
+                update_data_field(0xbf);
+                update_data_field(0xbd);
                 emit_token();
                 break;
             default:
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
                 emit_token();
             }
             break;
@@ -1533,23 +1584,29 @@ html_tokenizer_error_e html_tokenizer_next()
             {
             case '-':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH_STATE;
-                create_char_token('-');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('-');
                 emit_token();
                 break;
             case '<':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_STATE;
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
                 break;
             case 0:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                create_replacement_char_token();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(0xef);
+                update_data_field(0xbf);
+                update_data_field(0xbd);
                 emit_token();
                 break;
             default:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
                 emit_token();
             }
             break;
@@ -1567,28 +1624,35 @@ html_tokenizer_error_e html_tokenizer_next()
             switch (cp)
             {
             case '-':
-                create_char_token('-');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('-');
                 emit_token();
                 break;
             case '<':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_LESS_THAN_STATE;
-                create_char_token('<');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('<');
                 emit_token();
                 break;
             case '>':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_STATE;
-                create_char_token('>');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('>');
                 emit_token();
                 break;
             case 0:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                create_replacement_char_token();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(0xef);
+                update_data_field(0xbf);
+                update_data_field(0xbd);
                 emit_token();
                 break;
             default:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
                 emit_token();
             }
             break;
@@ -1600,7 +1664,8 @@ html_tokenizer_error_e html_tokenizer_next()
             case '/':
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPE_END_STATE;
                 clear_tmp_buf();
-                create_char_token('/');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field('/');
                 emit_token();
                 break;
             default:
@@ -1623,21 +1688,24 @@ html_tokenizer_error_e html_tokenizer_next()
                     state                       = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
                 }
                 
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
                 emit_token();
             }
             else if (utf8_is_upper_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
                 update_tmp_buf(c + 0x20);
-                create_char_token(c);
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(c);
                 emit_token();
             }
             else if (utf8_is_lower_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
                 update_tmp_buf(c);
-                create_char_token(c);
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(c);
                 emit_token();
             }
             else
@@ -2835,7 +2903,8 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                               = HTML_TOKENIZER_CDATA_SECTION_BRACKET_STATE;
                 break;
             default:
-                create_char_token_from_buffer();
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field_from_buffer();
                 emit_token();
             }
             break;
@@ -2845,14 +2914,16 @@ html_tokenizer_error_e html_tokenizer_next()
             switch(cp)
             {
             case ']':
-                create_char_token(']');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(']');
                 emit_token();
                 break;
             case '>':
                 state                               = HTML_TOKENIZER_DATA_STATE;
                 break;
             default:
-                create_char_token(']');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(']');
                 emit_token();
                 state                               = HTML_TOKENIZER_CDATA_SECTION_END_STATE;
                 consume                             = false;
@@ -2864,16 +2935,19 @@ html_tokenizer_error_e html_tokenizer_next()
             switch (cp)
             {
             case ']':
-                create_char_token(']');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(']');
                 emit_token();
                 break;
             case '>':
                 state                               = HTML_TOKENIZER_DATA_STATE;
                 break;
             default:
-                create_char_token(']');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(']');
                 emit_token();
-                create_char_token(']');
+                init_token(HTML_CHARACTER_TOKEN);
+                update_data_field(']');
                 emit_token();
                 consume                             = false;
                 state                               = HTML_TOKENIZER_CDATA_SECTION_STATE;
@@ -2996,7 +3070,8 @@ html_tokenizer_error_e html_tokenizer_next()
                 else
                 {
                     unsigned char c = (unsigned char)cp;
-                    create_char_token(c);
+                    init_token(HTML_CHARACTER_TOKEN);
+                    update_data_field(c);
                     emit_token();
                 }
             }
