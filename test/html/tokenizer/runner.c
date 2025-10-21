@@ -452,6 +452,7 @@ void html_tokenizer_test()
                                     "./test/html/tokenizer/data/pendingSpecChanges.data",
                                     "./test/html/tokenizer/data/escapeFlag.data",
                                     "./test/html/tokenizer/data/entities.data",
+                                    "./test/html/tokenizer/data/test5.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 

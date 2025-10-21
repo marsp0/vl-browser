@@ -37,6 +37,7 @@ typedef struct
 } numeric_char_ref_t;
 
 static unsigned char* buf                                               = NULL;
+static uint32_t buf_cap                                                 = 2048;
 static uint32_t buf_size                                                = 0;
 static uint32_t buf_cur                                                 = 0;
 static html_token_t* tokens                                             = NULL;
@@ -467,16 +468,38 @@ static void flush_cps_consumed_as_char_ref(html_tokenizer_state_e s)
     }
 }
 
+void resize_buffer(uint32_t min_size)
+{
+    uint32_t next_cap = buf_cap;
+    while (next_cap < min_size) { next_cap <<= 1; }
+
+    if (next_cap < buf_cap) { assert(false); }
+    buf_cap = next_cap;
+
+    if (buf) { free(buf); }
+
+    buf = malloc(buf_cap);
+    memset(buf, 0, buf_cap);
+}
+
 /********************/
 /* public functions */
 /********************/
+
+void html_tokenizer_global_init()
+{
+    buf = malloc(buf_cap);
+}
 
 void html_tokenizer_init(const unsigned char* new_buffer, const uint32_t new_size, html_token_t* new_tokens, const uint32_t new_max_tokens)
 {
     assert(new_buffer);
 
-    buf                      = malloc(new_size + 1);
-    buf[new_size]            = 0;
+    if (buf_cap < new_size + 1)
+    {
+        resize_buffer(new_size + 1);
+    }
+
     buf_size                 = new_size;
     memcpy(buf, new_buffer, new_size);
 
@@ -3094,6 +3117,12 @@ void html_tokenizer_set_state(html_tokenizer_state_e new_state)
 
 
 void html_tokenizer_free()
+{
+    
+}
+
+
+void html_tokenizer_global_free()
 {
     if (buf) { free(buf); }
     buf = NULL;
