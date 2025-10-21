@@ -415,18 +415,6 @@ static void update_tmp_buf(unsigned char c)
     tmp_buf_size++;
 }
 
-static void flush_tmp_buf_to_attribute_value()
-{
-    html_token_t* token = &tokens[token_idx];
-
-    html_token_attribute_t* attr = &(token->attributes[token->attributes_size]);
-    for (uint32_t i = 0; i < tmp_buf_size; i++)
-    {
-        attr->value[attr->value_size] = tmp_buf[i];
-        attr->value_size++;
-    }
-}
-
 static void normalize_line_endings()
 {
     if (buf_size == 0) { return; }
@@ -456,11 +444,17 @@ static void normalize_line_endings()
 }
 
 
+static bool in_attribute(html_tokenizer_state_e s)
+{
+    return  s == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE || 
+            s == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
+            s == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE;
+}
+
+
 static void flush_cps_consumed_as_char_ref(html_tokenizer_state_e s)
 {
-    if (s == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
-        s == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
-        s == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
+    if (in_attribute(s))
     {
         for (uint32_t i = 0; i < tmp_buf_size; i++)
         {
@@ -2792,16 +2786,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE || 
-                    return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
-                    return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
-                {
-                    flush_tmp_buf_to_attribute_value();
-                }
-                else
-                {
-                    emit_tmp_buf();
-                }
+                flush_cps_consumed_as_char_ref(return_state);
                 consume                             = false;
                 state                               = return_state;
             }
@@ -2838,10 +2823,7 @@ html_tokenizer_error_e html_tokenizer_next()
                     found   = true;
 
                     // todo: this is ugly af
-                    if ((return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE ||
-                        return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
-                        return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE) &&
-                        (buf[buf_cur - 1] != ';' && (buf[buf_cur] == '=' || utf8_is_alphanumeric(buf[buf_cur]))))
+                    if (in_attribute(return_state) && (buf[buf_cur - 1] != ';' && (buf[buf_cur] == '=' || utf8_is_alphanumeric(buf[buf_cur]))))
                     {
                         flush_cps_consumed_as_char_ref(return_state);
                     }
@@ -2882,9 +2864,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_AMBIGUOUS_AMPERSAND_STATE:
             if (utf8_is_alphanumeric(cp))
             {
-                if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE || 
-                    return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
-                    return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
+                if (in_attribute(return_state))
                 {
                     unsigned char c = (unsigned char)cp;
                     update_attr_val(c);
@@ -2937,16 +2917,8 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE || 
-                    return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
-                    return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
-                {
-                    flush_tmp_buf_to_attribute_value();
-                }
-                else
-                {
-                    emit_tmp_buf();
-                }
+                flush_cps_consumed_as_char_ref(return_state);
+
                 status                              = HTML_TOKENIZER_ABSENCE_OF_DIGITS_IN_NUMERIC_CHARACTER_REFERENCE;
                 consume                             = false;
                 state                               = return_state;
@@ -2962,16 +2934,8 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE || 
-                    return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
-                    return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
-                {
-                    flush_tmp_buf_to_attribute_value();
-                }
-                else
-                {
-                    emit_tmp_buf();
-                }
+                flush_cps_consumed_as_char_ref(return_state);
+
                 status                              = HTML_TOKENIZER_ABSENCE_OF_DIGITS_IN_NUMERIC_CHARACTER_REFERENCE;
                 consume                             = false;
                 state                               = return_state;
@@ -3099,17 +3063,9 @@ html_tokenizer_error_e html_tokenizer_next()
                 update_tmp_buf(char_ref_buf[i]);
             }
 
-            state                               = return_state;
-            if (return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_DOUBLE_QUOTED_STATE || 
-                return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_SINGLE_QUOTED_STATE ||
-                return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
-            {
-                flush_tmp_buf_to_attribute_value();
-            }
-            else
-            {
-                emit_tmp_buf();
-            }
+            state                           = return_state;
+
+            flush_cps_consumed_as_char_ref(return_state);
 
             break;
         }
