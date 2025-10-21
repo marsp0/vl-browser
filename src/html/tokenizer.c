@@ -163,6 +163,7 @@ static void update_data_field(unsigned char c)
     t->data_size++;
 }
 
+
 static void update_data_field_from_buffer()
 {
     html_token_t* t = &tokens[token_idx];
@@ -175,54 +176,25 @@ static void update_data_field_from_buffer()
 }
 
 
-static void create_tag_token(html_token_type_e type)
+static void update_name_field(unsigned char c)
 {
-    tokens[token_idx].is_valid          = true;
-    tokens[token_idx].type              = type;
-    tokens[token_idx].name_size         = 0;
-
-    memset(tokens[token_idx].name, 0, sizeof(tokens[token_idx].name));
+    html_token_t* t = &tokens[token_idx];
+    t->name[t->name_size] = c;
+    t->name_size++;
 }
 
-static void update_tag_token_from_buffer()
+
+static void update_name_field_from_buffer()
 {
-    assert(cp_len >= 0);
+    html_token_t* t = &tokens[token_idx];
 
-    uint32_t read = (uint32_t)cp_len;
-    uint32_t name_size = tokens[token_idx].name_size;
-
-    if (name_size + read >= HTML_TOKEN_MAX_NAME_LEN) { return; }
-
-    for (uint32_t i = 0; i < read; i++)
+    for (uint32_t i = buf_cur; i < buf_cur + (uint32_t)cp_len; i++)
     {
-        tokens[token_idx].name[name_size + i] = buf[buf_cur + i];
+        t->name[t->name_size] = buf[i];
+        t->name_size++;
     }
-
-    tokens[token_idx].name_size = name_size + read;
 }
 
-static void update_tag_token(unsigned char c)
-{
-    uint32_t name_size = tokens[token_idx].name_size;
-    if (name_size + 1 >= HTML_TOKEN_MAX_NAME_LEN) { return; }
-
-    tokens[token_idx].name[name_size] = c;
-    tokens[token_idx].name_size++;
-}
-
-static void update_tag_token_replacement()
-{
-    uint32_t name_size = tokens[token_idx].name_size;
-    if (name_size + 2 >= HTML_TOKEN_MAX_NAME_LEN) { return; }
-
-    tokens[token_idx].name[name_size] = 0xef;
-    name_size++;
-    tokens[token_idx].name[name_size] = 0xbf;
-    name_size++;
-    tokens[token_idx].name[name_size] = 0xbd;
-    name_size++;
-    tokens[token_idx].name_size = name_size;
-}
 
 static void init_attribute()
 {
@@ -917,7 +889,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (utf8_is_alpha(cp))
             {
-                create_tag_token(HTML_START_TOKEN);
+                init_token(HTML_START_TOKEN);
                 consume                         = false;
                 state                           = HTML_TOKENIZER_TAG_NAME_STATE;
             }
@@ -957,7 +929,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
             if (utf8_is_alpha(cp))
             {
-                create_tag_token(HTML_END_TOKEN);
+                init_token(HTML_END_TOKEN);
                 consume                         = false;
                 state                           = HTML_TOKENIZER_TAG_NAME_STATE;
             }
@@ -1002,16 +974,18 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (utf8_is_upper_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
-                update_tag_token(c + 0x20);
+                update_name_field(c + 0x20);
             }
             else if (cp == 0)
             {
-                update_tag_token_replacement();
+                update_name_field(0xef);
+                update_name_field(0xbf);
+                update_name_field(0xbd);
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
             }
             else
             {
-                update_tag_token_from_buffer();
+                update_name_field_from_buffer();
             }
 
             break;
@@ -1036,7 +1010,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_RCDATA_END_TAG_OPEN_STATE:
             if (utf8_is_alpha(cp))
             {
-                create_tag_token(HTML_END_TOKEN);
+                init_token(HTML_END_TOKEN);
                 consume                         = false;
                 state                           = HTML_TOKENIZER_RCDATA_END_TAG_NAME_STATE;
             }
@@ -1071,13 +1045,13 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (utf8_is_upper_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
-                update_tag_token(c + 0x20);
+                update_name_field(c + 0x20);
                 update_tmp_buf_from_buffer();
             }
             else if (utf8_is_lower_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
-                update_tag_token(c);
+                update_name_field(c);
                 update_tmp_buf_from_buffer();
             }
             else
@@ -1115,7 +1089,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_RAWTEXT_END_TAG_OPEN_STATE:
             if (utf8_is_alpha(cp))
             {
-                create_tag_token(HTML_END_TOKEN);
+                init_token(HTML_END_TOKEN);
                 consume                         = false;
                 state                           = HTML_TOKENIZER_RAWTEXT_END_TAG_NAME_STATE;
             }
@@ -1150,13 +1124,13 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (utf8_is_upper_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
-                update_tag_token(c + 0x20);
+                update_name_field(c + 0x20);
                 update_tmp_buf_from_buffer();
             }
             else if (utf8_is_lower_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
-                update_tag_token(c);
+                update_name_field(c);
                 update_tmp_buf_from_buffer();
             }
             else
@@ -1203,7 +1177,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SCRIPT_DATA_END_TAG_OPEN_STATE:
             if (utf8_is_alpha(cp))
             {
-                create_tag_token(HTML_END_TOKEN);
+                init_token(HTML_END_TOKEN);
                 consume                         = false;
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_END_TAG_NAME_STATE;
             }
@@ -1238,13 +1212,13 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (utf8_is_upper_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
-                update_tag_token(c + 0x20);
+                update_name_field(c + 0x20);
                 update_tmp_buf_from_buffer();
             }
             else if (utf8_is_lower_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
-                update_tag_token(c);
+                update_name_field(c);
                 update_tmp_buf_from_buffer();
             }
             else
@@ -1432,7 +1406,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_END_TAG_OPEN_STATE:
             if (utf8_is_alpha(cp))
             {
-                create_tag_token(HTML_END_TOKEN);
+                init_token(HTML_END_TOKEN);
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_END_TAG_NAME_STATE;
                 consume                         = false;
             }
@@ -1467,13 +1441,13 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (utf8_is_upper_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
-                update_tag_token(c + 0x20);
+                update_name_field(c + 0x20);
                 update_tmp_buf_from_buffer();
             }
             else if (utf8_is_lower_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
-                update_tag_token(c);
+                update_name_field(c);
                 update_tmp_buf_from_buffer();
             }
             else
