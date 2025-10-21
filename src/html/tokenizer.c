@@ -306,57 +306,6 @@ static void update_attribute_name_from_buffer()
     attribute->name_size = name_size + read;
 }
 
-static void create_comment_token()
-{
-    tokens[token_idx].is_valid           = true;
-    tokens[token_idx].type               = HTML_COMMENT_TOKEN;
-    tokens[token_idx].data_size          = 0;
-
-    memset(tokens[token_idx].data, 0, sizeof(tokens[token_idx].data));
-}
-
-static void update_comment_token_replacement_char()
-{
-    uint32_t data_size = tokens[token_idx].data_size;
-
-    if (data_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
-
-    tokens[token_idx].data[data_size] = 0xef;
-    data_size++;
-    tokens[token_idx].data[data_size] = 0xbf;
-    data_size++;
-    tokens[token_idx].data[data_size] = 0xbd;
-    data_size++;
-    tokens[token_idx].data_size = data_size;
-}
-
-static void update_comment_token_from_buffer()
-{
-    if (cp_len <= 0) { return; }
-
-    uint32_t read = (uint32_t)cp_len;
-    uint32_t data_size = tokens[token_idx].data_size;
-
-    if (data_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
-
-    for (uint32_t i = 0; i < read; i++)
-    {
-        tokens[token_idx].data[data_size + i] = buf[buf_cur + i];
-    }
-
-    tokens[token_idx].data_size += read;
-}
-
-static void update_comment_token(unsigned char c)
-{
-    uint32_t data_size = tokens[token_idx].data_size;
-
-    if (data_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
-
-    tokens[token_idx].data[data_size] = c;
-    data_size++;
-    tokens[token_idx].data_size = data_size;
-}
 
 static void create_doctype_token()
 {
@@ -895,7 +844,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (cp == '?')
             {
-                create_comment_token();
+                init_token(HTML_COMMENT_TOKEN);
                 consume                         = false;
                 state                           = HTML_TOKENIZER_BOGUS_COMMENT_STATE;
                 status                          = HTML_TOKENIZER_UNEXPECTED_QUOESTION_MARK_INSTEAD_OF_TAG_NAME;
@@ -940,7 +889,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_comment_token();
+                init_token(HTML_COMMENT_TOKEN);
                 consume                         = false;
                 state                           = HTML_TOKENIZER_BOGUS_COMMENT_STATE;
                 status                          = HTML_TOKENIZER_INVALID_FIRST_CHARACTER_OF_TAG_NAME;
@@ -1996,11 +1945,13 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                update_comment_token_replacement_char();
+                update_data_field(0xef);
+                update_data_field(0xbf);
+                update_data_field(0xbd);
             }
             else
             {
-                update_comment_token_from_buffer();
+                update_data_field_from_buffer();
             }
             break;
 
@@ -2008,7 +1959,7 @@ html_tokenizer_error_e html_tokenizer_next()
         case HTML_TOKENIZER_MARKUP_DECLARATION_OPEN_STATE:
             if (cp == '-' && match_segment(hyphen_segment, hyphen_segment_size, CASE_SENSITIVE_MATCH))
             {
-                create_comment_token();
+                init_token(HTML_COMMENT_TOKEN);
                 buf_cur                        += hyphen_segment_size;
                 state                           = HTML_TOKENIZER_COMMENT_START_STATE;
                 consume                         = false;
@@ -2028,7 +1979,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                create_comment_token();
+                init_token(HTML_COMMENT_TOKEN);
                 consume                         = false;
                 state                           = HTML_TOKENIZER_BOGUS_COMMENT_STATE;
                 status                          = HTML_TOKENIZER_INCORRECTLY_OPENED_COMMENT;
@@ -2075,7 +2026,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 break;
             default:
-                update_comment_token('-');
+                update_data_field('-');
                 consume                         = false;
                 state                           = HTML_TOKENIZER_COMMENT_STATE;
             }
@@ -2095,7 +2046,7 @@ html_tokenizer_error_e html_tokenizer_next()
             switch (cp)
             {
             case '<':
-                update_comment_token_from_buffer();
+                update_data_field_from_buffer();
                 state                           = HTML_TOKENIZER_COMMENT_LESS_THAN_STATE;
                 break;
             case '-':
@@ -2103,10 +2054,12 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             case 0:
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                update_comment_token_replacement_char();
+                update_data_field(0xef);
+                update_data_field(0xbf);
+                update_data_field(0xbd);
                 break;
             default:
-                update_comment_token_from_buffer();
+                update_data_field_from_buffer();
             }
             break;
 
@@ -2124,11 +2077,11 @@ html_tokenizer_error_e html_tokenizer_next()
             switch (cp)
             {
             case '!':
-                update_comment_token_from_buffer();
+                update_data_field_from_buffer();
                 state                           = HTML_TOKENIZER_COMMENT_LESS_THAN_BANG_STATE;
                 break;
             case '<':
-                update_comment_token_from_buffer();
+                update_data_field_from_buffer();
                 break;
             default:
                 state                           = HTML_TOKENIZER_COMMENT_STATE;
@@ -2189,7 +2142,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                           = HTML_TOKENIZER_COMMENT_END_STATE;
                 break;
             default:
-                update_comment_token('-');
+                update_data_field('-');
                 consume                         = false;
                 state                           = HTML_TOKENIZER_COMMENT_STATE;
                 
@@ -2217,11 +2170,11 @@ html_tokenizer_error_e html_tokenizer_next()
                 state                           = HTML_TOKENIZER_COMMENT_END_BANG_STATE;
                 break;
             case '-':
-                update_comment_token('-');
+                update_data_field('-');
                 break;
             default:
-                update_comment_token('-');
-                update_comment_token('-');
+                update_data_field('-');
+                update_data_field('-');
                 consume                         = false;
                 state                           = HTML_TOKENIZER_COMMENT_STATE;
             }
@@ -2241,9 +2194,9 @@ html_tokenizer_error_e html_tokenizer_next()
             switch (cp)
             {
             case '-':
-                update_comment_token('-');
-                update_comment_token('-');
-                update_comment_token('!');
+                update_data_field('-');
+                update_data_field('-');
+                update_data_field('!');
                 state                           = HTML_TOKENIZER_COMMENT_END_DASH_STATE;
                 break;
             case '>':
@@ -2252,9 +2205,9 @@ html_tokenizer_error_e html_tokenizer_next()
                 status                          = HTML_TOKENIZER_INCORRECTLY_CLOSED_COMMENT;
                 break;
             default:
-                update_comment_token('-');
-                update_comment_token('-');
-                update_comment_token('!');
+                update_data_field('-');
+                update_data_field('-');
+                update_data_field('!');
                 consume                         = false;
                 state                           = HTML_TOKENIZER_COMMENT_STATE;
             }
