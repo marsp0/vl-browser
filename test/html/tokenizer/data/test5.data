@@ -1,0 +1,21 @@
+#description
+Check overflow in decimal numeric entity
+#data
+&#18446744073709551681676767643767436743;
+#errors
+#states
+Data state
+#character
+�
+#end-test
+
+#description
+Check overflow in hexadecimal numeric entity
+#data
+&#x10000000000000041fffffffffffffffffffffffffffffffffffff;
+#errors
+#states
+Data state
+#character
+�
+#end-test
