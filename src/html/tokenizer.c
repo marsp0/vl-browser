@@ -165,7 +165,7 @@ static void update_data(unsigned char c)
 }
 
 
-static void update_data_from_buffer()
+static void update_data_from_buf()
 {
     html_token_t* t = &tokens[token_idx];
 
@@ -185,7 +185,7 @@ static void update_name(unsigned char c)
 }
 
 
-static void update_name_from_buffer()
+static void update_name_from_buf()
 {
     html_token_t* t = &tokens[token_idx];
 
@@ -205,7 +205,7 @@ static void update_public_id(unsigned char c)
 }
 
 
-static void update_public_id_from_buffer()
+static void update_public_id_from_buf()
 {
     html_token_t* t = &tokens[token_idx];
 
@@ -225,7 +225,7 @@ static void update_system_id(unsigned char c)
 }
 
 
-static void update_system_id_from_buffer()
+static void update_system_id_from_buf()
 {
     html_token_t* t = &tokens[token_idx];
 
@@ -257,7 +257,7 @@ static void update_attr_name(unsigned char c)
 }
 
 
-static void update_attr_name_from_buffer()
+static void update_attr_name_from_buf()
 {
     html_token_t* token = &tokens[token_idx];
     html_token_attribute_t* attr = &(token->attributes[token->attributes_size]);
@@ -284,7 +284,7 @@ static void update_attr_val(unsigned char c)
 }
 
 
-static void update_attr_val_from_buffer()
+static void update_attr_val_from_buf()
 {
     html_token_t* token = &tokens[token_idx];
     html_token_attribute_t* attr = &(token->attributes[token->attributes_size]);
@@ -397,7 +397,7 @@ static void emit_tmp_buf()
     }
 }
 
-static void update_tmp_buf_from_buffer()
+static void update_tmp_buf_from_buf()
 {
     assert(cp_len >= 0);
 
@@ -569,7 +569,7 @@ html_tokenizer_error_e html_tokenizer_next()
             default:
                 if (cp == 0) { status   = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER; }
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
                 emit_token();
             }
             break;
@@ -605,7 +605,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 else
                 {
                     init_token(HTML_CHARACTER_TOKEN);
-                    update_data_from_buffer();
+                    update_data_from_buf();
                 }
 
                 emit_token();
@@ -639,7 +639,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 else
                 {
                     init_token(HTML_CHARACTER_TOKEN);
-                    update_data_from_buffer();
+                    update_data_from_buf();
                 }
 
                 emit_token();
@@ -673,7 +673,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 else
                 {
                     init_token(HTML_CHARACTER_TOKEN);
-                    update_data_from_buffer();
+                    update_data_from_buf();
                 }
                 emit_token();
             }
@@ -700,7 +700,7 @@ html_tokenizer_error_e html_tokenizer_next()
             else
             {
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
             }
 
             emit_token();
@@ -825,7 +825,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                update_name_from_buffer();
+                update_name_from_buf();
             }
 
             break;
@@ -886,13 +886,13 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c + 0x20);
-                update_tmp_buf_from_buffer();
+                update_tmp_buf_from_buf();
             }
             else if (utf8_is_lower_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c);
-                update_tmp_buf_from_buffer();
+                update_tmp_buf_from_buf();
             }
             else
             {
@@ -965,13 +965,13 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c + 0x20);
-                update_tmp_buf_from_buffer();
+                update_tmp_buf_from_buf();
             }
             else if (utf8_is_lower_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c);
-                update_tmp_buf_from_buffer();
+                update_tmp_buf_from_buf();
             }
             else
             {
@@ -1053,13 +1053,13 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c + 0x20);
-                update_tmp_buf_from_buffer();
+                update_tmp_buf_from_buf();
             }
             else if (utf8_is_lower_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c);
-                update_tmp_buf_from_buffer();
+                update_tmp_buf_from_buf();
             }
             else
             {
@@ -1136,7 +1136,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             default:
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
                 emit_token();
             }
             break;
@@ -1174,7 +1174,7 @@ html_tokenizer_error_e html_tokenizer_next()
             default:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
                 emit_token();
             }
             break;
@@ -1211,7 +1211,7 @@ html_tokenizer_error_e html_tokenizer_next()
             default:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
                 emit_token();
             }
             break;
@@ -1282,13 +1282,13 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c + 0x20);
-                update_tmp_buf_from_buffer();
+                update_tmp_buf_from_buf();
             }
             else if (utf8_is_lower_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c);
-                update_tmp_buf_from_buffer();
+                update_tmp_buf_from_buf();
             }
             else
             {
@@ -1319,7 +1319,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 }
                 
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
                 emit_token();
             }
             else if (utf8_is_upper_alpha(cp))
@@ -1379,7 +1379,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             default:
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
                 emit_token();
             }
             break;
@@ -1420,7 +1420,7 @@ html_tokenizer_error_e html_tokenizer_next()
             default:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
                 emit_token();
             }
             break;
@@ -1466,7 +1466,7 @@ html_tokenizer_error_e html_tokenizer_next()
             default:
                 state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
                 emit_token();
             }
             break;
@@ -1503,7 +1503,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 }
                 
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
                 emit_token();
             }
             else if (utf8_is_upper_alpha(cp))
@@ -1543,7 +1543,7 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (cp == '=')
             {
                 init_attr();
-                update_attr_name_from_buffer();
+                update_attr_name_from_buf();
                 state                           = HTML_TOKENIZER_ATTRIBUTE_NAME_STATE;
                 status                          = HTML_TOKENIZER_UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME;
             }
@@ -1585,7 +1585,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 {
                     status                      = HTML_TOKENIZER_UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME;
                 }
-                update_attr_name_from_buffer();
+                update_attr_name_from_buf();
             }
 
             // todo: parser error - duplicate-attribute that we are not handling atm
@@ -1684,7 +1684,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                update_attr_val_from_buffer();
+                update_attr_val_from_buf();
             }
             break;
 
@@ -1716,7 +1716,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                update_attr_val_from_buffer();
+                update_attr_val_from_buf();
             }
             break;
 
@@ -1760,7 +1760,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 {
                     status                      = HTML_TOKENIZER_UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE;
                 }
-                update_attr_val_from_buffer();
+                update_attr_val_from_buf();
             }
             break;
 
@@ -1851,7 +1851,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                update_data_from_buffer();
+                update_data_from_buf();
             }
             break;
 
@@ -1946,7 +1946,7 @@ html_tokenizer_error_e html_tokenizer_next()
             switch (cp)
             {
             case '<':
-                update_data_from_buffer();
+                update_data_from_buf();
                 state                           = HTML_TOKENIZER_COMMENT_LESS_THAN_STATE;
                 break;
             case '-':
@@ -1959,7 +1959,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 update_data(0xbd);
                 break;
             default:
-                update_data_from_buffer();
+                update_data_from_buf();
             }
             break;
 
@@ -1977,11 +1977,11 @@ html_tokenizer_error_e html_tokenizer_next()
             switch (cp)
             {
             case '!':
-                update_data_from_buffer();
+                update_data_from_buf();
                 state                           = HTML_TOKENIZER_COMMENT_LESS_THAN_BANG_STATE;
                 break;
             case '<':
-                update_data_from_buffer();
+                update_data_from_buf();
                 break;
             default:
                 state                           = HTML_TOKENIZER_COMMENT_STATE;
@@ -2191,7 +2191,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 state                           = HTML_TOKENIZER_DOCTYPE_NAME_STATE;
                 init_token(HTML_DOCTYPE_TOKEN);
-                update_name_from_buffer();
+                update_name_from_buf();
             }
             break;
 
@@ -2230,7 +2230,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                update_name_from_buffer();
+                update_name_from_buf();
             }
             break;
 
@@ -2397,7 +2397,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                update_public_id_from_buffer();
+                update_public_id_from_buf();
             }
             break;
 
@@ -2433,7 +2433,7 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
-                update_public_id_from_buffer();
+                update_public_id_from_buf();
             }
             break;
 
@@ -2635,7 +2635,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 break;
             default:
-                update_system_id_from_buffer();
+                update_system_id_from_buf();
             }
             break;
 
@@ -2669,7 +2669,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 emit_token();
                 break;
             default:
-                update_system_id_from_buffer();
+                update_system_id_from_buf();
             }
             break;
 
@@ -2743,7 +2743,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 break;
             default:
                 init_token(HTML_CHARACTER_TOKEN);
-                update_data_from_buffer();
+                update_data_from_buf();
                 emit_token();
             }
             break;
