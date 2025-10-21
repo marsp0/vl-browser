@@ -236,118 +236,69 @@ static void update_system_id_from_buffer()
 }
 
 
-static void init_attribute()
+static void init_attr()
 {
-    html_token_t* token = &tokens[token_idx];
-    html_token_attribute_t* attribute = &(token->attributes[token->attributes_size]);
-    memset(attribute->name, 0, sizeof(attribute->name));
-    memset(attribute->value, 0, sizeof(attribute->value));
-    attribute->name_size = 0;
-    attribute->value_size = 0;
+    html_token_t* token          = &tokens[token_idx];
+    html_token_attribute_t* attr = &(token->attributes[token->attributes_size]);
+    memset(attr, 0, sizeof(html_token_attribute_t));
 }
 
-static void create_attribute_from_buffer()
+
+static void update_attr_name(unsigned char c)
 {
-    init_attribute();
+    html_token_t* token          = &tokens[token_idx];
+    html_token_attribute_t* attr = &(token->attributes[token->attributes_size]);
 
+    if (attr->name_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
+
+    attr->name[attr->name_size]   = c;
+    attr->name_size++;
+}
+
+
+static void update_attr_name_from_buffer()
+{
     html_token_t* token = &tokens[token_idx];
-    html_token_attribute_t* attribute = &(token->attributes[token->attributes_size]);
+    html_token_attribute_t* attr = &(token->attributes[token->attributes_size]);
 
-    assert(cp_len >= 0);
-
-    uint32_t read = (uint32_t)cp_len;
-    uint32_t name_size = attribute->name_size;
-
-    for (uint32_t i = 0; i < read; i++)
+    for (uint32_t i = buf_cur; i < buf_cur + (uint32_t)cp_len; i++)
     {
-        attribute->name[name_size + i] = buf[buf_cur + i];
+        attr->name[attr->name_size] = buf[i];
+        attr->name_size++;
+
+        if (attr->name_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
     }
-
-    attribute->name_size = name_size + read;
 }
 
-static void update_attribute_name(unsigned char c)
+
+static void update_attr_val(unsigned char c)
 {
-    html_token_t* token                     = &tokens[token_idx];
-    html_token_attribute_t* attribute       = &(token->attributes[token->attributes_size]);
-    attribute->name[attribute->name_size]   = c;
-    attribute->name_size++;
+    html_token_t* token          = &tokens[token_idx];
+    html_token_attribute_t* attr = &(token->attributes[token->attributes_size]);
+
+    if (attr->value_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
+
+    attr->value[attr->value_size]   = c;
+    attr->value_size++;
 }
 
-static void update_attribute_name_replacement_char()
-{
-    html_token_t* token                     = &tokens[token_idx];
-    html_token_attribute_t* attribute       = &(token->attributes[token->attributes_size]);
-    attribute->name[attribute->name_size]   = 0xef;
-    attribute->name_size++;
-    attribute->name[attribute->name_size]   = 0xbf;
-    attribute->name_size++;
-    attribute->name[attribute->name_size]   = 0xbd;
-    attribute->name_size++;
-}
 
-static void update_attribute_value_replacement_char()
-{
-    html_token_t* token                     = &tokens[token_idx];
-    html_token_attribute_t* attribute       = &(token->attributes[token->attributes_size]);
-    attribute->value[attribute->value_size]   = 0xef;
-    attribute->value_size++;
-    attribute->value[attribute->value_size]   = 0xbf;
-    attribute->value_size++;
-    attribute->value[attribute->value_size]   = 0xbd;
-    attribute->value_size++;
-}
-
-static void update_attribute_value_from_buffer()
+static void update_attr_val_from_buffer()
 {
     html_token_t* token = &tokens[token_idx];
-    html_token_attribute_t* attribute = &(token->attributes[token->attributes_size]);
+    html_token_attribute_t* attr = &(token->attributes[token->attributes_size]);
 
-    assert(cp_len >= 0);
-
-    uint32_t read = (uint32_t)cp_len;
-    uint32_t value_size = attribute->value_size;
-    
-    if (value_size > HTML_TOKEN_MAX_NAME_LEN) { return; }
-
-    for (uint32_t i = 0; i < read; i++)
+    for (uint32_t i = buf_cur; i < buf_cur + (uint32_t)cp_len; i++)
     {
-        attribute->value[value_size + i] = buf[buf_cur + i];
+        attr->value[attr->value_size] = buf[i];
+        attr->value_size++;
+
+        if (attr->value_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
     }
-
-    attribute->value_size = value_size + read;
-}
-
-static void update_attribute_value(unsigned char c)
-{
-    html_token_t* token                     = &tokens[token_idx];
-    html_token_attribute_t* attribute       = &(token->attributes[token->attributes_size]);
-    attribute->value[attribute->value_size]   = c;
-    attribute->value_size++;
-}
-
-static void update_attribute_name_from_buffer()
-{
-    html_token_t* token = &tokens[token_idx];
-    html_token_attribute_t* attribute = &(token->attributes[token->attributes_size]);
-
-    assert(cp_len >= 0);
-
-    uint32_t read = (uint32_t)cp_len;
-    uint32_t name_size = attribute->name_size;
-    
-    if (name_size + read > HTML_TOKEN_MAX_NAME_LEN) { return; }
-
-    for (uint32_t i = 0; i < read; i++)
-    {
-        attribute->name[name_size + i] = buf[buf_cur + i];
-    }
-
-    attribute->name_size = name_size + read;
 }
 
 
-static void emit_attribute()
+static void emit_attr()
 {
     bool is_duplicate           = false;
     html_token_t* token         = &tokens[token_idx];
@@ -361,8 +312,11 @@ static void emit_attribute()
         }
     }
 
-    if (is_duplicate)           { init_attribute(); return; }
-    if (attr.name_size == 0)    { return; }
+    if (is_duplicate || attr.name_size == 0)
+    {
+        init_attr();
+        return;
+    }
 
     tokens[token_idx].attributes_size++;
 }
@@ -510,7 +464,7 @@ static void flush_cps_consumed_as_char_ref(html_tokenizer_state_e s)
     {
         for (uint32_t i = 0; i < tmp_buf_size; i++)
         {
-            update_attribute_value(tmp_buf[i]);
+            update_attr_val(tmp_buf[i]);
         }
     }
     else
@@ -1571,13 +1525,14 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else if (cp == '=')
             {
-                create_attribute_from_buffer();
+                init_attr();
+                update_attr_name_from_buffer();
                 state                           = HTML_TOKENIZER_ATTRIBUTE_NAME_STATE;
                 status                          = HTML_TOKENIZER_UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME;
             }
             else
             {
-                init_attribute();
+                init_attr();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_ATTRIBUTE_NAME_STATE;
             }
@@ -1598,12 +1553,14 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (utf8_is_upper_alpha(cp))
             {
                 unsigned char c = (unsigned char)cp;
-                update_attribute_name(c + 0x20);
+                update_attr_name(c + 0x20);
             }
             else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                update_attribute_name_replacement_char();
+                update_attr_name(0xef);
+                update_attr_name(0xbf);
+                update_attr_name(0xbd);
             }
             else
             {
@@ -1611,7 +1568,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 {
                     status                      = HTML_TOKENIZER_UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME;
                 }
-                update_attribute_name_from_buffer();
+                update_attr_name_from_buffer();
             }
 
             // todo: parser error - duplicate-attribute that we are not handling atm
@@ -1642,13 +1599,13 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
-                emit_attribute();
+                emit_attr();
                 emit_token();
             }
             else
             {
-                emit_attribute();
-                init_attribute();
+                emit_attr();
+                init_attr();
                 consume                         = false;
                 state                           = HTML_TOKENIZER_ATTRIBUTE_NAME_STATE;
             }
@@ -1672,7 +1629,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
                 status                          = HTML_TOKENIZER_MISSING_ATTRIBUTE_VALUE;
-                emit_attribute();
+                emit_attr();
                 emit_token();
             }
             else
@@ -1704,11 +1661,13 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                update_attribute_value_replacement_char();
+                update_attr_val(0xef);
+                update_attr_val(0xbf);
+                update_attr_val(0xbd);
             }
             else
             {
-                update_attribute_value_from_buffer();
+                update_attr_val_from_buffer();
             }
             break;
 
@@ -1734,11 +1693,13 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                update_attribute_value_replacement_char();
+                update_attr_val(0xef);
+                update_attr_val(0xbf);
+                update_attr_val(0xbd);
             }
             else
             {
-                update_attribute_value_from_buffer();
+                update_attr_val_from_buffer();
             }
             break;
 
@@ -1756,7 +1717,7 @@ html_tokenizer_error_e html_tokenizer_next()
             if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
-                emit_attribute();
+                emit_attr();
             }
             else if (cp == '&')
             {
@@ -1766,13 +1727,15 @@ html_tokenizer_error_e html_tokenizer_next()
             else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
-                emit_attribute();
+                emit_attr();
                 emit_token();
             }
             else if (cp == 0)
             {
                 status                          = HTML_TOKENIZER_UNEXPECTED_NULL_CHARACTER;
-                update_attribute_value_replacement_char();
+                update_attr_val(0xef);
+                update_attr_val(0xbf);
+                update_attr_val(0xbd);
             }
             else
             {
@@ -1780,7 +1743,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 {
                     status                      = HTML_TOKENIZER_UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE;
                 }
-                update_attribute_value_from_buffer();
+                update_attr_val_from_buffer();
             }
             break;
 
@@ -1797,17 +1760,17 @@ html_tokenizer_error_e html_tokenizer_next()
             if (cp == '\t' || cp == '\n' || cp == '\f' || cp == ' ')
             {
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
-                emit_attribute();
+                emit_attr();
             }
             else if (cp == '/')
             {
                 state                           = HTML_TOKENIZER_SELF_CLOSING_START_TAG_STATE;
-                emit_attribute();
+                emit_attr();
             }
             else if (cp == '>')
             {
                 state                           = HTML_TOKENIZER_DATA_STATE;
-                emit_attribute();
+                emit_attr();
                 emit_token();
             }
             else
@@ -1815,7 +1778,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 status                          = HTML_TOKENIZER_MISSING_WHITESPACE_BETWEEN_ATTRIBUTES;
                 consume                         = false;
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
-                emit_attribute();
+                emit_attr();
             }
             break;
 
@@ -1836,7 +1799,7 @@ html_tokenizer_error_e html_tokenizer_next()
                     tokens[token_idx].self_closing  = true;
                 }
                 state                           = HTML_TOKENIZER_DATA_STATE;
-                emit_attribute();
+                emit_attr();
                 emit_token();
             }
             else
@@ -2924,7 +2887,7 @@ html_tokenizer_error_e html_tokenizer_next()
                     return_state == HTML_TOKENIZER_ATTRIBUTE_VALUE_UNQUOTED_STATE)
                 {
                     unsigned char c = (unsigned char)cp;
-                    update_attribute_value(c);
+                    update_attr_val(c);
                 }
                 else
                 {
