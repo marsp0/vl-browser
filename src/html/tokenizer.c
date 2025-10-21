@@ -47,7 +47,7 @@ static html_tokenizer_state_e return_state                              = HTML_T
 static unsigned char tmp_buf[MAX_TEMP_BUFFER_SIZE]                  = { 0 };
 static uint32_t tmp_buf_size                                        = 0;
 static hash_str_t last_emitted_start_tag                                = 0;
-static int32_t bytes_read                                               = 0;
+static int32_t cp_len                                               = 0;
 static uint32_t character_reference_code                                = 0;
 static unsigned char hyphen_segment[]                                   = "--";
 static uint32_t hyphen_segment_size                                     = sizeof(hyphen_segment) - 1;
@@ -157,10 +157,10 @@ static void init_token(html_token_type_e type)
 
 static void create_char_token_from_buffer()
 {
-    assert(bytes_read >= 0);
+    assert(cp_len >= 0);
 
     init_token(HTML_CHARACTER_TOKEN);
-    uint32_t read = (uint32_t)bytes_read;
+    uint32_t read = (uint32_t)cp_len;
     uint32_t data_size = tokens[token_idx].data_size;
 
     for (uint32_t i = 0; i < read; i++)
@@ -205,9 +205,9 @@ static void create_tag_token(html_token_type_e type)
 
 static void update_tag_token_from_buffer()
 {
-    assert(bytes_read >= 0);
+    assert(cp_len >= 0);
 
-    uint32_t read = (uint32_t)bytes_read;
+    uint32_t read = (uint32_t)cp_len;
     uint32_t name_size = tokens[token_idx].name_size;
 
     if (name_size + read >= HTML_TOKEN_MAX_NAME_LEN) { return; }
@@ -260,9 +260,9 @@ static void create_attribute_from_buffer()
     html_token_t* token = &tokens[token_idx];
     html_token_attribute_t* attribute = &(token->attributes[token->attributes_size]);
 
-    assert(bytes_read >= 0);
+    assert(cp_len >= 0);
 
-    uint32_t read = (uint32_t)bytes_read;
+    uint32_t read = (uint32_t)cp_len;
     uint32_t name_size = attribute->name_size;
 
     for (uint32_t i = 0; i < read; i++)
@@ -310,9 +310,9 @@ static void update_attribute_value_from_buffer()
     html_token_t* token = &tokens[token_idx];
     html_token_attribute_t* attribute = &(token->attributes[token->attributes_size]);
 
-    assert(bytes_read >= 0);
+    assert(cp_len >= 0);
 
-    uint32_t read = (uint32_t)bytes_read;
+    uint32_t read = (uint32_t)cp_len;
     uint32_t value_size = attribute->value_size;
     
     if (value_size > HTML_TOKEN_MAX_NAME_LEN) { return; }
@@ -338,9 +338,9 @@ static void update_attribute_name_from_buffer()
     html_token_t* token = &tokens[token_idx];
     html_token_attribute_t* attribute = &(token->attributes[token->attributes_size]);
 
-    assert(bytes_read >= 0);
+    assert(cp_len >= 0);
 
-    uint32_t read = (uint32_t)bytes_read;
+    uint32_t read = (uint32_t)cp_len;
     uint32_t name_size = attribute->name_size;
     
     if (name_size + read > HTML_TOKEN_MAX_NAME_LEN) { return; }
@@ -379,9 +379,9 @@ static void update_comment_token_replacement_char()
 
 static void update_comment_token_from_buffer()
 {
-    if (bytes_read <= 0) { return; }
+    if (cp_len <= 0) { return; }
 
-    uint32_t read = (uint32_t)bytes_read;
+    uint32_t read = (uint32_t)cp_len;
     uint32_t data_size = tokens[token_idx].data_size;
 
     if (data_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
@@ -431,9 +431,9 @@ static void update_doctype_token_name(unsigned char c)
 
 static void update_doctype_token_name_from_buffer()
 {
-    assert(bytes_read >= 0);
+    assert(cp_len >= 0);
 
-    uint32_t read = (uint32_t)bytes_read;
+    uint32_t read = (uint32_t)cp_len;
     uint32_t name_size = tokens[token_idx].name_size;
 
     if (name_size + read >= HTML_TOKEN_MAX_NAME_LEN) { return; }
@@ -478,9 +478,9 @@ static void update_doctype_token_public_identifier_replacement_char()
 
 static void update_doctype_public_identifier_from_buffer()
 {
-    assert(bytes_read >= 0);
+    assert(cp_len >= 0);
 
-    uint32_t read = (uint32_t)bytes_read;
+    uint32_t read = (uint32_t)cp_len;
     uint32_t public_id_size = tokens[token_idx].public_id_size;
 
     if (public_id_size + read >= HTML_TOKEN_MAX_NAME_LEN) { return; }
@@ -510,9 +510,9 @@ static void update_doctype_token_system_identifier_replacement_char()
 
 static void update_doctype_token_system_identifier_from_buffer()
 {
-    assert(bytes_read >= 0);
+    assert(cp_len >= 0);
 
-    uint32_t read = (uint32_t)bytes_read;
+    uint32_t read = (uint32_t)cp_len;
     uint32_t system_id_size = tokens[token_idx].system_id_size;
 
     if (system_id_size + read >= HTML_TOKEN_MAX_NAME_LEN) { return; }
@@ -622,9 +622,9 @@ static void emit_tmp_buf()
 
 static void update_tmp_buf_from_buffer()
 {
-    assert(bytes_read >= 0);
+    assert(cp_len >= 0);
 
-    uint32_t read = (uint32_t)bytes_read;
+    uint32_t read = (uint32_t)cp_len;
 
     for (uint32_t i = 0; i < read; i++)
     {
@@ -740,7 +740,7 @@ html_tokenizer_error_e html_tokenizer_next()
     {
         assert(token_idx < max_tokens);
 
-        bytes_read  = -1;
+        cp_len  = -1;
         consume     = true;
 
         if (buf_cur >= buf_size)
@@ -749,8 +749,8 @@ html_tokenizer_error_e html_tokenizer_next()
         }
         else
         {
-            bytes_read = utf8_decode(buf, buf_size, buf_cur, &cp);
-            if (bytes_read <= -1) { return HTML_TOKENIZER_ERROR; }
+            cp_len = utf8_decode(buf, buf_size, buf_cur, &cp);
+            if (cp_len <= -1) { return HTML_TOKENIZER_ERROR; }
         }
 
         switch (state)
@@ -3217,9 +3217,9 @@ html_tokenizer_error_e html_tokenizer_next()
             break;
         }
 
-        if (consume && bytes_read > 0)
+        if (consume && cp_len > 0)
         {
-            buf_cur += (uint32_t)bytes_read;
+            buf_cur += (uint32_t)cp_len;
         }
     }
 
