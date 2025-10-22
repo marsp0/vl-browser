@@ -1993,12 +1993,15 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     if (form_element && !stack_contains_element(html_tag_template()))
                     {
-                        // todo: parse error
-                        // ignore token
+                        INCOMPLETE_IMPLEMENTATION("parse error");
                     }
                     else
                     {
-                        // todo: scope logic
+                        if (in_scope(html_tag_p(), BUTTON_SCOPE))
+                        {
+                            close_p_element();
+                        }
+
                         dom_node_t* element = insert_html_element(t_name, &t);
                         if (!stack_contains_element(html_tag_template()))
                         {
@@ -2427,7 +2430,20 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_input())
                 {
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
+
+                    if (in_scope(html_tag_select(), GENERIC_SCOPE))
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                        pop_elements_until_name_included(html_tag_select());
+                    }
+
+                    reconstruct_formatting_elements();
+                    insert_html_element(t_name, &t);
+                    stack_pop();
+
+                    INCOMPLETE_IMPLEMENTATION("ack self closing flag if set");
+                    INCOMPLETE_IMPLEMENTATION("frameset-ok logic");
                 }
                 else if (is_start && (t_name == html_tag_param() || t_name == html_tag_source() || t_name == html_tag_track() ))
                 {
@@ -2654,7 +2670,10 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_caption())
                 {
-                    NOT_IMPLEMENTED
+                    clear_stack_back_to_table();
+                    insert_marker();
+                    insert_html_element(t_name, &t);
+                    mode = HTML_PARSER_MODE_IN_CAPTION;
                 }
                 else if (is_start && t_name == html_tag_colgroup())
                 {
@@ -2784,7 +2803,22 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
             case HTML_PARSER_MODE_IN_CAPTION:
                 if (is_end && t_name == html_tag_caption())
                 {
-                    NOT_IMPLEMENTED
+                    if (!in_scope(html_tag_caption(), TABLE_SCOPE))
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+                    else
+                    {
+                        generate_implied_end_tags(0);
+                        if (stack[stack_idx]->name != html_tag_caption())
+                        {
+                            INCOMPLETE_IMPLEMENTATION("parse error");
+                        }
+
+                        pop_elements_until_name_included(html_tag_caption());
+                        clear_formatting_elements();
+                        mode = HTML_PARSER_MODE_IN_TABLE;
+                    }
                 }
                 else if ((is_start && (t_name == html_tag_caption()   ||
                                        t_name == html_tag_col()       ||
@@ -2797,7 +2831,23 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                                        t_name == html_tag_tr()))      ||
                          (is_end && t_name == html_tag_table()))
                 {
-                    NOT_IMPLEMENTED
+                    if (!in_scope(html_tag_caption(), TABLE_SCOPE))
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                        break;
+                    }
+
+                    generate_implied_end_tags(0);
+                    
+                    if (stack[stack_idx]->name != html_tag_caption())
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+
+                    pop_elements_until_name_included(html_tag_caption());
+                    clear_formatting_elements();
+                    mode = HTML_PARSER_MODE_IN_TABLE;
+                    consume = false;
                 }
                 else if (is_end && (t_name == html_tag_body()     ||
                                     t_name == html_tag_col()      ||
@@ -2814,7 +2864,10 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else
                 {
-                    NOT_IMPLEMENTED
+                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_IN_CAPTION;
+                    use_rules_for       = true;
                 }
                 break;
 

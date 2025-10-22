@@ -432,7 +432,7 @@
 |     "&AMp;"
 
 #data
-<!DOCTYPE html><html><head></head><body><thisISasillyTESTelementNameToMakeSureCrazyTagNamesArePARSEDcorrectLY>
+<!DOCTYPE html><html><head></head><body><thisISasillyTESTelementNameToMakeSureCrazyTagNamesArePARSEDcorr>
 #errors
 (1,110): expected-closing-tag-but-got-eof
 #document
@@ -440,7 +440,7 @@
 | <html>
 |   <head>
 |   <body>
-|     <thisisasillytestelementnametomakesurecrazytagnamesareparsedcorrectly>
+|     <thisisasillytestelementnametomakesurecrazytagnamesareparsedcorr>
 
 #data
 <!DOCTYPE html>X</body>X

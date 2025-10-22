@@ -160,6 +160,13 @@ static void init_token(html_token_type_e type)
 static void update_data(unsigned char c)
 {
     html_token_t* t = &tokens[token_idx];
+
+    if (t->data_size >= HTML_TOKEN_MAX_NAME_LEN)
+    {
+        t->data_size = HTML_TOKEN_MAX_NAME_LEN;
+        return;
+    }
+
     t->data[t->data_size] = c;
     t->data_size++;
 }
@@ -169,10 +176,18 @@ static void update_data_from_buf()
 {
     html_token_t* t = &tokens[token_idx];
 
+    if (t->data_size >= HTML_TOKEN_MAX_NAME_LEN)
+    {
+        t->data_size = HTML_TOKEN_MAX_NAME_LEN;
+        return;
+    }
+
     for (uint32_t i = buf_cur; i < buf_cur + (uint32_t)cp_len; i++)
     {
         t->data[t->data_size] = buf[i];
         t->data_size++;
+
+        if (t->data_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
     }
 }
 
@@ -180,6 +195,13 @@ static void update_data_from_buf()
 static void update_name(unsigned char c)
 {
     html_token_t* t = &tokens[token_idx];
+
+    if (t->name_size >= HTML_TOKEN_MAX_NAME_LEN)
+    {
+        t->name_size = HTML_TOKEN_MAX_NAME_LEN;
+        return;
+    }
+
     t->name[t->name_size] = c;
     t->name_size++;
 }
@@ -189,10 +211,18 @@ static void update_name_from_buf()
 {
     html_token_t* t = &tokens[token_idx];
 
+    if (t->name_size >= HTML_TOKEN_MAX_NAME_LEN)
+    {
+        t->name_size = HTML_TOKEN_MAX_NAME_LEN;
+        return;
+    }
+
     for (uint32_t i = buf_cur; i < buf_cur + (uint32_t)cp_len; i++)
     {
         t->name[t->name_size] = buf[i];
         t->name_size++;
+
+        if (t->name_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
     }
 }
 
@@ -1065,7 +1095,7 @@ html_tokenizer_error_e html_tokenizer_next()
             {
                 unsigned char c = (unsigned char)cp;
                 update_name(c + 0x20);
-                update_tmp_buf(c + 0x20);
+                update_tmp_buf(c);
             }
             else if (utf8_is_lower_alpha(cp) && !is_eof)
             {
