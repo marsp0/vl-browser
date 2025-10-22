@@ -1863,6 +1863,10 @@ html_tokenizer_error_e html_tokenizer_next()
             }
             else
             {
+                html_token_t* t                 = &tokens[token_idx];
+                html_token_attribute_t* attr    = &(t->attributes[t->attributes_size]);
+                if (attr->name_size > 0) { emit_attr(); }
+
                 consume                         = false;
                 state                           = HTML_TOKENIZER_BEFORE_ATTRIBUTE_NAME_STATE;
                 status                          = HTML_TOKENIZER_UNEXPECTED_SOLIDUS_IN_TAG;
