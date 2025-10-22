@@ -3448,10 +3448,12 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
             if (remove_head)
             {
                 remove_from_stack(head_pointer);
+                remove_head = false;
             }
 
             if (will_remove_head)
             {
+                will_remove_head = false;
                 remove_head = true;
             }
 
