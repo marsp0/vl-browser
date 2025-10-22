@@ -1721,7 +1721,48 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 {
                     // todo: parse error
                     if (stack_contains_element(html_tag_template())) { break; }
-                    // todo: handle attributes logic
+
+                    INCOMPLETE_IMPLEMENTATION("parse error");
+
+                    dom_node_t* node = document->first;
+                    bool found = false;
+
+                    while (true)
+                    {
+                        if (node->name == html_tag_html())
+                        {
+                            found = true;
+                            break;
+                        }
+                        node = node->next;
+                    }
+
+                    if (!found) { break; }
+
+                    dom_element_t* dom_element = dom_element_from_node(node);
+
+                    for (uint32_t j = 0; j < t.attributes_size; j++)
+                    {
+                        html_token_attribute_t* attr = &t.attributes[j];
+                        hash_str_t attr_name = hash_str_new(attr->name, attr->name_size);
+                        found = false;
+
+                        dom_attr_t* dom_attr = dom_element->attr;
+
+                        while (dom_attr)
+                        {
+                            if (dom_attr->name == attr_name) { found = true; }
+                            dom_attr = dom_attr->next;
+                        }
+
+                        if (found) { continue; }
+
+                        dom_node_t* new_attr = dom_attr_new(attr_name,
+                                                            hash_str_new(attr->value, attr->value_size),
+                                                            dom_node_from_element(dom_element));
+
+                        dom_element_append_attr(dom_element, dom_attr_from_node(new_attr));
+                    }
                 }
                 else if ((is_start && (t_name == html_tag_base()      ||
                                        t_name == html_tag_basefont()  ||
@@ -3219,7 +3260,10 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_html())
                 {
-                    NOT_IMPLEMENTED
+                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_AFTER_BODY;
+                    use_rules_for       = true;
                 }
                 else if (is_end && t_name == html_tag_html())
                 {
@@ -3346,7 +3390,10 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                          (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' ')) ||
                          (is_start && t_name == html_tag_html()))
                 {
-                    NOT_IMPLEMENTED
+                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
+                    consume             = false;
+                    mode                = HTML_PARSER_MODE_AFTER_AFTER_BODY;
+                    use_rules_for       = true;
                 }
                 else if (is_eof)
                 {

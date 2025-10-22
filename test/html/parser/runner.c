@@ -35,6 +35,7 @@ static uint32_t is_eof = false;
 static uint32_t line_num = 0;
 static uint32_t test_line = 0;
 static uint32_t level = 0;
+static unsigned char prev = 0;
 
 // test data
 static unsigned char test_data[2048] = { 0 };
@@ -43,6 +44,8 @@ static dom_node_t* document = NULL;
 
 static int32_t get_char()
 {
+    if (file_buffer_cursor > 0) { prev = file_buffer[file_buffer_cursor - 1]; }
+
     if (file_done && file_buffer_cursor == file_buffer_size)
     {
         return -1;
@@ -76,7 +79,14 @@ static void read_line()
             return;
         }
 
-        line[line_size++] = (unsigned char)c;
+        if (prev == '\\' && c == 'n')
+        {
+            line[line_size - 1] = '\n';
+        }
+        else
+        {
+            line[line_size++] = (unsigned char)c;
+        }
     }
 
     line[--line_size] = '\0';
@@ -329,6 +339,8 @@ void html_parser_test()
         file_buffer_cursor = 0;
         file_buffer_size = 0;
         file_done = false;
+        line_num = 0;
+        test_line = 0;
         is_eof = false;
 
         file = fopen(files[i], "r");

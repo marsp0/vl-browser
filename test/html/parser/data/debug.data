@@ -1,10 +1,20 @@
 #data
-<!DOCTYPE html><html><head></head><body><thisISasillyTESTelementNameToMakeSureCrazyTagNamesArePARSEDcorr>
+<!DOCTYPE html>X<p/x/y/z>
 #errors
-(1,110): expected-closing-tag-but-got-eof
+(1,19): unexpected-character-after-solidus-in-tag
+(1,21): unexpected-character-after-solidus-in-tag
+(1,23): unexpected-character-after-solidus-in-tag
+#new-errors
+(1:20) unexpected-solidus-in-tag
+(1:22) unexpected-solidus-in-tag
+(1:24) unexpected-solidus-in-tag
 #document
 | <!DOCTYPE html>
 | <html>
 |   <head>
 |   <body>
-|     <thisisasillytestelementnametomakesurecrazytagnamesareparsedcorr>
+|     "X"
+|     <p>
+|       x=""
+|       y=""
+|       z=""
