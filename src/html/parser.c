@@ -1370,7 +1370,10 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                     bool system_id_missing  = t.system_id_size == 0;
                     bool is_legacy_compat   = t.system_id_size == compat_size && strncmp(t.system_id, compat, compat_size);
                     dom_node_t* doctype     = dom_doctype_new(document, t.name, t.name_size, NULL, 0, NULL, 0);
-                    dom_document_set_doctype(dom_document_from_node(document), dom_doctype_from_node(doctype));
+                    dom_document_t* doc     = dom_document_from_node(document);
+                    dom_document_set_doctype(doc, dom_doctype_from_node(doctype));
+
+                    doc->mode = hash_str_new("quirks", 6);
 
                     if (!name_is_html || !public_id_missing || !system_id_missing || !is_legacy_compat)
                     {
@@ -2393,7 +2396,19 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_nobr())
                 {
-                    NOT_IMPLEMENTED
+                    reconstruct_formatting_elements();
+                    if (in_scope(html_tag_nobr(), GENERIC_SCOPE))
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+
+                        bool success = run_adoption_procedure(t_name);
+
+                        if (!success) { handle_end_tag_in_body(t_name); }
+                        reconstruct_formatting_elements();
+                    }
+
+                    dom_node_t* node = insert_html_element(t_name, &t);
+                    push_formatting_element(node, &t);
                 }
                 else if (is_end && (t_name == html_tag_a()        ||
                                     t_name == html_tag_b()        ||
@@ -2441,6 +2456,14 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 else if (is_start && t_name == html_tag_table())
                 {
                     INCOMPLETE_IMPLEMENTATION("quirk modes additional logic");
+
+                    dom_document_t* doc = dom_document_from_node(document);
+                    hash_str_t quirks = hash_str_new("quirks", 6);
+
+                    if (doc->mode == quirks && in_scope(html_tag_p(), BUTTON_SCOPE))
+                    {
+                        close_p_element();
+                    }
 
                     insert_html_element(t_name, &t);
 
