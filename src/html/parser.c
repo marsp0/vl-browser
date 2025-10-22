@@ -56,16 +56,17 @@ static html_token_t pending_tokens[MAX_TOKENS]      = { 0 };
 static uint32_t pending_tokens_size                 = 0;
 
 static html_token_t tokens[MAX_TOKENS]              = { 0 };
-static dom_node_t* stack[OPEN_STACK_MAX_SIZE]      = { 0 };
+static dom_node_t* stack[OPEN_STACK_MAX_SIZE]       = { 0 };
 static uint32_t stack_idx                           = 0;
 static uint32_t stack_size                          = 0;
-static dom_node_t* document                        = NULL;
+static dom_node_t* document                         = NULL;
 static bool stop                                    = false;
 static bool foster_parenting                        = false;
 static bool will_use_foster_parenting               = false;
-static dom_node_t* head_pointer                    = NULL;
+static dom_node_t* head_pointer                     = NULL;
+static bool scripting_enabled                       = true;
 
-static dom_node_t* formatting_elements[10]         = { 0 };
+static dom_node_t* formatting_elements[10]          = { 0 };
 static bool formatting_elements_m[10]               = { 0 };
 static html_token_t formatting_elements_t[10]       = { 0 };
 static uint32_t formatting_elements_size            = 0;
@@ -1280,7 +1281,7 @@ static void maybe_clone_option_into_selected_content(dom_node_t* option)
 /********************/
 
 
-void html_parser_init()
+void html_parser_init(bool scripting)
 {
     mode                        = HTML_PARSER_MODE_INITIAL;
     original_mode               = HTML_PARSER_MODE_INITIAL;
@@ -1293,6 +1294,7 @@ void html_parser_init()
     foster_parenting            = false;
     will_use_foster_parenting   = false;
     head_pointer                = NULL;
+    scripting_enabled           = scripting;
 
     formatting_elements_size = 0;
     memset(formatting_elements, 0, sizeof(formatting_elements));
@@ -1308,7 +1310,6 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
     document                    = dom_document_new();
 
     dom_node_t* form_element    = NULL;
-    bool scripting_enabled      = false;
     bool remove_head            = false;
     bool will_remove_head       = false;
 
@@ -2551,11 +2552,30 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
                 }
                 else if (is_start && t_name == html_tag_xmp())
                 {
-                    NOT_IMPLEMENTED
+                    if (in_scope(html_tag_p(), BUTTON_SCOPE))
+                    {
+                        close_p_element();
+                    }
+
+                    reconstruct_formatting_elements();
+
+                    INCOMPLETE_IMPLEMENTATION("frameset-ok flag to not ok");
+
+                    insert_html_element(t_name, &t);
+                    html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
+
+                    original_mode       = mode;
+                    mode = HTML_PARSER_MODE_TEXT;
                 }
                 else if (is_start && t_name == html_tag_iframe())
                 {
-                    NOT_IMPLEMENTED
+                    INCOMPLETE_IMPLEMENTATION("frameset-ok flag to not ok");
+
+                    insert_html_element(t_name, &t);
+                    html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
+
+                    original_mode       = mode;
+                    mode = HTML_PARSER_MODE_TEXT;
                 }
                 else if ( (is_start && t_name == html_tag_noembed() ) ||
                           (is_start && t_name == html_tag_noscript() && scripting_enabled) )

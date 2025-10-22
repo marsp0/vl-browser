@@ -230,12 +230,21 @@ static void run_test()
     document                        = NULL;
     dom_node_t* last                = NULL;
     uint32_t last_level             = 0;
+    bool scripting                  = true;
 
     while (line_size > 0)
     {
         if (strncmp(line, "#errors", 7) == 0 || strncmp(line, "#new-errors", 7) == 0)
         {
             state       = STATE_ERRORS;
+        }
+        else if (strncmp(line, "#script-off", 11) == 0)
+        {
+            scripting = false;
+        }
+        else if (strncmp(line, "#script-on", 10) == 0)
+        {
+            scripting = true;
         }
         else if (strncmp(line, "#document", 9) == 0)
         {
@@ -304,7 +313,7 @@ static void run_test()
         read_line();
     }
 
-    html_parser_init();
+    html_parser_init(scripting);
 
     dom_node_t* actual = html_parser_run(test_data, test_data_size);
     ASSERT_NODE(actual, document);
@@ -332,6 +341,8 @@ void html_parser_test()
                                     "./test/html/parser/data/tests1.data",
                                     "./test/html/parser/data/tests2.data",
                                     "./test/html/parser/data/tests3.data",
+                                    // "./test/html/parser/data/tests4.data",
+                                    "./test/html/parser/data/tests5.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
