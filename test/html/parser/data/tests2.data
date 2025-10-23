@@ -432,7 +432,7 @@
 |     "&AMp;"
 
 #data
-<!DOCTYPE html><html><head></head><body><thisISasillyTESTelementNameToMakeSureCrazyTagNamesArePARSEDcorrectLY>
+<!DOCTYPE html><html><head></head><body><thisISasillyTESTelementNameToMakeSureCrazyTagNamesArePARSEDcorr>
 #errors
 (1,110): expected-closing-tag-but-got-eof
 #document
@@ -440,7 +440,7 @@
 | <html>
 |   <head>
 |   <body>
-|     <thisisasillytestelementnametomakesurecrazytagnamesareparsedcorrectly>
+|     <thisisasillytestelementnametomakesurecrazytagnamesareparsedcorr>
 
 #data
 <!DOCTYPE html>X</body>X
@@ -595,16 +595,14 @@ Line: 1 Col: 31 Unexpected DOCTYPE. Ignored.
 |   <body>
 
 #data
-test
-test
+test\ntest
 #errors
 (2,4): expected-doctype-but-got-chars
 #document
 | <html>
 |   <head>
 |   <body>
-|     "test
-test"
+|     "test\ntest"
 
 #data
 <!DOCTYPE html><body><title>test</body></title>
@@ -618,8 +616,7 @@ test"
 |       "test</body>"
 
 #data
-<!DOCTYPE html><body><title>X</title><meta name=z><link rel=foo><style>
-x { content:"</style" } </style>
+<!DOCTYPE html><body><title>X</title><meta name=z><link rel=foo><style>\nx { content:"</style" } </style>
 #errors
 #document
 | <!DOCTYPE html>
@@ -633,8 +630,7 @@ x { content:"</style" } </style>
 |     <link>
 |       rel="foo"
 |     <style>
-|       "
-x { content:"</style" } "
+|       "\nx { content:"</style" } "
 
 #data
 <!DOCTYPE html><select><optgroup></optgroup></select>
@@ -648,8 +644,7 @@ x { content:"</style" } "
 |       <optgroup>
 
 #data
- 
- 
+ \n 
 #errors
 (2,1): expected-doctype-but-got-eof
 #document
@@ -667,16 +662,14 @@ x { content:"</style" } "
 |   <body>
 
 #data
-<!DOCTYPE html><script>
-</script>  <title>x</title>  </head>
+<!DOCTYPE html><script>\n</script>  <title>x</title>  </head>
 #errors
 #document
 | <!DOCTYPE html>
 | <html>
 |   <head>
 |     <script>
-|       "
-"
+|       "\n"
 |     "  "
 |     <title>
 |       "x"

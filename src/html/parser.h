@@ -30,6 +30,6 @@ typedef enum
     HTML_PARSER_MODE_AFTER_AFTER_FRAMESET,
 } html_parser_mode_e;
 
-void            html_parser_init();
+void            html_parser_init(bool scripting);
 dom_node_t*     html_parser_run(const unsigned char* buffer, const uint32_t size);
 void            html_parser_free();

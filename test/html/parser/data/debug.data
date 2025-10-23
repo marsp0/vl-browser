@@ -1,14 +1,14 @@
 #data
-<ul><li><ul></li><li>a</li></ul></li></ul>
+<head></head><!-- --><style></style><!-- --><script></script>
 #errors
-(1,4): expected-doctype-but-got-start-tag
-(1,17): unexpected-end-tag
+(1,6): expected-doctype-but-got-start-tag
+(1,28): unexpected-start-tag-out-of-my-head
+(1,52): unexpected-start-tag-out-of-my-head
 #document
 | <html>
 |   <head>
+|     <style>
+|     <script>
+|   <!--   -->
+|   <!--   -->
 |   <body>
-|     <ul>
-|       <li>
-|         <ul>
-|           <li>
-|             "a"

@@ -35,6 +35,7 @@ static uint32_t is_eof = false;
 static uint32_t line_num = 0;
 static uint32_t test_line = 0;
 static uint32_t level = 0;
+static unsigned char prev = 0;
 
 // test data
 static unsigned char test_data[2048] = { 0 };
@@ -43,6 +44,8 @@ static dom_node_t* document = NULL;
 
 static int32_t get_char()
 {
+    if (file_buffer_cursor > 0) { prev = file_buffer[file_buffer_cursor - 1]; }
+
     if (file_done && file_buffer_cursor == file_buffer_size)
     {
         return -1;
@@ -76,7 +79,14 @@ static void read_line()
             return;
         }
 
-        line[line_size++] = (unsigned char)c;
+        if (prev == '\\' && c == 'n')
+        {
+            line[line_size - 1] = '\n';
+        }
+        else
+        {
+            line[line_size++] = (unsigned char)c;
+        }
     }
 
     line[--line_size] = '\0';
@@ -220,12 +230,21 @@ static void run_test()
     document                        = NULL;
     dom_node_t* last                = NULL;
     uint32_t last_level             = 0;
+    bool scripting                  = true;
 
     while (line_size > 0)
     {
         if (strncmp(line, "#errors", 7) == 0 || strncmp(line, "#new-errors", 7) == 0)
         {
             state       = STATE_ERRORS;
+        }
+        else if (strncmp(line, "#script-off", 11) == 0)
+        {
+            scripting = false;
+        }
+        else if (strncmp(line, "#script-on", 10) == 0)
+        {
+            scripting = true;
         }
         else if (strncmp(line, "#document", 9) == 0)
         {
@@ -294,7 +313,7 @@ static void run_test()
         read_line();
     }
 
-    html_parser_init();
+    html_parser_init(scripting);
 
     dom_node_t* actual = html_parser_run(test_data, test_data_size);
     ASSERT_NODE(actual, document);
@@ -304,9 +323,9 @@ static void run_test()
         printf("\n========== Test %u ==========\n", test_line);
         printf("%s\n", test_data);
         printf("\n-- Actual Tree --\n");
-        print_document_tree(document, 0);
-        printf("\n-- Expected Tree --\n");
         print_document_tree(actual, 0);
+        printf("\n-- Expected Tree --\n");
+        print_document_tree(document, 0);
     }
     
     dom_node_free(document);
@@ -317,9 +336,13 @@ static void run_test()
 
 void html_parser_test()
 {
-    // const unsigned char* files[] = { "./test/html/parser/data/debug.data" };
     const unsigned char* files[] = {
+                                    "./test/html/parser/data/debug.data",
                                     "./test/html/parser/data/tests1.data",
+                                    "./test/html/parser/data/tests2.data",
+                                    "./test/html/parser/data/tests3.data",
+                                    // "./test/html/parser/data/tests4.data",
+                                    "./test/html/parser/data/tests5.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
@@ -328,6 +351,8 @@ void html_parser_test()
         file_buffer_cursor = 0;
         file_buffer_size = 0;
         file_done = false;
+        line_num = 0;
+        test_line = 0;
         is_eof = false;
 
         file = fopen(files[i], "r");

@@ -22,6 +22,8 @@ dom_node_t* dom_document_new()
     document->content_type      = 0;
     document->doctype           = NULL;
 
+    document->mode = hash_str_new("no-quirks", 9);
+
     document->parser_cannot_change_mode = false;
 
     return node;
