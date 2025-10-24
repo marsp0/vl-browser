@@ -478,7 +478,9 @@
 #document
 | <html>
 |   <head>
-|   <frameset>
+|   <body>
+|     <source>
+|     <frameset>
 
 #data
 <track><frameset></frameset>
@@ -488,7 +490,9 @@
 #document
 | <html>
 |   <head>
-|   <frameset>
+|   <body>
+|     <track>
+|     <frameset>
 
 #data
 </html><frameset></frameset>
@@ -499,7 +503,8 @@
 #document
 | <html>
 |   <head>
-|   <frameset>
+|   <body>
+|     <frameset>
 
 #data
 </body><frameset></frameset>
@@ -510,4 +515,5 @@
 #document
 | <html>
 |   <head>
-|   <frameset>
+|   <body>
+|     <frameset>

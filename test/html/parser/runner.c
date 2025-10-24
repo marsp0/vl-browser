@@ -323,9 +323,9 @@ static void run_test()
         printf("\n========== Test %u ==========\n", test_line);
         printf("%s\n", test_data);
         printf("\n-- Actual Tree --\n");
-        print_document_tree(actual, 0);
+        print_document_tree(actual, 1);
         printf("\n-- Expected Tree --\n");
-        print_document_tree(document, 0);
+        print_document_tree(document, 1);
     }
     
     dom_node_free(document);
@@ -338,12 +338,12 @@ void html_parser_test()
 {
     const unsigned char* files[] = {
                                     "./test/html/parser/data/debug.data",
-                                    // "./test/html/parser/data/tests1.data",
-                                    // "./test/html/parser/data/tests2.data",
-                                    // "./test/html/parser/data/tests3.data",
-                                    // // "./test/html/parser/data/tests4.data",
-                                    // "./test/html/parser/data/tests5.data",
-                                    // "./test/html/parser/data/tests6.data",
+                                    "./test/html/parser/data/tests1.data",
+                                    "./test/html/parser/data/tests2.data",
+                                    "./test/html/parser/data/tests3.data",
+                                    // "./test/html/parser/data/tests4.data",
+                                    "./test/html/parser/data/tests5.data",
+                                    "./test/html/parser/data/tests6.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
