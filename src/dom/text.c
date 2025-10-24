@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <string.h>
 
-dom_node_t* dom_text_new(dom_node_t* document, unsigned char* data, uint32_t data_size)
+dom_node_t* dom_text_new(dom_node_t* document, const unsigned char* data, uint32_t data_size)
 {
     dom_text_t* text       = malloc(sizeof(dom_text_t));
     dom_node_t* node       = dom_node_from_text(text);
@@ -26,7 +26,7 @@ bool dom_node_is_text(dom_node_t* node)
 }
 
 
-void dom_text_append_data(dom_node_t* node, unsigned char* data, uint32_t data_size)
+void dom_text_append_data(dom_node_t* node, const unsigned char* data, uint32_t data_size)
 {
     dom_text_t* text = dom_text_from_node(node);
 

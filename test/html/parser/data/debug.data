@@ -1,14 +1,10 @@
 #data
-<head></head><!-- --><style></style><!-- --><script></script>
+</body><frameset></frameset>
 #errors
-(1,6): expected-doctype-but-got-start-tag
-(1,28): unexpected-start-tag-out-of-my-head
-(1,52): unexpected-start-tag-out-of-my-head
+(1,7): expected-doctype-but-got-end-tag
+(1,17): unexpected-start-tag-after-body
+(1,17): unexpected-start-tag
 #document
 | <html>
 |   <head>
-|     <style>
-|     <script>
-|   <!--   -->
-|   <!--   -->
-|   <body>
+|   <frameset>

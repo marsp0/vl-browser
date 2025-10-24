@@ -83,3 +83,10 @@ EventTarget
     │   │   └── CDATASection (XML only)
     │   ├── ProcessingInstruction
     │   └── Comment
+
+
+todo:
+- remove "will remove head" logic
+- remove consume = false logic
+- remove if success check after adoption agency algorithm
+- remove will_use_foster_parenting logic

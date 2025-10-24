@@ -29,6 +29,9 @@
 #define MAX_TOKENS          10
 #define OPEN_STACK_MAX_SIZE 500
 
+
+static void process_token(html_parser_mode_e mode, hash_str_t t_name, html_token_t* t);
+
 /********************/
 /* static variables */
 /********************/
@@ -62,8 +65,8 @@ static uint32_t stack_size                          = 0;
 static dom_node_t* document                         = NULL;
 static bool stop                                    = false;
 static bool foster_parenting                        = false;
-static bool will_use_foster_parenting               = false;
-static dom_node_t* head_pointer                     = NULL;
+static dom_node_t* head_element                     = NULL;
+static dom_node_t* form_element                     = NULL;
 static bool scripting_enabled                       = true;
 
 static dom_node_t* formatting_elements[10]          = { 0 };
@@ -115,7 +118,7 @@ static uint32_t formatting_elements_size            = 0;
 //         dom_text_t* text = dom_text_from_node(node);
 //         printf("#text - %s\n", text->data);
 //     }
-//     else if (dom_node_is_comment(node))
+//     else if (dom_node_is_comment(type)(node))
 //     {
 //         dom_comment_t* comment = dom_comment_from_node(node);
 //         printf("<!-- %s -->\n", comment->data);
@@ -437,7 +440,7 @@ static dom_node_t* insert_html_element(hash_str_t name, html_token_t* token)
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-a-character
-static void insert_character(unsigned char* data, uint32_t data_size)
+static void insert_character(const unsigned char* data, const uint32_t data_size)
 {
     dom_insertion_location_t insertion_position = get_appropriate_insertion_location(NULL);
     dom_node_t* location   = insertion_position.parent;
@@ -1081,6 +1084,8 @@ static bool run_adoption_procedure(const hash_str_t t_name)
     }
 }
 
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
 static void handle_end_tag_in_body(const hash_str_t t_name)
 {
     uint32_t idx = stack_idx;
@@ -1215,7 +1220,7 @@ static void reset_insertion_mode_appropriately()
         }
         else if (name == html_tag_html())
         {
-            if (!head_pointer)
+            if (!head_element)
             {
                 mode = HTML_PARSER_MODE_BEFORE_HEAD;
                 return;
@@ -1276,10 +1281,2301 @@ static void maybe_clone_option_into_selected_content(dom_node_t* option)
 }
 
 
+static bool is_doctype(html_token_type_e t)
+{
+    return t == HTML_DOCTYPE_TOKEN;
+}
+
+
+static bool is_start(html_token_type_e t)
+{
+    return t == HTML_START_TOKEN;
+}
+
+
+static bool is_end(html_token_type_e t)
+{
+    return t == HTML_END_TOKEN;
+}
+
+
+static bool is_comment(html_token_type_e t)
+{
+    return t == HTML_COMMENT_TOKEN;
+}
+
+
+static bool is_character(html_token_type_e t)
+{
+    return t == HTML_CHARACTER_TOKEN;
+}
+
+
+static bool is_eof(html_token_type_e t)
+{
+    return t == HTML_EOF_TOKEN;
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
+static void process_initial(hash_str_t t_name, html_token_t* t)
+{
+    html_token_type_e type      = t->type;
+    const unsigned char* data   = t->data;
+
+    if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        // ignore
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, document);
+    }
+    else if (is_doctype(type))
+    {
+        unsigned char compat[]  = "about:legacy-compat";
+        uint32_t compat_size    = sizeof(compat) - 1;
+        bool name_is_html       = t_name == html_tag_html();
+        bool public_id_missing  = t->public_id_size == 0;
+        bool system_id_missing  = t->system_id_size == 0;
+        bool is_legacy_compat   = t->system_id_size == compat_size && strncmp(t->system_id, compat, compat_size);
+        dom_node_t* doctype     = dom_doctype_new(document, t->name, t->name_size, NULL, 0, NULL, 0);
+        dom_document_t* doc     = dom_document_from_node(document);
+        dom_document_set_doctype(doc, dom_doctype_from_node(doctype));
+
+        doc->mode = hash_str_new("quirks", 6);
+
+        if (!name_is_html || !public_id_missing || !system_id_missing || !is_legacy_compat)
+        {
+            // todo: parse error
+        }
+        else
+        {
+            // todo: implement
+        }
+
+        mode = HTML_PARSER_MODE_BEFORE_HTML;
+    }
+    else
+    {
+        // todo: If the document is not an iframe srcdoc document, then this is a parse error; 
+
+        // dom_node_document_t* document_data = document->document_data;
+
+        // if (!document_data->parser_cannot_change_mode)
+        // {
+        //     document_data->compat_mode = string_new("quirks", 6);
+        // }
+
+        mode = HTML_PARSER_MODE_BEFORE_HTML;
+        process_token(mode, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
+static void process_before_html(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    html_token_type_e type      = t->type;
+
+    if (is_doctype(type))
+    {
+        // todo: parse error
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, document);
+    }
+    else if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        // ignore
+    }
+    else if (is_start(type) && t_name == html_tag_html())
+    {
+        dom_node_t* element = create_element(t_name, t, document);
+        dom_node_append(document, element);
+        stack_push(element);
+
+        mode = HTML_PARSER_MODE_BEFORE_HEAD;
+    }
+    else if (is_end(type) && !(t_name == html_tag_html() || t_name == html_tag_head() || t_name == html_tag_body() || t_name == html_tag_br()))
+    {
+        // todo: parse error, ignore token
+    }
+    else
+    {
+        dom_node_t* element    = create_element(html_tag_html(), NULL, document);
+
+        dom_node_append(document, element);
+        stack_push(element);
+        mode = HTML_PARSER_MODE_BEFORE_HEAD;
+        process_token(mode, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#the-before-head-insertion-mode
+static void process_before_head(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        // ignore
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, NULL);
+    }
+    else if (is_doctype(type))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else if (is_start(type) && t_name == html_tag_html())
+    {
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+    }
+    else if (is_start(type) && t_name == html_tag_head())
+    {
+        mode = HTML_PARSER_MODE_IN_HEAD;
+        head_element        = insert_html_element(t_name, t);
+    }
+    else if (is_end(type) && !(t_name == html_tag_html() || t_name == html_tag_head() || t_name == html_tag_body() || t_name == html_tag_br()))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else
+    {
+        mode            = HTML_PARSER_MODE_IN_HEAD;
+        head_element    = insert_html_element(html_tag_head(), NULL);
+        process_token(mode, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
+static void process_in_head(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    const uint32_t data_size    = t->data_size;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        insert_character(data, data_size);
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, NULL);
+    }
+    else if (is_doctype(type))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else if (is_start(type) && t_name == html_tag_html())
+    {
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+    }
+    else if (is_start(type) && (t_name == html_tag_base() || t_name == html_tag_basefont() || t_name == html_tag_bgsound() || t_name == html_tag_link()))
+    {
+        insert_html_element(t_name, t);
+        stack_pop();
+        INCOMPLETE_IMPLEMENTATION("ack self closing tag");
+    }
+    else if (is_start(type) && t_name == html_tag_meta())
+    {
+        insert_html_element(t_name, t);
+        stack_pop();
+
+        INCOMPLETE_IMPLEMENTATION("ack self closing tag");
+        INCOMPLETE_IMPLEMENTATION("speculative parsing logic");
+    }
+    else if (is_start(type) && t_name == html_tag_title())
+    {
+        insert_html_element(t_name, t);
+        html_tokenizer_set_state(HTML_TOKENIZER_RCDATA_STATE);
+
+        original_mode   = mode;
+        mode            = HTML_PARSER_MODE_TEXT;
+    }
+    else if ((is_start(type) && t_name == html_tag_noscript() && scripting_enabled) || 
+             (is_start(type) && (t_name == html_tag_noframes() || t_name == html_tag_style())))
+    {
+        insert_html_element(t_name, t);
+        html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
+
+        original_mode   = mode;
+        mode            = HTML_PARSER_MODE_TEXT;
+    }
+    else if (is_start(type) && t_name == html_tag_noscript() && !scripting_enabled)
+    {
+        insert_html_element(t_name, t);
+        mode = HTML_PARSER_MODE_IN_HEAD_NOSCRIPT;
+    }
+    else if (is_start(type) && t_name == html_tag_script())
+    {
+        dom_insertion_location_t location   = get_appropriate_insertion_location(NULL);
+        dom_node_t* element    = create_element(t_name, t, document);
+
+        INCOMPLETE_IMPLEMENTATION("missing steps: 3/4/5");
+
+        dom_node_insert_before(location.parent, element, location.child);
+        stack_push(element);
+        html_tokenizer_set_state(HTML_TOKENIZER_SCRIPT_DATA_STATE);
+
+        original_mode           = mode;
+        mode = HTML_PARSER_MODE_TEXT;
+    }
+    else if (is_end(type) && t_name == html_tag_head())
+    {
+        stack_pop();
+        mode = HTML_PARSER_MODE_AFTER_HEAD;
+    }
+    else if (is_start(type) && t_name == html_tag_template())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_end(type) && t_name == html_tag_template())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if ((is_start(type) && t_name == html_tag_head()) || 
+             (is_end(type) && !(t_name == html_tag_body() || t_name == html_tag_html() || t_name == html_tag_br())))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else
+    {
+        stack_pop();
+        mode = HTML_PARSER_MODE_AFTER_HEAD;
+        process_token(mode, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inheadnoscript
+static void process_in_head_noscript(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    html_token_type_e type      = t->type;
+
+    if (is_doctype(type))
+    {
+        // todo: parse error, ignore token
+    }
+    else if (is_start(type) && t_name == html_tag_html())
+    {
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+    }
+    else if (is_end(type) && t_name == html_tag_noscript())
+    {
+        stack_pop();
+        mode = HTML_PARSER_MODE_IN_HEAD;
+    }
+    else if ((is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' ') ) ||
+             (is_comment(type)) ||
+             (is_start(type) && (t_name == html_tag_basefont()  ||
+                           t_name == html_tag_bgsound()   ||
+                           t_name == html_tag_link()      ||
+                           t_name == html_tag_meta()      ||
+                           t_name == html_tag_noframes()  ||
+                           t_name == html_tag_style())))
+    {
+        process_token(HTML_PARSER_MODE_IN_HEAD, t_name, t);
+    }
+    else if ((is_start(type) && (t_name == html_tag_head() || t_name == html_tag_noscript())) ||
+             (is_end(type) && !(t_name == html_tag_br())))
+    {
+        // todo: parse error, ignore token
+    }
+    else
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+        stack_pop();
+        mode = HTML_PARSER_MODE_IN_HEAD;
+        process_token(mode, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
+static void process_after_head(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    const uint32_t data_size    = t->data_size;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        insert_character(data, data_size);
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, NULL);
+    }
+    else if (is_doctype(type))
+    {
+        // todo: parse error, ignore token
+    }
+    else if (is_start(type) && t_name == html_tag_html())
+    {
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+    }
+    else if (is_start(type) && t_name == html_tag_body())
+    {
+        insert_html_element(t_name, t);
+        mode = HTML_PARSER_MODE_IN_BODY;
+        INCOMPLETE_IMPLEMENTATION("ack self-closing tag");
+    }
+    else if (is_start(type) && t_name == html_tag_frameset())
+    {
+        insert_html_element(t_name, t);
+        mode = HTML_PARSER_MODE_IN_FRAMESET;
+    }
+    else if (is_start(type) && (t_name == html_tag_base()       ||
+                          t_name == html_tag_basefont()   ||
+                          t_name == html_tag_bgsound()    ||
+                          t_name == html_tag_link()       ||
+                          t_name == html_tag_meta()       ||
+                          t_name == html_tag_noframes()   ||
+                          t_name == html_tag_script()     || 
+                          t_name == html_tag_template()   ||
+                          t_name == html_tag_title()      ||
+                          t_name == html_tag_style()))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+        assert(head_element);
+        stack_push(head_element);
+        process_token(HTML_PARSER_MODE_IN_HEAD, t_name, t);
+        remove_from_stack(head_element);
+    }
+    else if (is_end(type) && t_name == html_tag_template())
+    {
+        process_token(HTML_PARSER_MODE_IN_HEAD, t_name, t);
+    }
+    else if ((is_start(type) && t_name == html_tag_head()) ||
+             (is_end(type) && !(t_name == html_tag_body() || t_name == html_tag_html() || t_name == html_tag_br())))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else
+    {
+        insert_html_element(html_tag_body(), NULL);
+        mode = HTML_PARSER_MODE_IN_BODY;
+        process_token(mode, t_name, t);
+    }
+}
+
+
+
+static void process_in_body(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    const uint32_t data_size    = t->data_size;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) && data[0] == '\0')
+    {
+        // todo: parse error, ignore token
+    }
+    else if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        reconstruct_formatting_elements();
+        insert_character(data, data_size);
+    }
+    else if (is_character(type))
+    {
+        reconstruct_formatting_elements();
+        insert_character(data, data_size);
+        // todo: frameset-ok flag
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, NULL);
+    }
+    else if (is_doctype(type))
+    {
+        // todo: parse error
+    }
+    else if (is_start(type) && t_name == html_tag_html())
+    {
+        // todo: parse error
+        if (stack_contains_element(html_tag_template())) { return; }
+
+        INCOMPLETE_IMPLEMENTATION("parse error");
+
+        dom_node_t* node = document->first;
+        bool found = false;
+
+        while (true)
+        {
+            if (node->name == html_tag_html())
+            {
+                found = true;
+                break;
+            }
+            node = node->next;
+        }
+
+        if (!found) { return; }
+
+        dom_element_t* dom_element = dom_element_from_node(node);
+
+        for (uint32_t j = 0; j < t->attributes_size; j++)
+        {
+            html_token_attribute_t* attr = &(t->attributes[j]);
+            hash_str_t attr_name = hash_str_new(attr->name, attr->name_size);
+            found = false;
+
+            dom_attr_t* dom_attr = dom_element->attr;
+
+            while (dom_attr)
+            {
+                if (dom_attr->name == attr_name) { found = true; }
+                dom_attr = dom_attr->next;
+            }
+
+            if (found) { continue; }
+
+            dom_node_t* new_attr = dom_attr_new(attr_name,
+                                                hash_str_new(attr->value, attr->value_size),
+                                                dom_node_from_element(dom_element));
+
+            dom_element_append_attr(dom_element, dom_attr_from_node(new_attr));
+        }
+    }
+    else if ((is_start(type) && (t_name == html_tag_base()      ||
+                           t_name == html_tag_basefont()  ||
+                           t_name == html_tag_bgsound()   ||
+                           t_name == html_tag_link()      ||
+                           t_name == html_tag_meta()      ||
+                           t_name == html_tag_noframes()  ||
+                           t_name == html_tag_script()    ||
+                           t_name == html_tag_template()  ||
+                           t_name == html_tag_title()     ||
+                           t_name == html_tag_style()))   ||
+            (is_end(type) && t_name == html_tag_template()))
+    {
+        process_token(HTML_PARSER_MODE_IN_HEAD, t_name, t);
+    }
+    else if (is_start(type) && t_name == html_tag_body())
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+
+        if ((stack_size == 0) ||
+            (stack_size > 1 && stack[1]->name != html_tag_body()) ||
+            (stack_contains_element(html_tag_template())))
+        {
+            // ignore
+        }
+        else
+        {
+            dom_node_t* node = document->first;
+            uint32_t level = 0;
+
+            while (true)
+            {
+                if (!node)
+                {
+                    assert(false);
+                }
+
+                if (level == 0)
+                {
+                    if (node->name != html_tag_html())
+                    {
+                        node = node->next;
+                    }
+                    else
+                    {
+                        node = node->first;
+                        level++;
+                    }
+                }
+                else if (level == 1)
+                {
+                    if (node->name != html_tag_body())
+                    {
+                        node = node->next;
+                    }
+                    else
+                    {
+                        level++;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            dom_element_t* dom_element = dom_element_from_node(node);
+
+            for (uint32_t j = 0; j < t->attributes_size; j++)
+            {
+                html_token_attribute_t* attr = &(t->attributes[j]);
+                hash_str_t attr_name = hash_str_new(attr->name, attr->name_size);
+                bool found = false;
+
+                dom_attr_t* dom_attr = dom_element->attr;
+
+                while (dom_attr)
+                {
+                    if (dom_attr->name == attr_name) { found = true; }
+                    dom_attr = dom_attr->next;
+                }
+
+                if (found) { continue; }
+
+                dom_node_t* new_attr = dom_attr_new(attr_name,
+                                                    hash_str_new(attr->value, attr->value_size),
+                                                    dom_node_from_element(dom_element));
+
+                dom_element_append_attr(dom_element, dom_attr_from_node(new_attr));
+            }
+        }
+    }
+    else if (is_start(type) && t_name == html_tag_frameset())
+    {
+        // todo: parse error
+
+        if ((stack_size == 1) || (stack_size > 1 && stack[1]->name != html_tag_body()))
+        {
+            // ignore token
+        }
+
+        // todo: frameset-ok flag logic
+
+        // todo: step 1 
+        // todo: step 2
+        insert_html_element(t_name, t);
+        mode = HTML_PARSER_MODE_IN_FRAMESET;
+    }
+    else if (is_eof(type))
+    {
+        // todo: handle stack of open template insertion modes
+        if (false)
+        {
+            NOT_IMPLEMENTED
+        }
+        else
+        {
+            if (!(stack_contains_element(html_tag_dd())         ||
+                  stack_contains_element(html_tag_dt())         ||
+                  stack_contains_element(html_tag_li())         ||
+                  stack_contains_element(html_tag_optgroup())   ||
+                  stack_contains_element(html_tag_option())     ||
+                  stack_contains_element(html_tag_p())          ||
+                  stack_contains_element(html_tag_rb())         ||
+                  stack_contains_element(html_tag_rt())         ||
+                  stack_contains_element(html_tag_rtc())        ||
+                  stack_contains_element(html_tag_tbody())      ||
+                  stack_contains_element(html_tag_td())         ||
+                  stack_contains_element(html_tag_tfoot())      ||
+                  stack_contains_element(html_tag_th())         ||
+                  stack_contains_element(html_tag_thead())      ||
+                  stack_contains_element(html_tag_tr())         ||
+                  stack_contains_element(html_tag_body())       ||
+                  stack_contains_element(html_tag_html())))
+            {
+                // todo: parse error
+            }
+            stop_parsing();
+        }
+    }
+    else if (is_end(type) && t_name == html_tag_body())
+    {
+        // todo: handle scope logic
+        // If the stack of open elements does not have a body element in scope, this is a parse error; ignore the token.
+        if (!in_scope(html_tag_body(), GENERIC_SCOPE))
+        {
+            // todo: parse error
+            NOT_IMPLEMENTED
+        }
+
+        if (!(stack_contains_element(html_tag_dd())         ||
+              stack_contains_element(html_tag_dt())         ||
+              stack_contains_element(html_tag_li())         ||
+              stack_contains_element(html_tag_optgroup())   ||
+              stack_contains_element(html_tag_option())     ||
+              stack_contains_element(html_tag_p())          ||
+              stack_contains_element(html_tag_rb())         ||
+              stack_contains_element(html_tag_rt())         ||
+              stack_contains_element(html_tag_rtc())        ||
+              stack_contains_element(html_tag_tbody())      ||
+              stack_contains_element(html_tag_td())         ||
+              stack_contains_element(html_tag_tfoot())      ||
+              stack_contains_element(html_tag_th())         ||
+              stack_contains_element(html_tag_thead())      ||
+              stack_contains_element(html_tag_tr())         ||
+              stack_contains_element(html_tag_body())       ||
+              stack_contains_element(html_tag_html())))
+        {
+            // todo: parse error
+            NOT_IMPLEMENTED
+        }
+
+        mode = HTML_PARSER_MODE_AFTER_BODY;
+    }
+    else if (is_end(type) && t_name == html_tag_html())
+    {
+        // todo: handle scope logic
+        if (!(stack_contains_element(html_tag_dd())         ||
+              stack_contains_element(html_tag_dt())         ||
+              stack_contains_element(html_tag_li())         ||
+              stack_contains_element(html_tag_optgroup())   ||
+              stack_contains_element(html_tag_option())     ||
+              stack_contains_element(html_tag_p())          ||
+              stack_contains_element(html_tag_rb())         ||
+              stack_contains_element(html_tag_rt())         ||
+              stack_contains_element(html_tag_rtc())        ||
+              stack_contains_element(html_tag_tbody())      ||
+              stack_contains_element(html_tag_td())         ||
+              stack_contains_element(html_tag_tfoot())      ||
+              stack_contains_element(html_tag_th())         ||
+              stack_contains_element(html_tag_thead())      ||
+              stack_contains_element(html_tag_tr())         ||
+              stack_contains_element(html_tag_body())       ||
+              stack_contains_element(html_tag_html())))
+        {
+            // todo: parse error
+        }
+
+        mode = HTML_PARSER_MODE_AFTER_BODY;
+        process_token(mode, t_name, t);
+    }
+    else if (is_start(type) && (t_name == html_tag_address()    ||
+                          t_name == html_tag_article()    ||
+                          t_name == html_tag_aside()      ||
+                          t_name == html_tag_blockquote() ||
+                          t_name == html_tag_center()     ||
+                          t_name == html_tag_details()    ||
+                          t_name == html_tag_dialog()     ||
+                          t_name == html_tag_dir()        ||
+                          t_name == html_tag_div()        ||
+                          t_name == html_tag_dl()         ||
+                          t_name == html_tag_fieldset()   ||
+                          t_name == html_tag_figcaption() ||
+                          t_name == html_tag_figure()     ||
+                          t_name == html_tag_footer()     ||
+                          t_name == html_tag_header()     ||
+                          t_name == html_tag_hgroup()     ||
+                          t_name == html_tag_main()       ||
+                          t_name == html_tag_menu()       ||
+                          t_name == html_tag_nav()        ||
+                          t_name == html_tag_ol()         ||
+                          t_name == html_tag_p()          ||
+                          t_name == html_tag_search()     ||
+                          t_name == html_tag_section()    ||
+                          t_name == html_tag_summary()    ||
+                          t_name == html_tag_ul()))
+    {
+        if (in_scope(html_tag_p(), BUTTON_SCOPE))
+        {
+            close_p_element();
+        }
+
+        insert_html_element(t_name, t);
+    }
+    else if (is_start(type) && (t_name == html_tag_h1() ||
+                          t_name == html_tag_h2() ||
+                          t_name == html_tag_h3() ||
+                          t_name == html_tag_h4() ||
+                          t_name == html_tag_h5() ||
+                          t_name == html_tag_h6()))
+    {
+        // todo: scope logic
+
+        dom_node_t* node = stack[stack_idx];
+
+        if (node->name == html_tag_h1() ||
+            node->name == html_tag_h2() ||
+            node->name == html_tag_h3() ||
+            node->name == html_tag_h4() ||
+            node->name == html_tag_h5() ||
+            node->name == html_tag_h6())
+        {
+            // todo: parse error
+            stack_pop();
+        }
+        insert_html_element(t_name, t);
+    }
+    else if (is_start(type) && (t_name == html_tag_pre() || t_name == html_tag_listing()))
+    {
+        // todo: scope logic
+        insert_html_element(t_name, t);
+        // todo: check if next token is \n
+        // todo: frameset-ok flag
+    }
+    else if (is_start(type) && t_name == html_tag_form())
+    {
+        if (form_element && !stack_contains_element(html_tag_template()))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            if (in_scope(html_tag_p(), BUTTON_SCOPE))
+            {
+                close_p_element();
+            }
+
+            dom_node_t* element = insert_html_element(t_name, t);
+            if (!stack_contains_element(html_tag_template()))
+            {
+                form_element = element;
+            }
+        }
+    }
+    else if (is_start(type) && t_name == html_tag_li())
+    {
+        INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
+
+        dom_node_t* node    = stack[stack_idx];
+        uint32_t idx        = stack_idx;
+        uint32_t step       = 3;
+        bool run            = true;
+
+        while (run)
+        {
+            switch (step)
+            {
+            case 3:
+                if (node->name == html_tag_li())
+                {
+                    generate_implied_end_tags(html_tag_li());
+
+                    if (stack[stack_idx]->name != html_tag_li())
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+
+                    pop_elements_until_name_included(html_tag_li());
+                    step = 6;
+                }
+                else
+                {
+                    step = 4;
+                }
+                break;
+
+            case 4:
+                if (is_special(node) && (node->name != html_tag_address() && node->name != html_tag_div() && node->name != html_tag_p()))
+                {
+                    step = 6;
+                }
+                else
+                {
+                    step = 5;
+                }
+                break;
+
+            case 5:
+                idx--;
+                node = stack[idx];
+                step = 3;
+                break;
+
+            case 6:
+                if (in_scope(html_tag_p(), BUTTON_SCOPE))
+                {
+                    close_p_element();
+                }
+                run = false;
+                break;
+            }
+        }
+
+        insert_html_element(t_name, t);
+    }
+    else if (is_start(type) && (t_name == html_tag_dt() || t_name == html_tag_dd()))
+    {
+        INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
+
+        dom_node_t* node    = stack[stack_idx];
+        uint32_t idx        = stack_idx;
+        uint32_t step       = 3;
+        bool run            = true;
+
+        while (run)
+        {
+            switch (step)
+            {
+            case 3:
+                if (node->name == html_tag_dd())
+                {
+                    generate_implied_end_tags(html_tag_dd());
+
+                    if (stack[stack_idx]->name != html_tag_dd())
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+
+                    pop_elements_until_name_included(html_tag_dd());
+                    step = 7;
+                }
+                else
+                {
+                    step = 4;
+                }
+                break;
+
+            case 4:
+                if (node->name == html_tag_dt())
+                {
+                    generate_implied_end_tags(html_tag_dt());
+
+                    if (stack[stack_idx]->name != html_tag_dt())
+                    {
+                        INCOMPLETE_IMPLEMENTATION("parse error");
+                    }
+
+                    pop_elements_until_name_included(html_tag_dt());
+                    step = 7;
+                }
+                else
+                {
+                    step = 5;
+                }
+                break;
+
+            case 5:
+                if (is_special(node) && (node->name != html_tag_address() && node->name != html_tag_div() && node->name != html_tag_p()))
+                {
+                    step = 7;
+                }
+                else
+                {
+                    step = 6;
+                }
+                break;
+
+            case 6:
+                idx--;
+                node = stack[idx];
+                step = 3;
+                break;
+
+            case 7:
+                if (in_scope(html_tag_p(), BUTTON_SCOPE))
+                {
+                    close_p_element();
+                }
+                run = false;
+                break;
+            }
+        }
+
+        insert_html_element(t_name, t);
+    }
+    else if (is_start(type) && t_name == html_tag_plaintext())
+    {
+        if (in_scope(html_tag_p(), BUTTON_SCOPE))
+        {
+            close_p_element();
+        }
+
+        insert_html_element(t_name, t);
+        html_tokenizer_set_state(HTML_TOKENIZER_PLAINTEXT_STATE);
+    }
+    else if (is_start(type) && t_name == html_tag_button())
+    {
+        if (in_scope(html_tag_button(), BUTTON_SCOPE))
+        {
+            generate_implied_end_tags(0);
+
+            dom_node_t* node = stack[stack_idx];
+
+            while (node->name != html_tag_button())
+            {
+                stack_pop();
+                node = stack[stack_idx];
+            }
+
+            stack_pop();
+        }
+
+        // todo: reconstruct the active formatting elements
+        insert_html_element(t_name, t);
+        // set frameset-ok flag to not ok
+    }
+    else if (is_end(type) && (t_name == html_tag_address()      || t_name == html_tag_article()       || 
+                        t_name == html_tag_aside()        || t_name == html_tag_blockquote()    ||
+                        t_name == html_tag_button()       || t_name == html_tag_center()        ||
+                        t_name == html_tag_details()      || t_name == html_tag_dialog()        ||
+                        t_name == html_tag_dir()          || t_name == html_tag_div()           ||
+                        t_name == html_tag_dl()           || t_name == html_tag_fieldset()      ||
+                        t_name == html_tag_figcaption()   || t_name == html_tag_figure()        ||
+                        t_name == html_tag_footer()       || t_name == html_tag_header()        ||
+                        t_name == html_tag_hgroup()       || t_name == html_tag_listing()       ||
+                        t_name == html_tag_main()         || t_name == html_tag_menu()          ||
+                        t_name == html_tag_nav()          || t_name == html_tag_ol()            ||
+                        t_name == html_tag_pre()          || t_name == html_tag_search()        ||
+                        t_name == html_tag_section()      || t_name == html_tag_summary()       ||
+                        t_name == html_tag_select()       || t_name == html_tag_ul() ))
+    {
+        if (!in_scope(t_name, GENERIC_SCOPE))
+        {
+            // todo: parse error
+        }
+        else
+        {
+            generate_implied_end_tags(0);
+
+            dom_node_t* node = stack[stack_idx];
+
+            if (node->name != t_name)
+            {
+                // todo: parse error
+            }
+
+            pop_elements_until_name_included(t_name);
+        }
+    }
+    else if (is_end(type) && t_name == html_tag_form())
+    {
+        if (stack_contains_element(html_tag_template()))
+        {
+            NOT_IMPLEMENTED
+        }
+        else
+        {
+            dom_node_t* node = form_element;
+            form_element = NULL;
+            if (!node || !stack_contains_node(node))
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+            else
+            {
+                generate_implied_end_tags(0);
+                if (stack[stack_idx] != node)
+                {
+                    INCOMPLETE_IMPLEMENTATION("parse error");
+                }
+                remove_from_stack(node);
+            }
+        }
+    }
+    else if (is_end(type) && t_name == html_tag_p())
+    {
+        if (!in_scope(html_tag_p(), BUTTON_SCOPE))
+        {
+            // todo: parse error
+            insert_html_element(html_tag_p(), NULL);
+        }
+        
+        close_p_element();
+    }
+    else if (is_end(type) && t_name == html_tag_li())
+    {
+        if (!in_scope(html_tag_li(), LIST_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            generate_implied_end_tags(html_tag_li());
+            if (stack[stack_idx]->name != html_tag_li())
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+            pop_elements_until_name_included(html_tag_li());
+        }
+    }
+    else if (is_end(type) && (t_name == html_tag_dd() || t_name == html_tag_dt() ))
+    {
+        if (!in_scope(t_name, GENERIC_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            generate_implied_end_tags(t_name);
+            if (stack[stack_idx]->name != t_name)
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+            pop_elements_until_name_included(t_name);
+        }
+    }
+    else if (is_end(type) && (t_name == html_tag_h1() || t_name == html_tag_h2() || t_name == html_tag_h3() ||
+                        t_name == html_tag_h4() || t_name == html_tag_h5() || t_name == html_tag_h6()))
+    {
+        if (!in_scope(html_tag_h1(), GENERIC_SCOPE) &&
+            !in_scope(html_tag_h2(), GENERIC_SCOPE) &&
+            !in_scope(html_tag_h3(), GENERIC_SCOPE) &&
+            !in_scope(html_tag_h4(), GENERIC_SCOPE) &&
+            !in_scope(html_tag_h5(), GENERIC_SCOPE) &&
+            !in_scope(html_tag_h6(), GENERIC_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            generate_implied_end_tags(0);
+            if (stack[stack_idx]->name != t_name)
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+
+            dom_node_t* current = stack[stack_idx];
+            while (current->name != html_tag_h1() &&
+                   current->name != html_tag_h2() &&
+                   current->name != html_tag_h3() &&
+                   current->name != html_tag_h4() &&
+                   current->name != html_tag_h5() &&
+                   current->name != html_tag_h6())
+            {
+                stack_pop();
+                current = stack[stack_idx];
+            }
+        }
+    }
+    else if (is_start(type) && t_name == html_tag_a())
+    {
+        dom_node_t* node = find_appropriate_formatting_element(html_tag_a());
+        if (node)
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+
+            bool success = run_adoption_procedure(t_name);
+
+            if (!success) { handle_end_tag_in_body(t_name); }
+
+            remove_from_stack(node);
+            remove_formatting_element(node);
+        }
+
+        reconstruct_formatting_elements();
+        node = insert_html_element(t_name, t);
+        push_formatting_element(node, t);
+    }
+    else if (is_start(type) && (t_name == html_tag_b()      || 
+                          t_name == html_tag_big()    ||
+                          t_name == html_tag_code()   ||
+                          t_name == html_tag_em()     ||
+                          t_name == html_tag_font()   ||
+                          t_name == html_tag_i()      ||
+                          t_name == html_tag_s()      ||
+                          t_name == html_tag_small()  ||
+                          t_name == html_tag_strike() ||
+                          t_name == html_tag_strong() ||
+                          t_name == html_tag_tt()     ||
+                          t_name == html_tag_u()) )
+    {
+        reconstruct_formatting_elements();
+        dom_node_t* node = insert_html_element(t_name, t);
+        push_formatting_element(node, t);
+    }
+    else if (is_start(type) && t_name == html_tag_nobr())
+    {
+        reconstruct_formatting_elements();
+        if (in_scope(html_tag_nobr(), GENERIC_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+
+            bool success = run_adoption_procedure(t_name);
+
+            if (!success) { handle_end_tag_in_body(t_name); }
+            reconstruct_formatting_elements();
+        }
+
+        dom_node_t* node = insert_html_element(t_name, t);
+        push_formatting_element(node, t);
+    }
+    else if (is_end(type) && (t_name == html_tag_a()        ||
+                        t_name == html_tag_b()        ||
+                        t_name == html_tag_big()      ||
+                        t_name == html_tag_code()     ||
+                        t_name == html_tag_em()       ||
+                        t_name == html_tag_font()     ||
+                        t_name == html_tag_i()        ||
+                        t_name == html_tag_nobr()     ||
+                        t_name == html_tag_s()        ||
+                        t_name == html_tag_small()    ||
+                        t_name == html_tag_strike()   ||
+                        t_name == html_tag_strong()   ||
+                        t_name == html_tag_tt()       ||
+                        t_name == html_tag_u()))
+    {
+        bool success = run_adoption_procedure(t_name);
+
+        if (!success) { handle_end_tag_in_body(t_name); }
+    }
+    else if (is_start(type) && (t_name == html_tag_applet() || t_name == html_tag_marquee() || t_name == html_tag_object()) )
+    {
+        reconstruct_formatting_elements();
+        insert_html_element(t_name, t);
+        insert_marker();
+        INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
+    }
+    else if (is_end(type) && (t_name == html_tag_applet() || t_name == html_tag_marquee() || t_name == html_tag_object()) )
+    {
+        if (!in_scope(t_name, GENERIC_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            generate_implied_end_tags(0);
+            if (stack[stack_idx]->name != t_name)
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+            pop_elements_until_name_included(t_name);
+            clear_formatting_elements();
+        }
+    }
+    else if (is_start(type) && t_name == html_tag_table())
+    {
+        INCOMPLETE_IMPLEMENTATION("quirk modes additional logic");
+
+        dom_document_t* doc = dom_document_from_node(document);
+        hash_str_t quirks = hash_str_new("quirks", 6);
+
+        if (doc->mode == quirks && in_scope(html_tag_p(), BUTTON_SCOPE))
+        {
+            close_p_element();
+        }
+
+        insert_html_element(t_name, t);
+
+        INCOMPLETE_IMPLEMENTATION("Set the frameset-ok flag to not-ok.");
+
+        mode = HTML_PARSER_MODE_IN_TABLE;
+    }
+    else if (is_end(type) && t_name == html_tag_br())
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+        t->attributes_size = 0;
+        reconstruct_formatting_elements();
+        insert_html_element(t_name, t);
+        stack_pop();
+
+        INCOMPLETE_IMPLEMENTATION("ack self closing flag");
+        INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
+    }
+    else if (is_start(type) && (t_name == html_tag_area() || t_name == html_tag_br() || t_name == html_tag_embed() ||
+                          t_name == html_tag_img() || t_name == html_tag_keygen() || t_name == html_tag_wbr()))
+    {
+        reconstruct_formatting_elements();
+        insert_html_element(t_name, t);
+        stack_pop();
+
+        INCOMPLETE_IMPLEMENTATION("ack self closing flag");
+        INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
+    }
+    else if (is_start(type) && t_name == html_tag_input())
+    {
+        INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
+
+        if (in_scope(html_tag_select(), GENERIC_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+            pop_elements_until_name_included(html_tag_select());
+        }
+
+        reconstruct_formatting_elements();
+        insert_html_element(t_name, t);
+        stack_pop();
+
+        INCOMPLETE_IMPLEMENTATION("ack self closing flag if set");
+        INCOMPLETE_IMPLEMENTATION("frameset-ok logic");
+    }
+    else if (is_start(type) && (t_name == html_tag_param() || t_name == html_tag_source() || t_name == html_tag_track() ))
+    {
+        insert_html_element(t_name, t);
+        stack_pop();
+        INCOMPLETE_IMPLEMENTATION("ack self closing flag if set");
+    }
+    else if (is_start(type) && t_name == html_tag_hr())
+    {
+        if (in_scope(html_tag_p(), BUTTON_SCOPE))
+        {
+            close_p_element();
+        }
+        if (in_scope(html_tag_select(), GENERIC_SCOPE))
+        {
+            generate_implied_end_tags(0);
+            if (in_scope(html_tag_option(), GENERIC_SCOPE) || in_scope(html_tag_optgroup(), GENERIC_SCOPE))
+            {
+                // todo: parse error
+            }
+        }
+        insert_html_element(t_name, t);
+        stack_pop();
+        // todo: ack self closing tag if set
+        // todo: set frameset-ok to "not ok"
+    }
+    else if (is_start(type) && t_name == html_tag_image())
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+        memset(t->name, 0, HTML_TOKEN_MAX_NAME_LEN);
+        memcpy(t->name, "img", 3);
+        t->name_size = 3;
+        process_token(mode, html_tag_img(), t);
+    }
+    else if (is_start(type) && t_name == html_tag_textarea())
+    {
+        insert_html_element(t_name, t);
+        INCOMPLETE_IMPLEMENTATION("todo: check the next token is a U+000A LINE FEED (LF) character token");
+        html_tokenizer_set_state(HTML_TOKENIZER_RCDATA_STATE);
+        original_mode = mode;
+        INCOMPLETE_IMPLEMENTATION("set frameset-ok flag to not-ok");
+        mode = HTML_PARSER_MODE_TEXT;
+    }
+    else if (is_start(type) && t_name == html_tag_xmp())
+    {
+        if (in_scope(html_tag_p(), BUTTON_SCOPE))
+        {
+            close_p_element();
+        }
+
+        reconstruct_formatting_elements();
+
+        INCOMPLETE_IMPLEMENTATION("frameset-ok flag to not ok");
+
+        insert_html_element(t_name, t);
+        html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
+
+        original_mode   = mode;
+        mode            = HTML_PARSER_MODE_TEXT;
+    }
+    else if (is_start(type) && t_name == html_tag_iframe())
+    {
+        INCOMPLETE_IMPLEMENTATION("frameset-ok flag to not ok");
+
+        insert_html_element(t_name, t);
+        html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
+
+        original_mode   = mode;
+        mode            = HTML_PARSER_MODE_TEXT;
+    }
+    else if ( (is_start(type) && t_name == html_tag_noembed() ) ||
+              (is_start(type) && t_name == html_tag_noscript() && scripting_enabled) )
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_select() )
+    {
+        // todo: fragment parsing logic
+        if (in_scope(html_tag_select(), GENERIC_SCOPE))
+        {
+            // todo: parse error
+            pop_elements_until_name_included(html_tag_select());
+        }
+        else
+        {
+            reconstruct_formatting_elements();
+            insert_html_element(t_name, t);
+            // todo: set frameset-ok to "not ok"
+        }
+    }
+    else if (is_start(type) && t_name == html_tag_option())
+    {
+        if (in_scope(html_tag_select(), GENERIC_SCOPE))
+        {
+            generate_implied_end_tags(html_tag_optgroup());
+            if (in_scope(html_tag_option(), GENERIC_SCOPE))
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+        }
+        else
+        {
+            dom_node_t* current = stack[stack_idx];
+            if (current->name == html_tag_option())
+            {
+                stack_pop();
+            }
+        }
+
+        reconstruct_formatting_elements();
+        insert_html_element(t_name, t);
+    }
+    else if (is_start(type) && t_name == html_tag_optgroup())
+    {
+        if (in_scope(html_tag_select(), GENERIC_SCOPE))
+        {
+            generate_implied_end_tags(0);
+            if (in_scope(html_tag_option(), GENERIC_SCOPE) || in_scope(html_tag_optgroup(), GENERIC_SCOPE))
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+        }
+        else
+        {
+            dom_node_t* current = stack[stack_idx];
+            if (current->name == html_tag_option()) { stack_pop(); }
+        }
+
+        reconstruct_formatting_elements();
+        insert_html_element(t_name, t);
+    }
+    else if (is_end(type) && t_name == html_tag_option())
+    {
+        dom_node_t* option = find_first_in_stack(html_tag_option());
+
+        handle_end_tag_in_body(t_name);
+
+        if (option && !stack_contains_node(option))
+        {
+            maybe_clone_option_into_selected_content(option);
+        }
+    }
+    else if (is_start(type) && (t_name == html_tag_rb() || t_name == html_tag_rtc()))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && (t_name == html_tag_rp() || t_name == html_tag_rt()))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_math())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_svg())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && (t_name == html_tag_caption()    ||
+                          t_name == html_tag_col()        ||
+                          t_name == html_tag_colgroup()   || 
+                          t_name == html_tag_frame()      ||
+                          t_name == html_tag_head()       ||
+                          t_name == html_tag_tbody()      ||
+                          t_name == html_tag_td()         ||
+                          t_name == html_tag_tfoot()      ||
+                          t_name == html_tag_th()         ||
+                          t_name == html_tag_thead()      ||
+                          t_name == html_tag_tr() ))
+    {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else if (is_start(type))
+    {
+        // todo: Reconstruct the active formatting elements, if any.
+        insert_html_element(t_name, t);
+    }
+    else if (is_end(type))
+    {
+        handle_end_tag_in_body(t_name);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incdata
+static void process_text(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    const uint32_t data_size    = t->data_size;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type))
+    {
+        insert_character(data, data_size);
+    }
+    else if (is_eof(type))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+        dom_node_t* current = stack[stack_idx];
+        if (current->name == html_tag_script())
+        {
+            INCOMPLETE_IMPLEMENTATION("set already_started to true");
+        }
+
+        stack_pop();
+        mode = original_mode;
+        process_token(mode, t_name, t);
+    }
+    else if (is_end(type) && t_name == html_tag_script())
+    {
+        // breakpoint
+        // todo: speculative parsing
+
+        stack_pop();
+        mode = original_mode;
+
+        // todo: there is more implementation logic related to speculative parsing
+        // todo: nesting level logic
+    }
+    else if (is_end(type))
+    {
+        stack_pop();
+        mode = original_mode;
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable
+static void process_in_table(hash_str_t t_name, html_token_t* t)
+{
+    html_token_type_e type      = t->type;
+
+    dom_node_t* current_node = stack[stack_idx];
+    const hash_str_t name = current_node->name;
+
+    if (is_character(type) && (name == html_tag_table() || name == html_tag_tbody() ||
+                         name == html_tag_template() || name == html_tag_tfoot() ||
+                         name == html_tag_thead() || name == html_tag_tr()))
+    {
+        memset(pending_tokens, 0, MAX_TOKENS * sizeof(html_token_t));
+        pending_tokens_size = 0;
+
+        original_mode       = mode;
+        mode                = HTML_PARSER_MODE_IN_TABLE_TEXT;
+        process_token(mode, t_name, t);
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, NULL);
+    }
+    else if (is_doctype(type))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_caption())
+    {
+        clear_stack_back_to_table();
+        insert_marker();
+        insert_html_element(t_name, t);
+        mode = HTML_PARSER_MODE_IN_CAPTION;
+    }
+    else if (is_start(type) && t_name == html_tag_colgroup())
+    {
+        clear_stack_back_to_table();
+        insert_html_element(t_name, t);
+        mode = HTML_PARSER_MODE_IN_COLUMN_GROUP;
+    }
+    else if (is_start(type) && t_name == html_tag_col())
+    {
+        clear_stack_back_to_table();
+        insert_html_element(html_tag_colgroup(), NULL);
+        mode = HTML_PARSER_MODE_IN_COLUMN_GROUP;
+        process_token(mode, t_name, t);
+    }
+    else if (is_start(type) && (t_name == html_tag_tbody() || t_name == html_tag_tfoot() || t_name == html_tag_thead()))
+    {
+        clear_stack_back_to_table();
+        insert_html_element(t_name, t);
+        mode = HTML_PARSER_MODE_IN_TABLE_BODY;
+    }
+    else if (is_start(type) && (t_name == html_tag_td() || t_name == html_tag_th() || t_name == html_tag_tr()))
+    {
+        clear_stack_back_to_table();
+        insert_html_element(html_tag_tbody(), NULL);
+        mode = HTML_PARSER_MODE_IN_TABLE_BODY;
+        process_token(mode, t_name, t);
+    }
+    else if (is_start(type) && t_name == html_tag_table())
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
+
+        if (!in_scope(html_tag_table(), TABLE_SCOPE))
+        {
+            return;
+        }
+
+        pop_elements_until_name_included(html_tag_table());
+        reset_insertion_mode_appropriately();
+        process_token(mode, t_name, t);
+    }
+    else if (is_end(type) && t_name == html_tag_table())
+    {
+        if (!in_scope(html_tag_table(), TABLE_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
+        }
+        else
+        {
+            pop_elements_until_name_included(html_tag_table());
+            reset_insertion_mode_appropriately();
+        }
+    }
+    else if (is_end(type) && (t_name == html_tag_body()     ||
+                        t_name == html_tag_caption()  ||
+                        t_name == html_tag_col()      ||
+                        t_name == html_tag_colgroup() ||
+                        t_name == html_tag_html()     ||
+                        t_name == html_tag_tbody()    ||
+                        t_name == html_tag_td()       ||
+                        t_name == html_tag_tfoot()    ||
+                        t_name == html_tag_th()       ||
+                        t_name == html_tag_thead()    ||
+                        t_name == html_tag_tr()))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
+    }
+    else if ((is_start(type) && (t_name == html_tag_style() || t_name == html_tag_script() || t_name == html_tag_template())) ||
+             (is_end(type) && t_name == html_tag_template()))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_input())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_form())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_eof(type))
+    {
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+    }
+    else
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+        foster_parenting = true;
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+        foster_parenting = false;
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intabletext
+static void process_in_table_text(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    const uint32_t data_size    = t->data_size;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) && data_size == 1 && data[0] == '\0')
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_character(type))
+    {
+        if (pending_tokens_size == MAX_TOKENS) { return; }
+
+        pending_tokens[pending_tokens_size] = *t;
+        pending_tokens_size++;
+    }
+    else
+    {
+
+        INCOMPLETE_IMPLEMENTATION("handle whitespace ascii chars");
+
+        // NOTE: this is not ideal, but should be fine for now. This section is copying w/e is in the IN BODY section.
+
+        for (uint32_t j = 0; j < pending_tokens_size; j++)
+        {
+            html_token_t token = pending_tokens[j];
+            foster_parenting = true;
+            reconstruct_formatting_elements();
+            insert_character(token.data, token.data_size);
+            // todo: frameset-ok flag
+            foster_parenting = false;
+        }
+
+        pending_tokens_size = 0;
+        mode = original_mode;
+        process_token(mode, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incaption
+static void process_in_caption(hash_str_t t_name, html_token_t* t)
+{
+    html_token_type_e type      = t->type;
+
+    if (is_end(type) && t_name == html_tag_caption())
+    {
+        if (!in_scope(html_tag_caption(), TABLE_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            generate_implied_end_tags(0);
+            if (stack[stack_idx]->name != html_tag_caption())
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+
+            pop_elements_until_name_included(html_tag_caption());
+            clear_formatting_elements();
+            mode = HTML_PARSER_MODE_IN_TABLE;
+        }
+    }
+    else if ((is_start(type) && (t_name == html_tag_caption()   ||
+                           t_name == html_tag_col()       ||
+                           t_name == html_tag_colgroup()  || 
+                           t_name == html_tag_tbody()     ||
+                           t_name == html_tag_td()        ||
+                           t_name == html_tag_tfoot()     ||
+                           t_name == html_tag_th()        ||
+                           t_name == html_tag_thead()     ||
+                           t_name == html_tag_tr()))      ||
+             (is_end(type) && t_name == html_tag_table()))
+    {
+        if (!in_scope(html_tag_caption(), TABLE_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+            return;
+        }
+
+        generate_implied_end_tags(0);
+        
+        if (stack[stack_idx]->name != html_tag_caption())
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+
+        pop_elements_until_name_included(html_tag_caption());
+        clear_formatting_elements();
+        mode = HTML_PARSER_MODE_IN_TABLE;
+        process_token(mode, t_name, t);
+    }
+    else if (is_end(type) && (t_name == html_tag_body()     ||
+                        t_name == html_tag_col()      ||
+                        t_name == html_tag_colgroup() ||
+                        t_name == html_tag_html()     ||
+                        t_name == html_tag_tbody()    ||
+                        t_name == html_tag_td()       ||
+                        t_name == html_tag_tfoot()    ||
+                        t_name == html_tag_th()       ||
+                        t_name == html_tag_thead()    ||
+                        t_name == html_tag_tr()))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else
+    {
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incolgroup
+static void process_in_column_group(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, NULL);
+    }
+    else if (is_doctype(type))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_html())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_col())
+    {
+        insert_html_element(t_name, t);
+        stack_pop();
+        INCOMPLETE_IMPLEMENTATION("ack self closing flag, if set");
+    }
+    else if (is_end(type) && t_name == html_tag_colgroup())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_end(type) && t_name == html_tag_col())
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else if ((is_start(type) || is_end(type)) && (t_name == html_tag_template()))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_eof(type))
+    {
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+    }
+    else
+    {
+        if (stack[stack_idx]->name != html_tag_colgroup())
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
+        }
+        else
+        {
+            stack_pop();
+            mode = HTML_PARSER_MODE_IN_TABLE;
+            process_token(mode, t_name, t);
+        }
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intbody
+static void process_in_table_body(hash_str_t t_name, html_token_t* t)
+{
+    html_token_type_e type      = t->type;
+
+    if (is_start(type) && t_name == html_tag_tr())
+    {
+        clear_stack_back_to_table_body();
+        insert_html_element(t_name, t);
+        mode                = HTML_PARSER_MODE_IN_ROW;
+    }
+    else if (is_start(type) && (t_name == html_tag_th() || t_name == html_tag_td()))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+        clear_stack_back_to_table_body();
+
+        insert_html_element(html_tag_tr(), NULL);
+        mode = HTML_PARSER_MODE_IN_ROW;
+
+        process_token(mode, t_name, t);
+    }
+    else if (is_end(type) && (t_name == html_tag_tbody() || t_name == html_tag_tfoot() || t_name == html_tag_thead() ))
+    {
+        if (!in_scope(t_name, TABLE_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+            return;
+        }
+
+        clear_stack_back_to_table_body();
+        stack_pop();
+        mode = HTML_PARSER_MODE_IN_TABLE;
+        process_token(mode, t_name, t);
+    }
+    else if ((is_start(type) && (t_name == html_tag_caption()   ||
+                           t_name == html_tag_col()       ||
+                           t_name == html_tag_colgroup()  ||
+                           t_name == html_tag_tbody()     ||
+                           t_name == html_tag_tfoot()     ||
+                           t_name == html_tag_thead()))   ||
+             (is_end(type) && t_name == html_tag_table()))
+    {
+        if (!in_scope(html_tag_tbody(), TABLE_SCOPE) &&
+            !in_scope(html_tag_thead(), TABLE_SCOPE) &&
+            !in_scope(html_tag_tfoot(), TABLE_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            clear_stack_back_to_table_body();
+            stack_pop();
+            mode = HTML_PARSER_MODE_IN_TABLE;
+            process_token(mode, t_name, t);
+        }
+    }
+    else if (is_end(type) && (t_name == html_tag_body()     ||
+                        t_name == html_tag_caption()  ||
+                        t_name == html_tag_col()      ||
+                        t_name == html_tag_colgroup() ||
+                        t_name == html_tag_html()     ||
+                        t_name == html_tag_td()       ||
+                        t_name == html_tag_th()       ||
+                        t_name == html_tag_tr()))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else
+    {
+        process_token(HTML_PARSER_MODE_IN_TABLE, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intr
+static void process_in_row(hash_str_t t_name, html_token_t* t)
+{
+    html_token_type_e type      = t->type;
+
+    if (is_start(type) && (t_name == html_tag_th() || t_name == html_tag_td()))
+    {
+        clear_stack_back_to_table_row();
+        insert_html_element(t_name, t);
+        insert_marker();
+        mode = HTML_PARSER_MODE_IN_CELL;
+    }
+    else if (is_end(type) && t_name == html_tag_tr())
+    {
+        if (!in_scope(html_tag_tr(), TABLE_SCOPE))
+        {
+            // todo: parse error
+            // ignore token
+        }
+        else
+        {
+            clear_stack_back_to_table_row();
+            stack_pop();
+            mode = HTML_PARSER_MODE_IN_TABLE_BODY;
+        }
+    }
+    else if ((is_start(type) && (t_name == html_tag_caption()   ||
+                           t_name == html_tag_col()       ||
+                           t_name == html_tag_colgroup()  ||
+                           t_name == html_tag_tbody()     ||
+                           t_name == html_tag_tfoot()     ||
+                           t_name == html_tag_thead()     ||
+                           t_name == html_tag_tr()))      ||
+             (is_end(type) && t_name == html_tag_table()))
+    {
+        if (!in_scope(html_tag_tr(), TABLE_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            clear_stack_back_to_table_row();
+            stack_pop();
+            mode = HTML_PARSER_MODE_IN_TABLE_BODY;
+            process_token(mode, t_name, t);
+        }
+    }
+    else if (is_end(type) && (t_name == html_tag_tbody() || t_name == html_tag_thead() || t_name == html_tag_tfoot()))
+    {
+        if (!in_scope(t_name, TABLE_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+            return;
+        }
+
+        if (!in_scope(html_tag_tr(), TABLE_SCOPE))
+        {
+            return;
+        }
+
+        clear_stack_back_to_table_row();
+        stack_pop();
+        mode = HTML_PARSER_MODE_IN_TABLE_BODY;
+        process_token(mode, t_name, t);
+    }
+    else if (is_end(type) &&
+             (t_name == html_tag_body() || t_name == html_tag_caption()  ||
+              t_name == html_tag_col()  || t_name == html_tag_colgroup() ||
+              t_name == html_tag_html() || t_name == html_tag_td()       ||
+              t_name == html_tag_th()))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else
+    {
+        process_token(HTML_PARSER_MODE_IN_TABLE, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intd
+static void process_in_cell(hash_str_t t_name, html_token_t* t)
+{
+    html_token_type_e type      = t->type;
+
+    if (is_end(type) && (t_name == html_tag_td() || t_name == html_tag_th()))
+    {
+        if (!in_scope(t_name, TABLE_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            generate_implied_end_tags(0);
+
+            dom_node_t* node = stack[stack_idx];
+
+            if (node->name != t_name)
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+
+            pop_elements_until_name_included(t_name);
+            clear_formatting_elements();
+            mode            = HTML_PARSER_MODE_IN_ROW;
+        }
+    }
+    else if (is_start(type) && (t_name == html_tag_caption()    ||
+                          t_name == html_tag_col()        ||
+                          t_name == html_tag_colgroup()   ||
+                          t_name == html_tag_tbody()      ||
+                          t_name == html_tag_tfoot()      ||
+                          t_name == html_tag_thead()      ||
+                          t_name == html_tag_tr()         ||
+                          t_name == html_tag_th()         ||
+                          t_name == html_tag_td()))
+    {
+        assert(in_scope(html_tag_td(), GENERIC_SCOPE) || in_scope(html_tag_th(), GENERIC_SCOPE));
+
+        close_cell();
+        process_token(mode, t_name, t);
+    }
+    else if (is_end(type) && (t_name == html_tag_body()     ||
+                        t_name == html_tag_caption()  ||
+                        t_name == html_tag_col()      ||
+                        t_name == html_tag_colgroup() ||
+                        t_name == html_tag_html()))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else if (is_end(type) && (t_name == html_tag_table() || t_name == html_tag_tfoot() || t_name == html_tag_thead() ||
+                        t_name == html_tag_tbody() || t_name == html_tag_tr()))
+    {
+        if (!in_scope(t_name, TABLE_SCOPE))
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            close_cell();
+            process_token(mode, t_name, t);
+        }
+    }
+    else
+    {
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intemplate
+static void process_in_template(hash_str_t t_name, html_token_t* t)
+{
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) || is_comment(type) || is_doctype(type))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if ((is_start(type) && (t_name == html_tag_base()      ||
+                           t_name == html_tag_basefont()  ||
+                           t_name == html_tag_bgsound()   ||
+                           t_name == html_tag_link()      ||
+                           t_name == html_tag_meta()      ||
+                           t_name == html_tag_noframes()  ||
+                           t_name == html_tag_script()    ||
+                           t_name == html_tag_style()     ||
+                           t_name == html_tag_template()  ||
+                           t_name == html_tag_title()))   ||
+             (is_end(type) && t_name == html_tag_template()))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && (t_name == html_tag_caption()    ||
+                          t_name == html_tag_colgroup()   ||
+                          t_name == html_tag_tbody()      ||
+                          t_name == html_tag_tfoot()      ||
+                          t_name == html_tag_thead()))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_col())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_tr())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && (t_name == html_tag_td() || t_name == html_tag_th()))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_end(type))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_eof(type))
+    {
+        NOT_IMPLEMENTED
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody
+static void process_after_body(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, stack[0]);
+    }
+    else if (is_doctype(type))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_html())
+    {
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+    }
+    else if (is_end(type) && t_name == html_tag_html())
+    {
+        // todo: if parser was created using fragment parsing algorithm -> error and ignore token
+
+        mode = HTML_PARSER_MODE_AFTER_AFTER_BODY;
+    }
+    else if (is_eof(type))
+    {
+        stop_parsing();
+    }
+    else
+    {
+        // todo: parse error
+        mode = HTML_PARSER_MODE_IN_BODY;
+        process_token(mode, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inframeset
+static void process_in_frameset(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    const uint32_t data_size    = t->data_size;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        insert_character(data, data_size);
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, NULL);
+    }
+    else if (is_doctype(type))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+    else if (is_start(type) && t_name == html_tag_html())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_frameset())
+    {
+        insert_html_element(t_name, t);
+    }
+    else if (is_end(type) && t_name == html_tag_frameset())
+    {
+        if (stack[stack_idx]->name == html_tag_html())
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        else
+        {
+            stack_pop();
+            INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
+        }
+    }
+    else if (is_start(type) && t_name == html_tag_frame())
+    {
+        insert_html_element(t_name, t);
+        stack_pop();
+        INCOMPLETE_IMPLEMENTATION("ack token self close flag");
+    }
+    else if (is_start(type) && t_name == html_tag_noframes())
+    {
+        process_token(HTML_PARSER_MODE_IN_HEAD, t_name, t);
+    }
+    else if (is_eof(type))
+    {
+        if (stack[stack_idx]->name != html_tag_html())
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+        stop_parsing();
+    }
+    else
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterframeset
+static void process_after_frameset(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, NULL);
+    }
+    else if (is_doctype(type))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_html())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_end(type) && t_name == html_tag_html())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_noframes())
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_eof(type))
+    {
+        NOT_IMPLEMENTED
+    }
+    else
+    {
+        NOT_IMPLEMENTED
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#the-after-after-body-insertion-mode
+static void process_after_after_body(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    html_token_type_e type      = t->type;
+
+    if (is_comment(type))
+    {
+        insert_comment(t, document);
+    }
+    else if ((is_doctype(type)) ||
+             (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' ')) ||
+             (is_start(type) && t_name == html_tag_html()))
+    {
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+    }
+    else if (is_eof(type))
+    {
+        stop_parsing();
+    }
+    else
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error");
+        mode = HTML_PARSER_MODE_IN_BODY;
+        process_token(mode, t_name, t);
+    }
+}
+
+
+// https://html.spec.whatwg.org/multipage/parsing.html#the-after-after-frameset-insertion-mode
+static void process_after_after_frameset(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    html_token_type_e type      = t->type;
+
+    if (is_comment(type))
+    {
+        insert_comment(t, document);
+    }
+    else if ((is_doctype(type)) ||
+             (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' ')) ||
+             (is_start(type) && t_name == html_tag_html()))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_eof(type))
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_start(type) && t_name == html_tag_noframes())
+    {
+        NOT_IMPLEMENTED
+    }
+    else
+    {
+        NOT_IMPLEMENTED
+    }
+}
+
+
+static void process_token(html_parser_mode_e current_mode, hash_str_t t_name, html_token_t* t)
+{
+    switch (current_mode)
+    {
+        case HTML_PARSER_MODE_INITIAL:
+            process_initial(t_name, t);
+            break;
+        case HTML_PARSER_MODE_BEFORE_HTML:
+            process_before_html(t_name, t);
+            break;
+        case HTML_PARSER_MODE_BEFORE_HEAD:
+            process_before_head(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_HEAD:
+            process_in_head(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_HEAD_NOSCRIPT:
+            process_in_head_noscript(t_name, t);
+            break;
+        case HTML_PARSER_MODE_AFTER_HEAD:
+            process_after_head(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_BODY:
+            process_in_body(t_name, t);
+            break;
+        case HTML_PARSER_MODE_TEXT:
+            process_text(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_TABLE:
+            process_in_table(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_TABLE_TEXT:
+            process_in_table_text(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_CAPTION:
+            process_in_caption(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_COLUMN_GROUP:
+            process_in_column_group(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_TABLE_BODY:
+            process_in_table_body(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_ROW:
+            process_in_row(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_CELL:
+            process_in_cell(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_TEMPLATE:
+            process_in_template(t_name, t);
+            break;
+        case HTML_PARSER_MODE_AFTER_BODY:
+            process_after_body(t_name, t);
+            break;
+        case HTML_PARSER_MODE_IN_FRAMESET:
+            process_in_frameset(t_name, t);
+            break;
+        case HTML_PARSER_MODE_AFTER_FRAMESET:
+            process_after_frameset(t_name, t);
+            break;
+        case HTML_PARSER_MODE_AFTER_AFTER_BODY:
+            process_after_after_body(t_name, t);
+            break;
+        case HTML_PARSER_MODE_AFTER_AFTER_FRAMESET:
+            process_after_after_frameset(t_name, t);
+            break;
+        default:
+            assert(false);
+            break;
+    }
+}
+
 /********************/
 /* public functions */
 /********************/
-
 
 void html_parser_init(bool scripting)
 {
@@ -1292,8 +3588,8 @@ void html_parser_init(bool scripting)
     document                    = NULL;
     stop                        = false;
     foster_parenting            = false;
-    will_use_foster_parenting   = false;
-    head_pointer                = NULL;
+    head_element                = NULL;
+    form_element                = NULL;
     scripting_enabled           = scripting;
 
     formatting_elements_size = 0;
@@ -1309,15 +3605,10 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
     document                    = dom_document_new();
 
-    dom_node_t* form_element    = NULL;
-    bool remove_head            = false;
-    bool will_remove_head       = false;
-
     while (!stop)
     {
         html_tokenizer_error_e err  = html_tokenizer_next();
         uint32_t tokens_size        = get_tokens_size();
-        uint32_t i                  = 0;
 
         // todo: placeholder until i start using err
         assert((int)err >= 0);
@@ -1327,2183 +3618,11 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
             break;
         }
 
-
-        while (i < tokens_size)
+        for (uint32_t i = 0; i < tokens_size; i++)
         {
-            bool consume                    = true;
             html_token_t t                  = tokens[i];
             hash_str_t t_name               = hash_str_new(t.name, t.name_size);
-            html_parser_mode_e current_mode = mode;
-
-            bool is_doctype                 = t.type == HTML_DOCTYPE_TOKEN;
-            bool is_start                   = t.type == HTML_START_TOKEN;
-            bool is_end                     = t.type == HTML_END_TOKEN;
-            bool is_comment                 = t.type == HTML_COMMENT_TOKEN;
-            bool is_character               = t.type == HTML_CHARACTER_TOKEN;
-            bool is_eof                     = t.type == HTML_EOF_TOKEN;
-
-            if (use_rules_for)
-            {
-                use_rules_for = false;
-                current_mode = replacement_mode;
-            }
-
-            // print_document_tree(document, 0);
-            switch (current_mode)
-            {
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
-            case HTML_PARSER_MODE_INITIAL:
-                if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
-                {
-                    // ignore
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, document);
-                }
-                else if (is_doctype)
-                {
-                    unsigned char compat[]  = "about:legacy-compat";
-                    uint32_t compat_size    = sizeof(compat) - 1;
-                    bool name_is_html       = t_name == html_tag_html();
-                    bool public_id_missing  = t.public_id_size == 0;
-                    bool system_id_missing  = t.system_id_size == 0;
-                    bool is_legacy_compat   = t.system_id_size == compat_size && strncmp(t.system_id, compat, compat_size);
-                    dom_node_t* doctype     = dom_doctype_new(document, t.name, t.name_size, NULL, 0, NULL, 0);
-                    dom_document_t* doc     = dom_document_from_node(document);
-                    dom_document_set_doctype(doc, dom_doctype_from_node(doctype));
-
-                    doc->mode = hash_str_new("quirks", 6);
-
-                    if (!name_is_html || !public_id_missing || !system_id_missing || !is_legacy_compat)
-                    {
-                        // todo: parse error
-                    }
-                    else
-                    {
-                        // todo: implement
-                    }
-
-                    mode = HTML_PARSER_MODE_BEFORE_HTML;
-                }
-                else
-                {
-                    // todo: If the document is not an iframe srcdoc document, then this is a parse error; 
-
-                    // dom_node_document_t* document_data = document->document_data;
-
-                    // if (!document_data->parser_cannot_change_mode)
-                    // {
-                    //     document_data->compat_mode = string_new("quirks", 6);
-                    // }
-
-                    mode = HTML_PARSER_MODE_BEFORE_HTML;
-                    consume                 = false;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#the-before-html-insertion-mode
-            case HTML_PARSER_MODE_BEFORE_HTML:
-                if (is_doctype)
-                {
-                    // todo: parse error
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, document);
-                }
-                else if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
-                {
-                    // ignore
-                }
-                else if (is_start && t_name == html_tag_html())
-                {
-                    dom_node_t* element = create_element(t_name, &t, document);
-                    dom_node_append(document, element);
-                    stack_push(element);
-
-                    mode = HTML_PARSER_MODE_BEFORE_HEAD;
-                }
-                else if (is_end && !(t_name == html_tag_html() || t_name == html_tag_head() || t_name == html_tag_body() || t_name == html_tag_br()))
-                {
-                    // todo: parse error, ignore token
-                }
-                else
-                {
-                    dom_node_t* element    = create_element(html_tag_html(), NULL, document);
-
-                    dom_node_append(document, element);
-                    stack_push(element);
-                    mode = HTML_PARSER_MODE_BEFORE_HEAD;
-
-                    consume                 = false;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#the-before-head-insertion-mode
-            case HTML_PARSER_MODE_BEFORE_HEAD:
-                if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
-                {
-                    // ignore
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, NULL);
-                }
-                else if (is_doctype)
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                }
-                else if (is_start && t_name == html_tag_html())
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_BEFORE_HEAD;
-                    use_rules_for       = true;
-                }
-                else if (is_start && t_name == html_tag_head())
-                {
-                    mode = HTML_PARSER_MODE_IN_HEAD;
-                    head_pointer        = insert_html_element(t_name, &t);
-                }
-                else if (is_end && !(t_name == html_tag_html() || t_name == html_tag_head() || t_name == html_tag_body() || t_name == html_tag_br()))
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                }
-                else
-                {
-                    mode = HTML_PARSER_MODE_IN_HEAD;
-                    head_pointer        = insert_html_element(html_tag_head(), NULL);
-                    consume             = false;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
-            case HTML_PARSER_MODE_IN_HEAD:
-                if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
-                {
-                    insert_character(t.data, t.data_size);
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, NULL);
-                }
-                else if (is_doctype)
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                }
-                else if (is_start && t_name == html_tag_html())
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_IN_HEAD;
-                    use_rules_for       = true;
-                }
-                else if (is_start && (t_name == html_tag_base() || t_name == html_tag_basefont() || t_name == html_tag_bgsound() || t_name == html_tag_link()))
-                {
-                    insert_html_element(t_name, &t);
-                    stack_pop();
-                    INCOMPLETE_IMPLEMENTATION("ack self closing tag");
-                }
-                else if (is_start && t_name == html_tag_meta())
-                {
-                    insert_html_element(t_name, &t);
-                    stack_pop();
-
-                    INCOMPLETE_IMPLEMENTATION("ack self closing tag");
-                    INCOMPLETE_IMPLEMENTATION("speculative parsing logic");
-                }
-                else if (is_start && t_name == html_tag_title())
-                {
-                    insert_html_element(t_name, &t);
-                    html_tokenizer_set_state(HTML_TOKENIZER_RCDATA_STATE);
-
-                    original_mode       = mode;
-                    mode = HTML_PARSER_MODE_TEXT;
-                }
-                else if ((is_start && t_name == html_tag_noscript() && scripting_enabled) || 
-                         (is_start && (t_name == html_tag_noframes() || t_name == html_tag_style())))
-                {
-                    insert_html_element(t_name, &t);
-                    html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
-
-                    original_mode       = mode;
-                    mode = HTML_PARSER_MODE_TEXT;
-                }
-                else if (is_start && t_name == html_tag_noscript() && !scripting_enabled)
-                {
-                    insert_html_element(t_name, &t);
-                    mode = HTML_PARSER_MODE_IN_HEAD_NOSCRIPT;
-                }
-                else if (is_start && t_name == html_tag_script())
-                {
-                    dom_insertion_location_t location   = get_appropriate_insertion_location(NULL);
-                    dom_node_t* element    = create_element(t_name, &t, document);
-
-                    INCOMPLETE_IMPLEMENTATION("missing steps: 3/4/5");
-
-                    dom_node_insert_before(location.parent, element, location.child);
-                    stack_push(element);
-                    html_tokenizer_set_state(HTML_TOKENIZER_SCRIPT_DATA_STATE);
-
-                    original_mode           = mode;
-                    mode = HTML_PARSER_MODE_TEXT;
-                }
-                else if (is_end && t_name == html_tag_head())
-                {
-                    stack_pop();
-                    mode = HTML_PARSER_MODE_AFTER_HEAD;
-                }
-                else if (is_start && t_name == html_tag_template())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_end && t_name == html_tag_template())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if ((is_start && t_name == html_tag_head()) || 
-                         (is_end && !(t_name == html_tag_body() || t_name == html_tag_html() || t_name == html_tag_br())))
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                }
-                else
-                {
-                    stack_pop();
-                    mode = HTML_PARSER_MODE_AFTER_HEAD;
-                    consume             = false; 
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inheadnoscript
-            case HTML_PARSER_MODE_IN_HEAD_NOSCRIPT:
-                if (is_doctype)
-                {
-                    // todo: parse error, ignore token
-                }
-                else if (is_start && t_name == html_tag_html())
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_IN_HEAD_NOSCRIPT;
-                    use_rules_for       = true;
-                }
-                else if (is_end && t_name == html_tag_noscript())
-                {
-                    stack_pop();
-                    mode = HTML_PARSER_MODE_IN_HEAD;
-                }
-                else if ((is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' ') ) ||
-                         (is_comment) ||
-                         (is_start && (t_name == html_tag_basefont()  ||
-                                       t_name == html_tag_bgsound()   ||
-                                       t_name == html_tag_link()      ||
-                                       t_name == html_tag_meta()      ||
-                                       t_name == html_tag_noframes()  ||
-                                       t_name == html_tag_style())))
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_HEAD;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_IN_HEAD_NOSCRIPT;
-                    use_rules_for       = true;
-                }
-                else if ((is_start && (t_name == html_tag_head() || t_name == html_tag_noscript())) ||
-                         (is_end && !(t_name == html_tag_br())))
-                {
-                    // todo: parse error, ignore token
-                }
-                else
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                    stack_pop();
-                    mode = HTML_PARSER_MODE_IN_HEAD;
-                    consume             = false; 
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#the-after-head-insertion-mode
-            case HTML_PARSER_MODE_AFTER_HEAD:
-                if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
-                {
-                    insert_character(t.data, t.data_size);
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, NULL);
-                }
-                else if (is_doctype)
-                {
-                    // todo: parse error, ignore token
-                }
-                else if (is_start && t_name == html_tag_html())
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_AFTER_HEAD;
-                    use_rules_for       = true;
-                }
-                else if (is_start && t_name == html_tag_body())
-                {
-                    insert_html_element(t_name, &t);
-                    mode = HTML_PARSER_MODE_IN_BODY;
-                    INCOMPLETE_IMPLEMENTATION("ack self-closing tag");
-                }
-                else if (is_start && t_name == html_tag_frameset())
-                {
-                    insert_html_element(t_name, &t);
-                    mode = HTML_PARSER_MODE_IN_FRAMESET;
-                }
-                else if (is_start && (t_name == html_tag_base()       ||
-                                      t_name == html_tag_basefont()   ||
-                                      t_name == html_tag_bgsound()    ||
-                                      t_name == html_tag_link()       ||
-                                      t_name == html_tag_meta()       ||
-                                      t_name == html_tag_noframes()   ||
-                                      t_name == html_tag_script()     || 
-                                      t_name == html_tag_template()   ||
-                                      t_name == html_tag_title()      ||
-                                      t_name == html_tag_style()))
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                    assert(head_pointer);
-                    stack_push(head_pointer);
-
-                    replacement_mode    = HTML_PARSER_MODE_IN_HEAD;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_AFTER_HEAD;
-                    use_rules_for       = true;
-
-                    will_remove_head    = true;
-                }
-                else if (is_end && t_name == html_tag_template())
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_HEAD;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_AFTER_HEAD;
-                    use_rules_for       = true;
-                }
-                else if ((is_start && t_name == html_tag_head()) ||
-                         (is_end && !(t_name == html_tag_body() || t_name == html_tag_html() || t_name == html_tag_br())))
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                }
-                else
-                {
-                    insert_html_element(html_tag_body(), NULL);
-                    mode = HTML_PARSER_MODE_IN_BODY;
-                    consume             = false;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
-            case HTML_PARSER_MODE_IN_BODY:
-                if (is_character && t.data[0] == '\0')
-                {
-                    // todo: parse error, ignore token
-                }
-                else if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
-                {
-                    reconstruct_formatting_elements();
-                    insert_character(t.data, t.data_size);
-                }
-                else if (is_character)
-                {
-                    reconstruct_formatting_elements();
-                    insert_character(t.data, t.data_size);
-                    // todo: frameset-ok flag
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, NULL);
-                }
-                else if (is_doctype)
-                {
-                    // todo: parse error
-                }
-                else if (is_start && t_name == html_tag_html())
-                {
-                    // todo: parse error
-                    if (stack_contains_element(html_tag_template())) { break; }
-
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-
-                    dom_node_t* node = document->first;
-                    bool found = false;
-
-                    while (true)
-                    {
-                        if (node->name == html_tag_html())
-                        {
-                            found = true;
-                            break;
-                        }
-                        node = node->next;
-                    }
-
-                    if (!found) { break; }
-
-                    dom_element_t* dom_element = dom_element_from_node(node);
-
-                    for (uint32_t j = 0; j < t.attributes_size; j++)
-                    {
-                        html_token_attribute_t* attr = &t.attributes[j];
-                        hash_str_t attr_name = hash_str_new(attr->name, attr->name_size);
-                        found = false;
-
-                        dom_attr_t* dom_attr = dom_element->attr;
-
-                        while (dom_attr)
-                        {
-                            if (dom_attr->name == attr_name) { found = true; }
-                            dom_attr = dom_attr->next;
-                        }
-
-                        if (found) { continue; }
-
-                        dom_node_t* new_attr = dom_attr_new(attr_name,
-                                                            hash_str_new(attr->value, attr->value_size),
-                                                            dom_node_from_element(dom_element));
-
-                        dom_element_append_attr(dom_element, dom_attr_from_node(new_attr));
-                    }
-                }
-                else if ((is_start && (t_name == html_tag_base()      ||
-                                       t_name == html_tag_basefont()  ||
-                                       t_name == html_tag_bgsound()   ||
-                                       t_name == html_tag_link()      ||
-                                       t_name == html_tag_meta()      ||
-                                       t_name == html_tag_noframes()  ||
-                                       t_name == html_tag_script()    ||
-                                       t_name == html_tag_template()  ||
-                                       t_name == html_tag_title()     ||
-                                       t_name == html_tag_style()))   ||
-                        (is_end && t_name == html_tag_template()))
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_HEAD;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_IN_BODY;
-                    use_rules_for       = true;
-                }
-                else if (is_start && t_name == html_tag_body())
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-
-                    if ((stack_size == 0) ||
-                        (stack_size > 1 && stack[1]->name != html_tag_body()) ||
-                        (stack_contains_element(html_tag_template())))
-                    {
-                        // ignore
-                    }
-                    else
-                    {
-                        dom_node_t* node = document->first;
-                        uint32_t level = 0;
-
-                        while (true)
-                        {
-                            if (!node)
-                            {
-                                assert(false);
-                            }
-
-                            if (level == 0)
-                            {
-                                if (node->name != html_tag_html())
-                                {
-                                    node = node->next;
-                                }
-                                else
-                                {
-                                    node = node->first;
-                                    level++;
-                                }
-                            }
-                            else if (level == 1)
-                            {
-                                if (node->name != html_tag_body())
-                                {
-                                    node = node->next;
-                                }
-                                else
-                                {
-                                    level++;
-                                }
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-
-                        dom_element_t* dom_element = dom_element_from_node(node);
-
-                        for (uint32_t j = 0; j < t.attributes_size; j++)
-                        {
-                            html_token_attribute_t* attr = &t.attributes[j];
-                            hash_str_t attr_name = hash_str_new(attr->name, attr->name_size);
-                            bool found = false;
-
-                            dom_attr_t* dom_attr = dom_element->attr;
-
-                            while (dom_attr)
-                            {
-                                if (dom_attr->name == attr_name) { found = true; }
-                                dom_attr = dom_attr->next;
-                            }
-
-                            if (found) { continue; }
-
-                            dom_node_t* new_attr = dom_attr_new(attr_name,
-                                                                hash_str_new(attr->value, attr->value_size),
-                                                                dom_node_from_element(dom_element));
-
-                            dom_element_append_attr(dom_element, dom_attr_from_node(new_attr));
-                        }
-                    }
-                }
-                else if (is_start && t_name == html_tag_frameset())
-                {
-                    // todo: parse error
-
-                    if ((stack_size == 1) || (stack_size > 1 && stack[1]->name != html_tag_body()))
-                    {
-                        // ignore token
-                    }
-
-                    // todo: frameset-ok flag logic
-
-                    // todo: step 1 
-                    // todo: step 2
-                    insert_html_element(t_name, &t);
-                    mode = HTML_PARSER_MODE_IN_FRAMESET;
-                }
-                else if (is_eof)
-                {
-                    // todo: handle stack of open template insertion modes
-                    if (false)
-                    {
-                        NOT_IMPLEMENTED
-                    }
-                    else
-                    {
-                        if (!(stack_contains_element(html_tag_dd())         ||
-                              stack_contains_element(html_tag_dt())         ||
-                              stack_contains_element(html_tag_li())         ||
-                              stack_contains_element(html_tag_optgroup())   ||
-                              stack_contains_element(html_tag_option())     ||
-                              stack_contains_element(html_tag_p())          ||
-                              stack_contains_element(html_tag_rb())         ||
-                              stack_contains_element(html_tag_rt())         ||
-                              stack_contains_element(html_tag_rtc())        ||
-                              stack_contains_element(html_tag_tbody())      ||
-                              stack_contains_element(html_tag_td())         ||
-                              stack_contains_element(html_tag_tfoot())      ||
-                              stack_contains_element(html_tag_th())         ||
-                              stack_contains_element(html_tag_thead())      ||
-                              stack_contains_element(html_tag_tr())         ||
-                              stack_contains_element(html_tag_body())       ||
-                              stack_contains_element(html_tag_html())))
-                        {
-                            // todo: parse error
-                        }
-                        stop_parsing();
-                    }
-                }
-                else if (is_end && t_name == html_tag_body())
-                {
-                    // todo: handle scope logic
-                    // If the stack of open elements does not have a body element in scope, this is a parse error; ignore the token.
-                    if (!in_scope(html_tag_body(), GENERIC_SCOPE))
-                    {
-                        // todo: parse error
-                        NOT_IMPLEMENTED
-                    }
-
-                    if (!(stack_contains_element(html_tag_dd())         ||
-                          stack_contains_element(html_tag_dt())         ||
-                          stack_contains_element(html_tag_li())         ||
-                          stack_contains_element(html_tag_optgroup())   ||
-                          stack_contains_element(html_tag_option())     ||
-                          stack_contains_element(html_tag_p())          ||
-                          stack_contains_element(html_tag_rb())         ||
-                          stack_contains_element(html_tag_rt())         ||
-                          stack_contains_element(html_tag_rtc())        ||
-                          stack_contains_element(html_tag_tbody())      ||
-                          stack_contains_element(html_tag_td())         ||
-                          stack_contains_element(html_tag_tfoot())      ||
-                          stack_contains_element(html_tag_th())         ||
-                          stack_contains_element(html_tag_thead())      ||
-                          stack_contains_element(html_tag_tr())         ||
-                          stack_contains_element(html_tag_body())       ||
-                          stack_contains_element(html_tag_html())))
-                    {
-                        // todo: parse error
-                        NOT_IMPLEMENTED
-                    }
-
-                    mode = HTML_PARSER_MODE_AFTER_BODY;
-                }
-                else if (is_end && t_name == html_tag_html())
-                {
-                    // todo: handle scope logic
-                    if (!(stack_contains_element(html_tag_dd())         ||
-                          stack_contains_element(html_tag_dt())         ||
-                          stack_contains_element(html_tag_li())         ||
-                          stack_contains_element(html_tag_optgroup())   ||
-                          stack_contains_element(html_tag_option())     ||
-                          stack_contains_element(html_tag_p())          ||
-                          stack_contains_element(html_tag_rb())         ||
-                          stack_contains_element(html_tag_rt())         ||
-                          stack_contains_element(html_tag_rtc())        ||
-                          stack_contains_element(html_tag_tbody())      ||
-                          stack_contains_element(html_tag_td())         ||
-                          stack_contains_element(html_tag_tfoot())      ||
-                          stack_contains_element(html_tag_th())         ||
-                          stack_contains_element(html_tag_thead())      ||
-                          stack_contains_element(html_tag_tr())         ||
-                          stack_contains_element(html_tag_body())       ||
-                          stack_contains_element(html_tag_html())))
-                    {
-                        // todo: parse error
-                    }
-
-                    mode = HTML_PARSER_MODE_AFTER_BODY;
-                    consume             = false;
-                }
-                else if (is_start && (t_name == html_tag_address()    ||
-                                      t_name == html_tag_article()    ||
-                                      t_name == html_tag_aside()      ||
-                                      t_name == html_tag_blockquote() ||
-                                      t_name == html_tag_center()     ||
-                                      t_name == html_tag_details()    ||
-                                      t_name == html_tag_dialog()     ||
-                                      t_name == html_tag_dir()        ||
-                                      t_name == html_tag_div()        ||
-                                      t_name == html_tag_dl()         ||
-                                      t_name == html_tag_fieldset()   ||
-                                      t_name == html_tag_figcaption() ||
-                                      t_name == html_tag_figure()     ||
-                                      t_name == html_tag_footer()     ||
-                                      t_name == html_tag_header()     ||
-                                      t_name == html_tag_hgroup()     ||
-                                      t_name == html_tag_main()       ||
-                                      t_name == html_tag_menu()       ||
-                                      t_name == html_tag_nav()        ||
-                                      t_name == html_tag_ol()         ||
-                                      t_name == html_tag_p()          ||
-                                      t_name == html_tag_search()     ||
-                                      t_name == html_tag_section()    ||
-                                      t_name == html_tag_summary()    ||
-                                      t_name == html_tag_ul()))
-                {
-                    if (in_scope(html_tag_p(), BUTTON_SCOPE))
-                    {
-                        close_p_element();
-                    }
-
-                    insert_html_element(t_name, &t);
-                }
-                else if (is_start && (t_name == html_tag_h1() ||
-                                      t_name == html_tag_h2() ||
-                                      t_name == html_tag_h3() ||
-                                      t_name == html_tag_h4() ||
-                                      t_name == html_tag_h5() ||
-                                      t_name == html_tag_h6()))
-                {
-                    // todo: scope logic
-
-                    dom_node_t* node = stack[stack_idx];
-
-                    if (node->name == html_tag_h1() ||
-                        node->name == html_tag_h2() ||
-                        node->name == html_tag_h3() ||
-                        node->name == html_tag_h4() ||
-                        node->name == html_tag_h5() ||
-                        node->name == html_tag_h6())
-                    {
-                        // todo: parse error
-                        stack_pop();
-                    }
-                    insert_html_element(t_name, &t);
-                }
-                else if (is_start && (t_name == html_tag_pre() || t_name == html_tag_listing()))
-                {
-                    // todo: scope logic
-                    insert_html_element(t_name, &t);
-                    // todo: check if next token is \n
-                    // todo: frameset-ok flag
-                }
-                else if (is_start && t_name == html_tag_form())
-                {
-                    if (form_element && !stack_contains_element(html_tag_template()))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        if (in_scope(html_tag_p(), BUTTON_SCOPE))
-                        {
-                            close_p_element();
-                        }
-
-                        dom_node_t* element = insert_html_element(t_name, &t);
-                        if (!stack_contains_element(html_tag_template()))
-                        {
-                            form_element = element;
-                        }
-                    }
-                }
-                else if (is_start && t_name == html_tag_li())
-                {
-                    INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
-
-                    dom_node_t* node    = stack[stack_idx];
-                    uint32_t idx        = stack_idx;
-                    uint32_t step       = 3;
-                    bool run            = true;
-
-                    while (run)
-                    {
-                        switch (step)
-                        {
-                        case 3:
-                            if (node->name == html_tag_li())
-                            {
-                                generate_implied_end_tags(html_tag_li());
-
-                                if (stack[stack_idx]->name != html_tag_li())
-                                {
-                                    INCOMPLETE_IMPLEMENTATION("parse error");
-                                }
-    
-                                pop_elements_until_name_included(html_tag_li());
-                                step = 6;
-                            }
-                            else
-                            {
-                                step = 4;
-                            }
-                            break;
-
-                        case 4:
-                            if (is_special(node) && (node->name != html_tag_address() && node->name != html_tag_div() && node->name != html_tag_p()))
-                            {
-                                step = 6;
-                            }
-                            else
-                            {
-                                step = 5;
-                            }
-                            break;
-
-                        case 5:
-                            idx--;
-                            node = stack[idx];
-                            step = 3;
-                            break;
-
-                        case 6:
-                            if (in_scope(html_tag_p(), BUTTON_SCOPE))
-                            {
-                                close_p_element();
-                            }
-                            run = false;
-                            break;
-                        }
-                    }
-
-                    insert_html_element(t_name, &t);
-                }
-                else if (is_start && (t_name == html_tag_dt() || t_name == html_tag_dd()))
-                {
-                    INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
-
-                    dom_node_t* node    = stack[stack_idx];
-                    uint32_t idx        = stack_idx;
-                    uint32_t step       = 3;
-                    bool run            = true;
-
-                    while (run)
-                    {
-                        switch (step)
-                        {
-                        case 3:
-                            if (node->name == html_tag_dd())
-                            {
-                                generate_implied_end_tags(html_tag_dd());
-
-                                if (stack[stack_idx]->name != html_tag_dd())
-                                {
-                                    INCOMPLETE_IMPLEMENTATION("parse error");
-                                }
-
-                                pop_elements_until_name_included(html_tag_dd());
-                                step = 7;
-                            }
-                            else
-                            {
-                                step = 4;
-                            }
-                            break;
-
-                        case 4:
-                            if (node->name == html_tag_dt())
-                            {
-                                generate_implied_end_tags(html_tag_dt());
-
-                                if (stack[stack_idx]->name != html_tag_dt())
-                                {
-                                    INCOMPLETE_IMPLEMENTATION("parse error");
-                                }
-
-                                pop_elements_until_name_included(html_tag_dt());
-                                step = 7;
-                            }
-                            else
-                            {
-                                step = 5;
-                            }
-                            break;
-
-                        case 5:
-                            if (is_special(node) && (node->name != html_tag_address() && node->name != html_tag_div() && node->name != html_tag_p()))
-                            {
-                                step = 7;
-                            }
-                            else
-                            {
-                                step = 6;
-                            }
-                            break;
-
-                        case 6:
-                            idx--;
-                            node = stack[idx];
-                            step = 3;
-                            break;
-
-                        case 7:
-                            if (in_scope(html_tag_p(), BUTTON_SCOPE))
-                            {
-                                close_p_element();
-                            }
-                            run = false;
-                            break;
-                        }
-                    }
-
-                    insert_html_element(t_name, &t);
-                }
-                else if (is_start && t_name == html_tag_plaintext())
-                {
-                    if (in_scope(html_tag_p(), BUTTON_SCOPE))
-                    {
-                        close_p_element();
-                    }
-
-                    insert_html_element(t_name, &t);
-                    html_tokenizer_set_state(HTML_TOKENIZER_PLAINTEXT_STATE);
-                }
-                else if (is_start && t_name == html_tag_button())
-                {
-                    if (in_scope(html_tag_button(), BUTTON_SCOPE))
-                    {
-                        generate_implied_end_tags(0);
-
-                        dom_node_t* node = stack[stack_idx];
-
-                        while (node->name != html_tag_button())
-                        {
-                            stack_pop();
-                            node = stack[stack_idx];
-                        }
-
-                        stack_pop();
-                    }
-
-                    // todo: reconstruct the active formatting elements
-                    insert_html_element(t_name, &t);
-                    // set frameset-ok flag to not ok
-                }
-                else if (is_end && (t_name == html_tag_address()      || t_name == html_tag_article()       || 
-                                    t_name == html_tag_aside()        || t_name == html_tag_blockquote()    ||
-                                    t_name == html_tag_button()       || t_name == html_tag_center()        ||
-                                    t_name == html_tag_details()      || t_name == html_tag_dialog()        ||
-                                    t_name == html_tag_dir()          || t_name == html_tag_div()           ||
-                                    t_name == html_tag_dl()           || t_name == html_tag_fieldset()      ||
-                                    t_name == html_tag_figcaption()   || t_name == html_tag_figure()        ||
-                                    t_name == html_tag_footer()       || t_name == html_tag_header()        ||
-                                    t_name == html_tag_hgroup()       || t_name == html_tag_listing()       ||
-                                    t_name == html_tag_main()         || t_name == html_tag_menu()          ||
-                                    t_name == html_tag_nav()          || t_name == html_tag_ol()            ||
-                                    t_name == html_tag_pre()          || t_name == html_tag_search()        ||
-                                    t_name == html_tag_section()      || t_name == html_tag_summary()       ||
-                                    t_name == html_tag_select()       || t_name == html_tag_ul() ))
-                {
-                    if (!in_scope(t_name, GENERIC_SCOPE))
-                    {
-                        // todo: parse error
-                    }
-                    else
-                    {
-                        generate_implied_end_tags(0);
-
-                        dom_node_t* node = stack[stack_idx];
-
-                        if (node->name != t_name)
-                        {
-                            // todo: parse error
-                        }
-
-                        pop_elements_until_name_included(t_name);
-                    }
-                }
-                else if (is_end && t_name == html_tag_form())
-                {
-                    if (stack_contains_element(html_tag_template()))
-                    {
-                        NOT_IMPLEMENTED
-                    }
-                    else
-                    {
-                        dom_node_t* node = form_element;
-                        form_element = NULL;
-                        if (!node || !stack_contains_node(node))
-                        {
-                            INCOMPLETE_IMPLEMENTATION("parse error");
-                        }
-                        else
-                        {
-                            generate_implied_end_tags(0);
-                            if (stack[stack_idx] != node)
-                            {
-                                INCOMPLETE_IMPLEMENTATION("parse error");
-                            }
-                            remove_from_stack(node);
-                        }
-                    }
-                }
-                else if (is_end && t_name == html_tag_p())
-                {
-                    if (!in_scope(html_tag_p(), BUTTON_SCOPE))
-                    {
-                        // todo: parse error
-                        insert_html_element(html_tag_p(), NULL);
-                    }
-                    
-                    close_p_element();
-                }
-                else if (is_end && t_name == html_tag_li())
-                {
-                    if (!in_scope(html_tag_li(), LIST_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        generate_implied_end_tags(html_tag_li());
-                        if (stack[stack_idx]->name != html_tag_li())
-                        {
-                            INCOMPLETE_IMPLEMENTATION("parse error");
-                        }
-                        pop_elements_until_name_included(html_tag_li());
-                    }
-                }
-                else if (is_end && (t_name == html_tag_dd() || t_name == html_tag_dt() ))
-                {
-                    if (!in_scope(t_name, GENERIC_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        generate_implied_end_tags(t_name);
-                        if (stack[stack_idx]->name != t_name)
-                        {
-                            INCOMPLETE_IMPLEMENTATION("parse error");
-                        }
-                        pop_elements_until_name_included(t_name);
-                    }
-                }
-                else if (is_end && (t_name == html_tag_h1() || t_name == html_tag_h2() || t_name == html_tag_h3() ||
-                                    t_name == html_tag_h4() || t_name == html_tag_h5() || t_name == html_tag_h6()))
-                {
-                    if (!in_scope(html_tag_h1(), GENERIC_SCOPE) &&
-                        !in_scope(html_tag_h2(), GENERIC_SCOPE) &&
-                        !in_scope(html_tag_h3(), GENERIC_SCOPE) &&
-                        !in_scope(html_tag_h4(), GENERIC_SCOPE) &&
-                        !in_scope(html_tag_h5(), GENERIC_SCOPE) &&
-                        !in_scope(html_tag_h6(), GENERIC_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        generate_implied_end_tags(0);
-                        if (stack[stack_idx]->name != t_name)
-                        {
-                            INCOMPLETE_IMPLEMENTATION("parse error");
-                        }
-
-                        dom_node_t* current = stack[stack_idx];
-                        while (current->name != html_tag_h1() &&
-                               current->name != html_tag_h2() &&
-                               current->name != html_tag_h3() &&
-                               current->name != html_tag_h4() &&
-                               current->name != html_tag_h5() &&
-                               current->name != html_tag_h6())
-                        {
-                            stack_pop();
-                            current = stack[stack_idx];
-                        }
-                    }
-                }
-                else if (is_start && t_name == html_tag_a())
-                {
-                    dom_node_t* node = find_appropriate_formatting_element(html_tag_a());
-                    if (node)
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-
-                        bool success = run_adoption_procedure(t_name);
-
-                        if (!success) { handle_end_tag_in_body(t_name); }
-
-                        remove_from_stack(node);
-                        remove_formatting_element(node);
-                    }
-
-                    reconstruct_formatting_elements();
-                    node = insert_html_element(t_name, &t);
-                    push_formatting_element(node, &t);
-                }
-                else if (is_start && (t_name == html_tag_b()      || 
-                                      t_name == html_tag_big()    ||
-                                      t_name == html_tag_code()   ||
-                                      t_name == html_tag_em()     ||
-                                      t_name == html_tag_font()   ||
-                                      t_name == html_tag_i()      ||
-                                      t_name == html_tag_s()      ||
-                                      t_name == html_tag_small()  ||
-                                      t_name == html_tag_strike() ||
-                                      t_name == html_tag_strong() ||
-                                      t_name == html_tag_tt()     ||
-                                      t_name == html_tag_u()) )
-                {
-                    reconstruct_formatting_elements();
-                    dom_node_t* node = insert_html_element(t_name, &t);
-                    push_formatting_element(node, &t);
-                }
-                else if (is_start && t_name == html_tag_nobr())
-                {
-                    reconstruct_formatting_elements();
-                    if (in_scope(html_tag_nobr(), GENERIC_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-
-                        bool success = run_adoption_procedure(t_name);
-
-                        if (!success) { handle_end_tag_in_body(t_name); }
-                        reconstruct_formatting_elements();
-                    }
-
-                    dom_node_t* node = insert_html_element(t_name, &t);
-                    push_formatting_element(node, &t);
-                }
-                else if (is_end && (t_name == html_tag_a()        ||
-                                    t_name == html_tag_b()        ||
-                                    t_name == html_tag_big()      ||
-                                    t_name == html_tag_code()     ||
-                                    t_name == html_tag_em()       ||
-                                    t_name == html_tag_font()     ||
-                                    t_name == html_tag_i()        ||
-                                    t_name == html_tag_nobr()     ||
-                                    t_name == html_tag_s()        ||
-                                    t_name == html_tag_small()    ||
-                                    t_name == html_tag_strike()   ||
-                                    t_name == html_tag_strong()   ||
-                                    t_name == html_tag_tt()       ||
-                                    t_name == html_tag_u()))
-                {
-                    bool success = run_adoption_procedure(t_name);
-
-                    if (!success) { handle_end_tag_in_body(t_name); }
-                }
-                else if (is_start && (t_name == html_tag_applet() || t_name == html_tag_marquee() || t_name == html_tag_object()) )
-                {
-                    reconstruct_formatting_elements();
-                    insert_html_element(t_name, &t);
-                    insert_marker();
-                    INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
-                }
-                else if (is_end && (t_name == html_tag_applet() || t_name == html_tag_marquee() || t_name == html_tag_object()) )
-                {
-                    if (!in_scope(t_name, GENERIC_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        generate_implied_end_tags(0);
-                        if (stack[stack_idx]->name != t_name)
-                        {
-                            INCOMPLETE_IMPLEMENTATION("parse error");
-                        }
-                        pop_elements_until_name_included(t_name);
-                        clear_formatting_elements();
-                    }
-                }
-                else if (is_start && t_name == html_tag_table())
-                {
-                    INCOMPLETE_IMPLEMENTATION("quirk modes additional logic");
-
-                    dom_document_t* doc = dom_document_from_node(document);
-                    hash_str_t quirks = hash_str_new("quirks", 6);
-
-                    if (doc->mode == quirks && in_scope(html_tag_p(), BUTTON_SCOPE))
-                    {
-                        close_p_element();
-                    }
-
-                    insert_html_element(t_name, &t);
-
-                    INCOMPLETE_IMPLEMENTATION("Set the frameset-ok flag to not-ok.");
-
-                    mode = HTML_PARSER_MODE_IN_TABLE;
-                }
-                else if (is_end && t_name == html_tag_br())
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                    t.attributes_size = 0;
-                    reconstruct_formatting_elements();
-                    insert_html_element(t_name, &t);
-                    stack_pop();
-
-                    INCOMPLETE_IMPLEMENTATION("ack self closing flag");
-                    INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
-                }
-                else if (is_start && (t_name == html_tag_area() || t_name == html_tag_br() || t_name == html_tag_embed() ||
-                                      t_name == html_tag_img() || t_name == html_tag_keygen() || t_name == html_tag_wbr()))
-                {
-                    reconstruct_formatting_elements();
-                    insert_html_element(t_name, &t);
-                    stack_pop();
-
-                    INCOMPLETE_IMPLEMENTATION("ack self closing flag");
-                    INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
-                }
-                else if (is_start && t_name == html_tag_input())
-                {
-                    INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
-
-                    if (in_scope(html_tag_select(), GENERIC_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                        pop_elements_until_name_included(html_tag_select());
-                    }
-
-                    reconstruct_formatting_elements();
-                    insert_html_element(t_name, &t);
-                    stack_pop();
-
-                    INCOMPLETE_IMPLEMENTATION("ack self closing flag if set");
-                    INCOMPLETE_IMPLEMENTATION("frameset-ok logic");
-                }
-                else if (is_start && (t_name == html_tag_param() || t_name == html_tag_source() || t_name == html_tag_track() ))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_hr())
-                {
-                    if (in_scope(html_tag_p(), BUTTON_SCOPE))
-                    {
-                        close_p_element();
-                    }
-                    if (in_scope(html_tag_select(), GENERIC_SCOPE))
-                    {
-                        generate_implied_end_tags(0);
-                        if (in_scope(html_tag_option(), GENERIC_SCOPE) || in_scope(html_tag_optgroup(), GENERIC_SCOPE))
-                        {
-                            // todo: parse error
-                        }
-                    }
-                    insert_html_element(t_name, &t);
-                    stack_pop();
-                    // todo: ack self closing tag if set
-                    // todo: set frameset-ok to "not ok"
-                }
-                else if (is_start && t_name == html_tag_image())
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                    memset(tokens[i].name, 0, HTML_TOKEN_MAX_NAME_LEN);
-                    memcpy(tokens[i].name, "img", 3);
-                    tokens[i].name_size = 3;
-                    consume = false;
-                }
-                else if (is_start && t_name == html_tag_textarea())
-                {
-                    insert_html_element(t_name, &t);
-                    INCOMPLETE_IMPLEMENTATION("todo: check the next token is a U+000A LINE FEED (LF) character token");
-                    html_tokenizer_set_state(HTML_TOKENIZER_RCDATA_STATE);
-                    original_mode = mode;
-                    INCOMPLETE_IMPLEMENTATION("set frameset-ok flag to not-ok");
-                    mode = HTML_PARSER_MODE_TEXT;
-                }
-                else if (is_start && t_name == html_tag_xmp())
-                {
-                    if (in_scope(html_tag_p(), BUTTON_SCOPE))
-                    {
-                        close_p_element();
-                    }
-
-                    reconstruct_formatting_elements();
-
-                    INCOMPLETE_IMPLEMENTATION("frameset-ok flag to not ok");
-
-                    insert_html_element(t_name, &t);
-                    html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
-
-                    original_mode       = mode;
-                    mode = HTML_PARSER_MODE_TEXT;
-                }
-                else if (is_start && t_name == html_tag_iframe())
-                {
-                    INCOMPLETE_IMPLEMENTATION("frameset-ok flag to not ok");
-
-                    insert_html_element(t_name, &t);
-                    html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
-
-                    original_mode       = mode;
-                    mode = HTML_PARSER_MODE_TEXT;
-                }
-                else if ( (is_start && t_name == html_tag_noembed() ) ||
-                          (is_start && t_name == html_tag_noscript() && scripting_enabled) )
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_select() )
-                {
-                    // todo: fragment parsing logic
-                    if (in_scope(html_tag_select(), GENERIC_SCOPE))
-                    {
-                        // todo: parse error
-                        pop_elements_until_name_included(html_tag_select());
-                    }
-                    else
-                    {
-                        reconstruct_formatting_elements();
-                        insert_html_element(t_name, &t);
-                        // todo: set frameset-ok to "not ok"
-                    }
-                }
-                else if (is_start && t_name == html_tag_option())
-                {
-                    if (in_scope(html_tag_select(), GENERIC_SCOPE))
-                    {
-                        generate_implied_end_tags(html_tag_optgroup());
-                        if (in_scope(html_tag_option(), GENERIC_SCOPE))
-                        {
-                            INCOMPLETE_IMPLEMENTATION("parse error");
-                        }
-                    }
-                    else
-                    {
-                        dom_node_t* current = stack[stack_idx];
-                        if (current->name == html_tag_option())
-                        {
-                            stack_pop();
-                        }
-                    }
-
-                    reconstruct_formatting_elements();
-                    insert_html_element(t_name, &t);
-                }
-                else if (is_start && t_name == html_tag_optgroup())
-                {
-                    if (in_scope(html_tag_select(), GENERIC_SCOPE))
-                    {
-                        generate_implied_end_tags(0);
-                        if (in_scope(html_tag_option(), GENERIC_SCOPE) || in_scope(html_tag_optgroup(), GENERIC_SCOPE))
-                        {
-                            INCOMPLETE_IMPLEMENTATION("parse error");
-                        }
-                    }
-                    else
-                    {
-                        dom_node_t* current = stack[stack_idx];
-                        if (current->name == html_tag_option()) { stack_pop(); }
-                    }
-
-                    reconstruct_formatting_elements();
-                    insert_html_element(t_name, &t);
-                }
-                else if (is_end && t_name == html_tag_option())
-                {
-                    dom_node_t* option = find_first_in_stack(html_tag_option());
-
-                    handle_end_tag_in_body(t_name);
-
-                    if (option && !stack_contains_node(option))
-                    {
-                        maybe_clone_option_into_selected_content(option);
-                    }
-                }
-                else if (is_start && (t_name == html_tag_rb() || t_name == html_tag_rtc()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && (t_name == html_tag_rp() || t_name == html_tag_rt()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_math())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_svg())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && (t_name == html_tag_caption()    ||
-                                      t_name == html_tag_col()        ||
-                                      t_name == html_tag_colgroup()   || 
-                                      t_name == html_tag_frame()      ||
-                                      t_name == html_tag_head()       ||
-                                      t_name == html_tag_tbody()      ||
-                                      t_name == html_tag_td()         ||
-                                      t_name == html_tag_tfoot()      ||
-                                      t_name == html_tag_th()         ||
-                                      t_name == html_tag_thead()      ||
-                                      t_name == html_tag_tr() ))
-                {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                }
-                else if (is_start)
-                {
-                    // todo: Reconstruct the active formatting elements, if any.
-                    insert_html_element(t_name, &t);
-                }
-                else if (is_end)
-                {
-                    handle_end_tag_in_body(t_name);
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incdata
-            case HTML_PARSER_MODE_TEXT:
-                if (is_character)
-                {
-                    insert_character(t.data, t.data_size);
-                }
-                else if (is_eof)
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                    dom_node_t* current = stack[stack_idx];
-                    if (current->name == html_tag_script())
-                    {
-                        INCOMPLETE_IMPLEMENTATION("set already_started to true");
-                    }
-
-                    stack_pop();
-                    consume = false;
-                    mode = original_mode;
-                }
-                else if (is_end && t_name == html_tag_script())
-                {
-                    // breakpoint
-                    // todo: speculative parsing
-
-                    stack_pop();
-                    mode = original_mode;
-
-                    // todo: there is more implementation logic related to speculative parsing
-                    // todo: nesting level logic
-                }
-                else if (is_end)
-                {
-                    stack_pop();
-                    mode = original_mode;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intable
-            case HTML_PARSER_MODE_IN_TABLE:
-                ;
-                dom_node_t* current_node = stack[stack_idx];
-                const hash_str_t name = current_node->name;
-
-                if (is_character && (name == html_tag_table() || name == html_tag_tbody() ||
-                                     name == html_tag_template() || name == html_tag_tfoot() ||
-                                     name == html_tag_thead() || name == html_tag_tr()))
-                {
-                    memset(pending_tokens, 0, MAX_TOKENS * sizeof(html_token_t));
-                    pending_tokens_size = 0;
-
-                    original_mode       = mode;
-                    mode                = HTML_PARSER_MODE_IN_TABLE_TEXT;
-                    consume             = false;
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, NULL);
-                }
-                else if (is_doctype)
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_caption())
-                {
-                    clear_stack_back_to_table();
-                    insert_marker();
-                    insert_html_element(t_name, &t);
-                    mode = HTML_PARSER_MODE_IN_CAPTION;
-                }
-                else if (is_start && t_name == html_tag_colgroup())
-                {
-                    clear_stack_back_to_table();
-                    insert_html_element(t_name, &t);
-                    mode = HTML_PARSER_MODE_IN_COLUMN_GROUP;
-                }
-                else if (is_start && t_name == html_tag_col())
-                {
-                    clear_stack_back_to_table();
-                    insert_html_element(html_tag_colgroup(), NULL);
-                    mode = HTML_PARSER_MODE_IN_COLUMN_GROUP;
-                    consume = false;
-                }
-                else if (is_start && (t_name == html_tag_tbody() || t_name == html_tag_tfoot() || t_name == html_tag_thead()))
-                {
-                    clear_stack_back_to_table();
-                    insert_html_element(t_name, &t);
-                    mode = HTML_PARSER_MODE_IN_TABLE_BODY;
-                }
-                else if (is_start && (t_name == html_tag_td() || t_name == html_tag_th() || t_name == html_tag_tr()))
-                {
-                    clear_stack_back_to_table();
-                    insert_html_element(html_tag_tbody(), NULL);
-                    mode = HTML_PARSER_MODE_IN_TABLE_BODY;
-
-                    consume             = false;
-                }
-                else if (is_start && t_name == html_tag_table())
-                {
-                        NOT_IMPLEMENTED
-                }
-                else if (is_end && t_name == html_tag_table())
-                {
-                    if (!in_scope(html_tag_table(), TABLE_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
-                    }
-                    else
-                    {
-                        pop_elements_until_name_included(html_tag_table());
-                        reset_insertion_mode_appropriately();
-                    }
-                }
-                else if (is_end && (t_name == html_tag_body()     ||
-                                    t_name == html_tag_caption()  ||
-                                    t_name == html_tag_col()      ||
-                                    t_name == html_tag_colgroup() ||
-                                    t_name == html_tag_html()     ||
-                                    t_name == html_tag_tbody()    ||
-                                    t_name == html_tag_td()       ||
-                                    t_name == html_tag_tfoot()    ||
-                                    t_name == html_tag_th()       ||
-                                    t_name == html_tag_thead()    ||
-                                    t_name == html_tag_tr()))
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
-                }
-                else if ((is_start && (t_name == html_tag_style() || t_name == html_tag_script() || t_name == html_tag_template())) ||
-                         (is_end && t_name == html_tag_template()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_input())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_form())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_eof)
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
-                    mode                = HTML_PARSER_MODE_IN_TABLE;
-                    use_rules_for       = true;
-                }
-                else
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-
-                    replacement_mode            = HTML_PARSER_MODE_IN_BODY;
-                    will_use_foster_parenting   = true;
-                    mode                        = HTML_PARSER_MODE_IN_TABLE;
-                    use_rules_for               = true;
-                    consume                     = false;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intabletext
-            case HTML_PARSER_MODE_IN_TABLE_TEXT:
-                if (is_character && t.data_size == 1 && t.data[0] == '\0')
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_character)
-                {
-                    if (pending_tokens_size == MAX_TOKENS) { break; }
-
-                    pending_tokens[pending_tokens_size] = t;
-                    pending_tokens_size++;
-                }
-                else
-                {
-
-                    INCOMPLETE_IMPLEMENTATION("handle whitespace ascii chars");
-
-                    // NOTE: this is not ideal, but should be fine for now. This section is copying w/e is in the IN BODY section.
-
-                    for (uint32_t j = 0; j < pending_tokens_size; j++)
-                    {
-                        html_token_t token = pending_tokens[j];
-                        foster_parenting = true;
-                        reconstruct_formatting_elements();
-                        insert_character(token.data, token.data_size);
-                        // todo: frameset-ok flag
-                        foster_parenting = false;
-                    }
-
-                    pending_tokens_size = 0;
-                    mode = original_mode;
-                    consume = false;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incaption
-            case HTML_PARSER_MODE_IN_CAPTION:
-                if (is_end && t_name == html_tag_caption())
-                {
-                    if (!in_scope(html_tag_caption(), TABLE_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        generate_implied_end_tags(0);
-                        if (stack[stack_idx]->name != html_tag_caption())
-                        {
-                            INCOMPLETE_IMPLEMENTATION("parse error");
-                        }
-
-                        pop_elements_until_name_included(html_tag_caption());
-                        clear_formatting_elements();
-                        mode = HTML_PARSER_MODE_IN_TABLE;
-                    }
-                }
-                else if ((is_start && (t_name == html_tag_caption()   ||
-                                       t_name == html_tag_col()       ||
-                                       t_name == html_tag_colgroup()  || 
-                                       t_name == html_tag_tbody()     ||
-                                       t_name == html_tag_td()        ||
-                                       t_name == html_tag_tfoot()     ||
-                                       t_name == html_tag_th()        ||
-                                       t_name == html_tag_thead()     ||
-                                       t_name == html_tag_tr()))      ||
-                         (is_end && t_name == html_tag_table()))
-                {
-                    if (!in_scope(html_tag_caption(), TABLE_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                        break;
-                    }
-
-                    generate_implied_end_tags(0);
-                    
-                    if (stack[stack_idx]->name != html_tag_caption())
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-
-                    pop_elements_until_name_included(html_tag_caption());
-                    clear_formatting_elements();
-                    mode = HTML_PARSER_MODE_IN_TABLE;
-                    consume = false;
-                }
-                else if (is_end && (t_name == html_tag_body()     ||
-                                    t_name == html_tag_col()      ||
-                                    t_name == html_tag_colgroup() ||
-                                    t_name == html_tag_html()     ||
-                                    t_name == html_tag_tbody()    ||
-                                    t_name == html_tag_td()       ||
-                                    t_name == html_tag_tfoot()    ||
-                                    t_name == html_tag_th()       ||
-                                    t_name == html_tag_thead()    ||
-                                    t_name == html_tag_tr()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_IN_CAPTION;
-                    use_rules_for       = true;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incolgroup
-            case HTML_PARSER_MODE_IN_COLUMN_GROUP:
-                if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, NULL);
-                }
-                else if (is_doctype)
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_html())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_col())
-                {
-                    insert_html_element(t_name, &t);
-                    stack_pop();
-                    INCOMPLETE_IMPLEMENTATION("ack self closing flag, if set");
-                }
-                else if (is_end && t_name == html_tag_colgroup())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_end && t_name == html_tag_col())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if ((is_start || is_end) && (t_name == html_tag_template()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_eof)
-                {
-                    NOT_IMPLEMENTED
-                }
-                else
-                {
-                    if (stack[stack_idx]->name != html_tag_colgroup())
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
-                    }
-                    else
-                    {
-                        stack_pop();
-                        mode = HTML_PARSER_MODE_IN_TABLE;
-                        consume = false;
-                    }
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intbody
-            case HTML_PARSER_MODE_IN_TABLE_BODY:
-                if (is_start && t_name == html_tag_tr())
-                {
-                    clear_stack_back_to_table_body();
-                    insert_html_element(t_name, &t);
-                    mode                = HTML_PARSER_MODE_IN_ROW;
-                }
-                else if (is_start && (t_name == html_tag_th() || t_name == html_tag_td()))
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                    clear_stack_back_to_table_body();
-
-                    insert_html_element(html_tag_tr(), NULL);
-                    mode = HTML_PARSER_MODE_IN_ROW;
-
-                    consume             = false;
-                }
-                else if (is_end && (t_name == html_tag_tbody() || t_name == html_tag_tfoot() || t_name == html_tag_thead() ))
-                {
-                    if (!in_scope(t_name, TABLE_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                        break;
-                    }
-
-                    clear_stack_back_to_table_body();
-                    stack_pop();
-                    mode = HTML_PARSER_MODE_IN_TABLE;
-                    consume = false;
-                }
-                else if ((is_start && (t_name == html_tag_caption()   ||
-                                       t_name == html_tag_col()       ||
-                                       t_name == html_tag_colgroup()  ||
-                                       t_name == html_tag_tbody()     ||
-                                       t_name == html_tag_tfoot()     ||
-                                       t_name == html_tag_thead()))   ||
-                         (is_end && t_name == html_tag_table()))
-                {
-                    if (!in_scope(html_tag_tbody(), TABLE_SCOPE) &&
-                        !in_scope(html_tag_thead(), TABLE_SCOPE) &&
-                        !in_scope(html_tag_tfoot(), TABLE_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        clear_stack_back_to_table_body();
-                        stack_pop();
-                        mode = HTML_PARSER_MODE_IN_TABLE;
-                        consume         = false;
-                    }
-                }
-                else if (is_end && (t_name == html_tag_body()     ||
-                                    t_name == html_tag_caption()  ||
-                                    t_name == html_tag_col()      ||
-                                    t_name == html_tag_colgroup() ||
-                                    t_name == html_tag_html()     ||
-                                    t_name == html_tag_td()       ||
-                                    t_name == html_tag_th()       ||
-                                    t_name == html_tag_tr()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_TABLE;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_IN_TABLE_BODY;
-                    use_rules_for       = true;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intr
-            case HTML_PARSER_MODE_IN_ROW:
-                if (is_start && (t_name == html_tag_th() || t_name == html_tag_td()))
-                {
-                    clear_stack_back_to_table_row();
-                    insert_html_element(t_name, &t);
-                    insert_marker();
-                    mode = HTML_PARSER_MODE_IN_CELL;
-                }
-                else if (is_end && t_name == html_tag_tr())
-                {
-                    if (!in_scope(html_tag_tr(), TABLE_SCOPE))
-                    {
-                        // todo: parse error
-                        // ignore token
-                    }
-                    else
-                    {
-                        clear_stack_back_to_table_row();
-                        stack_pop();
-                        mode = HTML_PARSER_MODE_IN_TABLE_BODY;
-                    }
-                }
-                else if ((is_start && (t_name == html_tag_caption()   ||
-                                       t_name == html_tag_col()       ||
-                                       t_name == html_tag_colgroup()  ||
-                                       t_name == html_tag_tbody()     ||
-                                       t_name == html_tag_tfoot()     ||
-                                       t_name == html_tag_thead()     ||
-                                       t_name == html_tag_tr()))      ||
-                         (is_end && t_name == html_tag_table()))
-                {
-                    if (!in_scope(html_tag_tr(), TABLE_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        clear_stack_back_to_table_row();
-                        stack_pop();
-                        mode = HTML_PARSER_MODE_IN_TABLE_BODY;
-                        consume             = false;
-                    }
-                }
-                else if (is_end && (t_name == html_tag_tbody() || t_name == html_tag_thead() || t_name == html_tag_tfoot()))
-                {
-                    if (!in_scope(t_name, TABLE_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                        break;
-                    }
-
-                    if (!in_scope(html_tag_tr(), TABLE_SCOPE))
-                    {
-                        break;
-                    }
-
-                    clear_stack_back_to_table_row();
-                    stack_pop();
-                    mode = HTML_PARSER_MODE_IN_TABLE_BODY;
-                    consume = false;
-                }
-                else if (is_end && (t_name == html_tag_body()     ||
-                                    t_name == html_tag_caption()  ||
-                                    t_name == html_tag_col()      ||
-                                    t_name == html_tag_colgroup() ||
-                                    t_name == html_tag_html()     ||
-                                    t_name == html_tag_td()       ||
-                                    t_name == html_tag_th()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else
-                {
-                    consume             = false;
-                    replacement_mode    = HTML_PARSER_MODE_IN_TABLE;
-                    mode                = HTML_PARSER_MODE_IN_ROW;
-                    use_rules_for       = true;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intd
-            case HTML_PARSER_MODE_IN_CELL:
-                if (is_end && (t_name == html_tag_td() || t_name == html_tag_th()))
-                {
-                    if (!in_scope(t_name, TABLE_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        generate_implied_end_tags(0);
-
-                        dom_node_t* node = stack[stack_idx];
-
-                        if (node->name != t_name)
-                        {
-                            INCOMPLETE_IMPLEMENTATION("parse error");
-                        }
-
-                        pop_elements_until_name_included(t_name);
-                        clear_formatting_elements();
-                        mode            = HTML_PARSER_MODE_IN_ROW;
-                    }
-                }
-                else if (is_start && (t_name == html_tag_caption()    ||
-                                      t_name == html_tag_col()        ||
-                                      t_name == html_tag_colgroup()   ||
-                                      t_name == html_tag_tbody()      ||
-                                      t_name == html_tag_tfoot()      ||
-                                      t_name == html_tag_thead()      ||
-                                      t_name == html_tag_tr()         ||
-                                      t_name == html_tag_th()         ||
-                                      t_name == html_tag_td()))
-                {
-                    assert(in_scope(html_tag_td(), GENERIC_SCOPE) || in_scope(html_tag_th(), GENERIC_SCOPE));
-
-                    close_cell();
-                    consume                 = false;
-                }
-                else if (is_end && (t_name == html_tag_body()     ||
-                                    t_name == html_tag_caption()  ||
-                                    t_name == html_tag_col()      ||
-                                    t_name == html_tag_colgroup() ||
-                                    t_name == html_tag_html()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_end && (t_name == html_tag_table() || t_name == html_tag_tfoot() || t_name == html_tag_thead() ||
-                                    t_name == html_tag_tbody() || t_name == html_tag_tr()))
-                {
-                    if (!in_scope(t_name, TABLE_SCOPE))
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        close_cell();
-                        consume                 = false;
-                    }
-                }
-                else
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_IN_CELL;
-                    use_rules_for       = true;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intemplate
-            case HTML_PARSER_MODE_IN_TEMPLATE:
-                if (is_character || is_comment || is_doctype)
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if ((is_start && (t_name == html_tag_base()      ||
-                                       t_name == html_tag_basefont()  ||
-                                       t_name == html_tag_bgsound()   ||
-                                       t_name == html_tag_link()      ||
-                                       t_name == html_tag_meta()      ||
-                                       t_name == html_tag_noframes()  ||
-                                       t_name == html_tag_script()    ||
-                                       t_name == html_tag_style()     ||
-                                       t_name == html_tag_template()  ||
-                                       t_name == html_tag_title()))   ||
-                         (is_end && t_name == html_tag_template()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && (t_name == html_tag_caption()    ||
-                                      t_name == html_tag_colgroup()   ||
-                                      t_name == html_tag_tbody()      ||
-                                      t_name == html_tag_tfoot()      ||
-                                      t_name == html_tag_thead()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_col())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_tr())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && (t_name == html_tag_td() || t_name == html_tag_th()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start)
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_end)
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_eof)
-                {
-                    NOT_IMPLEMENTED
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterbody
-            case HTML_PARSER_MODE_AFTER_BODY:
-                if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, stack[0]);
-                }
-                else if (is_doctype)
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_html())
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_AFTER_BODY;
-                    use_rules_for       = true;
-                }
-                else if (is_end && t_name == html_tag_html())
-                {
-                    // todo: if parser was created using fragment parsing algorithm -> error and ignore token
-
-                    mode = HTML_PARSER_MODE_AFTER_AFTER_BODY;
-                }
-                else if (is_eof)
-                {
-                    stop_parsing();
-                }
-                else
-                {
-                    // todo: parse error
-                    mode = HTML_PARSER_MODE_IN_BODY;
-                    consume             = false;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inframeset
-            case HTML_PARSER_MODE_IN_FRAMESET:
-                if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
-                {
-                    insert_character(t.data, t.data_size);
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, NULL);
-                }
-                else if (is_doctype)
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                }
-                else if (is_start && t_name == html_tag_html())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_frameset())
-                {
-                    insert_html_element(t_name, &t);
-                }
-                else if (is_end && t_name == html_tag_frameset())
-                {
-                    if (stack[stack_idx]->name == html_tag_html())
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    else
-                    {
-                        stack_pop();
-                        INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
-                    }
-                }
-                else if (is_start && t_name == html_tag_frame())
-                {
-                    insert_html_element(t_name, &t);
-                    stack_pop();
-                    INCOMPLETE_IMPLEMENTATION("ack token self close flag");
-                }
-                else if (is_start && t_name == html_tag_noframes())
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_HEAD;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_IN_FRAMESET;
-                    use_rules_for       = true;
-                }
-                else if (is_eof)
-                {
-                    if (stack[stack_idx]->name != html_tag_html())
-                    {
-                        INCOMPLETE_IMPLEMENTATION("parse error");
-                    }
-                    stop_parsing();
-                }
-                else
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-afterframeset
-            case HTML_PARSER_MODE_AFTER_FRAMESET:
-                if (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' '))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_comment)
-                {
-                    insert_comment(&t, NULL);
-                }
-                else if (is_doctype)
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_html())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_end && t_name == html_tag_html())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_noframes())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_eof)
-                {
-                    NOT_IMPLEMENTED
-                }
-                else
-                {
-                    NOT_IMPLEMENTED
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#the-after-after-body-insertion-mode
-            case HTML_PARSER_MODE_AFTER_AFTER_BODY:
-                if (is_comment)
-                {
-                    insert_comment(&t, document);
-                }
-                else if ((is_doctype) ||
-                         (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' ')) ||
-                         (is_start && t_name == html_tag_html()))
-                {
-                    replacement_mode    = HTML_PARSER_MODE_IN_BODY;
-                    consume             = false;
-                    mode                = HTML_PARSER_MODE_AFTER_AFTER_BODY;
-                    use_rules_for       = true;
-                }
-                else if (is_eof)
-                {
-                    stop_parsing();
-                }
-                else
-                {
-                    INCOMPLETE_IMPLEMENTATION("parse error");
-                    mode = HTML_PARSER_MODE_IN_BODY;
-                    consume = false;
-                }
-                break;
-
-            // https://html.spec.whatwg.org/multipage/parsing.html#the-after-after-frameset-insertion-mode
-            case HTML_PARSER_MODE_AFTER_AFTER_FRAMESET:
-                if (is_comment)
-                {
-                    insert_comment(&t, document);
-                }
-                else if ((is_doctype) ||
-                         (is_character && (t.data[0] == '\t' || t.data[0] == '\n' || t.data[0] == '\f' || t.data[0] == '\r' || t.data[0] == ' ')) ||
-                         (is_start && t_name == html_tag_html()))
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_eof)
-                {
-                    NOT_IMPLEMENTED
-                }
-                else if (is_start && t_name == html_tag_noframes())
-                {
-                    NOT_IMPLEMENTED
-                }
-                else
-                {
-                    NOT_IMPLEMENTED
-                }
-                break;
-            }
-
-            if (foster_parenting)
-            {
-                foster_parenting = false;
-            }
-
-            if (will_use_foster_parenting)
-            {
-                will_use_foster_parenting = false;
-                foster_parenting = true;
-            }
-
-            if (remove_head)
-            {
-                remove_from_stack(head_pointer);
-                remove_head = false;
-            }
-
-            if (will_remove_head)
-            {
-                will_remove_head = false;
-                remove_head = true;
-            }
-
-            if (consume)
-            {
-                i++;
-            }
+            process_token(mode, t_name, &t);
         }
     }
 
