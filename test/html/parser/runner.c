@@ -205,6 +205,12 @@ static dom_node_t* parse_doctype()
 {
     uint32_t start = level * 2 + 10;
     uint32_t size = line_size - 1 - start;
+
+    for (uint32_t i = start; i < line_size; i++)
+    {
+        if (line[i] == ' ') { size = i - start; break; }
+    }
+
     return dom_doctype_new(document, &line[start], size, NULL, 0, NULL, 0);
 }
 

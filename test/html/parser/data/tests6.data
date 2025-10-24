@@ -468,7 +468,9 @@
 #document
 | <html>
 |   <head>
-|   <frameset>
+|   <body>
+|     <param>
+|     <frameset>
 
 #data
 <source><frameset></frameset>
