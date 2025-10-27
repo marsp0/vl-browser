@@ -351,6 +351,7 @@ void html_parser_test()
                                     "./test/html/parser/data/tests5.data",
                                     "./test/html/parser/data/tests6.data",
                                     "./test/html/parser/data/tests7.data",
+                                    "./test/html/parser/data/tests8.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
