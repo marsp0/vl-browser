@@ -222,5 +222,7 @@ hash_str_t html_tag_cite();
 hash_str_t html_tag_CITE();
 hash_str_t html_tag_spacer();
 hash_str_t html_tag_SPACER();
+hash_str_t html_tag_ruby();
+hash_str_t html_tag_RUBY();
 
 void html_populate_tags();

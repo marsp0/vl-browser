@@ -1987,7 +1987,10 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
                                 t_name == html_tag_h5() ||
                                 t_name == html_tag_h6()))
     {
-        // todo: scope logic
+        if (in_scope(html_tag_p(), BUTTON_SCOPE))
+        {
+            close_p_element();
+        }
 
         dom_node_t* node = stack[stack_idx];
 
@@ -2005,7 +2008,10 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && (t_name == html_tag_pre() || t_name == html_tag_listing()))
     {
-        // todo: scope logic
+        if (in_scope(html_tag_p(), BUTTON_SCOPE))
+        {
+            close_p_element();
+        }
         insert_html_element(t_name, t);
         // todo: check if next token is \n
         // todo: frameset-ok flag
@@ -2327,6 +2333,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
             }
 
             dom_node_t* current = stack[stack_idx];
+
             while (current->name != html_tag_h1() &&
                    current->name != html_tag_h2() &&
                    current->name != html_tag_h3() &&
@@ -2337,6 +2344,8 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
                 stack_pop();
                 current = stack[stack_idx];
             }
+
+            stack_pop();
         }
     }
     else if (is_start(type) && t_name == html_tag_a())
@@ -2639,11 +2648,31 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && (t_name == html_tag_rb() || t_name == html_tag_rtc()))
     {
-        NOT_IMPLEMENTED
+        if (stack_contains_element(html_tag_ruby()))
+        {
+            generate_implied_end_tags(0);
+
+            if (stack[stack_idx]->name != html_tag_ruby())
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+        }
+
+        insert_html_element(t_name, t);
     }
     else if (is_start(type) && (t_name == html_tag_rp() || t_name == html_tag_rt()))
     {
-        NOT_IMPLEMENTED
+        if (stack_contains_element(html_tag_ruby()))
+        {
+            generate_implied_end_tags(html_tag_rtc());
+
+            if (stack[stack_idx]->name != html_tag_rtc() && stack[stack_idx]->name != html_tag_ruby())
+            {
+                INCOMPLETE_IMPLEMENTATION("parse error");
+            }
+        }
+
+        insert_html_element(t_name, t);
     }
     else if (is_start(type) && t_name == html_tag_math())
     {

@@ -1,11 +1,15 @@
 #data
-<!doctype html><frameset></frameset></html><noframes>abc</noframes><!--abc-->
+<!doctype html><h1><div><h3><span></h1>foo
 #errors
+(1,39): end-tag-too-early
+(1,42): expected-closing-tag-but-got-eof
 #document
 | <!DOCTYPE html>
 | <html>
 |   <head>
-|   <frameset>
-|   <noframes>
-|     "abc"
-| <!-- abc -->
+|   <body>
+|     <h1>
+|       <div>
+|         <h3>
+|           <span>
+|         "foo"
