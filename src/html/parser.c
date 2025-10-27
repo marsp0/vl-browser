@@ -55,8 +55,6 @@ typedef struct
 
 static html_parser_mode_e mode                      = HTML_PARSER_MODE_INITIAL;
 static html_parser_mode_e original_mode             = HTML_PARSER_MODE_INITIAL;
-static html_parser_mode_e replacement_mode          = HTML_PARSER_MODE_INITIAL;
-static bool use_rules_for                           = false;
 
 static html_token_t pending_tokens[MAX_TOKENS]      = { 0 };
 static uint32_t pending_tokens_size                 = 0;
@@ -3291,7 +3289,7 @@ static void process_in_cell(hash_str_t t_name, html_token_t* t)
                                 t_name == html_tag_th()         ||
                                 t_name == html_tag_td()))
     {
-        assert(in_scope(html_tag_td(), GENERIC_SCOPE) || in_scope(html_tag_th(), GENERIC_SCOPE));
+        assert(in_scope(html_tag_td(), TABLE_SCOPE) || in_scope(html_tag_th(), TABLE_SCOPE));
 
         close_cell();
         process_token(mode, t_name, t);
@@ -3672,8 +3670,6 @@ void html_parser_init(bool scripting)
 {
     mode                        = HTML_PARSER_MODE_INITIAL;
     original_mode               = HTML_PARSER_MODE_INITIAL;
-    replacement_mode            = HTML_PARSER_MODE_INITIAL;
-    use_rules_for               = false;
     stack_idx                   = 0;
     stack_size                  = 0;
     document                    = NULL;
