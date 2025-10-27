@@ -576,11 +576,12 @@ html_tokenizer_error_e html_tokenizer_next()
         assert(token_idx < max_tokens);
 
         cp_len  = -1;
-        consume     = true;
+        consume = true;
 
         if (buf_cur >= buf_size)
         {
-            is_eof = true;
+            cp      = 0;
+            is_eof  = true;
         }
         else
         {
@@ -1567,7 +1568,7 @@ html_tokenizer_error_e html_tokenizer_next()
             else
             {
                 consume                         = false;
-                state                           = HTML_TOKENIZER_SCRIPT_DATA_ESCAPED_STATE;
+                state                           = HTML_TOKENIZER_SCRIPT_DATA_DOUBLE_ESCAPED_STATE;
             }
             break;
 

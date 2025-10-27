@@ -1,18 +1,19 @@
 #data
-<!doctype html><table>X<tr><td><table> <meta></table></table>
+<!doctype html><table><td><span><font></span><span>
 #errors
-unexpected text in table
-(1,45): unexpected-start-tag-implies-table-voodoo
+(1,26): unexpected-cell-in-table-body
+(1,45): unexpected-end-tag
+(1,51): expected-closing-tag-but-got-eof
 #document
 | <!DOCTYPE html>
 | <html>
 |   <head>
 |   <body>
-|     "X"
 |     <table>
 |       <tbody>
 |         <tr>
 |           <td>
-|             <meta>
-|             <table>
-|               " "
+|             <span>
+|               <font>
+|             <font>
+|               <span>

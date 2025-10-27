@@ -23,6 +23,7 @@ typedef enum
     STATE_SCRIPT
 } html5lib_parse_state_e;
 
+static const unsigned char* test_file = NULL;
 static FILE* file = NULL;
 static bool file_done = false;
 static unsigned char file_buffer[4096] = { 0 };
@@ -215,7 +216,7 @@ static dom_node_t* parse_doctype()
 }
 
 
-static void run_test()
+static void run_parser_test()
 {
     memset(test_data, 0, 2048);
     test_data_size = 0;
@@ -326,7 +327,7 @@ static void run_test()
 
     if (!TEST_SUCCEEDED())
     {
-        printf("\n========== Test %u ==========\n", test_line);
+        printf("\n========== Test %s:%u ==========\n", test_file, test_line);
         printf("%s\n", test_data);
         printf("\n-- Actual Tree --\n");
         print_document_tree(actual, 1);
@@ -354,6 +355,7 @@ void html_parser_test()
                                     "./test/html/parser/data/tests8.data",
                                     "./test/html/parser/data/tests14.data",
                                     "./test/html/parser/data/tests15.data",
+                                    "./test/html/parser/data/tests16.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
@@ -373,6 +375,8 @@ void html_parser_test()
             return;
         }
 
-        while (!is_eof) { TEST_CASE(run_test) }
+        test_file = files[i];
+
+        while (!is_eof) { TEST_CASE(run_parser_test) }
     }
 }

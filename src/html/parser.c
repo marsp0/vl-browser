@@ -1520,7 +1520,7 @@ static void process_in_head(hash_str_t t_name, html_token_t* t)
     else if (is_start(type) && t_name == html_tag_script())
     {
         dom_insertion_location_t location   = get_appropriate_insertion_location(NULL);
-        dom_node_t* element    = create_element(t_name, t, document);
+        dom_node_t* element                 = create_element(t_name, t, document);
 
         INCOMPLETE_IMPLEMENTATION("missing steps: 3/4/5");
 
@@ -1528,8 +1528,8 @@ static void process_in_head(hash_str_t t_name, html_token_t* t)
         stack_push(element);
         html_tokenizer_set_state(HTML_TOKENIZER_SCRIPT_DATA_STATE);
 
-        original_mode           = mode;
-        mode = HTML_PARSER_MODE_TEXT;
+        original_mode   = mode;
+        mode            = HTML_PARSER_MODE_TEXT;
     }
     else if (is_end(type) && t_name == html_tag_head())
     {
@@ -2200,7 +2200,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
             stack_pop();
         }
 
-        // todo: reconstruct the active formatting elements
+        reconstruct_formatting_elements();
         insert_html_element(t_name, t);
         // set frameset-ok flag to not ok
     }
@@ -2564,7 +2564,13 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     else if ( (is_start(type) && t_name == html_tag_noembed() ) ||
               (is_start(type) && t_name == html_tag_noscript() && scripting_enabled) )
     {
-        NOT_IMPLEMENTED
+        INCOMPLETE_IMPLEMENTATION("frameset-ok flag to not ok");
+
+        insert_html_element(t_name, t);
+        html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
+
+        original_mode   = mode;
+        mode            = HTML_PARSER_MODE_TEXT;
     }
     else if (is_start(type) && t_name == html_tag_select() )
     {
@@ -2665,7 +2671,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type))
     {
-        // todo: Reconstruct the active formatting elements, if any.
+        reconstruct_formatting_elements();
         insert_html_element(t_name, t);
     }
     else if (is_end(type))
@@ -2876,7 +2882,17 @@ static void process_in_table(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && t_name == html_tag_form())
     {
-        NOT_IMPLEMENTED
+        INCOMPLETE_IMPLEMENTATION("parse error");
+
+        if (stack_contains_element(html_tag_template()) || form_element)
+        {
+            // ignore
+            return;
+        }
+
+        dom_node_t* element = insert_html_element(t_name, t);
+        form_element = element;
+        stack_pop();
     }
     else if (is_eof(type))
     {
