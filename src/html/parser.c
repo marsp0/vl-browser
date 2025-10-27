@@ -3456,11 +3456,15 @@ static void process_in_frameset(hash_str_t t_name, html_token_t* t)
         if (stack[stack_idx]->name == html_tag_html())
         {
             INCOMPLETE_IMPLEMENTATION("parse error");
+            return;
         }
-        else
+
+        stack_pop();
+        INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
+
+        if (stack[stack_idx]->name != html_tag_frameset())
         {
-            stack_pop();
-            INCOMPLETE_IMPLEMENTATION("fragment parsing logic");
+            mode = HTML_PARSER_MODE_AFTER_FRAMESET;
         }
     }
     else if (is_start(type) && t_name == html_tag_frame())
@@ -3492,11 +3496,12 @@ static void process_in_frameset(hash_str_t t_name, html_token_t* t)
 static void process_after_frameset(hash_str_t t_name, html_token_t* t)
 {
     const unsigned char* data   = t->data;
+    const uint32_t data_size    = t->data_size;
     html_token_type_e type      = t->type;
 
     if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
     {
-        NOT_IMPLEMENTED
+        insert_character(data, data_size);
     }
     else if (is_comment(type))
     {
@@ -3512,19 +3517,19 @@ static void process_after_frameset(hash_str_t t_name, html_token_t* t)
     }
     else if (is_end(type) && t_name == html_tag_html())
     {
-        NOT_IMPLEMENTED
+        mode = HTML_PARSER_MODE_AFTER_AFTER_FRAMESET;
     }
     else if (is_start(type) && t_name == html_tag_noframes())
     {
-        NOT_IMPLEMENTED
+        process_token(HTML_PARSER_MODE_IN_HEAD, t_name, t);
     }
     else if (is_eof(type))
     {
-        NOT_IMPLEMENTED
+        stop_parsing();
     }
     else
     {
-        NOT_IMPLEMENTED
+        INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
     }
 }
 
@@ -3572,19 +3577,19 @@ static void process_after_after_frameset(hash_str_t t_name, html_token_t* t)
              (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' ')) ||
              (is_start(type) && t_name == html_tag_html()))
     {
-        NOT_IMPLEMENTED
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
     }
     else if (is_eof(type))
     {
-        NOT_IMPLEMENTED
+        stop_parsing();
     }
     else if (is_start(type) && t_name == html_tag_noframes())
     {
-        NOT_IMPLEMENTED
+        process_token(HTML_PARSER_MODE_IN_HEAD, t_name, t);
     }
     else
     {
-        NOT_IMPLEMENTED
+        INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
     }
 }
 

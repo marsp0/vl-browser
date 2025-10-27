@@ -1,19 +1,11 @@
 #data
-<!doctype html><table><td><span><font></span><span>
+<!doctype html><frameset></frameset></html><noframes>abc</noframes><!--abc-->
 #errors
-(1,26): unexpected-cell-in-table-body
-(1,45): unexpected-end-tag
-(1,51): expected-closing-tag-but-got-eof
 #document
 | <!DOCTYPE html>
 | <html>
 |   <head>
-|   <body>
-|     <table>
-|       <tbody>
-|         <tr>
-|           <td>
-|             <span>
-|               <font>
-|             <font>
-|               <span>
+|   <frameset>
+|   <noframes>
+|     "abc"
+| <!-- abc -->
