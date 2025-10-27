@@ -132,7 +132,7 @@ static bool line_is_element()
 static bool line_is_attr()
 {
     uint32_t i = level * 2;
-    return utf8_is_alpha(line[i]);
+    return utf8_is_alphanumeric(line[i]);
 }
 
 
@@ -352,6 +352,7 @@ void html_parser_test()
                                     "./test/html/parser/data/tests6.data",
                                     "./test/html/parser/data/tests7.data",
                                     "./test/html/parser/data/tests8.data",
+                                    "./test/html/parser/data/tests14.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
