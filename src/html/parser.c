@@ -5,16 +5,19 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "html/tokenizer.h"
 #include "dom/node.h"
+#include "dom/text.h"
 #include "dom/comment.h"
-#include "dom/document.h"
 #include "dom/doctype.h"
 #include "dom/element.h"
-#include "dom/text.h"
+#include "dom/document.h"
 #include "dom/attribute.h"
-#include "html/select.h"
+
+#include "util/utf8.h"
 #include "util/not_implemented.h"
+
+#include "html/select.h"
+#include "html/tokenizer.h"
 #include "html/tag_constants.h"
 
 /*
@@ -1747,15 +1750,15 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         }
     }
     else if ((is_start(type) && (t_name == html_tag_base()      ||
-                           t_name == html_tag_basefont()  ||
-                           t_name == html_tag_bgsound()   ||
-                           t_name == html_tag_link()      ||
-                           t_name == html_tag_meta()      ||
-                           t_name == html_tag_noframes()  ||
-                           t_name == html_tag_script()    ||
-                           t_name == html_tag_template()  ||
-                           t_name == html_tag_title()     ||
-                           t_name == html_tag_style()))   ||
+                                 t_name == html_tag_basefont()  ||
+                                 t_name == html_tag_bgsound()   ||
+                                 t_name == html_tag_link()      ||
+                                 t_name == html_tag_meta()      ||
+                                 t_name == html_tag_noframes()  ||
+                                 t_name == html_tag_script()    ||
+                                 t_name == html_tag_template()  ||
+                                 t_name == html_tag_title()     ||
+                                 t_name == html_tag_style()))   ||
             (is_end(type) && t_name == html_tag_template()))
     {
         process_token(HTML_PARSER_MODE_IN_HEAD, t_name, t);
@@ -1947,30 +1950,30 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         process_token(mode, t_name, t);
     }
     else if (is_start(type) && (t_name == html_tag_address()    ||
-                          t_name == html_tag_article()    ||
-                          t_name == html_tag_aside()      ||
-                          t_name == html_tag_blockquote() ||
-                          t_name == html_tag_center()     ||
-                          t_name == html_tag_details()    ||
-                          t_name == html_tag_dialog()     ||
-                          t_name == html_tag_dir()        ||
-                          t_name == html_tag_div()        ||
-                          t_name == html_tag_dl()         ||
-                          t_name == html_tag_fieldset()   ||
-                          t_name == html_tag_figcaption() ||
-                          t_name == html_tag_figure()     ||
-                          t_name == html_tag_footer()     ||
-                          t_name == html_tag_header()     ||
-                          t_name == html_tag_hgroup()     ||
-                          t_name == html_tag_main()       ||
-                          t_name == html_tag_menu()       ||
-                          t_name == html_tag_nav()        ||
-                          t_name == html_tag_ol()         ||
-                          t_name == html_tag_p()          ||
-                          t_name == html_tag_search()     ||
-                          t_name == html_tag_section()    ||
-                          t_name == html_tag_summary()    ||
-                          t_name == html_tag_ul()))
+                                t_name == html_tag_article()    ||
+                                t_name == html_tag_aside()      ||
+                                t_name == html_tag_blockquote() ||
+                                t_name == html_tag_center()     ||
+                                t_name == html_tag_details()    ||
+                                t_name == html_tag_dialog()     ||
+                                t_name == html_tag_dir()        ||
+                                t_name == html_tag_div()        ||
+                                t_name == html_tag_dl()         ||
+                                t_name == html_tag_fieldset()   ||
+                                t_name == html_tag_figcaption() ||
+                                t_name == html_tag_figure()     ||
+                                t_name == html_tag_footer()     ||
+                                t_name == html_tag_header()     ||
+                                t_name == html_tag_hgroup()     ||
+                                t_name == html_tag_main()       ||
+                                t_name == html_tag_menu()       ||
+                                t_name == html_tag_nav()        ||
+                                t_name == html_tag_ol()         ||
+                                t_name == html_tag_p()          ||
+                                t_name == html_tag_search()     ||
+                                t_name == html_tag_section()    ||
+                                t_name == html_tag_summary()    ||
+                                t_name == html_tag_ul()))
     {
         if (in_scope(html_tag_p(), BUTTON_SCOPE))
         {
@@ -1980,11 +1983,11 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         insert_html_element(t_name, t);
     }
     else if (is_start(type) && (t_name == html_tag_h1() ||
-                          t_name == html_tag_h2() ||
-                          t_name == html_tag_h3() ||
-                          t_name == html_tag_h4() ||
-                          t_name == html_tag_h5() ||
-                          t_name == html_tag_h6()))
+                                t_name == html_tag_h2() ||
+                                t_name == html_tag_h3() ||
+                                t_name == html_tag_h4() ||
+                                t_name == html_tag_h5() ||
+                                t_name == html_tag_h6()))
     {
         // todo: scope logic
 
@@ -2202,19 +2205,19 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         // set frameset-ok flag to not ok
     }
     else if (is_end(type) && (t_name == html_tag_address()      || t_name == html_tag_article()       || 
-                        t_name == html_tag_aside()        || t_name == html_tag_blockquote()    ||
-                        t_name == html_tag_button()       || t_name == html_tag_center()        ||
-                        t_name == html_tag_details()      || t_name == html_tag_dialog()        ||
-                        t_name == html_tag_dir()          || t_name == html_tag_div()           ||
-                        t_name == html_tag_dl()           || t_name == html_tag_fieldset()      ||
-                        t_name == html_tag_figcaption()   || t_name == html_tag_figure()        ||
-                        t_name == html_tag_footer()       || t_name == html_tag_header()        ||
-                        t_name == html_tag_hgroup()       || t_name == html_tag_listing()       ||
-                        t_name == html_tag_main()         || t_name == html_tag_menu()          ||
-                        t_name == html_tag_nav()          || t_name == html_tag_ol()            ||
-                        t_name == html_tag_pre()          || t_name == html_tag_search()        ||
-                        t_name == html_tag_section()      || t_name == html_tag_summary()       ||
-                        t_name == html_tag_select()       || t_name == html_tag_ul() ))
+                              t_name == html_tag_aside()        || t_name == html_tag_blockquote()    ||
+                              t_name == html_tag_button()       || t_name == html_tag_center()        ||
+                              t_name == html_tag_details()      || t_name == html_tag_dialog()        ||
+                              t_name == html_tag_dir()          || t_name == html_tag_div()           ||
+                              t_name == html_tag_dl()           || t_name == html_tag_fieldset()      ||
+                              t_name == html_tag_figcaption()   || t_name == html_tag_figure()        ||
+                              t_name == html_tag_footer()       || t_name == html_tag_header()        ||
+                              t_name == html_tag_hgroup()       || t_name == html_tag_listing()       ||
+                              t_name == html_tag_main()         || t_name == html_tag_menu()          ||
+                              t_name == html_tag_nav()          || t_name == html_tag_ol()            ||
+                              t_name == html_tag_pre()          || t_name == html_tag_search()        ||
+                              t_name == html_tag_section()      || t_name == html_tag_summary()       ||
+                              t_name == html_tag_select()       || t_name == html_tag_ul() ))
     {
         if (!in_scope(t_name, GENERIC_SCOPE))
         {
@@ -2301,8 +2304,12 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
             pop_elements_until_name_included(t_name);
         }
     }
-    else if (is_end(type) && (t_name == html_tag_h1() || t_name == html_tag_h2() || t_name == html_tag_h3() ||
-                        t_name == html_tag_h4() || t_name == html_tag_h5() || t_name == html_tag_h6()))
+    else if (is_end(type) && (t_name == html_tag_h1() ||
+                              t_name == html_tag_h2() ||
+                              t_name == html_tag_h3() ||
+                              t_name == html_tag_h4() ||
+                              t_name == html_tag_h5() ||
+                              t_name == html_tag_h6()))
     {
         if (!in_scope(html_tag_h1(), GENERIC_SCOPE) &&
             !in_scope(html_tag_h2(), GENERIC_SCOPE) &&
@@ -2354,17 +2361,17 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         push_formatting_element(node, t);
     }
     else if (is_start(type) && (t_name == html_tag_b()      || 
-                          t_name == html_tag_big()    ||
-                          t_name == html_tag_code()   ||
-                          t_name == html_tag_em()     ||
-                          t_name == html_tag_font()   ||
-                          t_name == html_tag_i()      ||
-                          t_name == html_tag_s()      ||
-                          t_name == html_tag_small()  ||
-                          t_name == html_tag_strike() ||
-                          t_name == html_tag_strong() ||
-                          t_name == html_tag_tt()     ||
-                          t_name == html_tag_u()) )
+                                t_name == html_tag_big()    ||
+                                t_name == html_tag_code()   ||
+                                t_name == html_tag_em()     ||
+                                t_name == html_tag_font()   ||
+                                t_name == html_tag_i()      ||
+                                t_name == html_tag_s()      ||
+                                t_name == html_tag_small()  ||
+                                t_name == html_tag_strike() ||
+                                t_name == html_tag_strong() ||
+                                t_name == html_tag_tt()     ||
+                                t_name == html_tag_u()) )
     {
         reconstruct_formatting_elements();
         dom_node_t* node = insert_html_element(t_name, t);
@@ -2387,19 +2394,19 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         push_formatting_element(node, t);
     }
     else if (is_end(type) && (t_name == html_tag_a()        ||
-                        t_name == html_tag_b()        ||
-                        t_name == html_tag_big()      ||
-                        t_name == html_tag_code()     ||
-                        t_name == html_tag_em()       ||
-                        t_name == html_tag_font()     ||
-                        t_name == html_tag_i()        ||
-                        t_name == html_tag_nobr()     ||
-                        t_name == html_tag_s()        ||
-                        t_name == html_tag_small()    ||
-                        t_name == html_tag_strike()   ||
-                        t_name == html_tag_strong()   ||
-                        t_name == html_tag_tt()       ||
-                        t_name == html_tag_u()))
+                              t_name == html_tag_b()        ||
+                              t_name == html_tag_big()      ||
+                              t_name == html_tag_code()     ||
+                              t_name == html_tag_em()       ||
+                              t_name == html_tag_font()     ||
+                              t_name == html_tag_i()        ||
+                              t_name == html_tag_nobr()     ||
+                              t_name == html_tag_s()        ||
+                              t_name == html_tag_small()    ||
+                              t_name == html_tag_strike()   ||
+                              t_name == html_tag_strong()   ||
+                              t_name == html_tag_tt()       ||
+                              t_name == html_tag_u()))
     {
         bool success = run_adoption_procedure(t_name);
 
@@ -2719,9 +2726,12 @@ static void process_in_table(hash_str_t t_name, html_token_t* t)
     dom_node_t* current_node = stack[stack_idx];
     const hash_str_t name = current_node->name;
 
-    if (is_character(type) && (name == html_tag_table() || name == html_tag_tbody() ||
-                         name == html_tag_template() || name == html_tag_tfoot() ||
-                         name == html_tag_thead() || name == html_tag_tr()))
+    if (is_character(type) && (name == html_tag_table() ||
+                               name == html_tag_tbody() ||
+                               name == html_tag_template() ||
+                               name == html_tag_tfoot() ||
+                               name == html_tag_thead() ||
+                               name == html_tag_tr()))
     {
         memset(pending_tokens, 0, MAX_TOKENS * sizeof(html_token_t));
         pending_tokens_size = 0;
@@ -2810,14 +2820,59 @@ static void process_in_table(hash_str_t t_name, html_token_t* t)
     {
         INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
     }
-    else if ((is_start(type) && (t_name == html_tag_style() || t_name == html_tag_script() || t_name == html_tag_template())) ||
+    else if ((is_start(type) && (t_name == html_tag_style() ||
+                                 t_name == html_tag_script() ||
+                                 t_name == html_tag_template())) ||
              (is_end(type) && t_name == html_tag_template()))
     {
-        NOT_IMPLEMENTED
+        process_token(HTML_PARSER_MODE_IN_HEAD, t_name, t);
     }
     else if (is_start(type) && t_name == html_tag_input())
     {
-        NOT_IMPLEMENTED
+        bool has_type = false;
+        bool is_hidden = false;
+
+        hash_str_t str_type = hash_str_new("type", 4);
+
+        for (uint32_t i = 0; i < t->attributes_size; i++)
+        {
+            html_token_attribute_t attr = t->attributes[i];
+            hash_str_t attr_name = hash_str_new(attr.name, attr.name_size);
+            if (attr_name != str_type) { continue; }
+
+            has_type = true;
+
+            unsigned char tmp[64] = { 0 };
+            assert(attr.value_size < 64);
+
+            for (uint32_t j = 0; j < attr.value_size; j++)
+            {
+                if (attr.value[j] >= 'a')
+                {
+                    tmp[j] = attr.value[j];
+                }
+                else
+                {
+                    tmp[j] = attr.value[j] + 0x20;
+                }
+            }
+
+            if (strncmp(tmp, "hidden", 6) == 0) { is_hidden = true; }
+        }
+
+        if ((!has_type) || (has_type && !is_hidden))
+        {
+            foster_parenting = true;
+            process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
+            foster_parenting = false;
+        }
+        else
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+            insert_html_element(t_name, t);
+            stack_pop();
+            INCOMPLETE_IMPLEMENTATION("self closing flag logic");
+        }
     }
     else if (is_start(type) && t_name == html_tag_form())
     {
@@ -2860,16 +2915,33 @@ static void process_in_table_text(hash_str_t t_name, html_token_t* t)
 
         INCOMPLETE_IMPLEMENTATION("handle whitespace ascii chars");
 
-        // NOTE: this is not ideal, but should be fine for now. This section is copying w/e is in the IN BODY section.
-
-        for (uint32_t j = 0; j < pending_tokens_size; j++)
+        bool all_whitespace = true;
+        // check for non whitespace chars
+        for (uint32_t i = 0; i < pending_tokens_size; i++)
         {
-            html_token_t token = pending_tokens[j];
-            foster_parenting = true;
-            reconstruct_formatting_elements();
-            insert_character(token.data, token.data_size);
-            // todo: frameset-ok flag
-            foster_parenting = false;
+            html_token_t token = pending_tokens[i];
+            if      (token.data_size > 1)               { all_whitespace = false; }
+            else if (!utf8_is_whitespace(token.data[0])) { all_whitespace = false; }
+        }
+
+        if (all_whitespace)
+        {
+            for (uint32_t j = 0; j < pending_tokens_size; j++)
+            {
+                html_token_t token = pending_tokens[j];
+                insert_character(token.data, token.data_size);
+            }
+        }
+        else
+        {
+            for (uint32_t j = 0; j < pending_tokens_size; j++)
+            {
+                html_token_t token = pending_tokens[j];
+                hash_str_t name = hash_str_new(token.name, token.name_size);
+                foster_parenting = true;
+                process_token(HTML_PARSER_MODE_IN_BODY, name, &token);
+                foster_parenting = false;
+            }
         }
 
         pending_tokens_size = 0;
@@ -2904,14 +2976,14 @@ static void process_in_caption(hash_str_t t_name, html_token_t* t)
         }
     }
     else if ((is_start(type) && (t_name == html_tag_caption()   ||
-                           t_name == html_tag_col()       ||
-                           t_name == html_tag_colgroup()  || 
-                           t_name == html_tag_tbody()     ||
-                           t_name == html_tag_td()        ||
-                           t_name == html_tag_tfoot()     ||
-                           t_name == html_tag_th()        ||
-                           t_name == html_tag_thead()     ||
-                           t_name == html_tag_tr()))      ||
+                                 t_name == html_tag_col()       ||
+                                 t_name == html_tag_colgroup()  || 
+                                 t_name == html_tag_tbody()     ||
+                                 t_name == html_tag_td()        ||
+                                 t_name == html_tag_tfoot()     ||
+                                 t_name == html_tag_th()        ||
+                                 t_name == html_tag_thead()     ||
+                                 t_name == html_tag_tr()))      ||
              (is_end(type) && t_name == html_tag_table()))
     {
         if (!in_scope(html_tag_caption(), TABLE_SCOPE))
@@ -3194,14 +3266,14 @@ static void process_in_cell(hash_str_t t_name, html_token_t* t)
         }
     }
     else if (is_start(type) && (t_name == html_tag_caption()    ||
-                          t_name == html_tag_col()        ||
-                          t_name == html_tag_colgroup()   ||
-                          t_name == html_tag_tbody()      ||
-                          t_name == html_tag_tfoot()      ||
-                          t_name == html_tag_thead()      ||
-                          t_name == html_tag_tr()         ||
-                          t_name == html_tag_th()         ||
-                          t_name == html_tag_td()))
+                                t_name == html_tag_col()        ||
+                                t_name == html_tag_colgroup()   ||
+                                t_name == html_tag_tbody()      ||
+                                t_name == html_tag_tfoot()      ||
+                                t_name == html_tag_thead()      ||
+                                t_name == html_tag_tr()         ||
+                                t_name == html_tag_th()         ||
+                                t_name == html_tag_td()))
     {
         assert(in_scope(html_tag_td(), GENERIC_SCOPE) || in_scope(html_tag_th(), GENERIC_SCOPE));
 
@@ -3209,15 +3281,18 @@ static void process_in_cell(hash_str_t t_name, html_token_t* t)
         process_token(mode, t_name, t);
     }
     else if (is_end(type) && (t_name == html_tag_body()     ||
-                        t_name == html_tag_caption()  ||
-                        t_name == html_tag_col()      ||
-                        t_name == html_tag_colgroup() ||
-                        t_name == html_tag_html()))
+                              t_name == html_tag_caption()  ||
+                              t_name == html_tag_col()      ||
+                              t_name == html_tag_colgroup() ||
+                              t_name == html_tag_html()))
     {
         INCOMPLETE_IMPLEMENTATION("parse error");
     }
-    else if (is_end(type) && (t_name == html_tag_table() || t_name == html_tag_tfoot() || t_name == html_tag_thead() ||
-                        t_name == html_tag_tbody() || t_name == html_tag_tr()))
+    else if (is_end(type) && (t_name == html_tag_table() ||
+                              t_name == html_tag_tfoot() ||
+                              t_name == html_tag_thead() ||
+                              t_name == html_tag_tbody() ||
+                              t_name == html_tag_tr()))
     {
         if (!in_scope(t_name, TABLE_SCOPE))
         {

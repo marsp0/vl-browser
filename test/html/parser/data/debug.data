@@ -1,9 +1,18 @@
 #data
-Test
+<!doctype html><table>X<tr><td><table> <meta></table></table>
 #errors
-(1,0): expected-doctype-but-got-chars
+unexpected text in table
+(1,45): unexpected-start-tag-implies-table-voodoo
 #document
+| <!DOCTYPE html>
 | <html>
 |   <head>
 |   <body>
-|     "Test"
+|     "X"
+|     <table>
+|       <tbody>
+|         <tr>
+|           <td>
+|             <meta>
+|             <table>
+|               " "
