@@ -194,6 +194,7 @@ static void stack_insert(uint32_t index, dom_node_t* node)
     }
 
     stack[index] = node;
+    stack_idx = stack_size;
     stack_size++;
 }
 
