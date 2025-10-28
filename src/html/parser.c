@@ -598,7 +598,7 @@ static void pop_all_including(dom_node_t* node)
 }
 
 
-static void pop_elements_until_name_included(const hash_str_t name)
+static void pop_elements_until_name_excluded(const hash_str_t name)
 {
     dom_node_t* node = stack[stack_idx];
 
@@ -609,6 +609,12 @@ static void pop_elements_until_name_included(const hash_str_t name)
         stack_pop();
         node = stack[stack_idx];
     }
+}
+
+
+static void pop_elements_until_name_included(const hash_str_t name)
+{
+    pop_elements_until_name_excluded(name);
     stack_pop();
 }
 
@@ -1637,15 +1643,15 @@ static void process_after_head(hash_str_t t_name, html_token_t* t)
         mode = HTML_PARSER_MODE_IN_FRAMESET;
     }
     else if (is_start(type) && (t_name == html_tag_base()       ||
-                          t_name == html_tag_basefont()   ||
-                          t_name == html_tag_bgsound()    ||
-                          t_name == html_tag_link()       ||
-                          t_name == html_tag_meta()       ||
-                          t_name == html_tag_noframes()   ||
-                          t_name == html_tag_script()     || 
-                          t_name == html_tag_template()   ||
-                          t_name == html_tag_title()      ||
-                          t_name == html_tag_style()))
+                                t_name == html_tag_basefont()   ||
+                                t_name == html_tag_bgsound()    ||
+                                t_name == html_tag_link()       ||
+                                t_name == html_tag_meta()       ||
+                                t_name == html_tag_noframes()   ||
+                                t_name == html_tag_script()     || 
+                                t_name == html_tag_template()   ||
+                                t_name == html_tag_title()      ||
+                                t_name == html_tag_style()))
     {
         INCOMPLETE_IMPLEMENTATION("parse error");
         assert(head_element);
@@ -1847,8 +1853,12 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         if (stack_size == 1 || (stack_size > 1 && stack[1]->name != html_tag_body())) { return; }
         if (!frameset_ok) { return; }
 
-        // todo: step 1 
-        // todo: step 2
+        dom_node_t* second = stack[1];
+
+        pop_elements_until_name_excluded(html_tag_html());
+        dom_node_remove(second->parent, second);
+        dom_node_free(second);
+
         insert_html_element(t_name, t);
         mode = HTML_PARSER_MODE_IN_FRAMESET;
     }
