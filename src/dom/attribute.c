@@ -36,6 +36,8 @@ dom_node_t* dom_attr_new(hash_str_t name, hash_str_t value, dom_node_t* owner)
     attr->name = name;
     attr->value = value;
     attr->owner = owner;
+    attr->prev = NULL;
+    attr->next = NULL;
 
     return (dom_node_t*)attr;
 }

@@ -674,7 +674,6 @@ static void insert_marker()
 
     formatting_elements[formatting_elements_size] = NULL;
     formatting_elements_m[formatting_elements_size] = true;
-    // formatting_elements_t[formatting_elements_size] = { 0 };
     memset(&formatting_elements_t[formatting_elements_size], 0, sizeof(html_token_t));
 
     formatting_elements_size++;
@@ -1064,9 +1063,9 @@ static bool run_adoption_procedure(const hash_str_t t_name)
 
         // step 4.15
         uint32_t formatting_node_i = find_node_index(formatting_elements, formatting_elements_size, formatting_node);
-        html_token_t* formatting_node_t = &formatting_elements_t[formatting_node_i];
-        hash_str_t formatting_node_t_name = hash_str_new(formatting_node_t->name, formatting_node_t->name_size);
-        dom_node_t* new_element = create_element(formatting_node_t_name, formatting_node_t, document);
+        html_token_t formatting_node_t = formatting_elements_t[formatting_node_i];
+        hash_str_t formatting_node_t_name = hash_str_new(formatting_node_t.name, formatting_node_t.name_size);
+        dom_node_t* new_element = create_element(formatting_node_t_name, &formatting_node_t, document);
 
         // step 4.16
         dom_node_t* child = furthest->first;
@@ -1084,7 +1083,7 @@ static bool run_adoption_procedure(const hash_str_t t_name)
         // step 4.18
         remove_formatting_element(formatting_node);
         if (formatting_node_i < bookmark) { bookmark--; }
-        insert_formatting_element(new_element, formatting_node_t, bookmark);
+        insert_formatting_element(new_element, &formatting_node_t, bookmark);
 
         // step 4.19
         remove_from_stack(formatting_node);
