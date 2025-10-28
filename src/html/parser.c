@@ -69,6 +69,7 @@ static bool foster_parenting                        = false;
 static dom_node_t* head_element                     = NULL;
 static dom_node_t* form_element                     = NULL;
 static bool scripting_enabled                       = true;
+static bool frameset_ok                             = true;
 
 static dom_node_t* formatting_elements[10]          = { 0 };
 static bool formatting_elements_m[10]               = { 0 };
@@ -1627,8 +1628,8 @@ static void process_after_head(hash_str_t t_name, html_token_t* t)
     else if (is_start(type) && t_name == html_tag_body())
     {
         insert_html_element(t_name, t);
-        mode = HTML_PARSER_MODE_IN_BODY;
-        INCOMPLETE_IMPLEMENTATION("ack self-closing tag");
+        mode            = HTML_PARSER_MODE_IN_BODY;
+        frameset_ok     = false;
     }
     else if (is_start(type) && t_name == html_tag_frameset())
     {
@@ -1690,7 +1691,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     {
         reconstruct_formatting_elements();
         insert_character(data, data_size);
-        // todo: frameset-ok flag
+        frameset_ok = false;
     }
     else if (is_comment(type))
     {
@@ -1773,6 +1774,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         }
         else
         {
+            frameset_ok = false;
             dom_node_t* node = document->first;
             uint32_t level = 0;
 
@@ -1842,12 +1844,8 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     {
         // todo: parse error
 
-        if ((stack_size == 1) || (stack_size > 1 && stack[1]->name != html_tag_body()))
-        {
-            // ignore token
-        }
-
-        // todo: frameset-ok flag logic
+        if (stack_size == 1 || (stack_size > 1 && stack[1]->name != html_tag_body())) { return; }
+        if (!frameset_ok) { return; }
 
         // todo: step 1 
         // todo: step 2
@@ -2014,7 +2012,8 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         }
         insert_html_element(t_name, t);
         // todo: check if next token is \n
-        // todo: frameset-ok flag
+
+        frameset_ok = false;
     }
     else if (is_start(type) && t_name == html_tag_form())
     {
@@ -2038,12 +2037,11 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && t_name == html_tag_li())
     {
-        INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
-
         dom_node_t* node    = stack[stack_idx];
         uint32_t idx        = stack_idx;
         uint32_t step       = 3;
         bool run            = true;
+        frameset_ok         = false;
 
         while (run)
         {
@@ -2099,12 +2097,11 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && (t_name == html_tag_dt() || t_name == html_tag_dd()))
     {
-        INCOMPLETE_IMPLEMENTATION("set frameset flag to not-ok");
-
         dom_node_t* node    = stack[stack_idx];
         uint32_t idx        = stack_idx;
         uint32_t step       = 3;
         bool run            = true;
+        frameset_ok         = false;
 
         while (run)
         {
@@ -2206,7 +2203,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
 
         reconstruct_formatting_elements();
         insert_html_element(t_name, t);
-        // set frameset-ok flag to not ok
+        frameset_ok = false;
     }
     else if (is_end(type) && (t_name == html_tag_address()      || t_name == html_tag_article()       || 
                               t_name == html_tag_aside()        || t_name == html_tag_blockquote()    ||
@@ -2424,7 +2421,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         reconstruct_formatting_elements();
         insert_html_element(t_name, t);
         insert_marker();
-        INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
+        frameset_ok = false;
     }
     else if (is_end(type) && (t_name == html_tag_applet() || t_name == html_tag_marquee() || t_name == html_tag_object()) )
     {
@@ -2457,8 +2454,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
 
         insert_html_element(t_name, t);
 
-        INCOMPLETE_IMPLEMENTATION("Set the frameset-ok flag to not-ok.");
-
+        frameset_ok = false;
         mode = HTML_PARSER_MODE_IN_TABLE;
     }
     else if (is_end(type) && t_name == html_tag_br())
@@ -2470,17 +2466,21 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         stack_pop();
 
         INCOMPLETE_IMPLEMENTATION("ack self closing flag");
-        INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
+        frameset_ok = false;
     }
-    else if (is_start(type) && (t_name == html_tag_area() || t_name == html_tag_br() || t_name == html_tag_embed() ||
-                          t_name == html_tag_img() || t_name == html_tag_keygen() || t_name == html_tag_wbr()))
+    else if (is_start(type) && (t_name == html_tag_area() ||
+                                t_name == html_tag_br() ||
+                                t_name == html_tag_embed() ||
+                                t_name == html_tag_img() ||
+                                t_name == html_tag_keygen() ||
+                                t_name == html_tag_wbr()))
     {
         reconstruct_formatting_elements();
         insert_html_element(t_name, t);
         stack_pop();
 
         INCOMPLETE_IMPLEMENTATION("ack self closing flag");
-        INCOMPLETE_IMPLEMENTATION("set frameset-ok to not ok");
+        frameset_ok = false;
     }
     else if (is_start(type) && t_name == html_tag_input())
     {
@@ -2497,7 +2497,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         stack_pop();
 
         INCOMPLETE_IMPLEMENTATION("ack self closing flag if set");
-        INCOMPLETE_IMPLEMENTATION("frameset-ok logic");
+        frameset_ok = false;
     }
     else if (is_start(type) && (t_name == html_tag_param() || t_name == html_tag_source() || t_name == html_tag_track() ))
     {
@@ -2521,8 +2521,8 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         }
         insert_html_element(t_name, t);
         stack_pop();
+        frameset_ok = false;
         // todo: ack self closing tag if set
-        // todo: set frameset-ok to "not ok"
     }
     else if (is_start(type) && t_name == html_tag_image())
     {
@@ -2537,9 +2537,9 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         insert_html_element(t_name, t);
         INCOMPLETE_IMPLEMENTATION("todo: check the next token is a U+000A LINE FEED (LF) character token");
         html_tokenizer_set_state(HTML_TOKENIZER_RCDATA_STATE);
-        original_mode = mode;
-        INCOMPLETE_IMPLEMENTATION("set frameset-ok flag to not-ok");
-        mode = HTML_PARSER_MODE_TEXT;
+        original_mode   = mode;
+        frameset_ok     = false;
+        mode            = HTML_PARSER_MODE_TEXT;
     }
     else if (is_start(type) && t_name == html_tag_xmp())
     {
@@ -2548,10 +2548,8 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
             close_p_element();
         }
 
+        frameset_ok = false;
         reconstruct_formatting_elements();
-
-        INCOMPLETE_IMPLEMENTATION("frameset-ok flag to not ok");
-
         insert_html_element(t_name, t);
         html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
 
@@ -2560,7 +2558,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && t_name == html_tag_iframe())
     {
-        INCOMPLETE_IMPLEMENTATION("frameset-ok flag to not ok");
+        frameset_ok = false;
 
         insert_html_element(t_name, t);
         html_tokenizer_set_state(HTML_TOKENIZER_RAWTEXT_STATE);
@@ -2591,7 +2589,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         {
             reconstruct_formatting_elements();
             insert_html_element(t_name, t);
-            // todo: set frameset-ok to "not ok"
+            frameset_ok = false;
         }
     }
     else if (is_start(type) && t_name == html_tag_option())
@@ -3712,6 +3710,7 @@ void html_parser_init(bool scripting)
     head_element                = NULL;
     form_element                = NULL;
     scripting_enabled           = scripting;
+    frameset_ok                 = true;
 
     formatting_elements_size = 0;
     memset(formatting_elements, 0, sizeof(formatting_elements));
