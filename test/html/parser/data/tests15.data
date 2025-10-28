@@ -194,13 +194,12 @@
 #document
 | <html>
 |   <head>
-|   <body>
+|   <frameset>
+|     <frame>
 |     <frameset>
 |       <frame>
-|       <frameset>
-|         <frame>
-|       <noframes>
-|         "</frameset><noframes>"
+|     <noframes>
+|       "</frameset><noframes>"
 
 #data
 <!DOCTYPE html><object></html>
