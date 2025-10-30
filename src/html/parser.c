@@ -679,46 +679,6 @@ static void insert_marker()
     formatting_elements_size++;
 }
 
-static void push_formatting_element(dom_node_t* node, html_token_t* token)
-{
-    // todo: go backwards instead
-    uint32_t last_marker = 0;
-    for (uint32_t i = 0; i < formatting_elements_size; i++)
-    {
-        if (formatting_elements_m[i])
-        {
-            last_marker = i;
-        }
-    }
-
-    if (formatting_elements_size - last_marker >= 3)
-    {
-        // todo: compare current element to the ones after the last marker and if match, then remove the oldest entry
-    }
-
-    formatting_elements[formatting_elements_size] = node;
-    formatting_elements_m[formatting_elements_size] = false;
-    memcpy(&formatting_elements_t[formatting_elements_size], token, sizeof(html_token_t));
-    formatting_elements_size++;
-}
-
-
-static void insert_formatting_element(dom_node_t* node, html_token_t* token, uint32_t idx)
-{
-    for (uint32_t i = formatting_elements_size; i > idx; i--)
-    {
-        formatting_elements[i] = formatting_elements[i - 1];
-        formatting_elements_m[i] = formatting_elements_m[i - 1];
-        memcpy(&formatting_elements_t[i], &formatting_elements_t[i - 1], sizeof(html_token_t));
-    }
-
-    formatting_elements[idx] = node;
-    formatting_elements_m[idx] = false;
-    memcpy(&formatting_elements_t[idx], token, sizeof(html_token_t));
-    formatting_elements_size++;
-}
-
-
 static void remove_formatting_element(dom_node_t* node)
 {
     if (formatting_elements_size == 0) { return; }
@@ -746,6 +706,80 @@ static void remove_formatting_element(dom_node_t* node)
     formatting_elements_size--;
 }
 
+static void push_formatting_element(dom_node_t* node, html_token_t* token)
+{
+    // todo: go backwards instead
+    uint32_t last_marker = 0;
+    bool has_marker = false;
+    for (uint32_t i = 0; i < formatting_elements_size; i++)
+    {
+        if (formatting_elements_m[i])
+        {
+            last_marker = i;
+            has_marker = true;
+        }
+    }
+
+    if (formatting_elements_size - last_marker >= 3)
+    {
+        uint32_t start = has_marker ? last_marker + 1 : 0;
+        dom_element_t* element = dom_element_from_node(node);
+        uint32_t count = 0;
+        uint32_t indices[10] = { 0 };
+
+        for (uint32_t i = start; i < formatting_elements_size; i++)
+        {
+            dom_node_t* i_node = formatting_elements[i];
+            dom_element_t* i_element = dom_element_from_node(i_node);
+
+            if (node->name != i_node->name)                   { continue; }
+            if (element->namespace != i_element->namespace)   { continue; }
+
+            uint32_t attr_count = 0;
+            dom_attr_t* attr = element->attr;
+            while(attr)
+            {
+                dom_attr_t* i_attr = dom_element_get_attr(i_element, attr->name);
+
+                if (i_attr && i_attr->value == attr->value) { attr_count++; }
+
+                attr = attr->next;
+            }
+
+            if (attr_count != element->attr_size || attr_count != i_element->attr_size) { continue; }
+
+            indices[count] = i;
+            count++;
+
+            if (count >= 3)
+            {
+                remove_formatting_element(formatting_elements[indices[0]]);
+            }
+        }
+    }
+
+    formatting_elements[formatting_elements_size] = node;
+    formatting_elements_m[formatting_elements_size] = false;
+    memcpy(&formatting_elements_t[formatting_elements_size], token, sizeof(html_token_t));
+    formatting_elements_size++;
+}
+
+
+static void insert_formatting_element(dom_node_t* node, html_token_t* token, uint32_t idx)
+{
+    for (uint32_t i = formatting_elements_size; i > idx; i--)
+    {
+        formatting_elements[i] = formatting_elements[i - 1];
+        formatting_elements_m[i] = formatting_elements_m[i - 1];
+        memcpy(&formatting_elements_t[i], &formatting_elements_t[i - 1], sizeof(html_token_t));
+    }
+
+    formatting_elements[idx] = node;
+    formatting_elements_m[idx] = false;
+    memcpy(&formatting_elements_t[idx], token, sizeof(html_token_t));
+    formatting_elements_size++;
+}
+
 
 static void reconstruct_formatting_elements()
 {
@@ -759,12 +793,12 @@ static void reconstruct_formatting_elements()
         return;
     }
 
-    int32_t idx = (int32_t)formatting_elements_size - 1;
-    dom_node_t* entry = formatting_elements[idx];
+    int32_t idx             = (int32_t)formatting_elements_size - 1;
+    dom_node_t* entry       = formatting_elements[idx];
 
-    uint32_t step    = 4;
-    dom_node_t* new_element                = NULL;
-    bool run                                = true;
+    uint32_t step           = 4;
+    dom_node_t* new_element = NULL;
+    bool run                = true;
 
     while (run)
     {

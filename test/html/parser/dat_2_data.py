@@ -73,10 +73,11 @@ def parse_and_export(f_out, test_lines, not_supported, replacements, prepend_new
 
     test_data = test[DATA][0]
 
-    if test_data in not_supported:  return
-    if test.get(FRAGMENT, []):      return
-    if "<math" in test_data:        return
-    if "<svg" in test_data:         return
+    if test_data in not_supported:      return
+    if test.get(FRAGMENT, []):          return
+    if "<math" in test_data.lower():    return
+    if "<svg" in test_data.lower():     return
+    if "<![cdata" in test_data.lower(): return
 
     if replacements.get(test_data, None):
         test = replacements.get(test_data, {})

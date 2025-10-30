@@ -206,5 +206,40 @@
             "|     <listing>",
             "|       \"\\nX\""
         ]
+    },
+
+    "<p><font size=4 id=a><font size=4 id=b><font size=4><font size=4><p>X": {
+        "#data": [ "<p><font size=4 id=a><font size=4 id=b><font size=4><font size=4><p>X" ],
+        "#errors": [ "(1,3): expected-doctype-but-got-start-tag",
+                     "(1,68): unexpected-end-tag",
+                     "(1,69): expected-closing-tag-but-got-eof" ],
+        "#document": [
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <p>",
+            "|       <font>",
+            "|         size=\"4\"",
+            "|         id=\"a\"",
+            "|         <font>",
+            "|           size=\"4\"",
+            "|           id=\"b\"",
+            "|           <font>",
+            "|             size=\"4\"",
+            "|             <font>",
+            "|               size=\"4\"",
+            "|     <p>",
+            "|       <font>",
+            "|         size=\"4\"",
+            "|         id=\"a\"",
+            "|         <font>",
+            "|           size=\"4\"",
+            "|           id=\"b\"",
+            "|           <font>",
+            "|             size=\"4\"",
+            "|             <font>",
+            "|               size=\"4\"",
+            "|               \"X\""
+        ]
     }
 }
