@@ -265,6 +265,20 @@
 |     <table>
 
 #data
+<!doctype html><template><plaintext>a</template>b
+#errors
+49: End of file seen and there were open elements.
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|     <template>
+|       content
+|         <plaintext>
+|           "a</template>b"
+|   <body>
+
+#data
 <!doctype html><body></body><plaintext></plaintext>
 #errors
 39: Stray start tag “plaintext”.
@@ -323,6 +337,34 @@
 | <html>
 |   <head>
 |   <frameset>
+
+#data
+<!doctype html><svg><plaintext>a</plaintext>b
+#errors
+45: End of file seen and there were open elements.
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       <svg plaintext>
+|         "a"
+|       "b"
+
+#data
+<!doctype html><svg><title><plaintext>a</plaintext>b
+#errors
+52: End of file seen and there were open elements.
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       <svg title>
+|         <plaintext>
+|           "a</plaintext>b"
 
 #data
 <!doctype html><table><tr><style></script></style>abc
@@ -510,3 +552,21 @@
 |       <tbody>
 |         <tr>
 |       <tfoot>
+
+#data
+<!doctype html><table><td><svg></svg>abc<td>
+#errors
+(1,26): unexpected-cell-in-table-body
+(1,44): expected-closing-tag-but-got-eof
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <table>
+|       <tbody>
+|         <tr>
+|           <td>
+|             <svg svg>
+|             "abc"
+|           <td>
