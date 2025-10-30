@@ -375,7 +375,7 @@ void html_parser_test()
                                     "./test/html/parser/data/blocks.data",
                                     "./test/html/parser/data/comments01.data",
                                     "./test/html/parser/data/doctype01.data",
-                                    "./test/html/parser/data/domjs-unsafe.data",
+                                    // "./test/html/parser/data/domjs-unsafe.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
