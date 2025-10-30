@@ -1,3 +1,9 @@
 [
-    "<!doctype html><template><plaintext>a</template>b"
+    "<!doctype html><template><plaintext>a</template>b",
+    "<!DOCTYPE html>&NotEqualTilde;",
+    "<!DOCTYPE html>&NotEqualTilde;A",
+    "<!DOCTYPE html>&ThickSpace;",
+    "<!DOCTYPE html>&ThickSpace;A",
+    "<!DOCTYPE html>&NotSubset;",
+    "<!DOCTYPE html>&NotSubset;A"
 ]
