@@ -370,6 +370,12 @@ void html_parser_test()
                                     "./test/html/parser/data/tests24.data",
                                     "./test/html/parser/data/tests25.data",
                                     "./test/html/parser/data/tests26.data",
+                                    "./test/html/parser/data/adoption01.data",
+                                    "./test/html/parser/data/adoption02.data",
+                                    "./test/html/parser/data/blocks.data",
+                                    "./test/html/parser/data/comments01.data",
+                                    "./test/html/parser/data/doctype01.data",
+                                    "./test/html/parser/data/domjs-unsafe.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
