@@ -10,6 +10,7 @@ typedef struct
 
     hash_str_t      url;
     hash_str_t      uri;
+    hash_str_t      mode;
     hash_str_t      compat_mode;
     hash_str_t      character_set;
     hash_str_t      content_set;

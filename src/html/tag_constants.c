@@ -220,6 +220,8 @@ static hash_str_t cite;
 static hash_str_t CITE;
 static hash_str_t spacer;
 static hash_str_t SPACER;
+static hash_str_t ruby;
+static hash_str_t RUBY;
 
 void html_populate_tags()
 {
@@ -550,8 +552,11 @@ void html_populate_tags()
     cite           = hash_str_new("cite", 4);
     CITE           = hash_str_new("CITE", 4);
 
-    spacer          = hash_str_new("spacer", 6);
-    SPACER          = hash_str_new("SPACER", 6);
+    spacer         = hash_str_new("spacer", 6);
+    SPACER         = hash_str_new("SPACER", 6);
+
+    ruby           = hash_str_new("ruby", 4);
+    RUBY           = hash_str_new("RUBY", 4);
 }
 
 hash_str_t html_tag_html()
@@ -1871,4 +1876,16 @@ hash_str_t html_tag_spacer()
 hash_str_t html_tag_SPACER()
 {
     return SPACER;
+}
+
+
+hash_str_t html_tag_ruby()
+{
+    return ruby;
+}
+
+
+hash_str_t html_tag_RUBY()
+{
+    return RUBY;
 }

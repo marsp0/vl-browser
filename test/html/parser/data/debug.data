@@ -1,14 +1,10 @@
 #data
-<ul><li><ul></li><li>a</li></ul></li></ul>
+<div>ZZ&prod_id=23</div>
 #errors
-(1,4): expected-doctype-but-got-start-tag
-(1,17): unexpected-end-tag
+(1,5): expected-doctype-but-got-start-tag
 #document
 | <html>
 |   <head>
 |   <body>
-|     <ul>
-|       <li>
-|         <ul>
-|           <li>
-|             "a"
+|     <div>
+|       "ZZ&prod_id=23"

@@ -23,6 +23,7 @@ typedef enum
     STATE_SCRIPT
 } html5lib_parse_state_e;
 
+static const unsigned char* test_file = NULL;
 static FILE* file = NULL;
 static bool file_done = false;
 static unsigned char file_buffer[4096] = { 0 };
@@ -35,6 +36,7 @@ static uint32_t is_eof = false;
 static uint32_t line_num = 0;
 static uint32_t test_line = 0;
 static uint32_t level = 0;
+static unsigned char prev = 0;
 
 // test data
 static unsigned char test_data[2048] = { 0 };
@@ -43,6 +45,8 @@ static dom_node_t* document = NULL;
 
 static int32_t get_char()
 {
+    if (file_buffer_cursor > 0) { prev = file_buffer[file_buffer_cursor - 1]; }
+
     if (file_done && file_buffer_cursor == file_buffer_size)
     {
         return -1;
@@ -76,7 +80,14 @@ static void read_line()
             return;
         }
 
-        line[line_size++] = (unsigned char)c;
+        if (prev == '\\' && c == 'n')
+        {
+            line[line_size - 1] = '\n';
+        }
+        else
+        {
+            line[line_size++] = (unsigned char)c;
+        }
     }
 
     line[--line_size] = '\0';
@@ -122,7 +133,7 @@ static bool line_is_element()
 static bool line_is_attr()
 {
     uint32_t i = level * 2;
-    return utf8_is_alpha(line[i]);
+    return utf8_is_alphanumeric(line[i]);
 }
 
 
@@ -195,11 +206,17 @@ static dom_node_t* parse_doctype()
 {
     uint32_t start = level * 2 + 10;
     uint32_t size = line_size - 1 - start;
+
+    for (uint32_t i = start; i < line_size; i++)
+    {
+        if (line[i] == ' ') { size = i - start; break; }
+    }
+
     return dom_doctype_new(document, &line[start], size, NULL, 0, NULL, 0);
 }
 
 
-static void run_test()
+static void run_parser_test()
 {
     memset(test_data, 0, 2048);
     test_data_size = 0;
@@ -220,12 +237,21 @@ static void run_test()
     document                        = NULL;
     dom_node_t* last                = NULL;
     uint32_t last_level             = 0;
+    bool scripting                  = true;
 
     while (line_size > 0)
     {
         if (strncmp(line, "#errors", 7) == 0 || strncmp(line, "#new-errors", 7) == 0)
         {
             state       = STATE_ERRORS;
+        }
+        else if (strncmp(line, "#script-off", 11) == 0)
+        {
+            scripting = false;
+        }
+        else if (strncmp(line, "#script-on", 10) == 0)
+        {
+            scripting = true;
         }
         else if (strncmp(line, "#document", 9) == 0)
         {
@@ -287,26 +313,26 @@ static void run_test()
         }
         else
         {
-            printf("unhandled state\n");
+            printf("unhandled state - %s\n", line);
             assert(false);
         }
 
         read_line();
     }
 
-    html_parser_init();
+    html_parser_init(scripting);
 
     dom_node_t* actual = html_parser_run(test_data, test_data_size);
     ASSERT_NODE(actual, document);
 
     if (!TEST_SUCCEEDED())
     {
-        printf("\n========== Test %u ==========\n", test_line);
+        printf("\n========== Test %s:%u ==========\n", test_file, test_line);
         printf("%s\n", test_data);
         printf("\n-- Actual Tree --\n");
-        print_document_tree(document, 0);
+        print_document_tree(actual, 1);
         printf("\n-- Expected Tree --\n");
-        print_document_tree(actual, 0);
+        print_document_tree(document, 1);
     }
     
     dom_node_free(document);
@@ -317,9 +343,64 @@ static void run_test()
 
 void html_parser_test()
 {
-    // const unsigned char* files[] = { "./test/html/parser/data/debug.data" };
     const unsigned char* files[] = {
+                                    "./test/html/parser/data/debug.data",
                                     "./test/html/parser/data/tests1.data",
+                                    "./test/html/parser/data/tests2.data",
+                                    "./test/html/parser/data/tests3.data",
+                                    // "./test/html/parser/data/tests4.data",
+                                    "./test/html/parser/data/tests5.data",
+                                    "./test/html/parser/data/tests6.data",
+                                    "./test/html/parser/data/tests7.data",
+                                    "./test/html/parser/data/tests8.data",
+                                    // "./test/html/parser/data/tests9.data",
+                                    // "./test/html/parser/data/tests10.data",
+                                    // "./test/html/parser/data/tests11.data",
+                                    // "./test/html/parser/data/tests12.data",
+                                    "./test/html/parser/data/tests14.data",
+                                    "./test/html/parser/data/tests15.data",
+                                    "./test/html/parser/data/tests16.data",
+                                    "./test/html/parser/data/tests17.data",
+                                    "./test/html/parser/data/tests18.data",
+                                    "./test/html/parser/data/tests19.data",
+                                    // "./test/html/parser/data/tests20.data",
+                                    // "./test/html/parser/data/tests21.data",
+                                    "./test/html/parser/data/tests22.data",
+                                    "./test/html/parser/data/tests23.data",
+                                    "./test/html/parser/data/tests24.data",
+                                    "./test/html/parser/data/tests25.data",
+                                    "./test/html/parser/data/tests26.data",
+                                    "./test/html/parser/data/adoption01.data",
+                                    "./test/html/parser/data/adoption02.data",
+                                    "./test/html/parser/data/blocks.data",
+                                    "./test/html/parser/data/comments01.data",
+                                    "./test/html/parser/data/doctype01.data",
+                                    // "./test/html/parser/data/domjs-unsafe.data",
+                                    "./test/html/parser/data/entities01.data",
+                                    "./test/html/parser/data/entities02.data",
+                                    // "./test/html/parser/data/foreign-fragment.data",
+                                    "./test/html/parser/data/html5test-com.data",
+                                    "./test/html/parser/data/inbody01.data",
+                                    // "./test/html/parser/data/isindex.data",
+                                    "./test/html/parser/data/main-element.data",
+                                    // "./test/html/parser/data/math.data",
+                                    // "./test/html/parser/data/menuitem-element.data",
+                                    // "./test/html/parser/data/namespace-sensitivity.data",
+                                    "./test/html/parser/data/noscript01.data",
+                                    "./test/html/parser/data/pending-spec-changes-plaintext-unsafe.data",
+                                    "./test/html/parser/data/pending-spec-changes.data",
+                                    // "./test/html/parser/data/plain-text-unsafe.data",
+                                    // "./test/html/parser/data/quirks01.data",
+                                    "./test/html/parser/data/ruby.data",
+                                    "./test/html/parser/data/scriptdata01.data",
+                                    // "./test/html/parser/data/search-element.data",
+                                    // "./test/html/parser/data/svg.data",
+                                    "./test/html/parser/data/tables01.data",
+                                    // "./test/html/parser/data/template.data",
+                                    // "./test/html/parser/data/tests_innerHTML_1.data",
+                                    "./test/html/parser/data/tricky01.data",
+                                    "./test/html/parser/data/webkit01.data",
+                                    "./test/html/parser/data/webkit02.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
@@ -328,6 +409,8 @@ void html_parser_test()
         file_buffer_cursor = 0;
         file_buffer_size = 0;
         file_done = false;
+        line_num = 0;
+        test_line = 0;
         is_eof = false;
 
         file = fopen(files[i], "r");
@@ -337,6 +420,8 @@ void html_parser_test()
             return;
         }
 
-        while (!is_eof) { TEST_CASE(run_test) }
+        test_file = files[i];
+
+        while (!is_eof) { TEST_CASE(run_parser_test) }
     }
 }

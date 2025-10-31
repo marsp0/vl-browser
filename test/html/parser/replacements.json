@@ -1,0 +1,283 @@
+{
+    "<!doctype html><style><!--<br><html xmlns:v=\"urn:schemas-microsoft-com:vml\"><!--[if !mso]><style></style>X": {
+        "#data": ["<!doctype html><style><!--<br><html xmlns:v=\"urn:schemas-microsoft-com:vml\"><!--[if !mso]><style></style>X" ],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|     <style>",
+            "|       \"<!--<br><html xmlns:v=\"urn:schemas-microsoft-com:vml\"><!--[if !m\"",
+            "|   <body>",
+            "|     \"X\""
+        ]
+    },
+
+    "<style><!--<br><html xmlns:v=\"urn:schemas-microsoft-com:vml\"><!--[if !mso]><style></style>X": {
+        "#data": [ "<style><!--<br><html xmlns:v=\"urn:schemas-microsoft-com:vml\"><!--[if !mso]><style></style>X" ],
+        "#errors": [ "(1,7): expected-doctype-but-got-start-tag" ],
+        "#document": [
+            "| <html>",
+            "|   <head>",
+            "|     <style>",
+            "|       \"<!--<br><html xmlns:v=\"urn:schemas-microsoft-com:vml\"><!--[if !m\"",
+            "|   <body>",
+            "|     \"X\""
+        ]
+    },
+
+    "<!doctype html><head><!--aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa--><meta charset=\"utf8\">": {
+        "#data": [ "<!doctype html><head><!--aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa--><meta charset=\"utf8\">" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|     <!-- aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -->",
+            "|     <meta>",
+            "|       charset=\"utf8\"",
+            "|   <body>"
+        ]
+    },
+
+    "<!DOCTYPE html><html><head></head><body><thisISasillyTESTelementNameToMakeSureCrazyTagNamesArePARSEDcorrectLY>": {
+        "#data": [ "<!DOCTYPE html><html><head></head><body><thisISasillyTESTelementNameToMakeSureCrazyTagNamesArePARSEDcorr>" ],
+        "#errors": [ "(1,110): expected-closing-tag-but-got-eof" ],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <thisisasillytestelementnametomakesurecrazytagnamesareparsedcorr>"
+        ]
+    },
+
+    "<!DOCTYPE html><html><head></head><body><pre>\\n</pre></body></html>": {
+        "#data": [ "<!DOCTYPE html><html><head></head><body><pre>\\n</pre></body></html>" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <pre>",
+            "|       \"\\n\""
+        ]
+    },
+
+    "<!DOCTYPE html><html><head></head><body><pre>\\nfoo</pre></body></html>": {
+        "#data": [ "<!DOCTYPE html><html><head></head><body><pre>\\nfoo</pre></body></html>" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <pre>",
+            "|       \"\\nfoo\""
+        ]
+    },
+
+    "<!DOCTYPE html><html><head></head><body><pre>\\n\\nfoo</pre></body></html>": {
+        "#data": [ "<!DOCTYPE html><html><head></head><body><pre>\\n\\nfoo</pre></body></html>" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <pre>",
+            "|       \"\\n\\nfoo\""
+        ]
+    },
+
+    "<!DOCTYPE html><html><head></head><body><pre>\\nfoo\\n</pre></body></html>": {
+        "#data": [ "<!DOCTYPE html><html><head></head><body><pre>\\nfoo\\n</pre></body></html>" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <pre>",
+            "|       \"\\nfoo\\n\""
+        ]
+    },
+
+    "<!DOCTYPE html><pre>&#x0a;&#x0a;A</pre>": {
+        "#data": [ "<!DOCTYPE html><pre>&#x0a;&#x0a;A</pre>" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <pre>",
+            "|       \"\\n\\nA\""
+        ]
+    },
+
+    "<!DOCTYPE html><textarea>\\n</textarea>": {
+        "#data": [ "<!DOCTYPE html><textarea>\\n</textarea>" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <textarea>",
+            "|       \"\\n\""
+        ]
+    },
+
+    "<!DOCTYPE html><textarea>\\nfoo</textarea>": {
+        "#data": [ "<!DOCTYPE html><textarea>\\nfoo</textarea>" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <textarea>",
+            "|       \"\\nfoo\""
+        ]
+    },
+
+    "<!DOCTYPE html><textarea>\\n\\nfoo</textarea>": {
+        "#data": [ "<!DOCTYPE html><textarea>\\n\\nfoo</textarea>" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <textarea>",
+            "|       \"\\n\\nfoo\""
+        ]
+    },
+
+    "<!doctype html><html c=d><body></html><html a=b>": {
+        "#data": [ "<!doctype html><html c=d><body></html><html a=b>" ],
+        "#errors": [ "(1,48): non-html-root" ],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   c=\"d\"",
+            "|   a=\"b\"",
+            "|   <head>",
+            "|   <body>"
+        ]
+    },
+
+    "<!doctype html><html c=d><frameset></frameset></html><html a=b>": {
+        "#data": [ "<!doctype html><html c=d><frameset></frameset></html><html a=b>" ],
+        "#errors": [ "(1,63): non-html-root" ],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   c=\"d\"",
+            "|   a=\"b\"",
+            "|   <head>",
+            "|   <frameset>"
+        ]
+    },
+
+    "<!doctype html><meta http-equiv=\"content-type\" content=\"text/html;charset=ascii\">": {
+        "#data": [ "<!doctype html><meta http-equiv=\"content-type\" content=\"text/html;charset=ascii\">" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|     <meta>",
+            "|       http-equiv=\"content-type\"",
+            "|       content=\"text/html;charset=ascii\"",
+            "|   <body>"
+        ]
+    },
+
+    "<!doctype html><listing>\\nX</listing>": {
+        "#data": [ "<!doctype html><listing>\\nX</listing>" ],
+        "#errors": [],
+        "#document": [
+            "| <!DOCTYPE html>",
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <listing>",
+            "|       \"\\nX\""
+        ]
+    },
+
+    "<p><font size=4 id=a><font size=4 id=b><font size=4><font size=4><p>X": {
+        "#data": [ "<p><font size=4 id=a><font size=4 id=b><font size=4><font size=4><p>X" ],
+        "#errors": [ "(1,3): expected-doctype-but-got-start-tag",
+                     "(1,68): unexpected-end-tag",
+                     "(1,69): expected-closing-tag-but-got-eof" ],
+        "#document": [
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <p>",
+            "|       <font>",
+            "|         size=\"4\"",
+            "|         id=\"a\"",
+            "|         <font>",
+            "|           size=\"4\"",
+            "|           id=\"b\"",
+            "|           <font>",
+            "|             size=\"4\"",
+            "|             <font>",
+            "|               size=\"4\"",
+            "|     <p>",
+            "|       <font>",
+            "|         size=\"4\"",
+            "|         id=\"a\"",
+            "|         <font>",
+            "|           size=\"4\"",
+            "|           id=\"b\"",
+            "|           <font>",
+            "|             size=\"4\"",
+            "|             <font>",
+            "|               size=\"4\"",
+            "|               \"X\""
+        ]
+    },
+
+    "<p><code x</code></p>\\n": {
+        "#data": [ "<p><code x</code></p>\\n" ],
+        "#errors": [ "(1,3): expected-doctype-but-got-start-tag",
+                    "(1,11): invalid-character-in-attribute-name",
+                    "(1,12): unexpected-character-after-solidus-in-tag",
+                    "(1,21): unexpected-end-tag",
+                    "(2,0): expected-closing-tag-but-got-eof" ],
+        "#new-errors": ["(1:11) unexpected-character-in-attribute-name",
+                        "(1:13) unexpected-solidus-in-tag"],
+        "#document": [
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <p>",
+            "|       <code>",
+            "|         x<=\"\"",
+            "|         code=\"\"",
+            "|     <code>",
+            "|       x<=\"\"",
+            "|       code=\"\"",
+            "|       \"\\n\""
+        ]
+    },
+
+    "<rdar://problem/6869687>": {
+        "#data": [ "<rdar://problem/6869687>" ],
+        "#errors": [ ],
+        "#new-errors": [],
+        "#document": [
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <rdar:>",
+            "|       problem=\"\"",
+            "|       6869687=\"\""
+        ]
+    }
+}
