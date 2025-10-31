@@ -29,7 +29,7 @@
 /*      defines     */
 /********************/
 
-#define MAX_TOKENS          10
+#define MAX_TOKENS          20
 #define OPEN_STACK_MAX_SIZE 500
 
 

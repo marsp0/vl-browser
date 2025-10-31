@@ -150,6 +150,8 @@ static void clear_tokens()
 
 static void init_token(html_token_type_e type)
 {
+    assert(token_idx < max_tokens);
+
     memset(&tokens[token_idx], 0, sizeof(html_token_t));
 
     tokens[token_idx].is_valid  = true;
@@ -2873,6 +2875,11 @@ html_tokenizer_error_e html_tokenizer_next()
 
             for (uint32_t i = buf_cur; i < max_size; i++)
             {
+                if (buf[i] == '"' && in_attribute(return_state)) { break; }
+                if (buf[i] == '\'' && in_attribute(return_state)) { break; }
+                if (buf[i] == '<') { break; }
+                if (buf[i] == '>') { break; }
+
                 update_tmp_buf(buf[i]);
                 cursor_offset += 1;
                 if (buf[i] == ';') { break; }
@@ -2888,6 +2895,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 if (named_cp > 0)
                 {
                     buf_cur  = buf_cur + cursor_offset;
+                    buf_cur             = buf_cur > buf_size ? buf_size : buf_cur;
                     consume = false;
                     state   = return_state;
                     found   = true;
@@ -2919,6 +2927,11 @@ html_tokenizer_error_e html_tokenizer_next()
 
             for (uint32_t i = buf_cur; i < max_size; i++)
             {
+                if (buf[i] == '"' && in_attribute(return_state)) { break; }
+                if (buf[i] == '\'' && in_attribute(return_state)) { break; }
+                if (buf[i] == '<') { break; }
+                if (buf[i] == '>') { break; }
+
                 update_tmp_buf(buf[i]);
                 cursor_offset += 1;
                 if (buf[i] == ';') { break; }
@@ -2926,6 +2939,7 @@ html_tokenizer_error_e html_tokenizer_next()
 
             flush_cps_consumed_as_char_ref(return_state);
             buf_cur              = buf_cur + cursor_offset;
+            buf_cur             = buf_cur > buf_size ? buf_size : buf_cur;
             consume             = false;
             state               = return_state;
             break;
