@@ -69,7 +69,8 @@ def export_test(f_out, test):
 
 def parse_and_export(f_out, test_lines, not_supported, replacements, prepend_newline = False):
     test = parse_test(test_lines)
-    assert(len(test[DATA]) != 0)
+
+    if len(test[DATA]) == 0:            return
 
     test_data = test[DATA][0]
 

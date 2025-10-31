@@ -1,0 +1,28 @@
+#data
+<!doctype html><p>foo<search>bar<p>baz
+#errors
+(1,38): expected-closing-tag-but-got-eof
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <p>
+|       "foo"
+|     <search>
+|       "bar"
+|       <p>
+|         "baz"
+
+#data
+<!doctype html><search><p>foo</search>bar
+#errors
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <search>
+|       <p>
+|         "foo"
+|     "bar"

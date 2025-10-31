@@ -2856,7 +2856,7 @@ static void process_in_table(hash_str_t t_name, html_token_t* t)
     }
     else if (is_doctype(type))
     {
-        NOT_IMPLEMENTED
+        INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
     }
     else if (is_start(type) && t_name == html_tag_caption())
     {
@@ -3497,7 +3497,7 @@ static void process_after_body(hash_str_t t_name, html_token_t* t)
 
     if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
     {
-        NOT_IMPLEMENTED
+        process_token(HTML_PARSER_MODE_IN_BODY, t_name, t);
     }
     else if (is_comment(type))
     {

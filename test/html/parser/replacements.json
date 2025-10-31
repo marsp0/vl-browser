@@ -265,5 +265,19 @@
             "|       code=\"\"",
             "|       \"\\n\""
         ]
+    },
+
+    "<rdar://problem/6869687>": {
+        "#data": [ "<rdar://problem/6869687>" ],
+        "#errors": [ ],
+        "#new-errors": [],
+        "#document": [
+            "| <html>",
+            "|   <head>",
+            "|   <body>",
+            "|     <rdar:>",
+            "|       problem=\"\"",
+            "|       6869687=\"\""
+        ]
     }
 }
