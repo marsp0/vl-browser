@@ -2541,7 +2541,42 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         stack_pop();
 
         INCOMPLETE_IMPLEMENTATION("ack self closing flag if set");
-        frameset_ok = false;
+
+        bool has_type = false;
+        bool is_hidden = false;
+
+        hash_str_t str_type = hash_str_new("type", 4);
+
+        for (uint32_t i = 0; i < t->attributes_size; i++)
+        {
+            html_token_attribute_t attr = t->attributes[i];
+            hash_str_t attr_name = hash_str_new(attr.name, attr.name_size);
+            if (attr_name != str_type) { continue; }
+
+            has_type = true;
+
+            unsigned char tmp[64] = { 0 };
+            assert(attr.value_size < 64);
+
+            for (uint32_t j = 0; j < attr.value_size; j++)
+            {
+                if (attr.value[j] >= 'a')
+                {
+                    tmp[j] = attr.value[j];
+                }
+                else
+                {
+                    tmp[j] = attr.value[j] + 0x20;
+                }
+            }
+
+            if (strncmp(tmp, "hidden", 6) == 0) { is_hidden = true; }
+        }
+
+        if ((!has_type) || (has_type && !is_hidden))
+        {
+            frameset_ok = false;
+        }
     }
     else if (is_start(type) && (t_name == html_tag_param() || t_name == html_tag_source() || t_name == html_tag_track() ))
     {

@@ -379,6 +379,13 @@ void html_parser_test()
                                     "./test/html/parser/data/entities01.data",
                                     "./test/html/parser/data/entities02.data",
                                     "./test/html/parser/data/html5test-com.data",
+                                    "./test/html/parser/data/inbody01.data",
+                                    "./test/html/parser/data/main-element.data",
+                                    "./test/html/parser/data/noscript01.data",
+                                    "./test/html/parser/data/pending-spec-changes-plaintext-unsafe.data",
+                                    "./test/html/parser/data/pending-spec-changes.data",
+                                    // "./test/html/parser/data/plain-text-unsafe.data",
+                                    "./test/html/parser/data/ruby.data",
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
