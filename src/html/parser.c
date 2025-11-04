@@ -3752,6 +3752,31 @@ static void process_token(html_parser_mode_e current_mode, hash_str_t t_name, ht
 }
 
 
+static bool is_html_integration_point(dom_element_t* element)
+{
+    dom_node_t* node = dom_node_from_element(element);
+    hash_str_t namespace = element->namespace;
+
+    if (namespace != html_ns_mathml() && namespace != html_ns_svg())
+    {
+        return false;
+    }
+
+    if (namespace == html_ns_svg())
+    {
+        hash_str_t node_name = node->name;
+        if (node_name == svg_tag_foreign_object() ||
+            node_name == svg_tag_desc() ||
+            node_name == svg_tag_title())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 static bool should_process_in_foreign_content(html_token_t* t)
 {
     if (stack_size == 0)                        { return false; }
@@ -3761,7 +3786,11 @@ static bool should_process_in_foreign_content(html_token_t* t)
     if (element->namespace == html_ns_html())   { return false; }
 
     INCOMPLETE_IMPLEMENTATION("math ml integration point");
-    INCOMPLETE_IMPLEMENTATION("html integration point");
+
+    if ((is_start(t->type) || is_character(t->type)) && is_html_integration_point(element))
+    {
+        return false;
+    }
 
     if (t->type == HTML_EOF_TOKEN)              { return false; }
 

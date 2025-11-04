@@ -165,6 +165,10 @@ static dom_node_t* parse_svg()
 {
     uint32_t start = level * 2 + 5;
     uint32_t size = line_size - 1 - start;
+    for (uint32_t i = start; i < start + size; i++)
+    {
+        if (line[i] < 'a') { line[i] += 0x20; }
+    }
     hash_str_t name = hash_str_new(&line[start], size);
     return dom_element_new(document, name, html_ns_svg());
 }

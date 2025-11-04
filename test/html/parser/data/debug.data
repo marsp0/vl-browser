@@ -1,14 +1,11 @@
 #data
-<a><svg><tr><input></a>
+<!doctype html><svg><foreignObject><div> <frameset><frame>
 #errors
-(1,3): expected-doctype-but-got-start-tag
-(1,23): unexpected-end-tag
-(1,23): adoption-agency-1.3
+(1,51): unexpected-start-tag
+(1,58): eof-in-frameset
 #document
+| <!DOCTYPE html>
 | <html>
 |   <head>
-|   <body>
-|     <a>
-|       <svg svg>
-|         <svg tr>
-|           <svg input>
+|   <frameset>
+|     <frame>
