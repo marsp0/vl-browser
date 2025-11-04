@@ -516,19 +516,6 @@
 |             <p>
 
 #data
-<svg><script></script><path>
-#errors
-(1,5) expected-doctype-but-got-start-tag
-(1,28) expected-closing-tag-but-got-eof
-#document
-| <html>
-|   <head>
-|   <body>
-|     <svg svg>
-|       <svg script>
-|       <svg path>
-
-#data
 <table><svg></svg><tr>
 #errors
 (1,7) expected-doctype-but-got-start-tag

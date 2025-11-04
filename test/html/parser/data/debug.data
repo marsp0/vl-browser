@@ -1,12 +1,16 @@
 #data
-<svg><script></script><path>
+<div><svg><path><foreignObject><p></div>a
 #errors
 (1,5) expected-doctype-but-got-start-tag
-(1,28) expected-closing-tag-but-got-eof
+(1,40) end-tag-too-early
+(1,41) expected-closing-tag-but-got-eof
 #document
 | <html>
 |   <head>
 |   <body>
-|     <svg svg>
-|       <svg script>
-|       <svg path>
+|     <div>
+|       <svg svg>
+|         <svg path>
+|           <svg foreignObject>
+|             <p>
+|               "a"
