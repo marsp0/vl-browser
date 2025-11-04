@@ -224,5 +224,11 @@ hash_str_t html_tag_spacer();
 hash_str_t html_tag_SPACER();
 hash_str_t html_tag_ruby();
 hash_str_t html_tag_RUBY();
+hash_str_t html_tag_sub();
+hash_str_t html_tag_SUB();
+hash_str_t html_tag_sup();
+hash_str_t html_tag_SUP();
+hash_str_t html_tag_var();
+hash_str_t html_tag_VAR();
 
 void html_populate_tags();

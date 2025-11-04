@@ -16,8 +16,8 @@ typedef struct
 
 } html_element_t;
 
-void            html_element_init(html_element_t* element, dom_node_t* document, hash_str_t name);
-dom_node_t*     html_element_new(dom_node_t* document, hash_str_t name);
+void            html_element_init(html_element_t* element, dom_node_t* document, hash_str_t name, hash_str_t namespace);
+dom_node_t*     html_element_new(dom_node_t* document, hash_str_t name, hash_str_t namespace);
 bool            html_node_is_element(dom_node_t* node);
 html_element_t* html_element_from_node(dom_node_t* node);
 dom_node_t*     html_node_from_element(html_element_t* element);

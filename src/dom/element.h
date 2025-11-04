@@ -23,8 +23,8 @@ typedef struct
 } dom_element_t;
 
 
-void            dom_element_initialize(dom_element_t* element, dom_node_t* document, hash_str_t name);
-dom_node_t*     dom_element_new(dom_node_t* document, hash_str_t name);
+void            dom_element_initialize(dom_element_t* element, dom_node_t* document, hash_str_t name, hash_str_t namespace);
+dom_node_t*     dom_element_new(dom_node_t* document, hash_str_t name, hash_str_t namespace);
 bool            dom_node_is_element(dom_node_t* node);
 dom_element_t*  dom_element_from_node(dom_node_t* node);
 dom_node_t*     dom_node_from_element(dom_element_t* element);

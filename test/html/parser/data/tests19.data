@@ -226,6 +226,18 @@
 |         "d"
 
 #data
+<!doctype html><svg/><foo>
+#errors
+(1,26): expected-closing-tag-but-got-eof
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|     <foo>
+
+#data
 <!doctype html><div></body><!--foo-->
 #errors
 (1,27): expected-one-end-tag-but-got-another
@@ -776,6 +788,55 @@
 |   <head>
 |   <body>
 |     <select>
+
+#data
+<!doctype html><svg></svg><frameset><frame>
+#errors
+(1,36): unexpected-start-tag
+(1,43): eof-in-frameset
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <frameset>
+|     <frame>
+
+#data
+<!doctype html><svg><foreignObject><div> <frameset><frame>
+#errors
+(1,51): unexpected-start-tag
+(1,58): eof-in-frameset
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <frameset>
+|     <frame>
+
+#data
+<!doctype html><svg>a</svg><frameset><frame>
+#errors
+(1,37): unexpected-start-tag
+(1,44): unexpected-start-tag-ignored
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       "a"
+
+#data
+<!doctype html><svg> </svg><frameset><frame>
+#errors
+(1,37): unexpected-start-tag
+(1,44): eof-in-frameset
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <frameset>
+|     <frame>
 
 #data
 <html>aaa<frameset></frameset>

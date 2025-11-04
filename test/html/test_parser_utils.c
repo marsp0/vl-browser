@@ -1,5 +1,7 @@
 #include "test_parser_utils.h"
 
+#include "html/ns_constants.h"
+
 void print_document_tree(dom_node_t* node, uint32_t level)
 {
     for (uint32_t i = 0; i < level; i++)
@@ -12,7 +14,18 @@ void print_document_tree(dom_node_t* node, uint32_t level)
         dom_element_t* element = dom_element_from_node(node);
         const unsigned char* name = hash_str_get(element->local_name);
         const uint32_t name_size = hash_str_get_size(element->local_name);
-        printf("%.*s\n", name_size, name);
+
+        printf("%.*s", name_size, name);
+
+        if (element->namespace != html_ns_html())
+        {
+            const unsigned char* namespace = hash_str_get(element->namespace);
+            const uint32_t namespace_size = hash_str_get_size(element->namespace);
+
+            printf(" (%.*s)", namespace_size, namespace);
+        }
+
+        printf("\n");
 
         dom_attr_t* attr = element->attr;
 

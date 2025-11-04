@@ -26,3 +26,21 @@
 |       <p>
 |         "foo"
 |     "bar"
+
+#data
+<!DOCTYPE html>xxx<svg><x><g><a><main><b>
+#errors
+ * (1,42) unexpected HTML-like start tag token in foreign content
+ * (1,42) unexpected end of file
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     "xxx"
+|     <svg svg>
+|       <svg x>
+|         <svg g>
+|           <svg a>
+|             <svg main>
+|     <b>

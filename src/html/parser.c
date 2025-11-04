@@ -19,6 +19,8 @@
 #include "html/select.h"
 #include "html/tokenizer.h"
 #include "html/tag_constants.h"
+#include "html/svg_tag_constants.h"
+#include "html/ns_constants.h"
 
 /*
  * Notes
@@ -70,6 +72,7 @@ static dom_node_t* head_element                     = NULL;
 static dom_node_t* form_element                     = NULL;
 static bool scripting_enabled                       = true;
 static bool frameset_ok                             = true;
+static bool self_close_ack                          = false;
 
 static dom_node_t* formatting_elements[10]          = { 0 };
 static bool formatting_elements_m[10]               = { 0 };
@@ -79,67 +82,6 @@ static uint32_t formatting_elements_size            = 0;
 /********************/
 /* static functions */
 /********************/
-
-// todo: remove
-// static void print_document_tree(dom_node_t* node, uint32_t level)
-// {
-//     for (uint32_t i = 0; i < level; i++)
-//     {
-//         printf("  ");
-//     }
-
-//     if (dom_node_is_element(node))
-//     {
-//         dom_element_t* element = dom_element_from_node(node);
-//         const unsigned char* name = hash_str_get(element->local_name);
-//         const uint32_t name_size = hash_str_get_size(element->local_name);
-//         printf("%.*s\n", name_size, name);
-
-//         dom_attr_t* attr = element->attr;
-
-//         for (uint32_t i = 0; i < element->attr_size; i++)
-//         {
-//             for (uint32_t j = 0; j < level; j++)
-//             {
-//                 printf("  ");
-//             }
-//             printf("  ");
-
-//             const unsigned char* attr_name = hash_str_get(attr->name);
-//             const uint32_t attr_name_size = hash_str_get_size(attr->name);
-//             printf("#attr - %.*s\n", attr_name_size, attr_name);
-//             attr = attr->next;
-//         }
-//     }
-//     else if (dom_node_is_document(node))
-//     {
-//         printf("#document\n");
-//     }
-//     else if (dom_node_is_text(node))
-//     {
-//         dom_text_t* text = dom_text_from_node(node);
-//         printf("#text - %s\n", text->data);
-//     }
-//     else if (dom_node_is_comment(type)(node))
-//     {
-//         dom_comment_t* comment = dom_comment_from_node(node);
-//         printf("<!-- %s -->\n", comment->data);
-//     }
-
-//     dom_node_t* child = node->first;
-//     while (child)
-//     {
-//         print_document_tree(child, level + 1);
-//         child = child->next;
-//     }
-// }
-
-// static bool string_compare(const unsigned char* first, const uint32_t first_size, const unsigned char* second, const uint32_t second_size)
-// {
-//     if (first_size != second_size) { return false; }
-
-//     return strncmp(first, second, first_size) == 0;
-// }
 
 static uint32_t get_tokens_size()
 {
@@ -199,14 +141,6 @@ static void stack_insert(uint32_t index, dom_node_t* node)
 }
 
 
-// static bool name_is(const unsigned char* name, const uint32_t name_size, const html_token_t* token)
-// {
-//     if (token->name_size != name_size) { return false; }
-
-//     return string_compare(name, name_size, token->name, token->name_size);
-// }
-
-
 static bool stack_contains_element(hash_str_t name)
 {
     for (uint32_t i = 0; i < stack_size; i++)
@@ -241,6 +175,8 @@ static bool stack_contains_node(dom_node_t* node)
 static bool in_scope(const hash_str_t name, dom_element_scope_e scope)
 {
     dom_node_t* node = stack[stack_idx];
+    dom_element_t* element = dom_element_from_node(node);
+    hash_str_t namespace = element->namespace;
 
     int32_t i = (int32_t)stack_idx;
 
@@ -268,6 +204,14 @@ static bool in_scope(const hash_str_t name, dom_element_scope_e scope)
             return false;
         }
 
+        if (scope != TABLE_SCOPE && namespace == html_ns_svg() && (node_name == svg_tag_foreign_object() ||
+                                                                   node_name == svg_tag_desc() ||
+                                                                   node_name == svg_tag_title()))
+        {
+            return false;
+        }
+
+
         if (scope == BUTTON_SCOPE && node_name == html_tag_button())
         {
             return false;
@@ -280,6 +224,8 @@ static bool in_scope(const hash_str_t name, dom_element_scope_e scope)
 
         i--;
         node = stack[i];
+        element = dom_element_from_node(node);
+        namespace = element->namespace;
     }
 
     return false;
@@ -374,14 +320,14 @@ static void insert_comment(html_token_t* token, dom_node_t* position)
 }
 
 
-static dom_node_t* create_appropriate_element(dom_node_t* doc, hash_str_t name)
+static dom_node_t* create_appropriate_element(dom_node_t* doc, hash_str_t name, hash_str_t namespace)
 {
-    if (name == html_tag_select())  { return html_select_new(doc);              }
-    else                            { return html_element_new(doc, name);       }
+    if (name == html_tag_select())  { return html_select_new(doc, namespace); }
+    else                            { return html_element_new(doc, name, namespace); }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#create-an-element-for-the-token
-static dom_node_t* create_element(hash_str_t name, html_token_t* token, dom_node_t* doc)
+static dom_node_t* create_element(hash_str_t name, html_token_t* token, hash_str_t namespace, dom_node_t* doc)
 {
     // todo: step 1
     // todo: step 2
@@ -395,7 +341,7 @@ static dom_node_t* create_element(hash_str_t name, html_token_t* token, dom_node
     // todo: step 9
 
     // dom_node_t* doc        = parent->document;
-    dom_node_t* element    = create_appropriate_element(doc, name);
+    dom_node_t* element    = create_appropriate_element(doc, name, namespace);
     if (token)
     {
         for (uint32_t i = 0; i < token->attributes_size; i++)
@@ -418,10 +364,10 @@ static dom_node_t* create_element(hash_str_t name, html_token_t* token, dom_node
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-a-foreign-element
-static dom_node_t* insert_foreign_element(hash_str_t name, html_token_t* token, bool only_add_to_stack)
+static dom_node_t* insert_foreign_element(hash_str_t name, html_token_t* token, hash_str_t namespace, bool only_add_to_stack)
 {
     dom_insertion_location_t location  = get_appropriate_insertion_location(NULL);
-    dom_node_t* node                   = create_element(name, token, document);
+    dom_node_t* node                   = create_element(name, token, namespace, document);
 
     if (!only_add_to_stack)
     {
@@ -439,7 +385,7 @@ static dom_node_t* insert_foreign_element(hash_str_t name, html_token_t* token, 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-an-html-element
 static dom_node_t* insert_html_element(hash_str_t name, html_token_t* token)
 {
-    return insert_foreign_element(name, token, false);
+    return insert_foreign_element(name, token, html_ns_html(), false);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-a-character
@@ -623,48 +569,58 @@ static void pop_elements_until_name_included(const hash_str_t name)
 static bool is_special(dom_node_t* node)
 {
     hash_str_t name = node->name;
+    dom_element_t* element = dom_element_from_node(node);
+    hash_str_t namespace = element->namespace;
 
-    return  name == html_tag_address()    || name == html_tag_applet()      ||
-            name == html_tag_area()       || name == html_tag_article()     ||
-            name == html_tag_aside()      || name == html_tag_base()        ||
-            name == html_tag_basefont()   || name == html_tag_bgsound()     ||
-            name == html_tag_blockquote() || name == html_tag_body()        ||
-            name == html_tag_br()         || name == html_tag_button()      ||
-            name == html_tag_caption()    || name == html_tag_center()      ||
-            name == html_tag_col()        || name == html_tag_colgroup()    ||
-            name == html_tag_dd()         || name == html_tag_details()     ||
-            name == html_tag_dir()        || name == html_tag_div()         ||
-            name == html_tag_dl()         || name == html_tag_dt()          ||
-            name == html_tag_embed()      || name == html_tag_fieldset()    ||
-            name == html_tag_figcaption() || name == html_tag_figure()      ||
-            name == html_tag_footer()     || name == html_tag_form()        ||
-            name == html_tag_frame()      || name == html_tag_frameset()    ||
-            name == html_tag_h1()         || name == html_tag_h2()          ||
-            name == html_tag_h3()         || name == html_tag_h4()          ||
-            name == html_tag_h5()         || name == html_tag_h6()          ||
-            name == html_tag_head()       || name == html_tag_header()      ||
-            name == html_tag_hgroup()     || name == html_tag_hr()          ||
-            name == html_tag_html()       || name == html_tag_iframe()      ||
-            name == html_tag_img()        || name == html_tag_input()       ||
-            name == html_tag_keygen()     || name == html_tag_li()          ||
-            name == html_tag_link()       || name == html_tag_listing()     ||
-            name == html_tag_main()       || name == html_tag_marquee()     ||
-            name == html_tag_menu()       || name == html_tag_meta()        ||
-            name == html_tag_nav()        || name == html_tag_noembed()     ||
-            name == html_tag_noframes()   || name == html_tag_noscript()    ||
-            name == html_tag_object()     || name == html_tag_ol()          ||
-            name == html_tag_p()          || name == html_tag_param()       ||
-            name == html_tag_plaintext()  || name == html_tag_pre()         ||
-            name == html_tag_script()     || name == html_tag_search()      ||
-            name == html_tag_section()    || name == html_tag_select()      ||
-            name == html_tag_source()     || name == html_tag_style()       ||
-            name == html_tag_summary()    || name == html_tag_table()       ||
-            name == html_tag_tbody()      || name == html_tag_td()          ||
-            name == html_tag_template()   || name == html_tag_textarea()    ||
-            name == html_tag_tfoot()      || name == html_tag_th()          ||
-            name == html_tag_thead()      || name == html_tag_title()       ||
-            name == html_tag_tr()         || name == html_tag_track()       ||
-            name == html_tag_ul()         || name == html_tag_wbr();
+    bool html = namespace == html_ns_html() &&
+                (name == html_tag_address()    || name == html_tag_applet()      ||
+                 name == html_tag_area()       || name == html_tag_article()     ||
+                 name == html_tag_aside()      || name == html_tag_base()        ||
+                 name == html_tag_basefont()   || name == html_tag_bgsound()     ||
+                 name == html_tag_blockquote() || name == html_tag_body()        ||
+                 name == html_tag_br()         || name == html_tag_button()      ||
+                 name == html_tag_caption()    || name == html_tag_center()      ||
+                 name == html_tag_col()        || name == html_tag_colgroup()    ||
+                 name == html_tag_dd()         || name == html_tag_details()     ||
+                 name == html_tag_dir()        || name == html_tag_div()         ||
+                 name == html_tag_dl()         || name == html_tag_dt()          ||
+                 name == html_tag_embed()      || name == html_tag_fieldset()    ||
+                 name == html_tag_figcaption() || name == html_tag_figure()      ||
+                 name == html_tag_footer()     || name == html_tag_form()        ||
+                 name == html_tag_frame()      || name == html_tag_frameset()    ||
+                 name == html_tag_h1()         || name == html_tag_h2()          ||
+                 name == html_tag_h3()         || name == html_tag_h4()          ||
+                 name == html_tag_h5()         || name == html_tag_h6()          ||
+                 name == html_tag_head()       || name == html_tag_header()      ||
+                 name == html_tag_hgroup()     || name == html_tag_hr()          ||
+                 name == html_tag_html()       || name == html_tag_iframe()      ||
+                 name == html_tag_img()        || name == html_tag_input()       ||
+                 name == html_tag_keygen()     || name == html_tag_li()          ||
+                 name == html_tag_link()       || name == html_tag_listing()     ||
+                 name == html_tag_main()       || name == html_tag_marquee()     ||
+                 name == html_tag_menu()       || name == html_tag_meta()        ||
+                 name == html_tag_nav()        || name == html_tag_noembed()     ||
+                 name == html_tag_noframes()   || name == html_tag_noscript()    ||
+                 name == html_tag_object()     || name == html_tag_ol()          ||
+                 name == html_tag_p()          || name == html_tag_param()       ||
+                 name == html_tag_plaintext()  || name == html_tag_pre()         ||
+                 name == html_tag_script()     || name == html_tag_search()      ||
+                 name == html_tag_section()    || name == html_tag_select()      ||
+                 name == html_tag_source()     || name == html_tag_style()       ||
+                 name == html_tag_summary()    || name == html_tag_table()       ||
+                 name == html_tag_tbody()      || name == html_tag_td()          ||
+                 name == html_tag_template()   || name == html_tag_textarea()    ||
+                 name == html_tag_tfoot()      || name == html_tag_th()          ||
+                 name == html_tag_thead()      || name == html_tag_title()       ||
+                 name == html_tag_tr()         || name == html_tag_track()       ||
+                 name == html_tag_ul()         || name == html_tag_wbr());
+
+    bool svg =  namespace == html_ns_svg() &&
+                (name == svg_tag_foreign_object() ||
+                 name == svg_tag_desc() ||
+                 name == svg_tag_title());
+
+    return html || svg;
 }
 
 
@@ -1067,7 +1023,7 @@ static bool run_adoption_procedure(const hash_str_t t_name)
             uint32_t node_formatting_index = find_node_index(formatting_elements, formatting_elements_size, node);
             html_token_t* node_t = &formatting_elements_t[node_formatting_index];
             hash_str_t node_t_name = hash_str_new(node_t->name, node_t->name_size);
-            dom_node_t* new_node = create_element(node_t_name, node_t, document);
+            dom_node_t* new_node = create_element(node_t_name, node_t, html_ns_html(), document);
             dom_node_append(common_ancestor, new_node);
             formatting_elements_replace(node, new_node);
             stack_replace(node, new_node);
@@ -1099,7 +1055,7 @@ static bool run_adoption_procedure(const hash_str_t t_name)
         uint32_t formatting_node_i = find_node_index(formatting_elements, formatting_elements_size, formatting_node);
         html_token_t formatting_node_t = formatting_elements_t[formatting_node_i];
         hash_str_t formatting_node_t_name = hash_str_new(formatting_node_t.name, formatting_node_t.name_size);
-        dom_node_t* new_element = create_element(formatting_node_t_name, &formatting_node_t, document);
+        dom_node_t* new_element = create_element(formatting_node_t_name, &formatting_node_t, html_ns_html(), document);
 
         // step 4.16
         dom_node_t* child = furthest->first;
@@ -1124,6 +1080,18 @@ static bool run_adoption_procedure(const hash_str_t t_name)
         uint32_t furthest_i = find_node_index(stack, stack_size, furthest);
         stack_insert(furthest_i + 1, new_element);
     }
+}
+
+
+static void adjust_svg_attrs(html_token_t* t)
+{
+    assert(t);
+}
+
+
+static void adjust_foreign_attrs(html_token_t* t)
+{
+    assert(t);
 }
 
 
@@ -1435,7 +1403,7 @@ static void process_before_html(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && t_name == html_tag_html())
     {
-        dom_node_t* element = create_element(t_name, t, document);
+        dom_node_t* element = create_element(t_name, t, html_ns_html(), document);
         dom_node_append(document, element);
         stack_push(element);
 
@@ -1447,7 +1415,7 @@ static void process_before_html(hash_str_t t_name, html_token_t* t)
     }
     else
     {
-        dom_node_t* element    = create_element(html_tag_html(), NULL, document);
+        dom_node_t* element    = create_element(html_tag_html(), NULL, html_ns_html(), document);
 
         dom_node_append(document, element);
         stack_push(element);
@@ -1524,14 +1492,22 @@ static void process_in_head(hash_str_t t_name, html_token_t* t)
     {
         insert_html_element(t_name, t);
         stack_pop();
-        INCOMPLETE_IMPLEMENTATION("ack self closing tag");
+
+        if (t->self_closing)
+        {
+            self_close_ack = true;
+        }
     }
     else if (is_start(type) && t_name == html_tag_meta())
     {
         insert_html_element(t_name, t);
         stack_pop();
 
-        INCOMPLETE_IMPLEMENTATION("ack self closing tag");
+        if (t->self_closing)
+        {
+            self_close_ack = true;
+        }
+
         INCOMPLETE_IMPLEMENTATION("speculative parsing logic");
     }
     else if (is_start(type) && t_name == html_tag_title())
@@ -1559,7 +1535,7 @@ static void process_in_head(hash_str_t t_name, html_token_t* t)
     else if (is_start(type) && t_name == html_tag_script())
     {
         dom_insertion_location_t location   = get_appropriate_insertion_location(NULL);
-        dom_node_t* element                 = create_element(t_name, t, document);
+        dom_node_t* element                 = create_element(t_name, t, html_ns_html(), document);
 
         INCOMPLETE_IMPLEMENTATION("missing steps: 3/4/5");
 
@@ -2267,20 +2243,19 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         if (!in_scope(t_name, GENERIC_SCOPE))
         {
             // todo: parse error
+            return;
         }
-        else
+
+        generate_implied_end_tags(0);
+
+        dom_node_t* node = stack[stack_idx];
+
+        if (node->name != t_name)
         {
-            generate_implied_end_tags(0);
-
-            dom_node_t* node = stack[stack_idx];
-
-            if (node->name != t_name)
-            {
-                // todo: parse error
-            }
-
-            pop_elements_until_name_included(t_name);
+            // todo: parse error
         }
+
+        pop_elements_until_name_included(t_name);
     }
     else if (is_end(type) && t_name == html_tag_form())
     {
@@ -2509,7 +2484,8 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         insert_html_element(t_name, t);
         stack_pop();
 
-        INCOMPLETE_IMPLEMENTATION("ack self closing flag");
+        if (t->self_closing) { self_close_ack = true; }
+
         frameset_ok = false;
     }
     else if (is_start(type) && (t_name == html_tag_area() ||
@@ -2523,7 +2499,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         insert_html_element(t_name, t);
         stack_pop();
 
-        INCOMPLETE_IMPLEMENTATION("ack self closing flag");
+        if (t->self_closing) { self_close_ack = true; }
         frameset_ok = false;
     }
     else if (is_start(type) && t_name == html_tag_input())
@@ -2540,7 +2516,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         insert_html_element(t_name, t);
         stack_pop();
 
-        INCOMPLETE_IMPLEMENTATION("ack self closing flag if set");
+        if (t->self_closing) { self_close_ack = true; }
 
         bool has_type = false;
         bool is_hidden = false;
@@ -2582,7 +2558,8 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     {
         insert_html_element(t_name, t);
         stack_pop();
-        INCOMPLETE_IMPLEMENTATION("ack self closing flag if set");
+
+        if (t->self_closing) { self_close_ack = true; }
     }
     else if (is_start(type) && t_name == html_tag_hr())
     {
@@ -2601,7 +2578,7 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         insert_html_element(t_name, t);
         stack_pop();
         frameset_ok = false;
-        // todo: ack self closing tag if set
+        if (t->self_closing) { self_close_ack = true; }
     }
     else if (is_start(type) && t_name == html_tag_image())
     {
@@ -2757,21 +2734,30 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && t_name == html_tag_svg())
     {
-        NOT_IMPLEMENTED
+        reconstruct_formatting_elements();
+        adjust_svg_attrs(t);
+        adjust_foreign_attrs(t);
+        insert_foreign_element(t_name, t, html_ns_svg(), false);
+
+        if (t->self_closing)
+        {
+            stack_pop();
+            self_close_ack = true;
+        }
     }
     else if (is_start(type) && (t_name == html_tag_caption()    ||
-                          t_name == html_tag_col()        ||
-                          t_name == html_tag_colgroup()   || 
-                          t_name == html_tag_frame()      ||
-                          t_name == html_tag_head()       ||
-                          t_name == html_tag_tbody()      ||
-                          t_name == html_tag_td()         ||
-                          t_name == html_tag_tfoot()      ||
-                          t_name == html_tag_th()         ||
-                          t_name == html_tag_thead()      ||
-                          t_name == html_tag_tr() ))
+                                t_name == html_tag_col()        ||
+                                t_name == html_tag_colgroup()   || 
+                                t_name == html_tag_frame()      ||
+                                t_name == html_tag_head()       ||
+                                t_name == html_tag_tbody()      ||
+                                t_name == html_tag_td()         ||
+                                t_name == html_tag_tfoot()      ||
+                                t_name == html_tag_th()         ||
+                                t_name == html_tag_thead()      ||
+                                t_name == html_tag_tr() ))
     {
-            INCOMPLETE_IMPLEMENTATION("parse error");
+        INCOMPLETE_IMPLEMENTATION("parse error");
     }
     else if (is_start(type))
     {
@@ -2981,7 +2967,8 @@ static void process_in_table(hash_str_t t_name, html_token_t* t)
             INCOMPLETE_IMPLEMENTATION("parse error");
             insert_html_element(t_name, t);
             stack_pop();
-            INCOMPLETE_IMPLEMENTATION("self closing flag logic");
+
+            if (t->self_closing) { self_close_ack = true; }
         }
     }
     else if (is_start(type) && t_name == html_tag_form())
@@ -3170,7 +3157,8 @@ static void process_in_column_group(hash_str_t t_name, html_token_t* t)
     {
         insert_html_element(t_name, t);
         stack_pop();
-        INCOMPLETE_IMPLEMENTATION("ack self closing flag, if set");
+
+        if (t->self_closing) { self_close_ack = true; }
     }
     else if (is_end(type) && t_name == html_tag_colgroup())
     {
@@ -3577,7 +3565,8 @@ static void process_in_frameset(hash_str_t t_name, html_token_t* t)
     {
         insert_html_element(t_name, t);
         stack_pop();
-        INCOMPLETE_IMPLEMENTATION("ack token self close flag");
+
+        if (t->self_closing) { self_close_ack = true; }
     }
     else if (is_start(type) && t_name == html_tag_noframes())
     {
@@ -3773,6 +3762,268 @@ static void process_token(html_parser_mode_e current_mode, hash_str_t t_name, ht
     }
 }
 
+
+static bool is_html_integration_point(dom_element_t* element)
+{
+    dom_node_t* node = dom_node_from_element(element);
+    hash_str_t namespace = element->namespace;
+
+    if (namespace != html_ns_mathml() && namespace != html_ns_svg())
+    {
+        return false;
+    }
+
+    if (namespace == html_ns_svg())
+    {
+        hash_str_t node_name = node->name;
+        if (node_name == svg_tag_foreign_object() ||
+            node_name == svg_tag_desc() ||
+            node_name == svg_tag_title())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static bool is_mathml_integration_point(dom_element_t* element)
+{
+    assert(element);
+    return false;
+}
+
+
+static bool should_process_in_foreign_content(html_token_t* t)
+{
+    if (stack_size == 0)                        { return false; }
+
+    dom_element_t* element = dom_element_from_node(stack[stack_idx]);
+
+    if (element->namespace == html_ns_html())   { return false; }
+
+    INCOMPLETE_IMPLEMENTATION("math ml integration point");
+
+    if ((is_start(t->type) || is_character(t->type)) && is_html_integration_point(element))
+    {
+        return false;
+    }
+
+    if (t->type == HTML_EOF_TOKEN)              { return false; }
+
+    return true;
+}
+
+
+static void process_script_token_in_svg(hash_str_t t_name, html_token_t* t)
+{
+    assert(t);
+    assert(t_name);
+
+    stack_pop();
+    NOT_IMPLEMENTED
+}
+
+
+static void process_token_foreign_content(html_parser_mode_e current_mode, hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data       = t->data;
+    const uint32_t data_size        = t->data_size;
+    html_token_type_e type          = t->type;
+    dom_node_t* adjusted_node       = stack[stack_idx];
+    dom_element_t* adjusted_element = dom_element_from_node(adjusted_node);
+
+    if (is_character(type) && t->data[0] == '\0')
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        insert_character(data, data_size);
+    }
+    else if (is_character(type))
+    {
+        insert_character(data, data_size);
+        frameset_ok = false;
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, document);
+    }
+    else if (is_doctype(type))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
+    }
+    else if ((is_start(type) && (t_name == html_tag_b()         ||
+                                 t_name == html_tag_big()       ||
+                                 t_name == html_tag_blockquote()||
+                                 t_name == html_tag_body()      ||
+                                 t_name == html_tag_br()        ||
+                                 t_name == html_tag_center()    ||
+                                 t_name == html_tag_code()      ||
+                                 t_name == html_tag_dd()        ||
+                                 t_name == html_tag_div()       ||
+                                 t_name == html_tag_dl()        ||
+                                 t_name == html_tag_dt()        ||
+                                 t_name == html_tag_em()        ||
+                                 t_name == html_tag_embed()     ||
+                                 t_name == html_tag_h1()        ||
+                                 t_name == html_tag_h2()        ||
+                                 t_name == html_tag_h3()        ||
+                                 t_name == html_tag_h4()        ||
+                                 t_name == html_tag_h5()        ||
+                                 t_name == html_tag_h6()        ||
+                                 t_name == html_tag_h6()        ||
+                                 t_name == html_tag_head()      ||
+                                 t_name == html_tag_hr()        ||
+                                 t_name == html_tag_i()         ||
+                                 t_name == html_tag_img()       ||
+                                 t_name == html_tag_li()        ||
+                                 t_name == html_tag_listing()   ||
+                                 t_name == html_tag_menu()      ||
+                                 t_name == html_tag_meta()      ||
+                                 t_name == html_tag_nobr()      ||
+                                 t_name == html_tag_ol()        ||
+                                 t_name == html_tag_p()         ||
+                                 t_name == html_tag_pre()       ||
+                                 t_name == html_tag_ruby()      ||
+                                 t_name == html_tag_s()         ||
+                                 t_name == html_tag_small()     ||
+                                 t_name == html_tag_span()      ||
+                                 t_name == html_tag_strong()    ||
+                                 t_name == html_tag_strike()    ||
+                                 t_name == html_tag_sub()       ||
+                                 t_name == html_tag_sup()       ||
+                                 t_name == html_tag_table()     ||
+                                 t_name == html_tag_tt()        ||
+                                 t_name == html_tag_u()         ||
+                                 t_name == html_tag_ul()        ||
+                                 t_name == html_tag_var()))     ||
+             (is_start(type) && t_name == html_tag_font())      ||  // todo: add attribute check
+             (is_end(type) && ( t_name == html_tag_br()         ||
+                                t_name == html_tag_p())))
+    {
+        INCOMPLETE_IMPLEMENTATION("font token should have attrs");
+
+        dom_element_t* current = dom_element_from_node(stack[stack_idx]);
+
+        while (!is_mathml_integration_point(current) &&
+               !is_html_integration_point(current) &&
+               current->namespace != html_ns_html())
+        {
+            stack_pop();
+            current = dom_element_from_node(stack[stack_idx]);
+        }
+
+        process_token(current_mode, t_name, t);
+    }
+    else if (is_start(type))
+    {
+        if (adjusted_element->namespace == html_ns_mathml())
+        {
+            INCOMPLETE_IMPLEMENTATION("implement");
+        }
+
+        if (adjusted_element->namespace == html_ns_svg())
+        {
+            INCOMPLETE_IMPLEMENTATION("adjust names");
+            INCOMPLETE_IMPLEMENTATION("adjust attr names");
+        }
+
+        adjust_foreign_attrs(t);
+        insert_foreign_element(t_name, t, adjusted_element->namespace, false);
+
+        if (!t->self_closing) { return; }
+
+        adjusted_element = dom_element_from_node(stack[stack_idx]);
+        self_close_ack = true;
+
+        if (t_name == html_tag_script() && adjusted_element->namespace == html_ns_svg())
+        {
+            process_script_token_in_svg(t_name, t);
+        }
+        else
+        {
+            stack_pop();
+        }
+    }
+    else if (is_end(type) && 
+             t_name == html_tag_script() && 
+             adjusted_element->namespace == html_ns_svg() && 
+             adjusted_node->name == html_tag_script())
+    {
+        process_script_token_in_svg(t_name, t);
+    }
+    else if (is_end(type))
+    {
+        uint32_t i = stack_idx;
+        dom_node_t* node = stack[i];
+
+        if (node->name != t_name)
+        {
+            INCOMPLETE_IMPLEMENTATION("parse error");
+        }
+
+        uint32_t step = 3;
+        bool should_run = true;
+
+        while (should_run)
+        {
+            switch(step)
+            {
+                case 3:
+                    if (node == stack[0])
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        step = 4;
+                    }
+                    break;
+
+                case 4:
+                    if (node->name == t_name)
+                    {
+                        pop_elements_until_name_included(t_name);
+                        return;
+                    }
+                    else
+                    {
+                        step = 5;
+                    }
+                    break;
+
+                case 5:
+                    i--;
+                    node = stack[i];
+                    step = 6;
+                    break;
+
+                case 6:
+                    ;
+                    dom_element_t* element = dom_element_from_node(node);
+                    if (element->namespace != html_ns_html())
+                    {
+                        step = 3;
+                    }
+                    else
+                    {
+                        step = 7;
+                    }
+                    break;
+
+                case 7:
+                    should_run = false;
+                    break;
+            }
+        }
+
+        process_token(current_mode, t_name, t);
+    }
+}
+
+
 /********************/
 /* public functions */
 /********************/
@@ -3790,6 +4041,7 @@ void html_parser_init(bool scripting)
     form_element                = NULL;
     scripting_enabled           = scripting;
     frameset_ok                 = true;
+    self_close_ack              = false;
 
     formatting_elements_size = 0;
     memset(formatting_elements, 0, sizeof(formatting_elements));
@@ -3802,7 +4054,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 {
     html_tokenizer_init(buffer, size, tokens, MAX_TOKENS);
 
-    document                    = dom_document_new();
+    document = dom_document_new();
 
     while (!stop)
     {
@@ -3819,9 +4071,18 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 
         for (uint32_t i = 0; i < tokens_size; i++)
         {
-            html_token_t t                  = tokens[i];
-            hash_str_t t_name               = hash_str_new(t.name, t.name_size);
-            process_token(mode, t_name, &t);
+            html_token_t t      = tokens[i];
+            hash_str_t t_name   = hash_str_new(t.name, t.name_size);
+            self_close_ack      = false;
+
+            if (should_process_in_foreign_content(&t))
+            {
+                process_token_foreign_content(mode, t_name, &t);
+            }
+            else
+            {
+                process_token(mode, t_name, &t);
+            }
         }
     }
 

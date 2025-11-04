@@ -11,7 +11,7 @@ dom_element_t* dom_element_from_node(dom_node_t* node);
 dom_node_t*    dom_node_from_element(dom_element_t* element);
 
 
-void dom_element_initialize(dom_element_t* element, dom_node_t* document, hash_str_t name)
+void dom_element_initialize(dom_element_t* element, dom_node_t* document, hash_str_t name, hash_str_t namespace)
 {
     dom_node_t* node = dom_node_from_element(element);
 
@@ -22,7 +22,7 @@ void dom_element_initialize(dom_element_t* element, dom_node_t* document, hash_s
     // todo: step 4
     // todo: step 5
 
-    element->namespace = hash_str_new(HTML_NAMESPACE, HTML_NAMESPACE_SIZE);
+    element->namespace = namespace;
     // element->local_name = hash_str_new(local_name, local_name_size);
 
     unsigned char temp[MAX_HTML_NAME_LEN]   = { 0 };
@@ -54,10 +54,10 @@ void dom_element_initialize(dom_element_t* element, dom_node_t* document, hash_s
 }
 
 
-dom_node_t* dom_element_new(dom_node_t* document, hash_str_t name)
+dom_node_t* dom_element_new(dom_node_t* document, hash_str_t name, hash_str_t namespace)
 {
     dom_element_t* element = malloc(sizeof(dom_element_t));
-    dom_element_initialize(element, document, name);
+    dom_element_initialize(element, document, name, namespace);
 
     return dom_node_from_element(element);
 }

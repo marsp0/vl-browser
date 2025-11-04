@@ -251,3 +251,13 @@
 |   <head>
 |   <body>
 |     <div>
+
+#data
+<svg></svg>
+#errors
+(1,5): expected-doctype-but-got-start-tag
+#document
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>

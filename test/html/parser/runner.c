@@ -15,6 +15,8 @@
 #include "dom/text.h"
 #include "util/utf8.h"
 
+#include "html/ns_constants.h"
+
 typedef enum
 {
     STATE_DATA,
@@ -123,6 +125,13 @@ static bool line_is_text()
 }
 
 
+static bool line_is_svg()
+{
+    uint32_t i = level * 2;
+    return strncmp(&line[i], "<svg ", 5) == 0;
+}
+
+
 static bool line_is_element()
 {
     uint32_t i = level * 2;
@@ -152,12 +161,25 @@ static dom_node_t* parse_comment()
 }
 
 
+static dom_node_t* parse_svg()
+{
+    uint32_t start = level * 2 + 5;
+    uint32_t size = line_size - 1 - start;
+    for (uint32_t i = start; i < start + size; i++)
+    {
+        if (line[i] < 'a') { line[i] += 0x20; }
+    }
+    hash_str_t name = hash_str_new(&line[start], size);
+    return dom_element_new(document, name, html_ns_svg());
+}
+
+
 static dom_node_t* parse_element()
 {
     uint32_t start = level * 2 + 1;
     uint32_t size = line_size - 1 - start;
     hash_str_t name = hash_str_new(&line[start], size);
-    return dom_element_new(document, name);
+    return dom_element_new(document, name, html_ns_html());
 }
 
 
@@ -269,6 +291,7 @@ static void run_parser_test()
             dom_node_t* node = NULL;
 
             if (line_is_comment())      { node = parse_comment(); }
+            else if (line_is_svg())     { node = parse_svg(); }
             else if (line_is_element()) { node = parse_element(); }
             else if (line_is_text())    { node = parse_text(); }
             else if (line_is_attr())    { node = parse_attr(last); }
@@ -354,8 +377,8 @@ void html_parser_test()
                                     "./test/html/parser/data/tests7.data",
                                     "./test/html/parser/data/tests8.data",
                                     // "./test/html/parser/data/tests9.data",
-                                    // "./test/html/parser/data/tests10.data",
-                                    // "./test/html/parser/data/tests11.data",
+                                    "./test/html/parser/data/tests10.data",
+                                    "./test/html/parser/data/tests11.data",
                                     // "./test/html/parser/data/tests12.data",
                                     "./test/html/parser/data/tests14.data",
                                     "./test/html/parser/data/tests15.data",
@@ -363,7 +386,7 @@ void html_parser_test()
                                     "./test/html/parser/data/tests17.data",
                                     "./test/html/parser/data/tests18.data",
                                     "./test/html/parser/data/tests19.data",
-                                    // "./test/html/parser/data/tests20.data",
+                                    "./test/html/parser/data/tests20.data",
                                     // "./test/html/parser/data/tests21.data",
                                     "./test/html/parser/data/tests22.data",
                                     "./test/html/parser/data/tests23.data",

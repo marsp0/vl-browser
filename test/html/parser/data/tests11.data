@@ -1,0 +1,52 @@
+#data
+<!DOCTYPE html><body><svg contentScriptType='' contentStyleType='' externalResourcesRequired='' filterRes=''></svg>
+#errors
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       contentscripttype=""
+|       contentstyletype=""
+|       externalresourcesrequired=""
+|       filterres=""
+
+#data
+<!DOCTYPE html><body><svg CONTENTSCRIPTTYPE='' CONTENTSTYLETYPE='' EXTERNALRESOURCESREQUIRED='' FILTERRES=''></svg>
+#errors
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       contentscripttype=""
+|       contentstyletype=""
+|       externalresourcesrequired=""
+|       filterres=""
+
+#data
+<!DOCTYPE html><body><svg contentscripttype='' contentstyletype='' externalresourcesrequired='' filterres=''></svg>
+#errors
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       contentscripttype=""
+|       contentstyletype=""
+|       externalresourcesrequired=""
+|       filterres=""
+
+#data
+<!DOCTYPE html><body><svg><solidColor /></svg>
+#errors
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       <svg solidcolor>

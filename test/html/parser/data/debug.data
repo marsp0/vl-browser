@@ -1,10 +1,16 @@
 #data
-<div>ZZ&prod_id=23</div>
+<div><svg><path><foreignObject><p></div>a
 #errors
-(1,5): expected-doctype-but-got-start-tag
+(1,5) expected-doctype-but-got-start-tag
+(1,40) end-tag-too-early
+(1,41) expected-closing-tag-but-got-eof
 #document
 | <html>
 |   <head>
 |   <body>
 |     <div>
-|       "ZZ&prod_id=23"
+|       <svg svg>
+|         <svg path>
+|           <svg foreignObject>
+|             <p>
+|               "a"

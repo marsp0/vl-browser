@@ -4,7 +4,9 @@
 
 #include "dom/hash_str.h"
 #include "html/tag_constants.h"
+#include "html/svg_tag_constants.h"
 #include "html/attr_constants.h"
+#include "html/ns_constants.h"
 #include "html/named_char_refs.h"
 
 void global_modules_init()
@@ -15,7 +17,9 @@ void global_modules_init()
 
     // constants
     html_populate_tags();
+    svg_populate_tags();
     html_populate_attrs();
+    html_populate_namespaces();
 }
 
 
