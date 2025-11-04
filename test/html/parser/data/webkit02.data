@@ -235,6 +235,36 @@
 |       <b>
 
 #data
+<svg><foreignObject><div>foo</div><plaintext></foreignObject></svg><div>bar</div>
+#errors
+(1,5): expected-doctype-but-got-start-tag
+(1,82): expected-closing-tag-but-got-eof
+#document
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       <svg foreignObject>
+|         <div>
+|           "foo"
+|         <plaintext>
+|           "</foreignObject></svg><div>bar</div>"
+
+#data
+<svg><foreignObject></foreignObject><title></svg>foo
+#errors
+(1,5): expected-doctype-but-got-start-tag
+(1,49): expected-one-end-tag-but-got-another
+#document
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       <svg foreignObject>
+|       <svg title>
+|     "foo"
+
+#data
 </foreignObject><plaintext><div>foo</div>
 #errors
 (1,16): expected-doctype-but-got-end-tag
@@ -246,6 +276,22 @@
 |   <body>
 |     <plaintext>
 |       "<div>foo</div>"
+
+#data
+<svg xml:base xml:lang xml:space xml:baaah definitionurl>
+#errors
+no-doctype
+eof-in-svg
+#document
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       definitionurl=""
+|       xml lang=""
+|       xml space=""
+|       xml:baaah=""
+|       xml:base=""
 
 #data
 <select><hr>

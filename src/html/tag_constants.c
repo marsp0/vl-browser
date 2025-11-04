@@ -222,6 +222,12 @@ static hash_str_t spacer;
 static hash_str_t SPACER;
 static hash_str_t ruby;
 static hash_str_t RUBY;
+static hash_str_t sub;
+static hash_str_t SUB;
+static hash_str_t sup;
+static hash_str_t SUP;
+static hash_str_t var;
+static hash_str_t VAR;
 
 void html_populate_tags()
 {
@@ -557,6 +563,15 @@ void html_populate_tags()
 
     ruby           = hash_str_new("ruby", 4);
     RUBY           = hash_str_new("RUBY", 4);
+
+    sub            = hash_str_new("sub", 3);
+    SUB            = hash_str_new("SUB", 3);
+
+    sup            = hash_str_new("sup", 3);
+    SUP            = hash_str_new("SUP", 3);
+
+    var            = hash_str_new("var", 3);
+    VAR            = hash_str_new("VAR", 3);
 }
 
 hash_str_t html_tag_html()
@@ -1888,4 +1903,40 @@ hash_str_t html_tag_ruby()
 hash_str_t html_tag_RUBY()
 {
     return RUBY;
+}
+
+
+hash_str_t html_tag_sub()
+{
+    return sub;
+}
+
+
+hash_str_t html_tag_SUB()
+{
+    return SUB;
+}
+
+
+hash_str_t html_tag_sup()
+{
+    return sup;
+}
+
+
+hash_str_t html_tag_SUP()
+{
+    return SUP;
+}
+
+
+hash_str_t html_tag_var()
+{
+    return var;
+}
+
+
+hash_str_t html_tag_VAR()
+{
+    return VAR;
 }

@@ -19,6 +19,7 @@
 #include "html/select.h"
 #include "html/tokenizer.h"
 #include "html/tag_constants.h"
+#include "html/ns_constants.h"
 
 /*
  * Notes
@@ -80,67 +81,6 @@ static uint32_t formatting_elements_size            = 0;
 /* static functions */
 /********************/
 
-// todo: remove
-// static void print_document_tree(dom_node_t* node, uint32_t level)
-// {
-//     for (uint32_t i = 0; i < level; i++)
-//     {
-//         printf("  ");
-//     }
-
-//     if (dom_node_is_element(node))
-//     {
-//         dom_element_t* element = dom_element_from_node(node);
-//         const unsigned char* name = hash_str_get(element->local_name);
-//         const uint32_t name_size = hash_str_get_size(element->local_name);
-//         printf("%.*s\n", name_size, name);
-
-//         dom_attr_t* attr = element->attr;
-
-//         for (uint32_t i = 0; i < element->attr_size; i++)
-//         {
-//             for (uint32_t j = 0; j < level; j++)
-//             {
-//                 printf("  ");
-//             }
-//             printf("  ");
-
-//             const unsigned char* attr_name = hash_str_get(attr->name);
-//             const uint32_t attr_name_size = hash_str_get_size(attr->name);
-//             printf("#attr - %.*s\n", attr_name_size, attr_name);
-//             attr = attr->next;
-//         }
-//     }
-//     else if (dom_node_is_document(node))
-//     {
-//         printf("#document\n");
-//     }
-//     else if (dom_node_is_text(node))
-//     {
-//         dom_text_t* text = dom_text_from_node(node);
-//         printf("#text - %s\n", text->data);
-//     }
-//     else if (dom_node_is_comment(type)(node))
-//     {
-//         dom_comment_t* comment = dom_comment_from_node(node);
-//         printf("<!-- %s -->\n", comment->data);
-//     }
-
-//     dom_node_t* child = node->first;
-//     while (child)
-//     {
-//         print_document_tree(child, level + 1);
-//         child = child->next;
-//     }
-// }
-
-// static bool string_compare(const unsigned char* first, const uint32_t first_size, const unsigned char* second, const uint32_t second_size)
-// {
-//     if (first_size != second_size) { return false; }
-
-//     return strncmp(first, second, first_size) == 0;
-// }
-
 static uint32_t get_tokens_size()
 {
     uint32_t result = 0;
@@ -197,14 +137,6 @@ static void stack_insert(uint32_t index, dom_node_t* node)
     stack_idx = stack_size;
     stack_size++;
 }
-
-
-// static bool name_is(const unsigned char* name, const uint32_t name_size, const html_token_t* token)
-// {
-//     if (token->name_size != name_size) { return false; }
-
-//     return string_compare(name, name_size, token->name, token->name_size);
-// }
 
 
 static bool stack_contains_element(hash_str_t name)
@@ -374,14 +306,14 @@ static void insert_comment(html_token_t* token, dom_node_t* position)
 }
 
 
-static dom_node_t* create_appropriate_element(dom_node_t* doc, hash_str_t name)
+static dom_node_t* create_appropriate_element(dom_node_t* doc, hash_str_t name, hash_str_t namespace)
 {
-    if (name == html_tag_select())  { return html_select_new(doc);              }
-    else                            { return html_element_new(doc, name);       }
+    if (name == html_tag_select())  { return html_select_new(doc, namespace); }
+    else                            { return html_element_new(doc, name, namespace); }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#create-an-element-for-the-token
-static dom_node_t* create_element(hash_str_t name, html_token_t* token, dom_node_t* doc)
+static dom_node_t* create_element(hash_str_t name, html_token_t* token, hash_str_t namespace, dom_node_t* doc)
 {
     // todo: step 1
     // todo: step 2
@@ -395,7 +327,7 @@ static dom_node_t* create_element(hash_str_t name, html_token_t* token, dom_node
     // todo: step 9
 
     // dom_node_t* doc        = parent->document;
-    dom_node_t* element    = create_appropriate_element(doc, name);
+    dom_node_t* element    = create_appropriate_element(doc, name, namespace);
     if (token)
     {
         for (uint32_t i = 0; i < token->attributes_size; i++)
@@ -418,10 +350,10 @@ static dom_node_t* create_element(hash_str_t name, html_token_t* token, dom_node
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-a-foreign-element
-static dom_node_t* insert_foreign_element(hash_str_t name, html_token_t* token, bool only_add_to_stack)
+static dom_node_t* insert_foreign_element(hash_str_t name, html_token_t* token, hash_str_t namespace, bool only_add_to_stack)
 {
     dom_insertion_location_t location  = get_appropriate_insertion_location(NULL);
-    dom_node_t* node                   = create_element(name, token, document);
+    dom_node_t* node                   = create_element(name, token, namespace, document);
 
     if (!only_add_to_stack)
     {
@@ -439,7 +371,7 @@ static dom_node_t* insert_foreign_element(hash_str_t name, html_token_t* token, 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-an-html-element
 static dom_node_t* insert_html_element(hash_str_t name, html_token_t* token)
 {
-    return insert_foreign_element(name, token, false);
+    return insert_foreign_element(name, token, html_ns_html(), false);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-a-character
@@ -1067,7 +999,7 @@ static bool run_adoption_procedure(const hash_str_t t_name)
             uint32_t node_formatting_index = find_node_index(formatting_elements, formatting_elements_size, node);
             html_token_t* node_t = &formatting_elements_t[node_formatting_index];
             hash_str_t node_t_name = hash_str_new(node_t->name, node_t->name_size);
-            dom_node_t* new_node = create_element(node_t_name, node_t, document);
+            dom_node_t* new_node = create_element(node_t_name, node_t, html_ns_html(), document);
             dom_node_append(common_ancestor, new_node);
             formatting_elements_replace(node, new_node);
             stack_replace(node, new_node);
@@ -1099,7 +1031,7 @@ static bool run_adoption_procedure(const hash_str_t t_name)
         uint32_t formatting_node_i = find_node_index(formatting_elements, formatting_elements_size, formatting_node);
         html_token_t formatting_node_t = formatting_elements_t[formatting_node_i];
         hash_str_t formatting_node_t_name = hash_str_new(formatting_node_t.name, formatting_node_t.name_size);
-        dom_node_t* new_element = create_element(formatting_node_t_name, &formatting_node_t, document);
+        dom_node_t* new_element = create_element(formatting_node_t_name, &formatting_node_t, html_ns_html(), document);
 
         // step 4.16
         dom_node_t* child = furthest->first;
@@ -1124,6 +1056,18 @@ static bool run_adoption_procedure(const hash_str_t t_name)
         uint32_t furthest_i = find_node_index(stack, stack_size, furthest);
         stack_insert(furthest_i + 1, new_element);
     }
+}
+
+
+static void adjust_svg_attrs(html_token_t* t)
+{
+    assert(t);
+}
+
+
+static void adjust_foreign_attrs(html_token_t* t)
+{
+    assert(t);
 }
 
 
@@ -1435,7 +1379,7 @@ static void process_before_html(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && t_name == html_tag_html())
     {
-        dom_node_t* element = create_element(t_name, t, document);
+        dom_node_t* element = create_element(t_name, t, html_ns_html(), document);
         dom_node_append(document, element);
         stack_push(element);
 
@@ -1447,7 +1391,7 @@ static void process_before_html(hash_str_t t_name, html_token_t* t)
     }
     else
     {
-        dom_node_t* element    = create_element(html_tag_html(), NULL, document);
+        dom_node_t* element    = create_element(html_tag_html(), NULL, html_ns_html(), document);
 
         dom_node_append(document, element);
         stack_push(element);
@@ -1559,7 +1503,7 @@ static void process_in_head(hash_str_t t_name, html_token_t* t)
     else if (is_start(type) && t_name == html_tag_script())
     {
         dom_insertion_location_t location   = get_appropriate_insertion_location(NULL);
-        dom_node_t* element                 = create_element(t_name, t, document);
+        dom_node_t* element                 = create_element(t_name, t, html_ns_html(), document);
 
         INCOMPLETE_IMPLEMENTATION("missing steps: 3/4/5");
 
@@ -2757,21 +2701,30 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && t_name == html_tag_svg())
     {
-        NOT_IMPLEMENTED
+        reconstruct_formatting_elements();
+        adjust_svg_attrs(t);
+        adjust_foreign_attrs(t);
+        insert_foreign_element(t_name, t, html_ns_svg(), false);
+
+        if (t->self_closing)
+        {
+            stack_pop();
+            INCOMPLETE_IMPLEMENTATION("ack self closing tag");
+        }
     }
     else if (is_start(type) && (t_name == html_tag_caption()    ||
-                          t_name == html_tag_col()        ||
-                          t_name == html_tag_colgroup()   || 
-                          t_name == html_tag_frame()      ||
-                          t_name == html_tag_head()       ||
-                          t_name == html_tag_tbody()      ||
-                          t_name == html_tag_td()         ||
-                          t_name == html_tag_tfoot()      ||
-                          t_name == html_tag_th()         ||
-                          t_name == html_tag_thead()      ||
-                          t_name == html_tag_tr() ))
+                                t_name == html_tag_col()        ||
+                                t_name == html_tag_colgroup()   || 
+                                t_name == html_tag_frame()      ||
+                                t_name == html_tag_head()       ||
+                                t_name == html_tag_tbody()      ||
+                                t_name == html_tag_td()         ||
+                                t_name == html_tag_tfoot()      ||
+                                t_name == html_tag_th()         ||
+                                t_name == html_tag_thead()      ||
+                                t_name == html_tag_tr() ))
     {
-            INCOMPLETE_IMPLEMENTATION("parse error");
+        INCOMPLETE_IMPLEMENTATION("parse error");
     }
     else if (is_start(type))
     {
@@ -3773,6 +3726,129 @@ static void process_token(html_parser_mode_e current_mode, hash_str_t t_name, ht
     }
 }
 
+
+static bool should_process_in_foreign_content(html_token_t* t)
+{
+    if (stack_size == 0)                        { return false; }
+
+    dom_element_t* element = dom_element_from_node(stack[stack_idx]);
+
+    if (element->namespace == html_ns_html())   { return false; }
+
+    INCOMPLETE_IMPLEMENTATION("math ml integration point");
+    INCOMPLETE_IMPLEMENTATION("html integration point");
+
+    if (t->type == HTML_EOF_TOKEN)              { return false; }
+
+    return true;
+}
+
+
+static void process_token_foreign_content(hash_str_t t_name, html_token_t* t)
+{
+    const unsigned char* data   = t->data;
+    const uint32_t data_size    = t->data_size;
+    html_token_type_e type      = t->type;
+
+    if (is_character(type) && t->data[0] == '\0')
+    {
+        NOT_IMPLEMENTED
+    }
+    else if (is_character(type) && (data[0] == '\t' || data[0] == '\n' || data[0] == '\f' || data[0] == '\r' || data[0] == ' '))
+    {
+        insert_character(data, data_size);
+    }
+    else if (is_character(type))
+    {
+        insert_character(data, data_size);
+        frameset_ok = false;
+    }
+    else if (is_comment(type))
+    {
+        insert_comment(t, document);
+    }
+    else if (is_doctype(type))
+    {
+        INCOMPLETE_IMPLEMENTATION("parse error, ignore token");
+    }
+    else if ((is_start(type) && (t_name == html_tag_b()         ||
+                                 t_name == html_tag_big()       ||
+                                 t_name == html_tag_blockquote()||
+                                 t_name == html_tag_body()      ||
+                                 t_name == html_tag_br()        ||
+                                 t_name == html_tag_center()    ||
+                                 t_name == html_tag_code()      ||
+                                 t_name == html_tag_dd()        ||
+                                 t_name == html_tag_div()       ||
+                                 t_name == html_tag_dl()        ||
+                                 t_name == html_tag_dt()        ||
+                                 t_name == html_tag_em()        ||
+                                 t_name == html_tag_embed()     ||
+                                 t_name == html_tag_h1()        ||
+                                 t_name == html_tag_h2()        ||
+                                 t_name == html_tag_h3()        ||
+                                 t_name == html_tag_h4()        ||
+                                 t_name == html_tag_h5()        ||
+                                 t_name == html_tag_h6()        ||
+                                 t_name == html_tag_h6()        ||
+                                 t_name == html_tag_head()      ||
+                                 t_name == html_tag_hr()        ||
+                                 t_name == html_tag_i()         ||
+                                 t_name == html_tag_img()       ||
+                                 t_name == html_tag_li()        ||
+                                 t_name == html_tag_listing()   ||
+                                 t_name == html_tag_menu()      ||
+                                 t_name == html_tag_meta()      ||
+                                 t_name == html_tag_nobr()      ||
+                                 t_name == html_tag_ol()        ||
+                                 t_name == html_tag_p()         ||
+                                 t_name == html_tag_pre()       ||
+                                 t_name == html_tag_ruby()      ||
+                                 t_name == html_tag_s()         ||
+                                 t_name == html_tag_small()     ||
+                                 t_name == html_tag_span()      ||
+                                 t_name == html_tag_strong()    ||
+                                 t_name == html_tag_strike()    ||
+                                 t_name == html_tag_sub()       ||
+                                 t_name == html_tag_sup()       ||
+                                 t_name == html_tag_table()     ||
+                                 t_name == html_tag_tt()        ||
+                                 t_name == html_tag_u()         ||
+                                 t_name == html_tag_ul()        ||
+                                 t_name == html_tag_var()))     ||
+             (is_start(type) && t_name == html_tag_font())      ||  // todo: add attribute check
+             (is_end(type) && ( t_name == html_tag_br()         ||
+                                t_name == html_tag_p())))
+    {
+        INCOMPLETE_IMPLEMENTATION("font token should have attrs");
+
+        INCOMPLETE_IMPLEMENTATION("implement");
+    }
+    else if (is_start(type))
+    {
+        dom_element_t* adjusted_node = dom_element_from_node(stack[stack_idx]);
+
+        if (adjusted_node->namespace == html_ns_mathml())
+        {
+            INCOMPLETE_IMPLEMENTATION("implement");
+        }
+
+        if (adjusted_node->namespace == html_ns_svg())
+        {
+            INCOMPLETE_IMPLEMENTATION("adjust names");
+            INCOMPLETE_IMPLEMENTATION("adjust attr names");
+        }
+
+        adjust_foreign_attrs(t);
+        insert_foreign_element(t_name, t, adjusted_node->namespace, false);
+
+        adjusted_node = dom_element_from_node(stack[stack_idx]);
+
+        INCOMPLETE_IMPLEMENTATION("self closing token logic");
+    }
+}
+
+
 /********************/
 /* public functions */
 /********************/
@@ -3802,7 +3878,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
 {
     html_tokenizer_init(buffer, size, tokens, MAX_TOKENS);
 
-    document                    = dom_document_new();
+    document = dom_document_new();
 
     while (!stop)
     {
@@ -3821,7 +3897,15 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
         {
             html_token_t t                  = tokens[i];
             hash_str_t t_name               = hash_str_new(t.name, t.name_size);
-            process_token(mode, t_name, &t);
+
+            if (should_process_in_foreign_content(&t))
+            {
+                process_token_foreign_content(t_name, &t);
+            }
+            else
+            {
+                process_token(mode, t_name, &t);
+            }
         }
     }
 

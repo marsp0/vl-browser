@@ -29,11 +29,11 @@
 /* public functions */
 /********************/
 
-dom_node_t* html_select_new(dom_node_t* document)
+dom_node_t* html_select_new(dom_node_t* document, hash_str_t namespace)
 {
     html_select_t* select = malloc(sizeof(html_select_t));
 
-    html_element_init((html_element_t*)select, document, html_tag_select());
+    html_element_init((html_element_t*)select, document, html_tag_select(), namespace);
 
     return html_node_from_select(select);
 }

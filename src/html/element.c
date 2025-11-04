@@ -27,17 +27,17 @@
 /* public functions */
 /********************/
 
-void html_element_init(html_element_t* element, dom_node_t* document, hash_str_t name)
+void html_element_init(html_element_t* element, dom_node_t* document, hash_str_t name, hash_str_t namespace)
 {
-    dom_element_initialize((dom_element_t*)element, document, name);
+    dom_element_initialize((dom_element_t*)element, document, name, namespace);
 }
 
 
-dom_node_t* html_element_new(dom_node_t* document, hash_str_t name)
+dom_node_t* html_element_new(dom_node_t* document, hash_str_t name, hash_str_t namespace)
 {
     html_element_t* element = malloc(sizeof(html_element_t));
 
-    html_element_init(element, document, name);
+    html_element_init(element, document, name, namespace);
 
     return html_node_from_element(element);
 }
