@@ -386,7 +386,7 @@ void html_parser_test()
                                     "./test/html/parser/data/tests17.data",
                                     "./test/html/parser/data/tests18.data",
                                     "./test/html/parser/data/tests19.data",
-                                    // "./test/html/parser/data/tests20.data",
+                                    "./test/html/parser/data/tests20.data",
                                     // "./test/html/parser/data/tests21.data",
                                     "./test/html/parser/data/tests22.data",
                                     "./test/html/parser/data/tests23.data",
