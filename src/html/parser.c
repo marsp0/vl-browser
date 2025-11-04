@@ -175,6 +175,8 @@ static bool stack_contains_node(dom_node_t* node)
 static bool in_scope(const hash_str_t name, dom_element_scope_e scope)
 {
     dom_node_t* node = stack[stack_idx];
+    dom_element_t* element = dom_element_from_node(node);
+    hash_str_t namespace = element->namespace;
 
     int32_t i = (int32_t)stack_idx;
 
@@ -202,6 +204,14 @@ static bool in_scope(const hash_str_t name, dom_element_scope_e scope)
             return false;
         }
 
+        if (scope != TABLE_SCOPE && namespace == html_ns_svg() && (node_name == svg_tag_foreign_object() ||
+                                                                   node_name == svg_tag_desc() ||
+                                                                   node_name == svg_tag_title()))
+        {
+            return false;
+        }
+
+
         if (scope == BUTTON_SCOPE && node_name == html_tag_button())
         {
             return false;
@@ -214,6 +224,8 @@ static bool in_scope(const hash_str_t name, dom_element_scope_e scope)
 
         i--;
         node = stack[i];
+        element = dom_element_from_node(node);
+        namespace = element->namespace;
     }
 
     return false;
@@ -2231,20 +2243,19 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
         if (!in_scope(t_name, GENERIC_SCOPE))
         {
             // todo: parse error
+            return;
         }
-        else
+
+        generate_implied_end_tags(0);
+
+        dom_node_t* node = stack[stack_idx];
+
+        if (node->name != t_name)
         {
-            generate_implied_end_tags(0);
-
-            dom_node_t* node = stack[stack_idx];
-
-            if (node->name != t_name)
-            {
-                // todo: parse error
-            }
-
-            pop_elements_until_name_included(t_name);
+            // todo: parse error
         }
+
+        pop_elements_until_name_included(t_name);
     }
     else if (is_end(type) && t_name == html_tag_form())
     {

@@ -14,5 +14,9 @@
     "<select><button><selectedcontent></button><option>x<i>i<b>ib</i>b",
     "<select><button><selectedcontent></button><option>X<option>Y",
     "<select><button><selectedcontent></button><option>X<option selected>Y",
-    "<svg xml:base xml:lang xml:space xml:baaah definitionurl>"
+    "<svg xml:base xml:lang xml:space xml:baaah definitionurl>",
+    "<!DOCTYPE html><body xlink:href=foo><svg xlink:href=foo></svg>",
+    "<!DOCTYPE html><body xlink:href=foo xml:lang=en><svg><g xml:lang=en xlink:href=foo></g></svg>",
+    "<!DOCTYPE html><body xlink:href=foo xml:lang=en><svg><g xml:lang=en xlink:href=foo /></svg>",
+    "<!DOCTYPE html><body xlink:href=foo xml:lang=en><svg><g xml:lang=en xlink:href=foo />bar</svg>"
 ]

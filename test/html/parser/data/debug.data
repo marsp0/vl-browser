@@ -1,14 +1,12 @@
 #data
-<svg></p><foo>
+<svg><script></script><path>
 #errors
-(1:1) Missing doctype
-9: HTML end tag “p” in a foreign namespace context.
-(1:6) Unexpected </p> from in body insertion mode
-(1:16) Unexpected EOF
+(1,5) expected-doctype-but-got-start-tag
+(1,28) expected-closing-tag-but-got-eof
 #document
 | <html>
 |   <head>
 |   <body>
 |     <svg svg>
-|     <p>
-|     <foo>
+|       <svg script>
+|       <svg path>
