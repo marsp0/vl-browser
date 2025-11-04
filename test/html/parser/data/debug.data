@@ -1,11 +1,14 @@
 #data
-<!doctype html><svg><foreignObject><div> <frameset><frame>
+<svg></p><foo>
 #errors
-(1,51): unexpected-start-tag
-(1,58): eof-in-frameset
+(1:1) Missing doctype
+9: HTML end tag “p” in a foreign namespace context.
+(1:6) Unexpected </p> from in body insertion mode
+(1:16) Unexpected EOF
 #document
-| <!DOCTYPE html>
 | <html>
 |   <head>
-|   <frameset>
-|     <frame>
+|   <body>
+|     <svg svg>
+|     <p>
+|     <foo>

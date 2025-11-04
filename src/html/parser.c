@@ -3776,6 +3776,12 @@ static bool is_html_integration_point(dom_element_t* element)
     return false;
 }
 
+static bool is_mathml_integration_point(dom_element_t* element)
+{
+    assert(element);
+    return false;
+}
+
 
 static bool should_process_in_foreign_content(html_token_t* t)
 {
@@ -3888,7 +3894,17 @@ static void process_token_foreign_content(html_parser_mode_e current_mode, hash_
     {
         INCOMPLETE_IMPLEMENTATION("font token should have attrs");
 
-        INCOMPLETE_IMPLEMENTATION("implement");
+        dom_element_t* current = dom_element_from_node(stack[stack_idx]);
+
+        while (!is_mathml_integration_point(current) &&
+               !is_html_integration_point(current) &&
+               current->namespace != html_ns_html())
+        {
+            stack_pop();
+            current = dom_element_from_node(stack[stack_idx]);
+        }
+
+        process_token(current_mode, t_name, t);
     }
     else if (is_start(type))
     {
