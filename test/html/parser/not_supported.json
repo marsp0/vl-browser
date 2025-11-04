@@ -13,5 +13,6 @@
     "<select><button><selectedcontent></button><option>X",
     "<select><button><selectedcontent></button><option>x<i>i<b>ib</i>b",
     "<select><button><selectedcontent></button><option>X<option>Y",
-    "<select><button><selectedcontent></button><option>X<option selected>Y"
+    "<select><button><selectedcontent></button><option>X<option selected>Y",
+    "<svg xml:base xml:lang xml:space xml:baaah definitionurl>"
 ]
