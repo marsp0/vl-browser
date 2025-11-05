@@ -278,6 +278,18 @@
 |       "<div>foo</div>"
 
 #data
+<math DEFINITIONURL>
+#errors
+no-doctype
+eof-in-math
+#document
+| <html>
+|   <head>
+|   <body>
+|     <math math>
+|       definitionURL=""
+
+#data
 <select><hr>
 #errors
 1:1: ERROR: Expected a doctype token

@@ -323,6 +323,44 @@
 |                   "a"
 
 #data
+<!DOCTYPE html><math><mtext><p><i></p>a
+#errors
+(1,38): unexpected-end-tag
+(1,39): expected-closing-tag-but-got-eof
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <math math>
+|       <math mtext>
+|         <p>
+|           <i>
+|         <i>
+|           "a"
+
+#data
+<!DOCTYPE html><table><tr><td><math><mtext><p><i></p>a
+#errors
+(1,53): unexpected-end-tag
+(1,54): expected-closing-tag-but-got-eof
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <table>
+|       <tbody>
+|         <tr>
+|           <td>
+|             <math math>
+|               <math mtext>
+|                 <p>
+|                   <i>
+|                 <i>
+|                   "a"
+
+#data
 <!DOCTYPE html><body><div><!/div>a
 #errors
 (1,28): expected-dashes-or-doctype
@@ -379,5 +417,35 @@ Line 1 Col 19 Expected closing tag. Unexpected end of file.
 |   <head>
 |   <body>
 |     <svg svg>
+|     <br>
+|     <foo>
+
+#data
+<math></p><foo>
+#errors
+(1:1) Missing doctype
+10: HTML end tag “p” in a foreign namespace context.
+(1:7) Unexpected </p> from in body insertion mode
+(1:16) Unexpected EOF
+#document
+| <html>
+|   <head>
+|   <body>
+|     <math math>
+|     <p>
+|     <foo>
+
+#data
+<math></br><foo>
+#errors
+(1:1) Missing doctype
+11: HTML end tag “br” in a foreign namespace context.
+(1:7) Unexpected </br> from in body insertion mode
+(1:17) Unexpected EOF
+#document
+| <html>
+|   <head>
+|   <body>
+|     <math math>
 |     <br>
 |     <foo>
