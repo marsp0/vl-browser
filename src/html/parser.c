@@ -21,6 +21,7 @@
 #include "html/tag_constants.h"
 #include "html/svg_tag_constants.h"
 #include "html/mathml_tag_constants.h"
+#include "html/mathml_attr_constants.h"
 #include "html/ns_constants.h"
 
 /*
@@ -1113,7 +1114,18 @@ static void adjust_foreign_attrs(html_token_t* t)
 
 static void adjust_mathml_attrs(html_token_t* t)
 {
-    assert(t);
+    hash_str_t definition_url = hash_str_new("definitionurl", 13);
+
+    for (uint32_t i = 0; i < t->attributes_size; i++)
+    {
+        html_token_attribute_t* attr = &t->attributes[i];
+        hash_str_t name = hash_str_new(attr->name, attr->name_size);
+
+        if (name == definition_url)
+        {
+            memcpy(attr->name, "definitionURL", 13);
+        }
+    }
 }
 
 
@@ -3980,7 +3992,7 @@ static void process_token_foreign_content(html_parser_mode_e current_mode, hash_
     {
         if (adjusted_element->namespace == html_ns_mathml())
         {
-            INCOMPLETE_IMPLEMENTATION("implement");
+            adjust_mathml_attrs(t);
         }
 
         if (adjusted_element->namespace == html_ns_svg())

@@ -1,4 +1,17 @@
 #data
+<!doctype html><math><mn DefinitionUrl="foo">
+#errors
+(1,45): expected-closing-tag-but-got-eof
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <math math>
+|       <math mn>
+|         definitionURL="foo"
+
+#data
 <!doctype html><html></p><!--foo-->
 #errors
 (1,25): end-tag-after-implied-root
