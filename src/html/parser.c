@@ -20,6 +20,7 @@
 #include "html/tokenizer.h"
 #include "html/tag_constants.h"
 #include "html/svg_tag_constants.h"
+#include "html/mathml_tag_constants.h"
 #include "html/ns_constants.h"
 
 /*
@@ -211,6 +212,15 @@ static bool in_scope(const hash_str_t name, dom_element_scope_e scope)
             return false;
         }
 
+        if (scope != TABLE_SCOPE && namespace == html_ns_mathml() && (node_name == mathml_tag_mi() ||
+                                                                      node_name == mathml_tag_mo() ||
+                                                                      node_name == mathml_tag_mn() ||
+                                                                      node_name == mathml_tag_ms() ||
+                                                                      node_name == mathml_tag_mtext() ||
+                                                                      node_name == mathml_tag_annotation_xml()))
+        {
+            return false;
+        }
 
         if (scope == BUTTON_SCOPE && node_name == html_tag_button())
         {
@@ -568,9 +578,9 @@ static void pop_elements_until_name_included(const hash_str_t name)
 
 static bool is_special(dom_node_t* node)
 {
-    hash_str_t name = node->name;
-    dom_element_t* element = dom_element_from_node(node);
-    hash_str_t namespace = element->namespace;
+    hash_str_t name         = node->name;
+    dom_element_t* element  = dom_element_from_node(node);
+    hash_str_t namespace    = element->namespace;
 
     bool html = namespace == html_ns_html() &&
                 (name == html_tag_address()    || name == html_tag_applet()      ||
@@ -615,12 +625,18 @@ static bool is_special(dom_node_t* node)
                  name == html_tag_tr()         || name == html_tag_track()       ||
                  name == html_tag_ul()         || name == html_tag_wbr());
 
-    bool svg =  namespace == html_ns_svg() &&
-                (name == svg_tag_foreign_object() ||
-                 name == svg_tag_desc() ||
-                 name == svg_tag_title());
+    bool svg =  namespace == html_ns_svg() && (name == svg_tag_foreign_object() ||
+                                               name == svg_tag_desc()           ||
+                                               name == svg_tag_title());
 
-    return html || svg;
+    bool mathml = namespace == html_ns_mathml() && (name == mathml_tag_mi()     ||
+                                                    name == mathml_tag_mo()     ||
+                                                    name == mathml_tag_mn()     ||
+                                                    name == mathml_tag_ms()     ||
+                                                    name == mathml_tag_mtext()  ||
+                                                    name == mathml_tag_annotation_xml());
+
+    return html || svg || mathml;
 }
 
 
@@ -1090,6 +1106,12 @@ static void adjust_svg_attrs(html_token_t* t)
 
 
 static void adjust_foreign_attrs(html_token_t* t)
+{
+    assert(t);
+}
+
+
+static void adjust_mathml_attrs(html_token_t* t)
 {
     assert(t);
 }
@@ -2730,7 +2752,16 @@ static void process_in_body(hash_str_t t_name, html_token_t* t)
     }
     else if (is_start(type) && t_name == html_tag_math())
     {
-        NOT_IMPLEMENTED
+        reconstruct_formatting_elements();
+        adjust_mathml_attrs(t);
+        adjust_foreign_attrs(t);
+        insert_foreign_element(t_name, t, html_ns_mathml(), false);
+
+        if (t->self_closing)
+        {
+            stack_pop();
+            self_close_ack = true;
+        }
     }
     else if (is_start(type) && t_name == html_tag_svg())
     {
@@ -3789,22 +3820,50 @@ static bool is_html_integration_point(dom_element_t* element)
 
 static bool is_mathml_integration_point(dom_element_t* element)
 {
-    assert(element);
-    return false;
+    dom_node_t* node        = dom_node_from_element(element);
+    hash_str_t name         = node->name;
+    hash_str_t namespace    = element->namespace;
+
+    if (namespace != html_ns_mathml())
+    {
+        return false;
+    }
+
+    return  name == mathml_tag_mi() ||
+            name == mathml_tag_mo() ||
+            name == mathml_tag_mn() ||
+            name == mathml_tag_ms() ||
+            name == mathml_tag_mtext();
 }
 
 
-static bool should_process_in_foreign_content(html_token_t* t)
+static bool should_process_in_foreign_content(hash_str_t t_name, html_token_t* t)
 {
+    html_token_type_e type = t->type;
+
     if (stack_size == 0)                        { return false; }
 
-    dom_element_t* element = dom_element_from_node(stack[stack_idx]);
+    dom_node_t* node        = stack[stack_idx];
+    dom_element_t* element  = dom_element_from_node(node);
 
     if (element->namespace == html_ns_html())   { return false; }
 
-    INCOMPLETE_IMPLEMENTATION("math ml integration point");
+    if (t_name != mathml_tag_mglyph() && t_name != mathml_tag_malignmark() && is_mathml_integration_point(element))
+    {
+        return false;
+    }
 
-    if ((is_start(t->type) || is_character(t->type)) && is_html_integration_point(element))
+    if (is_character(type) && is_mathml_integration_point(element))
+    {
+        return false;
+    }
+
+    if (node->name == mathml_tag_annotation_xml() && is_start(type) && t_name == html_tag_svg())
+    {
+        return false;
+    }
+
+    if ((is_start(type) || is_character(type)) && is_html_integration_point(element))
     {
         return false;
     }
@@ -3848,7 +3907,7 @@ static void process_token_foreign_content(html_parser_mode_e current_mode, hash_
     }
     else if (is_comment(type))
     {
-        insert_comment(t, document);
+        insert_comment(t, NULL);
     }
     else if (is_doctype(type))
     {
@@ -4075,7 +4134,7 @@ dom_node_t* html_parser_run(const unsigned char* buffer, const uint32_t size)
             hash_str_t t_name   = hash_str_new(t.name, t.name_size);
             self_close_ack      = false;
 
-            if (should_process_in_foreign_content(&t))
+            if (should_process_in_foreign_content(t_name, &t))
             {
                 process_token_foreign_content(mode, t_name, &t);
             }

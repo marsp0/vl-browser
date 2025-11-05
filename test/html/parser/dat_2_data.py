@@ -76,7 +76,6 @@ def parse_and_export(f_out, test_lines, not_supported, replacements, prepend_new
 
     if test_data in not_supported:      return
     if test.get(FRAGMENT, []):          return
-    if "<math" in test_data.lower():    return
     if "<![cdata" in test_data.lower(): return
 
     if replacements.get(test_data, None):

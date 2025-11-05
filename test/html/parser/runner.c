@@ -132,6 +132,13 @@ static bool line_is_svg()
 }
 
 
+static bool line_is_math()
+{
+    uint32_t i = level * 2;
+    return strncmp(&line[i], "<math ", 6) == 0;
+}
+
+
 static bool line_is_element()
 {
     uint32_t i = level * 2;
@@ -171,6 +178,19 @@ static dom_node_t* parse_svg()
     }
     hash_str_t name = hash_str_new(&line[start], size);
     return dom_element_new(document, name, html_ns_svg());
+}
+
+
+static dom_node_t* parse_math()
+{
+    uint32_t start = level * 2 + 6;
+    uint32_t size = line_size - 1 - start;
+    for (uint32_t i = start; i < start + size; i++)
+    {
+        if (line[i] < 'a' && line[i] > 'A' && line[i] < 'Z') { line[i] += 0x20; }
+    }
+    hash_str_t name = hash_str_new(&line[start], size);
+    return dom_element_new(document, name, html_ns_mathml());
 }
 
 
@@ -251,6 +271,7 @@ static void run_parser_test()
     // #test-data
     read_line();
     memcpy(test_data, line, line_size);
+    // printf("%s\n", test_data);
     test_data_size = line_size;
 
     // next header
@@ -292,6 +313,7 @@ static void run_parser_test()
 
             if (line_is_comment())      { node = parse_comment(); }
             else if (line_is_svg())     { node = parse_svg(); }
+            else if (line_is_math())    { node = parse_math(); }
             else if (line_is_element()) { node = parse_element(); }
             else if (line_is_text())    { node = parse_text(); }
             else if (line_is_attr())    { node = parse_attr(last); }
