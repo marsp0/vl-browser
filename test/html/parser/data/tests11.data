@@ -1,4 +1,19 @@
 #data
+<!DOCTYPE html><body><svg attributeName='' attributeType='' baseFrequency='' yChannelSelector='' zoomAndPan=''></svg>
+#errors
+#document
+| <!DOCTYPE html>
+| <html>
+|   <head>
+|   <body>
+|     <svg svg>
+|       attributeName=""
+|       attributeType=""
+|       baseFrequency=""
+|       yChannelSelector=""
+|       zoomAndPan=""
+
+#data
 <!DOCTYPE html><body><svg contentScriptType='' contentStyleType='' externalResourcesRequired='' filterRes=''></svg>
 #errors
 #document

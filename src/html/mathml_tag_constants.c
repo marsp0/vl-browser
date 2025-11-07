@@ -57,7 +57,7 @@ hash_str_t mathml_tag_malignmark()
 }
 
 
-void mathml_populate_tags()
+void mathml_tags_init()
 {
     mi              = hash_str_new("mi", 2);
     mo              = hash_str_new("mo", 2);

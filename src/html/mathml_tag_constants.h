@@ -11,4 +11,4 @@ hash_str_t mathml_tag_annotation_xml();
 hash_str_t mathml_tag_mglyph();
 hash_str_t mathml_tag_malignmark();
 
-void mathml_populate_tags();
+void mathml_tags_init();

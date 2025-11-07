@@ -4,4 +4,4 @@
 
 hash_str_t html_attr_href();
 
-void html_populate_attrs();
+void html_attrs_init();
