@@ -8,7 +8,7 @@ hash_str_t mathml_attr_definition_url()
 }
 
 
-void mathml_populate_attrs()
+void mathml_attrs_init()
 {
     definition_url = hash_str_new("definitionURL", 13);
 }

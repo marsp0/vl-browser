@@ -4,6 +4,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "dom/node.h"
 #include "dom/text.h"
@@ -18,6 +19,7 @@
 
 #include "html/select.h"
 #include "html/tokenizer.h"
+#include "html/svg_attr_map.h"
 #include "html/tag_constants.h"
 #include "html/svg_tag_constants.h"
 #include "html/mathml_tag_constants.h"
@@ -1102,7 +1104,21 @@ static bool run_adoption_procedure(const hash_str_t t_name)
 
 static void adjust_svg_attrs(html_token_t* t)
 {
-    assert(t);
+    for (uint32_t i = 0; i < t->attributes_size; i++)
+    {
+        html_token_attribute_t* attr = &(t->attributes[i]);
+
+        hash_str_t attr_name = hash_str_new(attr->name, attr->name_size);
+        hash_str_t adjusted_name = svg_attr_map_get(attr_name);
+
+        if (attr_name != adjusted_name)
+        {
+            const unsigned char* str = hash_str_get(adjusted_name);
+            const uint32_t str_size = hash_str_get_size(adjusted_name);
+
+            memcpy(attr->name, str, str_size);
+        }
+    }
 }
 
 

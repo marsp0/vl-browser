@@ -2,7 +2,7 @@
 
 static hash_str_t href;
 
-void html_populate_attrs()
+void html_attrs_init()
 {
     href = hash_str_new("href", 4);
 }

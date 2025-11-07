@@ -231,4 +231,4 @@ hash_str_t html_tag_SUP();
 hash_str_t html_tag_var();
 hash_str_t html_tag_VAR();
 
-void html_populate_tags();
+void html_tags_init();

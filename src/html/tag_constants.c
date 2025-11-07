@@ -229,7 +229,7 @@ static hash_str_t SUP;
 static hash_str_t var;
 static hash_str_t VAR;
 
-void html_populate_tags()
+void html_tags_init()
 {
     html           = hash_str_new("html", 4);
     HTML           = hash_str_new("HTML", 4);

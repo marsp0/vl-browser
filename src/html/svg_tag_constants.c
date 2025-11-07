@@ -22,7 +22,7 @@ hash_str_t svg_tag_title()
 }
 
 
-void svg_populate_tags()
+void svg_tags_init()
 {
     foreign_object  = hash_str_new("foreignobject", 13);
     desc            = hash_str_new("desc", 4);
