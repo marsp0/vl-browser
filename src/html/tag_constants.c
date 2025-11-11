@@ -228,6 +228,8 @@ static hash_str_t sup;
 static hash_str_t SUP;
 static hash_str_t var;
 static hash_str_t VAR;
+static hash_str_t label;
+static hash_str_t LABEL;
 
 void html_tags_init()
 {
@@ -572,6 +574,9 @@ void html_tags_init()
 
     var            = hash_str_new("var", 3);
     VAR            = hash_str_new("VAR", 3);
+
+    label          = hash_str_new("label", 5);
+    LABEL          = hash_str_new("LABEL", 5);
 }
 
 hash_str_t html_tag_html()
@@ -1939,4 +1944,16 @@ hash_str_t html_tag_var()
 hash_str_t html_tag_VAR()
 {
     return VAR;
+}
+
+
+hash_str_t html_tag_label()
+{
+    return label;
+}
+
+
+hash_str_t html_tag_LABEL()
+{
+    return LABEL;
 }

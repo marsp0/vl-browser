@@ -336,6 +336,7 @@ static void insert_comment(html_token_t* token, dom_node_t* position)
 static dom_node_t* create_appropriate_element(dom_node_t* doc, hash_str_t name, hash_str_t namespace)
 {
     if (name == html_tag_select())  { return html_select_new(doc, namespace); }
+    
     else                            { return html_element_new(doc, name, namespace); }
 }
 

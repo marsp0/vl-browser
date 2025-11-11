@@ -230,5 +230,7 @@ hash_str_t html_tag_sup();
 hash_str_t html_tag_SUP();
 hash_str_t html_tag_var();
 hash_str_t html_tag_VAR();
+hash_str_t html_tag_label();
+hash_str_t html_tag_LABEL();
 
 void html_tags_init();

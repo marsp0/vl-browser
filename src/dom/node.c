@@ -205,6 +205,72 @@ dom_node_t* dom_node_remove(dom_node_t* node, dom_node_t* child)
 }
 
 
+dom_node_t* dom_node_root(dom_node_t* node)
+{
+    dom_node_t* p = node->parent;
+
+    while (p && p != p->parent)
+    {
+        p = p->parent;
+    }
+
+    return p;
+}
+
+
+bool dom_node_is_desc(dom_node_t* b, dom_node_t* a)
+{
+    bool result = false;
+
+    // a is direct child of b
+    dom_node_t* f = b->first;
+    while (f)
+    {
+        if (f == a) { result = true; }
+        f = f->next;
+    }
+
+    if (result) { return result; }
+
+    // a is indirect child of b
+    dom_node_t* p = a->parent;
+
+    while (p && p != p->parent)
+    {
+        if (p == b) { result = true; }
+        p = p->parent;
+    }
+
+    return result;
+}
+
+
+bool dom_node_is_incl_desc(dom_node_t* b, dom_node_t* a)
+{
+    return a == b || dom_node_is_desc(b, a);
+}
+
+
+bool dom_node_is_ancstr(dom_node_t* a, dom_node_t* b)
+{
+    return dom_node_is_desc(b, a);
+}
+
+
+bool dom_node_is_incl_ancstr(dom_node_t* b, dom_node_t* a)
+{
+    return a == b || dom_node_is_ancstr(b, a);
+}
+
+
+bool dom_node_is_sibl(dom_node_t* b, dom_node_t* a)
+{
+    return  (a && b) &&
+            b->parent && 
+            b->parent == a->parent;
+}
+
+
 void dom_node_free(dom_node_t* node)
 {
     dom_node_t* child = node->last;
