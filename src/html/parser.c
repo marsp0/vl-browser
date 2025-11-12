@@ -18,6 +18,15 @@
 #include "util/not_implemented.h"
 
 #include "html/select.h"
+#include "html/anchor.h"
+#include "html/area.h"
+#include "html/button.h"
+#include "html/div.h"
+#include "html/form.h"
+#include "html/heading.h"
+#include "html/image.h"
+#include "html/input.h"
+#include "html/label.h"
 #include "html/tokenizer.h"
 #include "html/svg_attr_map.h"
 #include "html/tag_constants.h"
@@ -335,8 +344,21 @@ static void insert_comment(html_token_t* token, dom_node_t* position)
 
 static dom_node_t* create_appropriate_element(dom_node_t* doc, hash_str_t name, hash_str_t namespace)
 {
-    if (name == html_tag_select())  { return html_select_new(doc, namespace); }
-    else                            { return html_element_new(doc, name, namespace); }
+    if      (name == html_tag_select())     { return html_select_new(doc, namespace); }
+    else if (name == html_tag_a())          { return html_anchor_new(doc, namespace); }
+    else if (name == html_tag_button())     { return html_button_new(doc, namespace); }
+    else if (name == html_tag_div())        { return html_div_new(doc, namespace); }
+    else if (name == html_tag_form())       { return html_form_new(doc, namespace); }
+    else if (name == html_tag_img())        { return html_img_new(doc, namespace); }
+    else if (name == html_tag_input())      { return html_input_new(doc, namespace); }
+    else if (name == html_tag_label())      { return html_label_new(doc, namespace); }
+    else if (name == html_tag_h1())         { return html_heading_new(doc, html_tag_h1(), namespace); }
+    else if (name == html_tag_h2())         { return html_heading_new(doc, html_tag_h2(), namespace); }
+    else if (name == html_tag_h3())         { return html_heading_new(doc, html_tag_h3(), namespace); }
+    else if (name == html_tag_h4())         { return html_heading_new(doc, html_tag_h4(), namespace); }
+    else if (name == html_tag_h5())         { return html_heading_new(doc, html_tag_h5(), namespace); }
+    else if (name == html_tag_h6())         { return html_heading_new(doc, html_tag_h6(), namespace); }
+    else                                    { return html_element_new(doc, name, namespace); }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#create-an-element-for-the-token

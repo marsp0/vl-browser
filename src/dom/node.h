@@ -39,8 +39,19 @@ typedef struct dom_node_t
 
 
 void            dom_node_initialize(dom_node_t* node, uint64_t type, dom_node_t* document);
+
+// add / remove
 dom_node_t*     dom_node_insert_before(dom_node_t* node, dom_node_t* new_node, dom_node_t* child);
 dom_node_t*     dom_node_append(dom_node_t* node, dom_node_t* new_node);
 bool            dom_node_replace(dom_node_t* node, dom_node_t* new_node, dom_node_t* child);
 dom_node_t*     dom_node_remove(dom_node_t* node, dom_node_t* child);
+
+// tree utility
+dom_node_t*     dom_node_root(dom_node_t* node);
+bool            dom_node_is_desc(dom_node_t* b, dom_node_t* a);
+bool            dom_node_is_incl_desc(dom_node_t* b, dom_node_t* a);
+bool            dom_node_is_ancstr(dom_node_t* b, dom_node_t* a);
+bool            dom_node_is_incl_ancstr(dom_node_t* b, dom_node_t* a);
+bool            dom_node_is_sibl(dom_node_t* b, dom_node_t* a);
+
 void            dom_node_free(dom_node_t* node);

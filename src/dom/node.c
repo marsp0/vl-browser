@@ -121,8 +121,24 @@ void dom_comment_free(dom_node_t* node);
 void dom_text_free(dom_node_t* node);
 void html_element_free(dom_node_t* node);
 void html_select_free(dom_node_t* node);
+void html_anchor_free(dom_node_t* node);
+void html_button_free(dom_node_t* node);
+void html_div_free(dom_node_t* node);
+void html_form_free(dom_node_t* node);
+void html_img_free(dom_node_t* node);
+void html_input_free(dom_node_t* node);
+void html_label_free(dom_node_t* node);
+void html_heading_free(dom_node_t* node);
 void dom_attr_free(dom_node_t* node);
 bool html_node_is_select(dom_node_t* node);
+bool html_node_is_anchor(dom_node_t* node);
+bool html_node_is_button(dom_node_t* node);
+bool html_node_is_div(dom_node_t* node);
+bool html_node_is_form(dom_node_t* node);
+bool html_node_is_img(dom_node_t* node);
+bool html_node_is_input(dom_node_t* node);
+bool html_node_is_label(dom_node_t* node);
+bool html_node_is_heading(dom_node_t* node);
 bool html_node_is_element(dom_node_t* node);
 bool dom_node_is_document(dom_node_t* node);
 bool dom_node_is_doctype(dom_node_t* node);
@@ -205,6 +221,72 @@ dom_node_t* dom_node_remove(dom_node_t* node, dom_node_t* child)
 }
 
 
+dom_node_t* dom_node_root(dom_node_t* node)
+{
+    dom_node_t* p = node->parent;
+
+    while (p && p != p->parent)
+    {
+        p = p->parent;
+    }
+
+    return p;
+}
+
+
+bool dom_node_is_desc(dom_node_t* b, dom_node_t* a)
+{
+    bool result = false;
+
+    // a is direct child of b
+    dom_node_t* f = b->first;
+    while (f)
+    {
+        if (f == a) { result = true; }
+        f = f->next;
+    }
+
+    if (result) { return result; }
+
+    // a is indirect child of b
+    dom_node_t* p = a->parent;
+
+    while (p && p != p->parent)
+    {
+        if (p == b) { result = true; }
+        p = p->parent;
+    }
+
+    return result;
+}
+
+
+bool dom_node_is_incl_desc(dom_node_t* b, dom_node_t* a)
+{
+    return a == b || dom_node_is_desc(b, a);
+}
+
+
+bool dom_node_is_ancstr(dom_node_t* a, dom_node_t* b)
+{
+    return dom_node_is_desc(b, a);
+}
+
+
+bool dom_node_is_incl_ancstr(dom_node_t* b, dom_node_t* a)
+{
+    return a == b || dom_node_is_ancstr(b, a);
+}
+
+
+bool dom_node_is_sibl(dom_node_t* b, dom_node_t* a)
+{
+    return  (a && b) &&
+            b->parent && 
+            b->parent == a->parent;
+}
+
+
 void dom_node_free(dom_node_t* node)
 {
     dom_node_t* child = node->last;
@@ -216,6 +298,14 @@ void dom_node_free(dom_node_t* node)
     }
 
     if      (html_node_is_select(node))         { html_select_free(node);   }
+    else if (html_node_is_anchor(node))         { html_anchor_free(node);   }
+    else if (html_node_is_button(node))         { html_button_free(node);   }
+    else if (html_node_is_div(node))            { html_div_free(node);   }
+    else if (html_node_is_form(node))           { html_form_free(node);   }
+    else if (html_node_is_img(node))            { html_img_free(node);   }
+    else if (html_node_is_input(node))          { html_input_free(node);   }
+    else if (html_node_is_label(node))          { html_label_free(node);   }
+    else if (html_node_is_heading(node))        { html_heading_free(node);   }
     else if (html_node_is_element(node))        { html_element_free(node);  }
     else if (dom_node_is_document(node))        { dom_document_free(node);  }
     else if (dom_node_is_doctype(node))         { dom_doctype_free(node);   }

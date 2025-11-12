@@ -210,6 +210,7 @@ void hash_str_pool_stats()
 
 void hash_str_pool_free()
 {
+    // hash_str_pool_stats();
     if (!table) { return; }
 
     for (uint32_t i = 0; i < total_nodes; i++)
