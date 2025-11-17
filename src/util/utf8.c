@@ -1,5 +1,7 @@
 #include "utf8.h"
 
+#include <assert.h>
+
 /*
  * Notes
  * 
@@ -150,6 +152,7 @@ int32_t utf8_decode(const unsigned char* buf, const uint32_t size, const uint32_
     }
     else
     {
+        assert(false);
         return -1;
     }
 }
@@ -257,4 +260,22 @@ uint32_t utf8_get_len(const unsigned char* buffer, const uint32_t size)
     }
 
     return len;
+}
+
+
+bool utf8_is_lead_surrogate(uint32_t cp)
+{
+    return cp >= 0xd800 && cp <= 0xdbff;
+}
+
+
+bool utf8_is_trail_surrogate(uint32_t cp)
+{
+    return cp >= 0xdc00 && cp <= 0xdfff;
+}
+
+
+bool utf8_is_surrogate(uint32_t cp)
+{
+    return utf8_is_lead_surrogate(cp) || utf8_is_trail_surrogate(cp);
 }

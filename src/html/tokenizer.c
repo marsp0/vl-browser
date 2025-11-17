@@ -116,24 +116,6 @@ static bool is_noncharacter(uint32_t cp)
 }
 
 
-static bool is_leading_surrogate(uint32_t cp)
-{
-    return cp >= 0xd800 && cp <= 0xdbff;
-}
-
-
-static bool is_trailing_surrogate(uint32_t cp)
-{
-    return cp >= 0xdc00 && cp <= 0xdfff;
-}
-
-
-static bool is_surrogate(uint32_t cp)
-{
-    return is_leading_surrogate(cp) || is_trailing_surrogate(cp);
-}
-
-
 static void clear_tmp_buf()
 {
     memset(tmp_buf, 0, sizeof(tmp_buf));
@@ -575,8 +557,6 @@ html_tokenizer_error_e html_tokenizer_next()
 
     while (token_idx == 0)
     {
-        assert(token_idx < max_tokens);
-
         cp_len  = -1;
         consume = true;
 
@@ -3029,7 +3009,8 @@ html_tokenizer_error_e html_tokenizer_next()
         // https://html.spec.whatwg.org/multipage/parsing.html#hexadecimal-character-reference-state
         case HTML_TOKENIZER_HEXADECIMAL_CHARACTER_REFERENCE_STATE:
             ;
-            uint32_t old_hex_val                        = character_reference_code;
+            uint32_t old_hex_val                    = character_reference_code;
+
             if (is_eof)
             {
                 consume                             = false;
@@ -3111,7 +3092,7 @@ html_tokenizer_error_e html_tokenizer_next()
                 status                              = HTML_TOKENIZER_CHARACTER_REFERENCE_OUTSIDE_UNICODE_RANGE;
                 character_reference_code            = 0xfffd;
             }
-            else if (is_surrogate(character_reference_code))
+            else if (utf8_is_surrogate(character_reference_code))
             {
                 status                              = HTML_TOKENIZER_SURROGATE_CHARACTER_REFERENCE;
                 character_reference_code            = 0xfffd;
