@@ -1,0 +1,72 @@
+#data
+a  b\n
+#token-type
+ident-token
+#token-value
+a
+#token-type
+whitespace-token
+#token-type
+ident-token
+#token-value
+b
+#token-type
+whitespace-token
+#end-test
+#data
+ \n
+#token-type
+whitespace-token
+#end-test
+#data
+\61 b\n
+#token-type
+ident-token
+#token-value
+ab
+#token-type
+whitespace-token
+#end-test
+#data
+f\ o\	o\n
+#token-type
+ident-token
+#token-value
+f o	o
+#token-type
+whitespace-token
+#end-test
+#data
+	\n
+#token-type
+whitespace-token
+#end-test
+#data
+\61  b\n
+#token-type
+ident-token
+#token-value
+a
+#token-type
+whitespace-token
+#token-type
+ident-token
+#token-value
+b
+#token-type
+whitespace-token
+#end-test
+#data
+\n
+#token-type
+whitespace-token
+#end-test
+#data
+\000061 b\n
+#token-type
+ident-token
+#token-value
+ab
+#token-type
+whitespace-token
+#end-test

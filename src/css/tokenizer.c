@@ -2,6 +2,8 @@
 
 #include <stddef.h>
 
+#include "util/utf8.h"
+
 /*
  * Notes
  * 
@@ -11,192 +13,61 @@
 /*      defines     */
 /********************/
 
+#define MAX_REPR_SIZE 32
 
 /********************/
 /* static variables */
 /********************/
 
+typedef enum
+{
+    CSS_NUMBER_INTEGER,
+    CSS_NUMBER_FLOAT
+} css_number_type_e;
+
 static css_tokenizer_state_e state      = CSS_TOKENIZER_DATA_STATE;
+static css_tokenizer_state_e prev_state = CSS_TOKENIZER_DATA_STATE;
 static const unsigned char* buf         = NULL;
+static uint32_t buf_cur                 = 0;
 static uint32_t buf_size                = 0;
-// static bool is_eof                      = false;
-// static uint32_t cp                      = 0;
-// static int32_t cp_len                   = 0;
-static css_token_t* tokens              = NULL;
-static uint32_t token_idx               = 0;
-static uint32_t tokens_size             = 0;
-static uint32_t max_tokens_size         = 0;
-static const uint32_t replacement_char  = 0xfffd;
+static const uint32_t replacement       = 0xfffd;
 
 /********************/
 /* static functions */
 /********************/
 
-static bool is_whitespace(uint32_t cp)
-{
-    return cp == '\n' || cp == '\t' || cp == ' ';
-}
 
 static bool consume(uint32_t* cp, int32_t* cp_len)
 {
-    bool is_eof = false;
-    *cp_len  = -1;
+    *cp_len = -1;
+    *cp = 0;
 
-    if (buf_cur >= buf_size)
-    {
-        *cp      = 0;
-        is_eof  = true;
-    }
-    else
-    {
-        cp_len = utf8_decode(buf, buf_size, buf_cur, &cp);
+    if (buf_cur >= buf_size) { return true; }
 
-        if (cp_len <= -1) { cp = 0; }
-    }
+    *cp_len = utf8_decode(buf, buf_size, buf_cur, cp);
 
-    return is_eof;
+    buf_cur += (uint32_t)*cp_len;
+
+    return false;
 }
-
 
 static void reconsume(int32_t cp_len)
 {
     if (cp_len <= 0) { return; }
 
-    buf_cur -= cp_len;
+    buf_cur -= (uint32_t)cp_len;
 }
 
-
-static bool peek(uint32_t count, uint32_t* code_point, uint32_t* code_point_len)
+static void peek(uint32_t offset, uint32_t* cp, int32_t* cp_len)
 {
-    uint32_t cur = buf_cur;
+    *cp_len = -1;
 
-    for (uint32_t i = 0; i < count; i++)
+    for (uint32_t i = 0; i < offset; i++)
     {
-        *code_point = 0;
-        *code_point_len  = -1;
-
-        if (cur >= buf_size) { return true; }
-
-        *code_point_len = utf8_decode(buf, buf_size, cur, code_point);
-        cur += *code_point_len;
+        *cp_len = utf8_decode(buf, buf_size, buf_cur, cp);
     }
 
-    return false;
-}
-
-
-static uint32_t cp_to_number(uint32_t cp)
-{
-    if      (utf8_is_digit(cp))     { return cp - 0x30; }
-    else if (utf8_is_upper_hex(cp)) { return cp - 0x37; }
-    else if (utf8_is_lower_hex(cp)) { return cp - 0x57; }
-
-    return 0;
-}
-
-
-static uint32_t consume_escaped_cp()
-{
-    uint32_t cp     = 0;
-    int32_t cp_len  = -1;
-    uint32_t i      = 1;
-
-    bool is_eof = consume(&cp, &cp_len);
-
-    if (is_eof) { return replacement_char; }
-
-    if (utf8_is_hex(cp))
-    {
-        uint32_t digit = cp_to_number(cp);
-    
-        while (true)
-        {
-            bool is_eof = peek(&cp, &cp_len);
-            if (is_eof) { break; }
-
-            consume(&cp, &cp_len);
-
-            if (is_whitespace(cp)) { break; }
-
-            digit *= 16;
-            digit += cp_to_number(cp);
-            i++;
-    
-            if (i >=6) { break; }
-        }
-
-        if (digit == 0 || utf8_is_surrogate(digit) || digit > 0x10FFFF)
-        {
-            return replacement_char;
-        }
-
-        return digit;
-    }
-
-    return cp;
-}
-
-
-static check_if_two_cp_are_valid_escape(uint32_t offset)
-{
-    uint32_t cp = 0;
-    int32_t cp_len = -1;
-    bool is_eof = false;
-
-    is_eof = peek(offset + 1, &cp, &cp_len);
-
-    if (is_eof || cp != '\\') { return false; }
-
-    is_eof = peek(offset + 2, &cp, &cp_len);
-
-    if (is_eof || cp != '\n') { return false; }
-
-    return true;
-}
-
-
-static check_if_three_cp_start_ident()
-{
-    uint32_t cp = 0;
-    int32_t cp_len = -1;
-    bool is_eof = false;
-
-    peek(1, &cp, &cp_len);
-
-    if (cp == '-')
-    {
-        uint32_t cp2 = 0;
-        int32_t cp2_len = -1;
-
-        peek(2, &cp2, &cp2_len);
-        if (is_ident_start(cp2) || cp2 == '-' || check_if_two_cp_are_valid_escape(1))
-        {
-            return true;
-        }
-        return false;
-    }
-    else if (is_ident_start(cp))
-    {
-        return true;
-    }
-    else if (cp == '\\' && check_if_two_cp_are_valid_escape(0))
-    {
-        return true;
-    }
-
-    return false;
-}
-
-
-static bool is_ident_start(uint32_t cp)
-{
-    return utf8_is_alpha(cp) || cp == '_' || cp > 0x7f;
-}
-
-
-static bool is_ident(uint32_t cp)
-{
-    return is_ident_start(cp) || utf8_is_digit(cp) || cp == '-';
+    return;
 }
 
 
@@ -204,121 +75,708 @@ static void update_data(css_token_t* t, uint32_t cp)
 {
     if (t->data_size + 4 > CSS_TOKEN_MAX_DATA_SIZE) { return; }
 
-    t->data_size += utf8_encode(cp, &(t->data[t->data_size]))
+    t->data_size += (uint32_t)utf8_encode(cp, &(t->data[t->data_size]));
 }
 
 
-static css_token_t consume_string()
+
+static void consume_escaped_cp(uint32_t* cp)
 {
-    css_token_t result = { 0 };
-    result.type = CSS_TOKEN_STRING;
+    uint32_t cp_n = 0;
+    int32_t cp_n_len = -1;
+    bool is_eof = false;
+    uint32_t digits = 0;
+    uint32_t result = 0;
+
+    while (true)
+    {
+        is_eof = consume(&cp_n, &cp_n_len);
+
+        if (is_eof)
+        {
+            *cp = replacement;
+            return;
+        }
+        else if (digits >= 6)
+        {
+            break;
+        }
+        else if (utf8_is_digit(cp_n))
+        {
+            result  *= 16;
+            result  += cp_n - 0x30;
+            digits  += 1;
+        }
+        else if (utf8_is_upper_hex(cp_n))
+        {
+            result  *= 16;
+            result  += cp_n - 0x37;
+            digits  += 1;
+        }
+        else if (utf8_is_lower_hex(cp_n))
+        {
+            result  *= 16;
+            result  += cp_n - 0x57;
+            digits  += 1;
+        }
+        else
+        {
+            *cp = cp_n;
+            return;
+        }
+    }
+
+    if (result == 0 || utf8_is_surrogate(result) || result > 0x10ffff)
+    {
+        *cp = replacement;
+    }
+}
+
+
+static bool is_whitespace(uint32_t cp)
+{
+    return cp == '\n' || cp == '\t' || cp == ' ';
+}
+
+
+static bool is_id_start(uint32_t cp)
+{
+    return utf8_is_alpha(cp) || cp >= 0x80 || cp == '_';
+}
+
+
+static bool is_id(uint32_t cp)
+{
+    return is_id_start(cp) || utf8_is_digit(cp) || cp == '-';
+}
+
+
+static bool is_valid_escape(uint32_t cp, uint32_t cp_n)
+{
+    if (cp != '\\')     { return false; }
+    if (cp_n == '\n')   { return false; }
+
+    return true;
+}
+
+
+static bool is_number_start(uint32_t cp1, uint32_t cp2, uint32_t cp3)
+{
+    if (cp1 == '+' || cp1 == '-')
+    {
+        if (utf8_is_digit(cp2))
+        {
+            return true;
+        }
+        else if (cp2 == '.' && utf8_is_digit(cp3))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    else if (cp1 == '.')
+    {
+        if (utf8_is_digit(cp2))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    else if (utf8_is_digit(cp1))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+static bool is_id_seq_start(uint32_t cp1, uint32_t cp2, uint32_t cp3)
+{
+    if (cp1 == '-')
+    {
+        if ((is_id_start(cp2) || cp2 == '-') || (is_valid_escape(cp2, cp3)))
+        {
+            return true;
+        }
+
+        return false;
+    }
+    else if (is_id_start(cp1))
+    {
+        return true;
+    }
+    else if (cp1 == '\\')
+    {
+        if (is_valid_escape(cp1, cp2))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    return false;
+}
+
+
+static void consume_string(css_token_t* t, uint32_t end_cp)
+{
     uint32_t cp = 0;
-    uint32_t cp_len = -1;
-    uint32_t end_cp = cp;
-    
+    int32_t cp_len = -1;
+    bool is_eof = false;
+
+    while (true)
+    {
+        is_eof = consume(&cp, &cp_len);
+
+        if (is_eof || cp == end_cp)
+        {
+            return;
+        }
+        else if (cp == '\n')
+        {
+            reconsume(cp_len);
+            t->type = CSS_TOKEN_BAD_STRING;
+            return;
+        }
+        else if (cp == '\\')
+        {
+            uint32_t cp_n = 0;
+            int32_t cp_n_len = -1;
+
+            peek(1, &cp_n, &cp_n_len);
+
+            if (is_eof)
+            {
+                continue;
+            }
+            else if (cp_n == '\n')
+            {
+                consume(&cp_n, &cp_n_len);
+            }
+            else
+            {
+                consume_escaped_cp(&cp_n);
+                update_data(t, cp_n);
+            }
+        }
+        else
+        {
+            update_data(t, cp);
+        }
+    }
+}
+
+
+static void consume_id_seq(css_token_t* t)
+{
+    uint32_t cp = 0;
+    uint32_t cp_n = 0;
+    int32_t cp_len = -1;
+    int32_t cp_n_len = -1;
 
     while (true)
     {
         consume(&cp, &cp_len);
 
-        if (cp == end_cp || is_eof)
-        {
-            break;
-        }
-        else if (cp == '\n')
-        {
-            reconsume(cp_len);
-            result.type = CSS_TOKEN_BAD_STRING;
-            break;
-        }
-        else if (cp == '\\')
-        {
-            uint32_t next_cp = 0;
-            uint32_t next_cp_len = 0;
-            peek(1, &next_cp, &next_cp_len);
+        peek(1, &cp_n, &cp_n_len);
 
-            if (next_cp_len < 0) { continue; }
-
-            if (next_cp == '\n')
-            {
-                consume(&cp, &cp_len);
-            }
-            else
-            {
-                uint32_t cp = consume_escaped_cp();
-                update_data(cp, &result);
-            }
-            
+        if (is_id(cp))
+        {
+            update_data(t, cp);
+        }
+        else if (is_valid_escape(cp, cp_n))
+        {
+            consume_escaped_cp(&cp);
+            update_data(t, cp);
         }
         else
         {
-            update_data(cp, &result);
+            reconsume(cp_len);
+            return;
+        }
+    }
+}
+
+
+static void consume_number(css_token_t* token)
+{
+    uint32_t repr[MAX_REPR_SIZE] = { 0 };
+    uint32_t repr_idx = 0;
+    // css_number_type_e type = CSS_NUMBER_INTEGER;
+
+    uint32_t cp = 0;
+    uint32_t cp2 = 0;
+    uint32_t cp3 = 0;
+    int32_t cp_len = -1;
+    int32_t cp2_len = -1;
+    int32_t cp3_len = -1;
+
+    peek(1, &cp, &cp_len);
+
+    if (cp == '+' || cp == '-')
+    {
+        consume(&cp, &cp_len);
+        repr[repr_idx] = cp;
+        repr_idx++;
+    }
+
+    peek(1, &cp, &cp_len);
+
+    while (utf8_is_digit(cp))
+    {
+        consume(&cp, &cp_len);
+        repr[repr_idx] = cp;
+        repr_idx++;
+        peek(1, &cp, &cp_len);
+
+        if (repr_idx >= MAX_REPR_SIZE) { break; }
+    }
+
+    peek(1, &cp, &cp_len);
+    peek(2, &cp2, &cp2_len);
+
+    if (cp == '.' && utf8_is_digit(cp2))
+    {
+        consume(&cp, &cp_len);
+        repr[repr_idx] = cp;
+        repr_idx++;
+
+        consume(&cp, &cp_len);
+        repr[repr_idx] = cp;
+        repr_idx++;
+
+        // type = CSS_NUMBER_FLOAT;
+
+        peek(1, &cp, &cp_len);
+
+        while (utf8_is_digit(cp))
+        {
+            consume(&cp, &cp_len);
+            repr[repr_idx] = cp;
+            repr_idx++;
+            peek(1, &cp, &cp_len);
+    
+            if (repr_idx >= MAX_REPR_SIZE) { break; }
+        }
+    }
+    
+    peek(1, &cp3, &cp3_len);
+
+    bool esd = (cp == 'e' || cp == 'E') && (cp2 == '+' || cp2 == '-') && utf8_is_digit(cp3);
+    bool ed = (cp == 'e' || cp == 'E') && utf8_is_digit(cp3);
+
+    if (esd || ed)
+    {
+        // type = CSS_NUMBER_FLOAT;
+
+        consume(&cp, &cp_len);
+        repr[repr_idx] = cp;
+        repr_idx++;
+
+        consume(&cp, &cp_len);
+        repr[repr_idx] = cp;
+        repr_idx++;
+
+        if (esd)
+        {
+            consume(&cp, &cp_len);
+            repr[repr_idx] = cp;
+            repr_idx++;
+        }
+
+        peek(1, &cp, &cp_len);
+
+        while (utf8_is_digit(cp))
+        {
+            consume(&cp, &cp_len);
+            repr[repr_idx] = cp;
+            repr_idx++;
+            peek(1, &cp, &cp_len);
+    
+            if (repr_idx >= MAX_REPR_SIZE) { break; }
         }
     }
 
-    return result;
+    bool is_real = false;
+    uint32_t pos = 0;
+    int32_t s = 1;
+    int32_t i = 0;
+    int32_t f = 0;
+    int32_t t = 1;
+    int32_t e = 0;
+    int32_t d = 0;
+
+    for (uint32_t j = 0; j < MAX_REPR_SIZE; j++)
+    {
+        if (repr[j] == '-') { s = -1; }
+    }
+
+    for (uint32_t j = 0; j < MAX_REPR_SIZE; j++)
+    {
+        if (cp == '-' || cp == '+')     { continue; }
+        if (!utf8_is_digit(repr[j]))    { break; }
+
+        i *= 10;
+        i += (int32_t)(repr[j] - 0x30);
+        pos = j;
+    }
+
+    if (repr[pos] == '.')
+    {
+        is_real = true;
+        pos++;
+    }
+
+    if (is_real)
+    {
+        for (uint32_t j = pos; j < MAX_REPR_SIZE; j++)
+        {
+            if (!utf8_is_digit(repr[j]))    { break; }
+    
+            f *= 10;
+            f += (int32_t)(repr[j] - 0x30);
+            d++;
+            pos = j;
+        }
+    }
+
+    if (repr[pos] == 'e' || repr[pos] == 'E')
+    {
+        pos++;
+    }
+
+    if (repr[pos] == '-')
+    {
+        t = -1;
+        pos++;
+    }
+
+    if (repr[pos] == '+')
+    {
+        pos++;
+    }
+
+    for (uint32_t j = pos; j < MAX_REPR_SIZE; j++)
+    {
+        if (!utf8_is_digit(repr[j]))    { break; }
+
+        e *= 10;
+        e += (int32_t)(repr[j] - 0x30);
+    }
+
+    double result = s * (i + f * (10 ^ -d) ) * 10 ^ (t * e);
+
+    // token->type = type;
+    token->real = (float)result;
+    token->integer = (int32_t)result;
 }
 
+
+static void consume_numeric_token(css_token_t* t)
+{
+    uint32_t cp1 = 0;
+    int32_t cp1_len = -1;
+
+    uint32_t cp2 = 0;
+    int32_t cp2_len = -1;
+
+    uint32_t cp3 = 0;
+    int32_t cp3_len = -1;
+
+    consume_number(t);
+
+    peek(1, &cp1, &cp1_len);
+    peek(2, &cp2, &cp2_len);
+    peek(3, &cp3, &cp3_len);
+
+    if (is_id_seq_start(cp1, cp2, cp3))
+    {
+        t->type = CSS_TOKEN_DIMENSION;
+        consume_id_seq(t);
+    }
+    else if (cp1 == '%')
+    {
+        consume(&cp1, &cp2_len);
+        t->type = CSS_TOKEN_PERCENTAGE;
+    }
+    else
+    {
+        t->type = CSS_TOKEN_NUMBER;
+    }
+}
 
 /********************/
 /* public functions */
 /********************/
 
 
-void css_tokenizer_init(unsigned char* buffer, uint32_t buffer_size, css_token_t* tokens_out, uint32_t tokens_out_size)
+void css_tokenizer_init(unsigned char* buffer, uint32_t buffer_size)
 {
-    // is_eof              = false;
     buf                 = buffer;
+    buf_cur             = 0;
     buf_size            = buffer_size;
-    tokens              = tokens_out;
-    tokens_size         = 0;
-    max_tokens_size     = tokens_out_size;
     state               = CSS_TOKENIZER_DATA_STATE;
+    prev_state          = CSS_TOKENIZER_DATA_STATE;
 }
 
 
 css_token_t css_tokenizer_next()
 {
-    css_token_t result = { 0 };
+    css_token_t t   = { .type = CSS_TOKEN_EOF };
     uint32_t cp = 0;
     int32_t cp_len = -1;
+    bool is_eof = false;
 
-    consume(&cp, &cp_len);
+    is_eof = consume(&cp, &cp_len);
 
-    if (cp == '\n' || cp == '\t' || cp == ' ')
+    if (is_eof)
     {
-        result.type = CSS_TOKEN_WHITESPACE;
+        t.type  = CSS_TOKEN_EOF;
     }
-    else if (cp == '"' || cp == '\'')
+    else if (is_whitespace(cp))
     {
-        return consume_string();
+        t.type  = CSS_TOKEN_WHITESPACE;
+    }
+    else if (cp == '\'' || cp == '"')
+    {
+        t.type  = CSS_TOKEN_STRING;
+        consume_string(&t, cp);        
     }
     else if (cp == '#')
     {
-        uint32_t cp1 = 0;
-        int32_t cp1_len = -1;
+        uint32_t cp_n = 0;
+        int32_t cp_n_len = -1;
 
-        peek(1, &cp1, &cp1_len);
+        uint32_t cp_nn = 0;
+        int32_t cp_nn_len = -1;
 
+        peek(1, &cp_n, &cp_n_len);
+        peek(2, &cp_nn, &cp_nn_len);
 
-        if (is_ident(cp1) || check_if_two_cp_are_valid_escape(0))
+        if (is_id(cp_n) || is_valid_escape(cp_n, cp_nn))
         {
-            result.type = CSS_TOKEN_HASH;
-            if (check_if_three_cp_start_ident())
-            {
-                result.hash_type = CSS_TOKEN_HASH_ID;
-            }
-
-            
+            t.type = CSS_TOKEN_HASH;
+            // todo: check 3 cps
+            consume_id_seq(&t);
         }
         else
         {
-            result.type = CSS_TOKEN_DELIM;
-            update_data(cp, &result);
+            t.type = CSS_TOKEN_DELIM;
         }
     }
+    else if (cp == '(')
+    {
+        t.type  = CSS_TOKEN_OPEN_PARENTHESIS;
+    }
+    else if (cp == ')')
+    {
+        t.type  = CSS_TOKEN_CLOSED_PARENTHESIS;
+    }
+    else if (cp == '+')
+    {
+        uint32_t cp2 = 0;
+        int32_t cp2_len = -1;
 
-    return result;
+        uint32_t cp3 = 0;
+        int32_t cp3_len = -1;
+
+        peek(1, &cp2, &cp2_len);
+        peek(2, &cp3, &cp3_len);
+
+        if (is_number_start(cp, cp2, cp3))
+        {
+            reconsume(cp_len);
+            consume_numeric_token(&t);
+        }
+        else
+        {
+            t.type = CSS_TOKEN_DELIM;
+        }
+    }
+    else if (cp == ',')
+    {
+        t.type  = CSS_TOKEN_COMMA;
+    }
+    else if (cp == '-')
+    {
+        uint32_t cp2 = 0;
+        int32_t cp2_len = -1;
+
+        uint32_t cp3 = 0;
+        int32_t cp3_len = -1;
+
+        peek(1, &cp2, &cp2_len);
+        peek(2, &cp3, &cp3_len);
+
+        if (is_number_start(cp, cp2, cp3))
+        {
+            reconsume(cp_len);
+            consume_numeric_token(&t);
+        }
+        else if (cp2 == '-' && cp3 == '>')
+        {
+            consume(&cp2, &cp2_len);
+            consume(&cp3, &cp3_len);
+            t.type = CSS_TOKEN_CDC;
+        }
+        else if (is_id_seq_start(cp, cp2, cp3))
+        {
+            reconsume(cp_len);
+            consume_id_seq(&t);
+        }
+        else
+        {
+            t.type = CSS_TOKEN_DELIM;
+        }
+    }
+    else if (cp == '.')
+    {
+        uint32_t cp2 = 0;
+        int32_t cp2_len = -1;
+
+        uint32_t cp3 = 0;
+        int32_t cp3_len = -1;
+
+        peek(1, &cp2, &cp2_len);
+        peek(2, &cp3, &cp3_len);
+
+        if (is_number_start(cp, cp2, cp3))
+        {
+            reconsume(cp_len);
+            consume_numeric_token(&t);
+        }
+        else
+        {
+            t.type = CSS_TOKEN_DELIM;
+        }
+    }
+    else if (cp == ':')
+    {
+        t.type  = CSS_TOKEN_COLON;
+    }
+    else if (cp == ';')
+    {
+        t.type  = CSS_TOKEN_SEMICOLON;
+    }
+    else if (cp == '<')
+    {
+        uint32_t cp2 = 0;
+        int32_t cp2_len = -1;
+
+        uint32_t cp3 = 0;
+        int32_t cp3_len = -1;
+
+        uint32_t cp4 = 0;
+        int32_t cp4_len = -1;
+
+        peek(1, &cp2, &cp2_len);
+        peek(2, &cp3, &cp3_len);
+        peek(3, &cp4, &cp4_len);
+
+        if (cp2 == '!' && cp3 == '-' && cp4 == '-')
+        {
+            consume(&cp2, &cp2_len);
+            consume(&cp3, &cp3_len);
+            consume(&cp4, &cp4_len);
+            t.type = CSS_TOKEN_CDO;
+        }
+        else
+        {
+            t.type = CSS_TOKEN_DELIM;
+        }
+    }
+    else if (cp == '@')
+    {
+        uint32_t cp2 = 0;
+        int32_t cp2_len = -1;
+
+        uint32_t cp3 = 0;
+        int32_t cp3_len = -1;
+
+        uint32_t cp4 = 0;
+        int32_t cp4_len = -1;
+
+        peek(1, &cp2, &cp2_len);
+        peek(2, &cp3, &cp3_len);
+        peek(3, &cp4, &cp4_len);
+
+        if (cp2_len <= 0 || cp3_len <= 0 || cp4_len <= 0)
+        {
+            t.type = CSS_TOKEN_DELIM;
+        }
+        else if (is_id_seq_start(cp2, cp3, cp4))
+        {
+            consume_id_seq(&t);
+            t.type = CSS_TOKEN_AT_KEYWORD;
+        }
+        else
+        {
+            t.type = CSS_TOKEN_DELIM;
+        }
+    }
+    else if (cp == '[')
+    {
+        t.type  = CSS_TOKEN_OPEN_BRACKET;
+    }
+    else if (cp == '\\')
+    {
+        uint32_t cp2 = 0;
+        int32_t cp2_len = -1;
+
+        uint32_t cp3 = 0;
+        int32_t cp3_len = -1;
+
+        uint32_t cp4 = 0;
+        int32_t cp4_len = -1;
+
+        peek(1, &cp2, &cp2_len);
+        peek(2, &cp3, &cp3_len);
+        peek(3, &cp4, &cp4_len);
+
+        if (is_valid_escape(cp, cp2))
+        {
+            reconsume(cp_len);
+            consume_id_seq(&t);
+            t.type = CSS_TOKEN_IDENT;
+        }
+        else
+        {
+            t.type = CSS_TOKEN_DELIM;
+        }
+    }
+    else if (cp == ']')
+    {
+        t.type  = CSS_TOKEN_CLOSED_BRACKET;
+    }
+    else if (cp == '{')
+    {
+        t.type  = CSS_TOKEN_OPEN_BRACE;
+    }
+    else if (cp == '}')
+    {
+        t.type  = CSS_TOKEN_CLOSED_BRACE;
+    }
+    else if (utf8_is_digit(cp))
+    {
+        reconsume(cp_len);
+        consume_numeric_token(&t);
+    }
+    else if (is_id_start(cp))
+    {
+        reconsume(cp_len);
+        consume_id_seq(&t);
+        t.type = CSS_TOKEN_IDENT;
+    }
+    else
+    {
+        t.type  = CSS_TOKEN_DELIM;
+    }
+
+    return t;
 }
 
 

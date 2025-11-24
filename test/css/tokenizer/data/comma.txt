@@ -1,0 +1,7 @@
+#data
+,\n
+#token-type
+comma-token
+#token-type
+whitespace-token
+#end-test

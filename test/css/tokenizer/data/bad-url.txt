@@ -1,0 +1,50 @@
+#data
+url( a a\n
+#token-type
+bad-url-token
+#end-test
+#data
+url( a\n
+#token-type
+url-token
+#token-value
+a
+#end-test
+#data
+url( a a)\n
+#token-type
+bad-url-token
+#token-type
+whitespace-token
+#end-test
+#data
+url(a")\n
+#token-type
+bad-url-token
+#token-type
+whitespace-token
+#end-test
+#data
+url(a'')\n
+#token-type
+bad-url-token
+#token-type
+whitespace-token
+#end-test
+#data
+url( \\n
+#token-type
+bad-url-token
+#end-test
+#data
+url(\n
+#token-type
+url-token
+#token-value
+
+#end-test
+#data
+url( a a\)\n
+#token-type
+bad-url-token
+#end-test

@@ -18,18 +18,12 @@ typedef enum
 typedef enum
 {
     CSS_TOKENIZER_DATA_STATE,
-    CSS_TOKENIZER_SOLIDUS_STATE,
-    CSS_TOKENIZER_COMMENT_STATE,
     CSS_TOKENIZER_STRING_STATE,
-    CSS_TOKENIZER_HASH_STATE,
-    CSS_TOKENIZER_PLUS_STATE,
-    CSS_TOKENIZER_MINUS_STATE,
-    CSS_TOKENIZER_DOT_STATE,
-    CSS_TOKENIZER_LESS_THAN_STATE,
-    CSS_TOKENIZER_AT_STATE,
-    CSS_TOKENIZER_REVERSE_SOLIDUS_STATE,
+    CSS_TOKENIZER_STRING_REVERSE_SOLIDUS_STATE,
+    CSS_TOKENIZER_POUND_SIGN_STATE,
+    CSS_TOKENIZER_POUND_SIGN_REVERSE_SOLIDUS_STATE,
+    CSS_TOKENIZER_ID_SEQ_STATE,
     CSS_TOKENIZER_NUMERIC_STATE,
-    CSS_TOKENIZER_IDENT_STATE
 } css_tokenizer_state_e;
 
 
@@ -44,6 +38,7 @@ typedef enum
     CSS_TOKEN_BAD_STRING,
     CSS_TOKEN_PERCENTAGE,
     CSS_TOKEN_DIMENSION,
+    CSS_TOKEN_NUMBER,
     CSS_TOKEN_WHITESPACE,
     CSS_TOKEN_CDO,
     CSS_TOKEN_CDC,
@@ -71,6 +66,6 @@ typedef struct
 } css_token_t;
 
 
-void css_tokenizer_init(unsigned char* buffer, uint32_t buffer_size, css_token_t* tokens_out, uint32_t tokens_out_size);
-void css_tokenizer_next();
-void css_tokenizer_free();
+void        css_tokenizer_init(unsigned char* buffer, uint32_t buffer_size);
+css_token_t css_tokenizer_next();
+void        css_tokenizer_free();
