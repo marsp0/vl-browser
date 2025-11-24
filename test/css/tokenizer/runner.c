@@ -45,14 +45,18 @@ static unsigned char* type_map_keys[] = {
                                             "whitespace-token",
                                             "delim-token",
                                             "ident-token",
-                                            "number-token"
+                                            "number-token",
+                                            "bad-string-token",
+                                            "string-token"
                                         };
 static css_token_type_e type_map_vals[] = { 
                                             CSS_TOKEN_AT_KEYWORD,
                                             CSS_TOKEN_WHITESPACE,
                                             CSS_TOKEN_DELIM,
                                             CSS_TOKEN_IDENT,
-                                            CSS_TOKEN_NUMBER
+                                            CSS_TOKEN_NUMBER,
+                                            CSS_TOKEN_BAD_STRING,
+                                            CSS_TOKEN_STRING
                                           };
 
 static int32_t get_char()
@@ -242,7 +246,7 @@ void css_tokenizer_test()
 {
     const unsigned char* files[] = {
                                     "./test/css/tokenizer/data/at-keyword.txt",
-                                    // "./test/css/tokenizer/data/bad-string.txt",
+                                    "./test/css/tokenizer/data/bad-string.txt",
                                     // "./test/css/tokenizer/data/bad-url.txt",
                                     // "./test/css/tokenizer/data/colon.txt",
                                     // "./test/css/tokenizer/data/comma.txt",

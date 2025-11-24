@@ -1,6 +1,7 @@
 #include "tokenizer.h"
 
 #include <stddef.h>
+#include <string.h>
 
 #include "util/utf8.h"
 #include "css/util.h"
@@ -244,6 +245,8 @@ static void consume_string(css_token_t* t, uint32_t end_cp)
         else if (cp == '\n')
         {
             reconsume(cp_len);
+            memset(t->data, 0, CSS_TOKEN_MAX_DATA_SIZE);
+            t->data_size = 0;
             t->type = CSS_TOKEN_BAD_STRING;
             return;
         }
