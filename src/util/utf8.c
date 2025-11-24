@@ -152,6 +152,7 @@ int32_t utf8_decode(const unsigned char* buf, const uint32_t size, const uint32_
     }
     else
     {
+        *val = 0;
         return -1;
     }
 }

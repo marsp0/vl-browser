@@ -640,12 +640,7 @@ css_token_t css_tokenizer_next()
         peek(2, &cp3, &cp3_len);
         peek(3, &cp4, &cp4_len);
 
-        if (cp2_len <= 0 || cp3_len <= 0 || cp4_len <= 0)
-        {
-            update_data(&t, cp);
-            t.type = CSS_TOKEN_DELIM;
-        }
-        else if (is_id_seq_start(cp2, cp3, cp4))
+        if (is_id_seq_start(cp2, cp3, cp4))
         {
             consume_id_seq(&t);
             t.type = CSS_TOKEN_AT_KEYWORD;
@@ -683,6 +678,7 @@ css_token_t css_tokenizer_next()
         }
         else
         {
+            update_data(&t, cp);
             t.type = CSS_TOKEN_DELIM;
         }
     }
