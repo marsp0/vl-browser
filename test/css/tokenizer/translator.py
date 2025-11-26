@@ -32,6 +32,9 @@ class Context:
                 continue
             self.write_line("#token-value")
             self.write_line(str(t["structured"]["value"]))
+            if t.get("structured").get("unit"):
+                self.write_line("#token-unit")
+                self.write_line(str(t["structured"]["unit"]))
 
         self.write_line("#end-test")
         

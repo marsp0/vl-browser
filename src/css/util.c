@@ -29,7 +29,7 @@ double css_convert_buf_to_num(uint32_t* buf, uint32_t buf_size)
 
         i *= 10;
         i += (int32_t)(buf[j] - 0x30);
-        pos = j;
+        pos = j + 1;
     }
 
     if (buf[pos] == '.')
@@ -47,7 +47,7 @@ double css_convert_buf_to_num(uint32_t* buf, uint32_t buf_size)
             f *= 10;
             f += (int32_t)(buf[j] - 0x30);
             d++;
-            pos = j;
+            pos = j + 1;
         }
     }
 

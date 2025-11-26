@@ -13,6 +13,8 @@ whitespace-token
 dimension-token
 #token-value
 -1.23753
+#token-unit
+px
 #token-type
 whitespace-token
 #end-test

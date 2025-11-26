@@ -14,7 +14,8 @@ typedef enum
 {
     STATE_DATA,
     STATE_TYPE,
-    STATE_VALUE
+    STATE_VALUE,
+    STATE_UNIT
 } state_e;
 
 static const unsigned char* test_file = NULL;
@@ -51,7 +52,8 @@ static unsigned char* type_map_keys[] = {
                                             "bad-url-token",
                                             "colon-token",
                                             "comma-token",
-                                            "comment"
+                                            "comment",
+                                            "dimension-token"
                                         };
 static css_token_type_e type_map_vals[] = { 
                                             CSS_TOKEN_AT_KEYWORD,
@@ -64,7 +66,8 @@ static css_token_type_e type_map_vals[] = {
                                             CSS_TOKEN_BAD_URL,
                                             CSS_TOKEN_COLON,
                                             CSS_TOKEN_COMMA,
-                                            CSS_TOKEN_COMMENT
+                                            CSS_TOKEN_COMMENT,
+                                            CSS_TOKEN_DIMENSION
                                           };
 
 static int32_t get_char()
@@ -159,6 +162,10 @@ static void run_css_tokenizer_test()
         {
             state = STATE_VALUE;
         }
+        else if (strncmp(line, "#token-unit", 11) == 0)
+        {
+            state = STATE_UNIT;
+        }
         else if (strncmp(line, "#end-test", 9) == 0)
         {
             break;
@@ -186,7 +193,7 @@ static void run_css_tokenizer_test()
         }
         else if (state == STATE_VALUE)
         {
-            if (tokens[current].type == CSS_TOKEN_NUMBER)
+            if (tokens[current].type == CSS_TOKEN_NUMBER || tokens[current].type == CSS_TOKEN_DIMENSION)
             {
                 uint32_t repr[32] = { 0 };
                 uint32_t repr_i = 0;
@@ -213,6 +220,16 @@ static void run_css_tokenizer_test()
                 memcpy(tokens[current].data, line, line_size);
                 tokens[current].data_size = line_size;
             }
+        }
+        else if (state == STATE_UNIT)
+        {
+            memcpy(tokens[current].data, line, line_size);
+            tokens[current].data_size = line_size;
+        }
+        else
+        {
+            printf("Unhandled case: %s\n", line);
+            assert(false);
         }
 
         read_line();
@@ -260,7 +277,7 @@ void css_tokenizer_test()
                                     "./test/css/tokenizer/data/comma.txt",
                                     "./test/css/tokenizer/data/comment.txt",
                                     "./test/css/tokenizer/data/digit.txt",
-                                    // "./test/css/tokenizer/data/dimension.txt",
+                                    "./test/css/tokenizer/data/dimension.txt",
                                     // "./test/css/tokenizer/data/escaped-code-point.txt",
                                     // "./test/css/tokenizer/data/full-stop.txt",
                                     // "./test/css/tokenizer/data/fuzz.txt",

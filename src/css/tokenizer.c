@@ -85,6 +85,11 @@ static void update_data(css_token_t* t, uint32_t cp)
 }
 
 
+static bool is_whitespace(uint32_t cp)
+{
+    return cp == '\n' || cp == '\t' || cp == ' ';
+}
+
 
 static void consume_escaped_cp(uint32_t* cp)
 {
@@ -103,7 +108,7 @@ static void consume_escaped_cp(uint32_t* cp)
             *cp = replacement;
             return;
         }
-        else if (digits >= 6)
+        else if (digits >= 6 || is_whitespace(cp_n))
         {
             break;
         }
@@ -136,12 +141,10 @@ static void consume_escaped_cp(uint32_t* cp)
     {
         *cp = replacement;
     }
-}
-
-
-static bool is_whitespace(uint32_t cp)
-{
-    return cp == '\n' || cp == '\t' || cp == ' ';
+    else
+    {
+        *cp = result;
+    }
 }
 
 
@@ -539,10 +542,10 @@ static void consume_number(css_token_t* token)
         }
     }
     
-    peek(1, &cp3, &cp3_len);
+    peek(3, &cp3, &cp3_len);
 
     bool esd = (cp == 'e' || cp == 'E') && (cp2 == '+' || cp2 == '-') && utf8_is_digit(cp3);
-    bool ed = (cp == 'e' || cp == 'E') && utf8_is_digit(cp3);
+    bool ed = (cp == 'e' || cp == 'E') && utf8_is_digit(cp2);
 
     if (esd || ed)
     {

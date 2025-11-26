@@ -85,6 +85,8 @@ whitespace-token
 dimension-token
 #token-value
 -1.1e-22
+#token-unit
+e
 #token-type
 whitespace-token
 #end-test
@@ -121,6 +123,8 @@ whitespace-token
 dimension-token
 #token-value
 1
+#token-unit
+e
 #token-type
 delim-token
 #token-value
