@@ -615,6 +615,43 @@ static void consume_numeric_token(css_token_t* t)
     }
 }
 
+
+static bool consume_comment()
+{
+    uint32_t cp1 = 0;
+    int32_t cp1_len = -1;
+
+    uint32_t cp2 = 0;
+    int32_t cp2_len = -1;
+    bool is_eof = false;
+
+    peek(1, &cp1, &cp1_len);
+    peek(2, &cp2, &cp2_len);
+
+    if (cp1 == '/' && cp2 == '*')
+    {
+        is_eof = consume(&cp1, &cp1_len);
+        is_eof = consume(&cp2, &cp2_len);
+
+        while (true)
+        {
+            peek(1, &cp1, &cp1_len);
+            peek(2, &cp2, &cp2_len);
+
+            if (is_eof || (cp1 == '*' && cp2 == '/'))
+            {
+                is_eof = consume(&cp1, &cp1_len);
+                is_eof = consume(&cp2, &cp2_len);
+                return true;
+            }
+
+            consume(&cp1, &cp1_len);
+        }
+    }
+
+    return false;
+}
+
 /********************/
 /* public functions */
 /********************/
@@ -636,6 +673,14 @@ css_token_t css_tokenizer_next()
     uint32_t cp = 0;
     int32_t cp_len = -1;
     bool is_eof = false;
+
+    bool is_comment = consume_comment();
+
+    if (is_comment)
+    {
+        t.type = CSS_TOKEN_COMMENT;
+        return t;
+    }
 
     is_eof = consume(&cp, &cp_len);
 
@@ -876,6 +921,7 @@ css_token_t css_tokenizer_next()
     }
     else
     {
+        update_data(&t, cp);
         t.type  = CSS_TOKEN_DELIM;
     }
 

@@ -50,7 +50,8 @@ static unsigned char* type_map_keys[] = {
                                             "string-token",
                                             "bad-url-token",
                                             "colon-token",
-                                            "comma-token"
+                                            "comma-token",
+                                            "comment"
                                         };
 static css_token_type_e type_map_vals[] = { 
                                             CSS_TOKEN_AT_KEYWORD,
@@ -62,7 +63,8 @@ static css_token_type_e type_map_vals[] = {
                                             CSS_TOKEN_STRING,
                                             CSS_TOKEN_BAD_URL,
                                             CSS_TOKEN_COLON,
-                                            CSS_TOKEN_COMMA
+                                            CSS_TOKEN_COMMA,
+                                            CSS_TOKEN_COMMENT
                                           };
 
 static int32_t get_char()
@@ -256,7 +258,7 @@ void css_tokenizer_test()
                                     "./test/css/tokenizer/data/bad-url.txt",
                                     "./test/css/tokenizer/data/colon.txt",
                                     "./test/css/tokenizer/data/comma.txt",
-                                    // "./test/css/tokenizer/data/comment.txt",
+                                    "./test/css/tokenizer/data/comment.txt",
                                     // "./test/css/tokenizer/data/digit.txt",
                                     // "./test/css/tokenizer/data/dimension.txt",
                                     // "./test/css/tokenizer/data/escaped-code-point.txt",

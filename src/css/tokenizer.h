@@ -53,7 +53,8 @@ typedef enum
     CSS_TOKEN_OPEN_BRACE,
     CSS_TOKEN_CLOSED_BRACE,
     CSS_TOKEN_BAD_URL,
-    CSS_TOKEN_URL
+    CSS_TOKEN_URL,
+    CSS_TOKEN_COMMENT
 } css_token_type_e;
 
 
