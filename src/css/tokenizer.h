@@ -29,6 +29,7 @@ typedef enum
 
 typedef enum
 {
+    CSS_TOKEN_EOF,
     CSS_TOKEN_DELIM,
     CSS_TOKEN_IDENT,
     CSS_TOKEN_FUNCTION,
@@ -51,7 +52,8 @@ typedef enum
     CSS_TOKEN_CLOSED_PARENTHESIS,
     CSS_TOKEN_OPEN_BRACE,
     CSS_TOKEN_CLOSED_BRACE,
-    CSS_TOKEN_EOF
+    CSS_TOKEN_BAD_URL,
+    CSS_TOKEN_URL
 } css_token_type_e;
 
 

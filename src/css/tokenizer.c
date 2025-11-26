@@ -145,6 +145,15 @@ static bool is_whitespace(uint32_t cp)
 }
 
 
+static bool is_nonprintable(uint32_t cp)
+{
+    return  (cp > '\0' && cp <= '\\') ||
+            (cp == '\t') ||
+            (cp >= 0x0e && cp <= 0x1f) ||
+            (cp == 0x7f);
+}
+
+
 static bool is_id_start(uint32_t cp)
 {
     return utf8_is_alpha(cp) || cp >= 0x80 || cp == '_';
@@ -227,6 +236,29 @@ static bool is_id_seq_start(uint32_t cp1, uint32_t cp2, uint32_t cp3)
     return false;
 }
 
+static bool compare_seq(css_token_t* t, unsigned char* data, uint32_t data_size)
+{
+    if (data_size > CSS_TOKEN_MAX_DATA_SIZE)
+    {
+        return false;
+    }
+
+    unsigned char* t_data = t->data;
+
+    for (uint32_t i = 0; i < data_size; i++)
+    {
+        unsigned char a = data[i];
+        unsigned char b = t_data[i];
+
+        if (a < 'a')    { a += 0x20; }
+        if (b < 'a')    { b += 0x20; }
+
+        if (a != b)     { return false; }
+    }
+
+    return true;
+}
+
 
 static void consume_string(css_token_t* t, uint32_t end_cp)
 {
@@ -306,6 +338,141 @@ static void consume_id_seq(css_token_t* t)
             reconsume(cp_len);
             return;
         }
+    }
+}
+
+
+static void consume_bad_url()
+{
+    uint32_t cp1 = 0;
+    int32_t cp1_len = -1;
+
+    uint32_t cp2 = 0;
+    int32_t cp2_len = -1;
+    
+    bool is_eof = false;
+
+    is_eof = consume(&cp1, &cp1_len);
+
+    peek(1, &cp2, &cp2_len);
+
+    while (true)
+    {
+        if (is_eof || cp2 == ')')
+        {
+            break;
+        }
+        else if (is_valid_escape(cp1, cp2))
+        {
+            consume_escaped_cp(&cp1);
+        }
+
+        is_eof = consume(&cp1, &cp1_len);
+        peek(1, &cp2, &cp2_len);
+    }
+}
+
+
+static void consume_url_token(css_token_t* t)
+{
+    t->type = CSS_TOKEN_URL;
+
+    memset(t->data, 0, CSS_TOKEN_MAX_DATA_SIZE);
+    t->data_size = 0;
+
+    uint32_t cp1 = 0;
+    int32_t cp1_len = -1;
+    uint32_t cp2 = 0;
+    int32_t cp2_len = -1;
+    bool is_eof = false;
+
+    peek(1, &cp1, &cp1_len);
+    peek(2, &cp2, &cp2_len);
+
+    while (is_whitespace(cp1))
+    {
+        is_eof = consume(&cp1, &cp1_len);
+    }
+
+    while (true)
+    {
+        if (is_eof || cp1 == ')')
+        {
+            return;
+        }
+        else if (is_whitespace(cp1))
+        {
+            // ignore
+        }
+        else if (cp1 == '"' || cp1 == '\'' || '(' || is_nonprintable(cp1))
+        {
+            consume_bad_url();
+            t->type = CSS_TOKEN_BAD_URL;
+        }
+        else if (cp1 == '\\')
+        {
+            if (is_valid_escape(cp1, cp2))
+            {
+                consume_escaped_cp(&cp1);
+                update_data(t, cp1);
+            }
+            else
+            {
+                consume_bad_url();
+                t->type = CSS_TOKEN_BAD_URL;
+            }
+        }
+        else
+        {
+            update_data(t, cp1);
+        }
+
+        consume(&cp1, &cp1_len);
+    }
+}
+
+
+static void consume_id_token(css_token_t* t)
+{
+    uint32_t cp1 = 0;
+    int32_t cp1_len = -1;
+
+    uint32_t cp2 = 0;
+    int32_t cp2_len = -1;
+
+    consume_id_seq(t);
+    peek(1, &cp1, &cp1_len);
+
+    if (compare_seq(t, "url", 3) && cp1 == '(')
+    {
+        consume(&cp1, &cp1_len);
+
+        peek(1, &cp1, &cp1_len);
+        peek(2, &cp2, &cp2_len);
+
+        while (is_whitespace(cp1) && is_whitespace(cp2))
+        {
+            consume(&cp1, &cp1_len);
+            peek(1, &cp1, &cp1_len);
+            peek(2, &cp2, &cp2_len);
+        }
+
+        if ((cp1 == '"' || cp1 == '\'' || is_whitespace(cp1)) && (cp2 == '"' || cp2 == '\''))
+        {
+            t->type = CSS_TOKEN_FUNCTION;
+            return;
+        }
+
+        consume_url_token(t);
+    }
+    else if (cp1 == '(')
+    {
+        consume(&cp1, &cp1_len);
+        t->type = CSS_TOKEN_FUNCTION;
+    }
+    else
+    {
+        t->type = CSS_TOKEN_IDENT;
     }
 }
 
@@ -705,8 +872,7 @@ css_token_t css_tokenizer_next()
     else if (is_id_start(cp))
     {
         reconsume(cp_len);
-        consume_id_seq(&t);
-        t.type = CSS_TOKEN_IDENT;
+        consume_id_token(&t);
     }
     else
     {
