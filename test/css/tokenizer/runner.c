@@ -259,7 +259,7 @@ void css_tokenizer_test()
                                     "./test/css/tokenizer/data/colon.txt",
                                     "./test/css/tokenizer/data/comma.txt",
                                     "./test/css/tokenizer/data/comment.txt",
-                                    // "./test/css/tokenizer/data/digit.txt",
+                                    "./test/css/tokenizer/data/digit.txt",
                                     // "./test/css/tokenizer/data/dimension.txt",
                                     // "./test/css/tokenizer/data/escaped-code-point.txt",
                                     // "./test/css/tokenizer/data/full-stop.txt",
