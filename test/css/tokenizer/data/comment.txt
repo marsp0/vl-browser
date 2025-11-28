@@ -1,4 +1,4 @@
-#data
+#data-0003
 a/**/b\n
 #token-type
 ident-token
@@ -13,12 +13,12 @@ b
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 /* a comment 
 #token-type
 comment
 #end-test
-#data
+#data-0004
 /*\*/*/\n
 #token-type
 comment
@@ -33,21 +33,21 @@ delim-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0006
 /*a𐀀*/\n
 #token-type
 comment
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 /* a comment */\n
 #token-type
 comment
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0005
 /* a comment *
 #token-type
 comment

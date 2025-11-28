@@ -1,4 +1,4 @@
-#data
+#data-0003
 "fo\no"
 #token-type
 bad-string-token
@@ -13,14 +13,14 @@ string-token
 #token-value
 
 #end-test
-#data
+#data-0002
 "foo
 #token-type
 string-token
 #token-value
 foo
 #end-test
-#data
+#data-0004
 "fo\\no"\n
 #token-type
 string-token
@@ -29,7 +29,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0008
 "'foo'"\n'"foo"'\n
 #token-type
 string-token
@@ -44,14 +44,14 @@ string-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0007
 "foo\"
 #token-type
 string-token
 #token-value
 foo"
 #end-test
-#data
+#data-0006
 "esc\61 ped"\n
 #token-type
 string-token
@@ -60,7 +60,7 @@ escaped
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0009
 "\"foo\""\n'\'foo\''\n
 #token-type
 string-token
@@ -75,7 +75,7 @@ string-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 "foo"\n'foo'\n
 #token-type
 string-token
@@ -90,7 +90,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0005
 "fo\
 #token-type
 string-token

@@ -1,4 +1,4 @@
-#data
+#data-0003
 -123.753e-2%\n
 #token-type
 percentage-token
@@ -7,7 +7,7 @@ percentage-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 -123.753e-2px\n
 #token-type
 dimension-token
@@ -18,7 +18,7 @@ px
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0004
 1.2.3\n
 #token-type
 number-token
@@ -31,7 +31,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 -123.753e-2\n
 #token-type
 number-token

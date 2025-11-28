@@ -1,4 +1,4 @@
-#data
+#data-0003
 #--3\n
 #token-type
 hash-token
@@ -7,7 +7,7 @@ hash-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 #-2\n
 #token-type
 hash-token
@@ -16,7 +16,7 @@ hash-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0004
 #---4\n
 #token-type
 hash-token
@@ -25,7 +25,7 @@ hash-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0008
 #---d\n
 #token-type
 hash-token
@@ -34,7 +34,7 @@ hash-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0010
 #_1\n
 #token-type
 hash-token
@@ -43,7 +43,7 @@ _1
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0007
 #--c\n
 #token-type
 hash-token
@@ -52,7 +52,7 @@ hash-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0011
 #-\n
 #token-type
 hash-token
@@ -61,7 +61,7 @@ hash-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0006
 #-b\n
 #token-type
 hash-token
@@ -70,14 +70,14 @@ hash-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0014
 #
 #token-type
 delim-token
 #token-value
 #
 #end-test
-#data
+#data-0013
 ##\n
 #token-type
 delim-token
@@ -90,7 +90,7 @@ delim-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0009
 #_\n
 #token-type
 hash-token
@@ -99,7 +99,7 @@ _
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 #1\n
 #token-type
 hash-token
@@ -108,7 +108,7 @@ hash-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0005
 #a\n
 #token-type
 hash-token
@@ -117,7 +117,7 @@ a
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0015
 #aa𐀀\n
 #token-type
 hash-token
@@ -126,7 +126,7 @@ aa𐀀
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0012
 #+\n
 #token-type
 delim-token

@@ -1,4 +1,4 @@
-#data
+#data-0003
 <--\n
 #token-type
 delim-token
@@ -11,14 +11,14 @@ ident-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 <!--\n
 #token-type
 CDO-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0004
 <!-\n
 #token-type
 delim-token
@@ -35,7 +35,7 @@ delim-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 <\n
 #token-type
 delim-token

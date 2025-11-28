@@ -1,4 +1,4 @@
-#data
+#data-0003
 \ \n
 #token-type
 ident-token
@@ -7,7 +7,7 @@ ident-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 \#\n
 #token-type
 ident-token
@@ -16,7 +16,7 @@ ident-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0004
 \61 b\n
 #token-type
 ident-token
@@ -25,7 +25,7 @@ ab
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 \\n
 #token-type
 delim-token
@@ -34,7 +34,7 @@ delim-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0005
 \
 #token-type
 ident-token

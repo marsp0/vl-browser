@@ -1,4 +1,4 @@
-#data
+#data-0003
 .1\n
 #token-type
 number-token
@@ -7,7 +7,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 .a\n
 #token-type
 delim-token
@@ -20,7 +20,7 @@ a
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 .\n
 #token-type
 delim-token

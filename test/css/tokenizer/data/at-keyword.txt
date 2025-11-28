@@ -1,4 +1,4 @@
-#data
+#data-0003
 @-1\n
 #token-type
 delim-token
@@ -11,7 +11,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 @--\n
 #token-type
 at-keyword-token
@@ -20,7 +20,7 @@ at-keyword-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0004
 @--1\n
 #token-type
 at-keyword-token
@@ -29,7 +29,7 @@ at-keyword-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0008
 pvA3@\\neBnP\n
 #token-type
 ident-token
@@ -52,7 +52,7 @@ eBnP
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0007
 @\n
 #token-type
 delim-token
@@ -61,7 +61,7 @@ delim-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0006
 @_\n
 #token-type
 at-keyword-token
@@ -70,7 +70,7 @@ _
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0009
 @aa𐀀\n
 #token-type
 at-keyword-token
@@ -79,7 +79,7 @@ aa𐀀
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 @foo\n
 #token-type
 at-keyword-token
@@ -88,7 +88,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0005
 @\@\n
 #token-type
 at-keyword-token

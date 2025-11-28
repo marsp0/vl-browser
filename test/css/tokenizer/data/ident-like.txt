@@ -1,4 +1,4 @@
-#data
+#data-0003
 uR\6c (foo)\n
 #token-type
 url-token
@@ -7,7 +7,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 \75 Rl(foo)\n
 #token-type
 url-token
@@ -16,7 +16,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0004
 url('foo')\n
 #token-type
 function-token
@@ -31,7 +31,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0008
 not-url(   'foo')\n
 #token-type
 function-token
@@ -48,7 +48,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0007
 url(   'foo')\n
 #token-type
 function-token
@@ -65,7 +65,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0006
 url(  'foo')\n
 #token-type
 function-token
@@ -82,7 +82,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0009
 url(   foo)\n
 #token-type
 url-token
@@ -91,7 +91,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 url(foo)\n
 #token-type
 url-token
@@ -100,7 +100,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0005
 url( 'foo')\n
 #token-type
 function-token

@@ -1,4 +1,4 @@
-#data
+#data-0003
 --0\n
 #token-type
 ident-token
@@ -7,7 +7,7 @@ ident-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 --\n
 #token-type
 ident-token
@@ -16,7 +16,7 @@ ident-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0004
 -\\n
 #token-type
 delim-token
@@ -29,7 +29,7 @@ delim-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0008
 -×\n
 #token-type
 delim-token
@@ -42,7 +42,7 @@ delim-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0007
 -§\n
 #token-type
 delim-token
@@ -55,7 +55,7 @@ delim-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0006
 --💅\n
 #token-type
 ident-token
@@ -64,7 +64,7 @@ ident-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0009
 --a𐀀\n
 #token-type
 ident-token
@@ -73,7 +73,7 @@ ident-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 foo\n
 #token-type
 ident-token
@@ -82,7 +82,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0005
 -\ \n
 #token-type
 ident-token

@@ -1,4 +1,4 @@
-#data
+#data-0003
 -10\n
 #token-type
 number-token
@@ -7,7 +7,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 +10\n
 #token-type
 number-token
@@ -16,7 +16,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0004
 0\n
 #token-type
 number-token
@@ -25,7 +25,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0008
 .1\n
 #token-type
 number-token
@@ -34,7 +34,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0010
 -.1\n
 #token-type
 number-token
@@ -43,7 +43,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0007
 .0\n
 #token-type
 number-token
@@ -52,7 +52,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0017
 -1.1e-22\n
 #token-type
 number-token
@@ -61,7 +61,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0011
 1.1\n
 #token-type
 number-token
@@ -70,7 +70,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0006
 -0\n
 #token-type
 number-token
@@ -79,7 +79,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0018
 -1.1e-22e\n
 #token-type
 dimension-token
@@ -90,7 +90,7 @@ e
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0014
 1.1e2\n
 #token-type
 number-token
@@ -99,7 +99,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0013
 -1.1\n
 #token-type
 number-token
@@ -108,7 +108,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0016
 -1.1e-2\n
 #token-type
 number-token
@@ -117,7 +117,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0019
 1e+\n
 #token-type
 dimension-token
@@ -132,7 +132,7 @@ delim-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0009
 +.1\n
 #token-type
 number-token
@@ -141,7 +141,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 10\n
 #token-type
 number-token
@@ -150,7 +150,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0005
 +0\n
 #token-type
 number-token
@@ -159,7 +159,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0015
 +1.1e+2\n
 #token-type
 number-token
@@ -168,7 +168,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0012
 +1.1\n
 #token-type
 number-token
@@ -177,7 +177,7 @@ number-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0020
 .2.7\n
 #token-type
 number-token

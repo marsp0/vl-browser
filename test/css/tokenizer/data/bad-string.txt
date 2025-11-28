@@ -1,4 +1,4 @@
-#data
+#data-0003
 "foo\n"\n
 #token-type
 bad-string-token
@@ -9,7 +9,7 @@ bad-string-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0002
 "foo\\n"\n
 #token-type
 string-token
@@ -18,7 +18,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0004
 "foo\\n"\n
 #token-type
 string-token
@@ -27,7 +27,7 @@ foo
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0001
 "foo\n"\n
 #token-type
 bad-string-token
@@ -38,7 +38,7 @@ bad-string-token
 #token-type
 whitespace-token
 #end-test
-#data
+#data-0005
 "aa𐀀\n
 #token-type
 bad-string-token
