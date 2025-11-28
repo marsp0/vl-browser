@@ -20,8 +20,8 @@ class Context:
         string = string.replace("\n", "\\n")
         self.f_out.write(string + '\n')
 
-    def export_test(self, test, tokens):
-        self.write_line("#data")
+    def export_test(self, test, tokens, test_name):
+        self.write_line(f"#data-{test_nameq}")
         self.write_line(test["data"])
 
         for i in range(len(tokens)):
@@ -63,11 +63,12 @@ def translate(args, ctx):
             tokens = json.load(f)
 
         f_name = root.split("/")[-2]
+        test_name = root.split("/")[-1]
 
         if (ctx.f_name != f_name):
             ctx.reload(o_path, f_name)
 
-        ctx.export_test(test, tokens)
+        ctx.export_test(test, tokens, test_name)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script that converts json files from html5-lib to data files')

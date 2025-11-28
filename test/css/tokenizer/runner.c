@@ -53,7 +53,10 @@ static unsigned char* type_map_keys[] = {
                                             "colon-token",
                                             "comma-token",
                                             "comment",
-                                            "dimension-token"
+                                            "dimension-token",
+                                            "(-token",
+                                            ")-token",
+                                            "function-token"
                                         };
 static css_token_type_e type_map_vals[] = { 
                                             CSS_TOKEN_AT_KEYWORD,
@@ -67,7 +70,10 @@ static css_token_type_e type_map_vals[] = {
                                             CSS_TOKEN_COLON,
                                             CSS_TOKEN_COMMA,
                                             CSS_TOKEN_COMMENT,
-                                            CSS_TOKEN_DIMENSION
+                                            CSS_TOKEN_DIMENSION,
+                                            CSS_TOKEN_OPEN_PARENTHESIS,
+                                            CSS_TOKEN_CLOSED_PARENTHESIS,
+                                            CSS_TOKEN_FUNCTION
                                           };
 
 static int32_t get_char()
@@ -234,6 +240,8 @@ static void run_css_tokenizer_test()
 
         read_line();
     }
+
+    if (current == 0 && !first) { current = 1; }
 
     css_tokenizer_init(test_data, test_data_size);
 

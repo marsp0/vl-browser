@@ -103,7 +103,7 @@ static void consume_escaped_cp(uint32_t* cp)
     {
         is_eof = consume(&cp_n, &cp_n_len);
 
-        if (is_eof)
+        if (is_eof || cp_n == 0)
         {
             *cp = replacement;
             return;
@@ -891,8 +891,7 @@ css_token_t css_tokenizer_next()
         if (is_valid_escape(cp, cp2))
         {
             reconsume(cp_len);
-            consume_id_seq(&t);
-            t.type = CSS_TOKEN_IDENT;
+            consume_id_token(&t);
         }
         else
         {
