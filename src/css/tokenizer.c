@@ -108,8 +108,13 @@ static void consume_escaped_cp(uint32_t* cp)
             *cp = replacement;
             return;
         }
-        else if (digits >= 6 || is_whitespace(cp_n))
+        else if (is_whitespace(cp_n))
         {
+            break;
+        }
+        else if (digits >= 6)
+        {
+            reconsume(cp_n_len);
             break;
         }
         else if (utf8_is_digit(cp_n))
