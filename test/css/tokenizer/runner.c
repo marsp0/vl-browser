@@ -25,6 +25,7 @@ static unsigned char file_buffer[4096] = { 0 };
 static uint32_t file_buffer_cursor = 0;
 static uint32_t file_buffer_size = 0;
 static unsigned char prev = 0;
+static unsigned char description[2048] = { 0 };
 
 static unsigned char line[2048] = { 0 };
 static uint32_t line_cursor = 0;
@@ -57,7 +58,12 @@ static unsigned char* type_map_keys[] = {
                                             "dimension-token",
                                             "(-token",
                                             ")-token",
-                                            "function-token"
+                                            "function-token",
+                                            "{-token",
+                                            "}-token",
+                                            "semicolon-token",
+                                            "[-token",
+                                            "]-token"
                                         };
 static css_token_type_e type_map_vals[] = { 
                                             CSS_TOKEN_AT_KEYWORD,
@@ -75,7 +81,12 @@ static css_token_type_e type_map_vals[] = {
                                             CSS_TOKEN_DIMENSION,
                                             CSS_TOKEN_OPEN_PARENTHESIS,
                                             CSS_TOKEN_CLOSED_PARENTHESIS,
-                                            CSS_TOKEN_FUNCTION
+                                            CSS_TOKEN_FUNCTION,
+                                            CSS_TOKEN_OPEN_BRACE,
+                                            CSS_TOKEN_CLOSED_BRACE,
+                                            CSS_TOKEN_SEMICOLON,
+                                            CSS_TOKEN_OPEN_BRACKET,
+                                            CSS_TOKEN_CLOSED_BRACKET
                                           };
 
 static int32_t get_char()
@@ -155,6 +166,7 @@ static void run_css_tokenizer_test()
         {
             state = STATE_DATA;
             test_line = line_num;
+            memcpy(description, line, line_size);
         }
         else if (strncmp(line, "#token-type", 11) == 0)
         {
@@ -272,6 +284,7 @@ static void run_css_tokenizer_test()
     {
         printf("\n========== Test %u ==========\n", test_line);
         printf("FILE: %s\n", test_file);
+        printf("TEST: %s\n", description);
         printf("INPUT: %s\n", test_data);
     }
 }
