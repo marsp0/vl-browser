@@ -19,7 +19,12 @@ double css_convert_buf_to_num(uint32_t* buf, uint32_t buf_size)
 
     for (uint32_t j = 0; j < buf_size; j++)
     {
-        if (buf[j] == '-') { s = -1; }
+        if (buf[j] == '-')
+        {
+            s = -1;
+            pos = j + 1;
+            break;
+        }
     }
 
     for (uint32_t j = 0; j < buf_size; j++)

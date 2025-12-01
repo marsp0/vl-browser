@@ -820,10 +820,11 @@ css_token_t css_tokenizer_next()
         else if (is_id_seq_start(cp, cp2, cp3))
         {
             reconsume(cp_len);
-            consume_id_seq(&t);
+            consume_id_token(&t);
         }
         else
         {
+            update_data(&t, cp);
             t.type = CSS_TOKEN_DELIM;
         }
     }

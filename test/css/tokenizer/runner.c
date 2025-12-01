@@ -63,7 +63,8 @@ static unsigned char* type_map_keys[] = {
                                             "}-token",
                                             "semicolon-token",
                                             "[-token",
-                                            "]-token"
+                                            "]-token",
+                                            "CDC-token"
                                         };
 static css_token_type_e type_map_vals[] = { 
                                             CSS_TOKEN_AT_KEYWORD,
@@ -86,7 +87,8 @@ static css_token_type_e type_map_vals[] = {
                                             CSS_TOKEN_CLOSED_BRACE,
                                             CSS_TOKEN_SEMICOLON,
                                             CSS_TOKEN_OPEN_BRACKET,
-                                            CSS_TOKEN_CLOSED_BRACKET
+                                            CSS_TOKEN_CLOSED_BRACKET,
+                                            CSS_TOKEN_CDC
                                           };
 
 static int32_t get_char()
