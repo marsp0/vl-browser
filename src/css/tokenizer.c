@@ -70,7 +70,11 @@ static void peek(uint32_t offset, uint32_t* cp, int32_t* cp_len)
         *cp_len = utf8_decode(buf, buf_size, buf_cur + buf_cur_offset, cp);
         buf_cur_offset += (uint32_t)(*cp_len);
 
-        if (*cp_len <= 0) { break; }
+        if (*cp_len <= 0)
+        {
+            *cp = 0;
+            break;
+        }
     }
 
     return;
@@ -402,19 +406,48 @@ static void consume_url_token(css_token_t* t)
         is_eof = consume(&cp1, &cp1_len);
     }
 
+    // is_eof = consume(&cp1, &cp1_len);
+
     while (true)
     {
         if (is_eof || cp1 == ')')
         {
+            // t->type = CSS_TOKEN_URL;
             return;
         }
         else if (is_whitespace(cp1))
         {
-            // ignore
+            while(true)
+            {
+                if (is_whitespace(cp1))
+                {
+                    // ignore
+                }
+                else if (is_eof || cp1 == ')')
+                {
+                    t->type = CSS_TOKEN_URL;
+                    return;
+                }
+                else
+                {
+                    consume_bad_url();
+                    memset(t->data, 0, CSS_TOKEN_MAX_DATA_SIZE);
+                    t->data_size = 0;
+                    t->type = CSS_TOKEN_BAD_URL;
+                    return;
+                }
+
+                is_eof = consume(&cp1, &cp1_len);
+            }
         }
-        else if (cp1 == '"' || cp1 == '\'' || '(' || is_nonprintable(cp1))
+        else if (cp1 == '"'  ||
+                 cp1 == '\'' ||
+                 cp1 == '('  ||
+                 is_nonprintable(cp1))
         {
             consume_bad_url();
+            memset(t->data, 0, CSS_TOKEN_MAX_DATA_SIZE);
+            t->data_size = 0;
             t->type = CSS_TOKEN_BAD_URL;
         }
         else if (cp1 == '\\')
@@ -427,6 +460,8 @@ static void consume_url_token(css_token_t* t)
             else
             {
                 consume_bad_url();
+                memset(t->data, 0, CSS_TOKEN_MAX_DATA_SIZE);
+                t->data_size = 0;
                 t->type = CSS_TOKEN_BAD_URL;
             }
         }
@@ -435,7 +470,7 @@ static void consume_url_token(css_token_t* t)
             update_data(t, cp1);
         }
 
-        consume(&cp1, &cp1_len);
+        is_eof = consume(&cp1, &cp1_len);
     }
 }
 
@@ -653,7 +688,7 @@ static bool consume_comment()
                 return true;
             }
 
-            consume(&cp1, &cp1_len);
+            is_eof = consume(&cp1, &cp1_len);
         }
     }
 
@@ -810,6 +845,7 @@ css_token_t css_tokenizer_next()
         }
         else
         {
+            update_data(&t, cp);
             t.type = CSS_TOKEN_DELIM;
         }
     }

@@ -21,7 +21,7 @@ class Context:
         self.f_out.write(string + '\n')
 
     def export_test(self, test, tokens, test_name):
-        self.write_line(f"#data-{test_nameq}")
+        self.write_line(f"#data-{test_name}")
         self.write_line(test["data"])
 
         for i in range(len(tokens)):
@@ -42,10 +42,22 @@ class Context:
         if (self.f_out):
             self.f_out.close()
 
+def is_supported(not_supported, folder, test):
+    for t in not_supported:
+        if folder == t[0] and test == t[1]:
+            return False
+
+    return True
+
 
 def translate(args, ctx):
     i_path = args['i'] or './input'
     o_path = args['o'] or './data'
+    not_supported = []
+
+    with open(os.path.join(i_path, '..', 'not_supported.json'), 'r') as f:
+        data = json.load(f)
+        not_supported = data
 
     for (root, _, files) in os.walk(i_path, topdown=True):
         if ("source.css" not in files) or ("tokens.json" not in files):
@@ -68,7 +80,8 @@ def translate(args, ctx):
         if (ctx.f_name != f_name):
             ctx.reload(o_path, f_name)
 
-        ctx.export_test(test, tokens, test_name)
+        if is_supported(not_supported, f_name, test_name):
+            ctx.export_test(test, tokens, test_name)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Script that converts json files from html5-lib to data files')
