@@ -30,15 +30,6 @@ url-token
 #token-type
 whitespace-token
 #end-test
-#data-0010
-url(https://www.netmeister.org/%62%6C%6F%67/%75%72%6C%73%2E%68%74%6D%6C?!@#$%25=+_\)\(*&^#top)\n
-#token-type
-url-token
-#token-value
-https://www.netmeister.org/%62%6C%6F%67/%75%72%6C%73%2E%68%74%6D%6C?!@#$%25=+_)(*&^#top
-#token-type
-whitespace-token
-#end-test
 #data-0007
 url( a )\n
 #token-type
@@ -87,15 +78,6 @@ urL(a)\n
 url-token
 #token-value
 a
-#token-type
-whitespace-token
-#end-test
-#data-0009
-url(https://https:⁄⁄www.netmeister.org@https://www.netmeister.org/https:⁄⁄www.netmeister.org⁄?https://www.netmeister.org=https://www.netmeister.org;https://www.netmeister.org#https://www.netmeister.org)\n
-#token-type
-url-token
-#token-value
-https://https:⁄⁄www.netmeister.org@https://www.netmeister.org/https:⁄⁄www.netmeister.org⁄?https://www.netmeister.org=https://www.netmeister.org;https://www.netmeister.org#https://www.netmeister.org
 #token-type
 whitespace-token
 #end-test

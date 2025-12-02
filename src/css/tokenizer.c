@@ -60,7 +60,7 @@ static void reconsume(int32_t cp_len)
     buf_cur -= (uint32_t)cp_len;
 }
 
-static void peek(uint32_t offset, uint32_t* cp, int32_t* cp_len)
+static bool peek(uint32_t offset, uint32_t* cp, int32_t* cp_len)
 {
     *cp_len = 0;
     uint32_t buf_cur_offset = 0;
@@ -73,11 +73,11 @@ static void peek(uint32_t offset, uint32_t* cp, int32_t* cp_len)
         if (*cp_len <= 0)
         {
             *cp = 0;
-            break;
+            return true;
         }
     }
 
-    return;
+    return false;
 }
 
 
@@ -159,7 +159,7 @@ static void consume_escaped_cp(uint32_t* cp)
 
 static bool is_nonprintable(uint32_t cp)
 {
-    return  (cp > '\0' && cp <= '\\') ||
+    return  (cp > '\0' && cp <= 0x08) ||
             (cp == '\t') ||
             (cp >= 0x0e && cp <= 0x1f) ||
             (cp == 0x7f);
@@ -319,7 +319,7 @@ static void consume_string(css_token_t* t, uint32_t end_cp)
             uint32_t cp_n = 0;
             int32_t cp_n_len = -1;
 
-            peek(1, &cp_n, &cp_n_len);
+            is_eof = peek(1, &cp_n, &cp_n_len);
 
             if (is_eof)
             {
@@ -419,12 +419,13 @@ static void consume_url_token(css_token_t* t)
     bool is_eof = false;
 
     is_eof = consume(&cp1, &cp1_len);
-    peek(1, &cp2, &cp2_len);
 
     while (is_whitespace(cp1))
     {
         is_eof = consume(&cp1, &cp1_len);
     }
+
+    peek(1, &cp2, &cp2_len);
 
     while (true)
     {

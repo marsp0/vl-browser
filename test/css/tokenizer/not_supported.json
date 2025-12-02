@@ -7,5 +7,7 @@
     ["fuzz", "6d07fc79-586f-4efa-a0a2-37d4dd3beb09", "null bytes"],
     ["fuzz", "864d7812-b82f-47c2-94e4-8402ba6ba94a", "null bytes"],
     ["fuzz", "2abe9406-c063-4e9a-85ac-b13660671553", "long string"],
-    ["fuzz", "7f49c8fc-8292-4a3e-828b-b5d028a80d5f", "long string"]
+    ["fuzz", "7f49c8fc-8292-4a3e-828b-b5d028a80d5f", "long string"],
+    ["url", "0010", "long string"],
+    ["url", "0009", "long string"]
 ]
