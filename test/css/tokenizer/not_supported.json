@@ -1,0 +1,13 @@
+[
+    ["dimension", "0008", "null byte"],
+    ["fuzz", "b69ece36-057f-4450-9423-a1661787bce6", "null bytes"],
+    ["fuzz", "4f865903-e4dd-4a0b-83ed-e630cfa9dcca", "null bytes"],
+    ["fuzz", "5181013c-60ab-483b-9c06-fb32c7e1e7e8", "null bytes"],
+    ["fuzz", "4e630a47-507b-4b79-b00f-57f7dc1cc79d", "null bytes"],
+    ["fuzz", "6d07fc79-586f-4efa-a0a2-37d4dd3beb09", "null bytes"],
+    ["fuzz", "864d7812-b82f-47c2-94e4-8402ba6ba94a", "null bytes"],
+    ["fuzz", "2abe9406-c063-4e9a-85ac-b13660671553", "long string"],
+    ["fuzz", "7f49c8fc-8292-4a3e-828b-b5d028a80d5f", "long string"],
+    ["url", "0010", "long string"],
+    ["url", "0009", "long string"]
+]

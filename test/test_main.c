@@ -6,6 +6,7 @@
 
 #include "html/parser/runner.h"
 #include "html/tokenizer/runner.h"
+#include "css/tokenizer/runner.h"
 
 #include "dom/hash_str.h"
 #include "global_modules.h"
@@ -23,6 +24,8 @@ int32_t main()
     // external tests
     TEST_GROUP(html_tokenizer_test);
     TEST_GROUP(html_parser_test);
+    TEST_GROUP(css_tokenizer_test);
+    // before css - 8056
 
     TESTS_SUMMARY();
 

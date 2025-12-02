@@ -18,3 +18,6 @@ bool        utf8_is_upper_hex(uint32_t code_point);
 bool        utf8_is_hex(uint32_t code_point);
 bool        utf8_is_control(uint32_t code_point);
 bool        utf8_is_whitespace(uint32_t code_point);
+bool        utf8_is_lead_surrogate(uint32_t cp);
+bool        utf8_is_trail_surrogate(uint32_t cp);
+bool        utf8_is_surrogate(uint32_t cp);

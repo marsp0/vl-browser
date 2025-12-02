@@ -1,0 +1,7 @@
+#data-0001
+;\n
+#token-type
+semicolon-token
+#token-type
+whitespace-token
+#end-test
