@@ -907,6 +907,7 @@ css_token_t css_tokenizer_next()
         }
         else
         {
+            update_data(&t, cp);
             t.type = CSS_TOKEN_DELIM;
         }
     }

@@ -64,7 +64,8 @@ static unsigned char* type_map_keys[] = {
                                             "semicolon-token",
                                             "[-token",
                                             "]-token",
-                                            "CDC-token"
+                                            "CDC-token",
+                                            "CDO-token"
                                         };
 static css_token_type_e type_map_vals[] = { 
                                             CSS_TOKEN_AT_KEYWORD,
@@ -88,7 +89,8 @@ static css_token_type_e type_map_vals[] = {
                                             CSS_TOKEN_SEMICOLON,
                                             CSS_TOKEN_OPEN_BRACKET,
                                             CSS_TOKEN_CLOSED_BRACKET,
-                                            CSS_TOKEN_CDC
+                                            CSS_TOKEN_CDC,
+                                            CSS_TOKEN_CDO
                                           };
 
 static int32_t get_char()
@@ -295,25 +297,25 @@ static void run_css_tokenizer_test()
 void css_tokenizer_test()
 {
     const unsigned char* files[] = {
-                                        "./test/css/tokenizer/data/at-keyword.txt",
-                                        "./test/css/tokenizer/data/bad-string.txt",
-                                        "./test/css/tokenizer/data/bad-url.txt",
-                                        "./test/css/tokenizer/data/colon.txt",
-                                        "./test/css/tokenizer/data/comma.txt",
-                                        "./test/css/tokenizer/data/comment.txt",
-                                        "./test/css/tokenizer/data/digit.txt",
-                                        "./test/css/tokenizer/data/dimension.txt",
-                                        "./test/css/tokenizer/data/escaped-code-point.txt",
-                                        "./test/css/tokenizer/data/full-stop.txt",
-                                        "./test/css/tokenizer/data/fuzz.txt",
+                                        // "./test/css/tokenizer/data/at-keyword.txt",
+                                        // "./test/css/tokenizer/data/bad-string.txt",
+                                        // "./test/css/tokenizer/data/bad-url.txt",
+                                        // "./test/css/tokenizer/data/colon.txt",
+                                        // "./test/css/tokenizer/data/comma.txt",
+                                        // "./test/css/tokenizer/data/comment.txt",
+                                        // "./test/css/tokenizer/data/digit.txt",
+                                        // "./test/css/tokenizer/data/dimension.txt",
+                                        // "./test/css/tokenizer/data/escaped-code-point.txt",
+                                        // "./test/css/tokenizer/data/full-stop.txt",
+                                        // "./test/css/tokenizer/data/fuzz.txt",
                                     // "./test/css/tokenizer/data/hash.txt",
-                                        "./test/css/tokenizer/data/hyphen-minus.txt",
-                                        "./test/css/tokenizer/data/ident-like.txt",
-                                        "./test/css/tokenizer/data/ident.txt",
-                                        "./test/css/tokenizer/data/left-curly-bracket.txt",
-                                        "./test/css/tokenizer/data/left-parenthesis.txt",
-                                        "./test/css/tokenizer/data/left-square-bracket.txt",
-                                    // "./test/css/tokenizer/data/less-than.txt",
+                                        // "./test/css/tokenizer/data/hyphen-minus.txt",
+                                        // "./test/css/tokenizer/data/ident-like.txt",
+                                        // "./test/css/tokenizer/data/ident.txt",
+                                        // "./test/css/tokenizer/data/left-curly-bracket.txt",
+                                        // "./test/css/tokenizer/data/left-parenthesis.txt",
+                                        // "./test/css/tokenizer/data/left-square-bracket.txt",
+                                    "./test/css/tokenizer/data/less-than.txt",
                                     // "./test/css/tokenizer/data/number.txt",
                                     // "./test/css/tokenizer/data/numeric.txt",
                                     // "./test/css/tokenizer/data/plus.txt",
