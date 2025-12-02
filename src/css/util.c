@@ -29,8 +29,16 @@ double css_convert_buf_to_num(uint32_t* buf, uint32_t buf_size)
 
     for (uint32_t j = 0; j < buf_size; j++)
     {
-        if (buf[j] == '-' || buf[j] == '+')     { continue; }
-        if (!utf8_is_digit(buf[j]))    { break; }
+        if (buf[j] == '-' || buf[j] == '+')
+        {
+            pos = j + 1;
+            continue;
+        }
+
+        if (!utf8_is_digit(buf[j]))
+        {
+            break;
+        }
 
         i *= 10;
         i += (int32_t)(buf[j] - 0x30);
