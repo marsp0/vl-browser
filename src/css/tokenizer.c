@@ -112,7 +112,7 @@ static void consume_escaped_cp(uint32_t* cp)
             *cp = replacement;
             return;
         }
-        else if (is_whitespace(cp_n))
+        else if (is_whitespace(cp_n) && digits > 0)
         {
             break;
         }
@@ -166,9 +166,29 @@ static bool is_nonprintable(uint32_t cp)
 }
 
 
+static bool is_non_ascii_ident_cp(uint32_t cp)
+{
+    return  (cp == 0xb7) ||
+            (cp >= 0xc0 && cp <= 0xd6) ||
+            (cp >= 0xd8 && cp <= 0xf6) ||
+            (cp >= 0xf8 && cp <= 0x037d) ||
+            (cp >= 0x037f && cp <= 0x1fff) ||
+            (cp == 0x200c) ||
+            (cp == 0x200d) ||
+            (cp == 0x203f) ||
+            (cp == 0x2040) ||
+            (cp >= 0x2070 && cp <= 0x218f) ||
+            (cp >= 0x2c00 && cp <= 0x2fef) ||
+            (cp >= 0x3001 && cp <= 0xd7ff) ||
+            (cp >= 0xf900 && cp <= 0xfdcf) ||
+            (cp >= 0xfdf0 && cp <= 0xfffd) ||
+            (cp >= 0x10000);
+}
+
+
 static bool is_id_start(uint32_t cp)
 {
-    return utf8_is_alpha(cp) || cp >= 0x80 || cp == '_';
+    return utf8_is_alpha(cp) || is_non_ascii_ident_cp(cp) || cp == '_';
 }
 
 
@@ -398,15 +418,13 @@ static void consume_url_token(css_token_t* t)
     int32_t cp2_len = -1;
     bool is_eof = false;
 
-    peek(1, &cp1, &cp1_len);
-    peek(2, &cp2, &cp2_len);
+    is_eof = consume(&cp1, &cp1_len);
+    peek(1, &cp2, &cp2_len);
 
     while (is_whitespace(cp1))
     {
         is_eof = consume(&cp1, &cp1_len);
     }
-
-    // is_eof = consume(&cp1, &cp1_len);
 
     while (true)
     {
@@ -500,7 +518,7 @@ static void consume_id_token(css_token_t* t)
             peek(2, &cp2, &cp2_len);
         }
 
-        if ((cp1 == '"' || cp1 == '\'' || is_whitespace(cp1)) && (cp2 == '"' || cp2 == '\''))
+        if ((cp1 == '"' || cp1 == '\'') || (is_whitespace(cp1) && (cp2 == '"' || cp2 == '\'')))
         {
             t->type = CSS_TOKEN_FUNCTION;
             return;
@@ -733,6 +751,13 @@ css_token_t css_tokenizer_next()
     }
     else if (is_whitespace(cp))
     {
+        peek(1, &cp, &cp_len);
+
+        while (is_whitespace(cp))
+        {
+            is_eof = consume(&cp, &cp_len);
+            peek(1, &cp, &cp_len);
+        }
         t.type  = CSS_TOKEN_WHITESPACE;
     }
     else if (cp == '\'' || cp == '"')
