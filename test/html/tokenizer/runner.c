@@ -233,7 +233,7 @@ static void run_tokenizer_test()
 
             html_token_t* token = &tokens[current];
             token->is_valid = true;
-            token->type = HTML_DOCTYPE_TOKEN;
+            token->type = HTML_TOKEN_DOCTYPE;
 
             memcpy(token->name, line, line_size);
             token->name_size = line_size;
@@ -269,7 +269,7 @@ static void run_tokenizer_test()
 
             html_token_t* token = &tokens[current];
             token->is_valid = true;
-            token->type = HTML_COMMENT_TOKEN;
+            token->type = HTML_TOKEN_COMMENT;
 
             memcpy(token->data, line, line_size);
             token->data_size = line_size;
@@ -281,7 +281,7 @@ static void run_tokenizer_test()
 
             html_token_t* token = &tokens[current];
             token->is_valid = true;
-            token->type = HTML_CHARACTER_TOKEN;
+            token->type = HTML_TOKEN_CHARACTER;
 
             memcpy(token->data, line, line_size);
             token->data_size = line_size;
@@ -293,7 +293,7 @@ static void run_tokenizer_test()
 
             html_token_t* token = &tokens[current];
             token->is_valid = true;
-            token->type = HTML_END_TOKEN;
+            token->type = HTML_TOKEN_END;
             memcpy(token->name, line, line_size);
             token->name_size = line_size;
         }
@@ -304,7 +304,7 @@ static void run_tokenizer_test()
 
             html_token_t* token = &tokens[current];
             token->is_valid = true;
-            token->type = HTML_START_TOKEN;
+            token->type = HTML_TOKEN_START;
             memcpy(token->name, line, line_size);
             token->name_size = line_size;
         }
@@ -384,7 +384,7 @@ static void run_tokenizer_test()
             {
                 html_token_t a = tokens_a[i];
                 html_token_t e = tokens[current_token++];
-                if (a.type == HTML_EOF_TOKEN)
+                if (a.type == HTML_TOKEN_EOF)
                 {
                     run = false;
                     break;

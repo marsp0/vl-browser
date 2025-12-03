@@ -1365,37 +1365,37 @@ static void maybe_clone_option_into_selected_content(dom_node_t* option)
 
 static bool is_doctype(html_token_type_e t)
 {
-    return t == HTML_DOCTYPE_TOKEN;
+    return t == HTML_TOKEN_DOCTYPE;
 }
 
 
 static bool is_start(html_token_type_e t)
 {
-    return t == HTML_START_TOKEN;
+    return t == HTML_TOKEN_START;
 }
 
 
 static bool is_end(html_token_type_e t)
 {
-    return t == HTML_END_TOKEN;
+    return t == HTML_TOKEN_END;
 }
 
 
 static bool is_comment(html_token_type_e t)
 {
-    return t == HTML_COMMENT_TOKEN;
+    return t == HTML_TOKEN_COMMENT;
 }
 
 
 static bool is_character(html_token_type_e t)
 {
-    return t == HTML_CHARACTER_TOKEN;
+    return t == HTML_TOKEN_CHARACTER;
 }
 
 
 static bool is_eof(html_token_type_e t)
 {
-    return t == HTML_EOF_TOKEN;
+    return t == HTML_TOKEN_EOF;
 }
 
 
@@ -3918,7 +3918,7 @@ static bool should_process_in_foreign_content(hash_str_t t_name, html_token_t* t
         return false;
     }
 
-    if (t->type == HTML_EOF_TOKEN)              { return false; }
+    if (t->type == HTML_TOKEN_EOF)              { return false; }
 
     return true;
 }
