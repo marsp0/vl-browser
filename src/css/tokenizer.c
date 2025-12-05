@@ -42,8 +42,11 @@ typedef enum
     CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END,
     CSS_TOKENIZER_STATE_ESCAPE_START,
     CSS_TOKENIZER_STATE_MINUS,
+    CSS_TOKENIZER_STATE_NUMERIC_TOKEN,
+    CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START,
+    CSS_TOKENIZER_STATE_NUMERIC_TOKEN_END,
     CSS_TOKENIZER_STATE_NUMBER,
-    CSS_TOKENIZER_STATE_NUMBER_PROCESS,
+    CSS_TOKENIZER_STATE_NUMBER_END,
     CSS_TOKENIZER_STATE_STRING,
     CSS_TOKENIZER_STATE_STRING_ESCAPE_START,
     CSS_TOKENIZER_STATE_STRING_ESCAPE,
@@ -58,6 +61,8 @@ static const unsigned char* buf         = NULL;
 static uint32_t buf_cur                 = 0;
 static uint32_t buf_size                = 0;
 static const uint32_t replacement       = 0xfffd;
+static uint32_t t_buf[20]              = { 0 };
+static uint32_t t_buf_size             = 0;
 
 /********************/
 /* static functions */
@@ -117,6 +122,34 @@ static void update_data(css_token_t* t, uint32_t cp)
 static bool is_whitespace(uint32_t cp)
 {
     return cp == '\n' || cp == '\t' || cp == ' ';
+}
+
+
+static void t_buf_clear()
+{
+    memset(t_buf, 0, sizeof(t_buf));
+    t_buf_size = 0;
+}
+
+
+// static void t_buf_update(uint32_t cp)
+// {
+//     t_buf[t_buf_size] = cp;
+//     t_buf_size++;
+// }
+
+
+static bool t_buf_contains(uint32_t cp)
+{
+    for (uint32_t i = 0; i < t_buf_size; i++)
+    {
+        if (t_buf[i] == cp)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 
@@ -180,19 +213,6 @@ static bool is_whitespace(uint32_t cp)
 //         *cp = result;
 //     }
 // }
-
-static bool t_buf_contains(uint32_t* t_buf, uint32_t t_buf_size, uint32_t cp)
-{
-    for (uint32_t i = 0; i < t_buf_size; i++)
-    {
-        if (t_buf[i] == cp)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 
 static bool is_nonprintable(uint32_t cp)
@@ -775,8 +795,8 @@ css_token_t css_tokenizer_next()
     bool emit                       = false;
     css_tokenizer_state_e state     = CSS_TOKENIZER_STATE_DATA;
     css_tokenizer_state_e r_state   = CSS_TOKENIZER_STATE_DATA;
-    uint32_t t_buf[20]              = { 0 };
-    uint32_t t_buf_size             = 0;
+
+    t_buf_clear();
 
     while (!emit)
     {
@@ -893,7 +913,8 @@ css_token_t css_tokenizer_next()
             }
             else if (utf8_is_digit(cp))
             {
-            
+                consume = false;
+                state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START;
             }
             else if (is_id_start(cp))
             {
@@ -1262,7 +1283,7 @@ css_token_t css_tokenizer_next()
             else if (is_number_start(t_buf[0], t_buf[1], t_buf[2]))
             {
                 rewind = true;
-                state = CSS_TOKENIZER_STATE_NUMBER;
+                state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START;
             }
             else if (t_buf[0] == '-' && t_buf[1] == '-' && t_buf[2] == '>')
             {
@@ -1291,7 +1312,7 @@ css_token_t css_tokenizer_next()
             {
                 
             }
-            else if ((cp == '+' || cp == '-') && !t_buf_contains(t_buf, t_buf_size, cp))
+            else if (t_buf_size == 0 && (cp == '+' || cp == '-'))
             {
                 t_buf[t_buf_size] = cp;
                 t_buf_size++;
@@ -1301,7 +1322,7 @@ css_token_t css_tokenizer_next()
                 t_buf[t_buf_size] = cp;
                 t_buf_size++;
             }
-            else if (cp == '.' && !t_buf_contains(t_buf, t_buf_size, cp))
+            else if (cp == '.' && !t_buf_contains(cp))
             {
                 t_buf[t_buf_size] = cp;
                 t_buf_size++;
@@ -1313,15 +1334,17 @@ css_token_t css_tokenizer_next()
             }
             else
             {
-                state = CSS_TOKENIZER_STATE_NUMBER_PROCESS;
+                state = CSS_TOKENIZER_STATE_NUMBER_END;
+                consume = false;
             }
             break;
 
-        case CSS_TOKENIZER_STATE_NUMBER_PROCESS:
+        case CSS_TOKENIZER_STATE_NUMBER_END:
             t.real = (float)css_convert_buf_to_num(t_buf, t_buf_size);
             t.integer = (int32_t)t.real;
-            t.type = CSS_TOKEN_NUMBER;
-            emit = true;
+            state = r_state;
+            consume = false;
+            t_buf_clear();
             break;
 
         case CSS_TOKENIZER_STATE_STRING:
@@ -1478,6 +1501,47 @@ css_token_t css_tokenizer_next()
                 t.type = CSS_TOKEN_COMMENT;
                 emit = true;
             }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START:
+            consume = false;
+            state = CSS_TOKENIZER_STATE_NUMBER;
+            r_state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN;
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMERIC_TOKEN:
+            t_buf[t_buf_size] = cp;
+            t_buf_size++;
+
+            if (t_buf_size < 3)
+            {
+            
+            }
+            else if (is_id_seq_start(t_buf[0], t_buf[1], t_buf[2]))
+            {
+                t.type = CSS_TOKEN_DIMENSION;
+                rewind = true;
+                state = CSS_TOKENIZER_STATE_ID_SEQ;
+                r_state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN_END;
+            }
+            else if (t_buf[0] == '%')
+            {
+                t.type = CSS_TOKEN_PERCENTAGE;
+                rewind = true;
+                rewind_start = 1;
+                emit = true;
+            }
+            else
+            {
+                t.type = CSS_TOKEN_NUMBER;
+                rewind = true;
+                rewind_start = 1;
+                emit = true;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMERIC_TOKEN_END:
+            emit = true;
             break;
 
         }
