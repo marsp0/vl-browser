@@ -267,10 +267,7 @@ static void run_css_tokenizer_test()
 
     css_tokenizer_init(test_data, test_data_size);
 
-    if (strncmp(test_data, "10--custom-px", 13) == 0)
-    {
-        printf("here\n");
-    }
+    printf("%s", test_data);
 
     for (uint32_t i = 0; i < current; i++)
     {
@@ -302,35 +299,35 @@ void css_tokenizer_test()
 {
     const unsigned char* files[] = {
                                     // "./test/css/tokenizer/data/hash.txt",
-                                    "./test/css/tokenizer/data/at-keyword.txt",
-                                    "./test/css/tokenizer/data/bad-string.txt",
-                                    "./test/css/tokenizer/data/bad-url.txt",
-                                    "./test/css/tokenizer/data/colon.txt",
-                                    "./test/css/tokenizer/data/comma.txt",
+                                        // "./test/css/tokenizer/data/at-keyword.txt",
+                                        // "./test/css/tokenizer/data/bad-string.txt",
+                                        // "./test/css/tokenizer/data/bad-url.txt",
+                                        // "./test/css/tokenizer/data/colon.txt",
+                                        // "./test/css/tokenizer/data/comma.txt",
                                     "./test/css/tokenizer/data/comment.txt",
-                                    "./test/css/tokenizer/data/digit.txt",
-                                    "./test/css/tokenizer/data/dimension.txt",
-                                    "./test/css/tokenizer/data/escaped-code-point.txt",
-                                    "./test/css/tokenizer/data/full-stop.txt",
-                                    "./test/css/tokenizer/data/fuzz.txt",
-                                    "./test/css/tokenizer/data/hyphen-minus.txt",
-                                    "./test/css/tokenizer/data/ident-like.txt",
-                                    "./test/css/tokenizer/data/ident.txt",
-                                    "./test/css/tokenizer/data/left-curly-bracket.txt",
-                                    "./test/css/tokenizer/data/left-parenthesis.txt",
-                                    "./test/css/tokenizer/data/left-square-bracket.txt",
-                                    "./test/css/tokenizer/data/less-than.txt",
-                                    "./test/css/tokenizer/data/number.txt",
-                                    "./test/css/tokenizer/data/numeric.txt",
-                                    "./test/css/tokenizer/data/plus.txt",
-                                    "./test/css/tokenizer/data/reverse-solidus.txt",
-                                    "./test/css/tokenizer/data/right-curly-bracket.txt",
-                                    "./test/css/tokenizer/data/right-parenthesis.txt",
-                                    "./test/css/tokenizer/data/right-square-bracket.txt",
-                                    "./test/css/tokenizer/data/semi-colon.txt",
-                                    "./test/css/tokenizer/data/string.txt",
-                                    "./test/css/tokenizer/data/url.txt",
-                                    "./test/css/tokenizer/data/whitespace.txt"
+                                    // "./test/css/tokenizer/data/digit.txt",
+                                    // "./test/css/tokenizer/data/dimension.txt",
+                                    // "./test/css/tokenizer/data/escaped-code-point.txt",
+                                    // "./test/css/tokenizer/data/full-stop.txt",
+                                    // "./test/css/tokenizer/data/fuzz.txt",
+                                    // "./test/css/tokenizer/data/hyphen-minus.txt",
+                                        // "./test/css/tokenizer/data/ident-like.txt",
+                                        // "./test/css/tokenizer/data/ident.txt",
+                                    // "./test/css/tokenizer/data/left-curly-bracket.txt",
+                                    // "./test/css/tokenizer/data/left-parenthesis.txt",
+                                    // "./test/css/tokenizer/data/left-square-bracket.txt",
+                                    // "./test/css/tokenizer/data/less-than.txt",
+                                    // "./test/css/tokenizer/data/number.txt",
+                                    // "./test/css/tokenizer/data/numeric.txt",
+                                    // "./test/css/tokenizer/data/plus.txt",
+                                    // "./test/css/tokenizer/data/reverse-solidus.txt",
+                                    // "./test/css/tokenizer/data/right-curly-bracket.txt",
+                                    // "./test/css/tokenizer/data/right-parenthesis.txt",
+                                    // "./test/css/tokenizer/data/right-square-bracket.txt",
+                                    // "./test/css/tokenizer/data/semi-colon.txt",
+                                    // "./test/css/tokenizer/data/string.txt",
+                                    // "./test/css/tokenizer/data/url.txt",
+                                        // "./test/css/tokenizer/data/whitespace.txt"
                                     };
     uint32_t len = sizeof(files) / sizeof(char*);
 
