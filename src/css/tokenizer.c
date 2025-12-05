@@ -846,7 +846,8 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '(')
             {
-            
+                t.type = CSS_TOKEN_OPEN_PARENTHESIS;
+                emit = true;
             }
             else if (cp == ')')
             {
@@ -974,6 +975,7 @@ css_token_t css_tokenizer_next()
             if (is_eof)
             {
                 escaped_cp = replacement;
+                state = CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END;
             }
             else if (escaped_cp_digits > 0 && is_whitespace(cp))
             {
