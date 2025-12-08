@@ -27,20 +27,11 @@ typedef enum
     CSS_TOKENIZER_STATE_WHITESPACE,
     CSS_TOKENIZER_STATE_ID_TOKEN,
     CSS_TOKENIZER_STATE_ID_SEQ,
-    // CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_START,
-    // CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE,
-    // CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END,
     CSS_TOKENIZER_STATE_URL_START,
     CSS_TOKENIZER_STATE_URL,
     CSS_TOKENIZER_STATE_URL_REVERSE_SOLIDUS,
     CSS_TOKENIZER_STATE_URL_END,
-    // CSS_TOKENIZER_STATE_URL_ESCAPE_START,
-    // CSS_TOKENIZER_STATE_URL_ESCAPE,
-    // CSS_TOKENIZER_STATE_URL_ESCAPE_END,
     CSS_TOKENIZER_STATE_BAD_URL,
-    // CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_START,
-    // CSS_TOKENIZER_STATE_BAD_URL_ESCAPE,
-    // CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END,
     CSS_TOKENIZER_STATE_ESCAPE_START,
     CSS_TOKENIZER_STATE_MINUS,
     CSS_TOKENIZER_STATE_NUMERIC_TOKEN,
@@ -58,9 +49,6 @@ typedef enum
     CSS_TOKENIZER_STATE_NUMBER_END,
     CSS_TOKENIZER_STATE_STRING,
     CSS_TOKENIZER_STATE_STRING_REVERSE_SOLIDUS,
-    // CSS_TOKENIZER_STATE_STRING_ESCAPE_START,
-    // CSS_TOKENIZER_STATE_STRING_ESCAPE,
-    // CSS_TOKENIZER_STATE_STRING_ESCAPE_END,
     CSS_TOKENIZER_STATE_AT,
     CSS_TOKENIZER_STATE_AT_COMPLETE,
     CSS_TOKENIZER_STATE_COMMENT,
@@ -547,74 +535,6 @@ css_token_t css_tokenizer_next()
             consume = false;
             break;
 
-        // case CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_START:
-        //     if (cp == '\n')
-        //     {
-        //         consume     = false;
-        //         change_state(CSS_TOKENIZER_STATE_ID_SEQ);
-        //     }
-        //     else
-        //     {
-        //         escaped_cp          = 0;
-        //         escaped_cp_digits   = 0;
-        //         consume             = false;
-        //         change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE);
-        //     }
-        //     break;
-
-        // case CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE:
-        //     if (is_eof)
-        //     {
-        //         escaped_cp = replacement;
-        //         change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END);
-        //     }
-        //     else if (escaped_cp_digits > 0 && is_whitespace(cp))
-        //     {
-        //         change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END);
-        //     }
-        //     else if (escaped_cp_digits >= 6)
-        //     {
-        //         consume = false;
-        //         change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END);
-        //     }
-        //     else if (utf8_is_digit(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x30;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else if (utf8_is_upper_hex(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x37;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else if (utf8_is_lower_hex(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x57;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else
-        //     {
-        //         escaped_cp = cp;
-        //         change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END);
-        //     }
-        //     break;
-
-        // case CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END:
-        //     if (escaped_cp == 0 || utf8_is_surrogate(escaped_cp) || escaped_cp > 0x10ffff)
-        //     {
-        //         update_data(&t, replacement);
-        //     }
-        //     else
-        //     {
-        //         update_data(&t, escaped_cp);
-        //     }
-        //     change_state(CSS_TOKENIZER_STATE_ID_SEQ);
-        //     consume = false;
-        //     break;
-
         case CSS_TOKENIZER_STATE_ID_TOKEN:
             if (compare_seq(&t, "url", 3) && cp == '(')
             {
@@ -709,74 +629,6 @@ css_token_t css_tokenizer_next()
             }
             break;
 
-        // case CSS_TOKENIZER_STATE_URL_ESCAPE_START:
-        //     if (cp == '\n')
-        //     {
-        //         t.type  = CSS_TOKEN_BAD_URL;
-        //         emit    = true;
-        //         consume = false;
-        //     }
-        //     else
-        //     {
-        //         consume = false;
-        //         rewind = true;
-        //         add_state(CSS_TOKENIZER_STATE_URL);
-        //         add_state(CSS_TOKENIZER_STATE_URL_ESCAPE);
-        //     }
-        //     break;
-
-        // case CSS_TOKENIZER_STATE_URL_ESCAPE:
-        //     if (is_eof)
-        //     {
-        //         escaped_cp = replacement;
-        //     }
-        //     else if (escaped_cp_digits > 0 && is_whitespace(cp))
-        //     {
-        //         change_state(CSS_TOKENIZER_STATE_URL_ESCAPE_END);
-        //     }
-        //     else if (escaped_cp_digits >= 6)
-        //     {
-        //         consume = false;
-        //         change_state(CSS_TOKENIZER_STATE_URL_ESCAPE_END);
-        //     }
-        //     else if (utf8_is_digit(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x30;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else if (utf8_is_upper_hex(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x37;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else if (utf8_is_lower_hex(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x57;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else
-        //     {
-        //         escaped_cp = cp;
-        //         change_state(CSS_TOKENIZER_STATE_URL_ESCAPE_END);
-        //     }
-        //     break;
-
-        // case CSS_TOKENIZER_STATE_URL_ESCAPE_END:
-        //     if (escaped_cp == 0 || utf8_is_surrogate(escaped_cp) || escaped_cp > 0x10ffff)
-        //     {
-        //         update_data(&t, replacement);
-        //     }
-        //     else
-        //     {
-        //         update_data(&t, escaped_cp);
-        //     }
-        //     change_state(CSS_TOKENIZER_STATE_URL);
-        //     consume = false;
-        //     break;
-
         case CSS_TOKENIZER_STATE_BAD_URL:
             if (is_eof || cp == ')')
             {
@@ -791,75 +643,6 @@ css_token_t css_tokenizer_next()
                 // change_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_START);
             }
             break;
-
-        // case CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_START:
-        //     if (cp == '\n')
-        //     {
-        //         update_data(&t, t_buf[0]);
-        //         t.type  = CSS_TOKEN_DELIM;
-        //         emit    = true;
-        //         consume = false;
-        //     }
-        //     else
-        //     {
-        //         consume = false;
-        //         rewind = true;
-        //         add_state(CSS_TOKENIZER_STATE_BAD_URL);
-        //         add_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE);
-        //     }
-        //     break;
-
-        // case CSS_TOKENIZER_STATE_BAD_URL_ESCAPE:
-        //     if (is_eof)
-        //     {
-        //         escaped_cp = replacement;
-        //     }
-        //     else if (escaped_cp_digits > 0 && is_whitespace(cp))
-        //     {
-        //         change_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END);
-        //     }
-        //     else if (escaped_cp_digits >= 6)
-        //     {
-        //         consume = false;
-        //         change_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END);
-        //     }
-        //     else if (utf8_is_digit(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x30;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else if (utf8_is_upper_hex(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x37;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else if (utf8_is_lower_hex(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x57;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else
-        //     {
-        //         escaped_cp = cp;
-        //         change_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END);
-        //     }
-        //     break;
-
-        // case CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END:
-        //     if (escaped_cp == 0 || utf8_is_surrogate(escaped_cp) || escaped_cp > 0x10ffff)
-        //     {
-        //         update_data(&t, replacement);
-        //     }
-        //     else
-        //     {
-        //         update_data(&t, escaped_cp);
-        //     }
-        //     change_state(CSS_TOKENIZER_STATE_BAD_URL);
-        //     consume = false;
-        //     break;
 
         case CSS_TOKENIZER_STATE_ESCAPE_START:
             t_buf_update(cp);
@@ -1097,72 +880,6 @@ css_token_t css_tokenizer_next()
                 add_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE_START);
             }
             break;
-
-        // case CSS_TOKENIZER_STATE_STRING_ESCAPE_START:
-        //     if (is_eof || cp == '\n')
-        //     {
-        //         change_state(CSS_TOKENIZER_STATE_STRING);
-        //     }
-        //     else
-        //     {
-        //         change_state(CSS_TOKENIZER_STATE_STRING_ESCAPE);
-        //         escaped_cp          = 0;
-        //         escaped_cp_digits   = 0;
-        //         consume             = false;
-        //     }
-        //     break;
-
-        // case CSS_TOKENIZER_STATE_STRING_ESCAPE:
-        //     if (is_eof)
-        //     {
-        //         escaped_cp = replacement;
-        //     }
-        //     else if (escaped_cp_digits > 0 && is_whitespace(cp))
-        //     {
-        //         change_state(CSS_TOKENIZER_STATE_STRING_ESCAPE_END);
-        //     }
-        //     else if (escaped_cp_digits >= 6)
-        //     {
-        //         consume = false;
-        //         change_state(CSS_TOKENIZER_STATE_STRING_ESCAPE_END);
-        //     }
-        //     else if (utf8_is_digit(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x30;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else if (utf8_is_upper_hex(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x37;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else if (utf8_is_lower_hex(cp))
-        //     {
-        //         escaped_cp  *= 16;
-        //         escaped_cp  += cp - 0x57;
-        //         escaped_cp_digits  += 1;
-        //     }
-        //     else
-        //     {
-        //         escaped_cp = cp;
-        //         change_state(CSS_TOKENIZER_STATE_STRING_ESCAPE_END);
-        //     }
-        //     break;
-
-        // case CSS_TOKENIZER_STATE_STRING_ESCAPE_END:
-        //     if (escaped_cp == 0 || utf8_is_surrogate(escaped_cp) || escaped_cp > 0x10ffff)
-        //     {
-        //         update_data(&t, replacement);
-        //     }
-        //     else
-        //     {
-        //         update_data(&t, escaped_cp);
-        //     }
-        //     change_state(CSS_TOKENIZER_STATE_STRING);
-        //     consume = false;
-        //     break;
 
         case CSS_TOKENIZER_STATE_AT:
             t_buf_update(cp);
