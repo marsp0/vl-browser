@@ -267,8 +267,6 @@ static void run_css_tokenizer_test()
 
     css_tokenizer_init(test_data, test_data_size);
 
-    printf("%s", test_data);
-
     for (uint32_t i = 0; i < current; i++)
     {
         css_token_t e = tokens[i];
