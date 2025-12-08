@@ -886,7 +886,8 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == ';')
             {
-            
+                t.type = CSS_TOKEN_SEMICOLON;
+                emit = true;
             }
             else if (cp == '<')
             {
@@ -1074,6 +1075,7 @@ css_token_t css_tokenizer_next()
                 state = CSS_TOKENIZER_STATE_URL;
                 t.type = CSS_TOKEN_URL;
                 consume = false;
+                t_buf_clear();
             }
             break;
 
