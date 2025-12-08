@@ -72,12 +72,44 @@ static const unsigned char* buf         = NULL;
 static uint32_t buf_cur                 = 0;
 static uint32_t buf_size                = 0;
 static const uint32_t replacement       = 0xfffd;
-static uint32_t t_buf[20]              = { 0 };
-static uint32_t t_buf_size             = 0;
+static uint32_t t_buf[20]               = { 0 };
+static uint32_t t_buf_size              = 0;
+static css_tokenizer_state_e stack[10]  = { 0 };
+static uint32_t stack_idx               = 0;
 
 /********************/
 /* static functions */
 /********************/
+
+static void add_state(css_tokenizer_state_e state)
+{
+    stack_idx++;
+    stack[stack_idx] = state;
+}
+
+
+static void remove_state()
+{
+    if (stack_idx > 0) { stack_idx--; }
+}
+
+static void change_state(css_tokenizer_state_e state)
+{
+    stack[stack_idx] = state;
+}
+
+
+static css_tokenizer_state_e get_state()
+{
+    return stack[stack_idx];
+}
+
+
+static void reset_states()
+{
+    memset(stack, 0, sizeof(stack));
+    stack_idx = 0;
+}
 
 
 static void update_data(css_token_t* t, uint32_t cp)
@@ -273,9 +305,9 @@ css_token_t css_tokenizer_next()
     uint32_t escaped_cp             = 0;
     uint32_t escaped_cp_digits      = 0;
     bool emit                       = false;
-    css_tokenizer_state_e state     = CSS_TOKENIZER_STATE_DATA;
-    css_tokenizer_state_e r_state   = CSS_TOKENIZER_STATE_DATA;
 
+    reset_states();
+    change_state(CSS_TOKENIZER_STATE_DATA);
     t_buf_clear();
 
     while (!emit)
@@ -284,6 +316,8 @@ css_token_t css_tokenizer_next()
         bool rewind = false;
         uint32_t rewind_start = 0;
         bool is_eof = false;
+
+        css_tokenizer_state_e state = get_state();
 
         if (buf_cur >= buf_size)
         {
@@ -305,13 +339,13 @@ css_token_t css_tokenizer_next()
         case CSS_TOKENIZER_STATE_DATA:
             if (is_whitespace(cp))
             {
-                state = CSS_TOKENIZER_STATE_WHITESPACE;
+                change_state(CSS_TOKENIZER_STATE_WHITESPACE);
                 t.type = CSS_TOKEN_WHITESPACE;
             }
             else if (cp == '/')
             {
                 t_buf_update(cp);
-                state = CSS_TOKENIZER_STATE_COMMENT_START;
+                change_state(CSS_TOKENIZER_STATE_COMMENT_START);
             }
             else if (cp == '#')
             {
@@ -320,7 +354,7 @@ css_token_t css_tokenizer_next()
             else if (cp == '\'' || cp == '"')
             {
                 t.type = CSS_TOKEN_STRING;
-                state = CSS_TOKENIZER_STATE_STRING;
+                change_state(CSS_TOKENIZER_STATE_STRING);
                 end_cp = cp;
             }
             else if (cp == '(')
@@ -336,7 +370,7 @@ css_token_t css_tokenizer_next()
             else if (cp == '+')
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_PLUS;
+                change_state(CSS_TOKENIZER_STATE_PLUS);
             }
             else if (cp == ',')
             {
@@ -345,13 +379,13 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '-')
             {
-                state = CSS_TOKENIZER_STATE_MINUS;
+                change_state(CSS_TOKENIZER_STATE_MINUS);
                 consume = false;
             }
             else if (cp == '.')
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_DOT;
+                change_state(CSS_TOKENIZER_STATE_DOT);
             }
             else if (cp == ':')
             {
@@ -366,11 +400,11 @@ css_token_t css_tokenizer_next()
             else if (cp == '<')
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_LESS_THAN;
+                change_state(CSS_TOKENIZER_STATE_LESS_THAN);
             }
             else if (cp == '@')
             {
-                state = CSS_TOKENIZER_STATE_AT;
+                change_state(CSS_TOKENIZER_STATE_AT);
             }
             else if (cp == '[')
             {
@@ -379,7 +413,7 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '\\')
             {
-                state = CSS_TOKENIZER_STATE_ESCAPE_START;
+                change_state(CSS_TOKENIZER_STATE_ESCAPE_START);
                 t_buf_update(cp);
             }
             else if (cp == ']')
@@ -400,13 +434,13 @@ css_token_t css_tokenizer_next()
             else if (utf8_is_digit(cp))
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START;
+                change_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START);
             }
             else if (is_id_start(cp))
             {
                 consume = false;
-                state   = CSS_TOKENIZER_STATE_ID_SEQ;
-                r_state = CSS_TOKENIZER_STATE_ID_TOKEN;
+                add_state(CSS_TOKENIZER_STATE_ID_TOKEN);
+                add_state(CSS_TOKENIZER_STATE_ID_SEQ);
             }
             else
             {
@@ -419,7 +453,7 @@ css_token_t css_tokenizer_next()
         case CSS_TOKENIZER_STATE_WHITESPACE:
             if (!is_whitespace(cp))
             {
-                state   = CSS_TOKENIZER_STATE_DATA;
+                change_state(CSS_TOKENIZER_STATE_DATA);
                 consume = false;
                 emit    = true;
             }
@@ -432,12 +466,12 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '\\')
             {
-                state = CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_START;
+                change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_START);
             }
             else
             {
                 consume = false;
-                state = r_state;
+                remove_state();
             }
             break;
 
@@ -445,14 +479,14 @@ css_token_t css_tokenizer_next()
             if (cp == '\n')
             {
                 consume     = false;
-                state       = CSS_TOKENIZER_STATE_ID_SEQ;
+                change_state(CSS_TOKENIZER_STATE_ID_SEQ);
             }
             else
             {
                 escaped_cp          = 0;
                 escaped_cp_digits   = 0;
-                state               = CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE;
                 consume             = false;
+                change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE);
             }
             break;
 
@@ -460,16 +494,16 @@ css_token_t css_tokenizer_next()
             if (is_eof)
             {
                 escaped_cp = replacement;
-                state = CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END);
             }
             else if (escaped_cp_digits > 0 && is_whitespace(cp))
             {
-                state = CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END);
             }
             else if (escaped_cp_digits >= 6)
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END);
             }
             else if (utf8_is_digit(cp))
             {
@@ -492,7 +526,7 @@ css_token_t css_tokenizer_next()
             else
             {
                 escaped_cp = cp;
-                state = CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_ID_SEQ_ESCAPE_END);
             }
             break;
 
@@ -505,14 +539,14 @@ css_token_t css_tokenizer_next()
             {
                 update_data(&t, escaped_cp);
             }
-            state = CSS_TOKENIZER_STATE_ID_SEQ;
+            change_state(CSS_TOKENIZER_STATE_ID_SEQ);
             consume = false;
             break;
 
         case CSS_TOKENIZER_STATE_ID_TOKEN:
             if (compare_seq(&t, "url", 3) && cp == '(')
             {
-                state = CSS_TOKENIZER_STATE_URL_START;
+                change_state(CSS_TOKENIZER_STATE_URL_START);
             }
             else if (cp == '(')
             {
@@ -543,7 +577,7 @@ css_token_t css_tokenizer_next()
             {
                 memset(t.data, 0, CSS_TOKEN_MAX_DATA_SIZE);
                 t.data_size = 0;
-                state = CSS_TOKENIZER_STATE_URL;
+                change_state(CSS_TOKENIZER_STATE_URL);
                 t.type = CSS_TOKEN_URL;
                 consume = false;
                 t_buf_clear();
@@ -553,7 +587,7 @@ css_token_t css_tokenizer_next()
         case CSS_TOKENIZER_STATE_URL:
             if (is_whitespace(cp))
             {
-                state = CSS_TOKENIZER_STATE_URL_END;
+                change_state(CSS_TOKENIZER_STATE_URL_END);
             }
             else if (is_eof || cp == ')')
             {
@@ -562,11 +596,11 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '"' || cp == '\'' || cp == '(' || is_nonprintable(cp))
             {
-                state = CSS_TOKENIZER_STATE_BAD_URL;
+                change_state(CSS_TOKENIZER_STATE_BAD_URL);
             }
             else if (cp == '\\')
             {
-                state = CSS_TOKENIZER_STATE_URL_ESCAPE_START;
+                change_state(CSS_TOKENIZER_STATE_URL_ESCAPE_START);
             }
             else
             {
@@ -586,7 +620,7 @@ css_token_t css_tokenizer_next()
             }
             else
             {
-                state = CSS_TOKENIZER_STATE_BAD_URL;
+                change_state(CSS_TOKENIZER_STATE_BAD_URL);
             }
             break;
 
@@ -601,8 +635,8 @@ css_token_t css_tokenizer_next()
             {
                 consume = false;
                 rewind = true;
-                state   = CSS_TOKENIZER_STATE_URL_ESCAPE;
-                r_state = CSS_TOKENIZER_STATE_URL;
+                add_state(CSS_TOKENIZER_STATE_URL);
+                add_state(CSS_TOKENIZER_STATE_URL_ESCAPE);
             }
             break;
 
@@ -613,12 +647,12 @@ css_token_t css_tokenizer_next()
             }
             else if (escaped_cp_digits > 0 && is_whitespace(cp))
             {
-                state = CSS_TOKENIZER_STATE_URL_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_URL_ESCAPE_END);
             }
             else if (escaped_cp_digits >= 6)
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_URL_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_URL_ESCAPE_END);
             }
             else if (utf8_is_digit(cp))
             {
@@ -641,7 +675,7 @@ css_token_t css_tokenizer_next()
             else
             {
                 escaped_cp = cp;
-                state = CSS_TOKENIZER_STATE_URL_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_URL_ESCAPE_END);
             }
             break;
 
@@ -654,7 +688,7 @@ css_token_t css_tokenizer_next()
             {
                 update_data(&t, escaped_cp);
             }
-            state = CSS_TOKENIZER_STATE_URL;
+            change_state(CSS_TOKENIZER_STATE_URL);
             consume = false;
             break;
 
@@ -668,7 +702,7 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '\\')
             {
-                state = CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_START;
+                change_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_START);
             }
             break;
 
@@ -684,8 +718,8 @@ css_token_t css_tokenizer_next()
             {
                 consume = false;
                 rewind = true;
-                state   = CSS_TOKENIZER_STATE_BAD_URL_ESCAPE;
-                r_state = CSS_TOKENIZER_STATE_BAD_URL;
+                add_state(CSS_TOKENIZER_STATE_BAD_URL);
+                add_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE);
             }
             break;
 
@@ -696,12 +730,12 @@ css_token_t css_tokenizer_next()
             }
             else if (escaped_cp_digits > 0 && is_whitespace(cp))
             {
-                state = CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END);
             }
             else if (escaped_cp_digits >= 6)
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END);
             }
             else if (utf8_is_digit(cp))
             {
@@ -724,7 +758,7 @@ css_token_t css_tokenizer_next()
             else
             {
                 escaped_cp = cp;
-                state = CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_END);
             }
             break;
 
@@ -737,7 +771,7 @@ css_token_t css_tokenizer_next()
             {
                 update_data(&t, escaped_cp);
             }
-            state = CSS_TOKENIZER_STATE_BAD_URL;
+            change_state(CSS_TOKENIZER_STATE_BAD_URL);
             consume = false;
             break;
 
@@ -753,8 +787,8 @@ css_token_t css_tokenizer_next()
             {
                 consume = false;
                 rewind = true;
-                state   = CSS_TOKENIZER_STATE_ID_SEQ;
-                r_state = CSS_TOKENIZER_STATE_ID_TOKEN;
+                add_state(CSS_TOKENIZER_STATE_ID_TOKEN);
+                add_state(CSS_TOKENIZER_STATE_ID_SEQ);
                 t.type = CSS_TOKEN_IDENT;
             }
             break;
@@ -769,7 +803,7 @@ css_token_t css_tokenizer_next()
             else if (is_number_start(t_buf[0], t_buf[1], t_buf[2]))
             {
                 rewind = true;
-                state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START;
+                change_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START);
             }
             else
             {
@@ -791,7 +825,7 @@ css_token_t css_tokenizer_next()
             else if (is_number_start(t_buf[0], t_buf[1], t_buf[2]))
             {
                 rewind = true;
-                state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START;
+                change_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START);
             }
             else if (t_buf[0] == '-' && t_buf[1] == '-' && t_buf[2] == '>')
             {
@@ -801,8 +835,8 @@ css_token_t css_tokenizer_next()
             else if (is_id_seq_start(t_buf[0], t_buf[1], t_buf[2]))
             {
                 rewind = true;
-                state   = CSS_TOKENIZER_STATE_ID_SEQ;
-                r_state = CSS_TOKENIZER_STATE_ID_TOKEN;
+                add_state(CSS_TOKENIZER_STATE_ID_TOKEN);
+                add_state(CSS_TOKENIZER_STATE_ID_SEQ);
                 t.type = CSS_TOKEN_IDENT;
             }
             else
@@ -817,19 +851,19 @@ css_token_t css_tokenizer_next()
 
         case CSS_TOKENIZER_STATE_NUMBER:
             consume = false;
-            state = CSS_TOKENIZER_STATE_NUMBER_SIGN;
+            change_state(CSS_TOKENIZER_STATE_NUMBER_SIGN);
             break;
 
         case CSS_TOKENIZER_STATE_NUMBER_SIGN:
             if (cp == '+' || cp == '-')
             {
                 t_buf_update(cp);
-                state = CSS_TOKENIZER_STATE_NUMBER_INTEGER;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_INTEGER);
             }
             else
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMBER_INTEGER;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_INTEGER);
             }
             break;
 
@@ -841,17 +875,17 @@ css_token_t css_tokenizer_next()
             else if (cp == '.')
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMBER_DOT;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_DOT);
             }
             else if (cp == 'e' || cp == 'E')
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMBER_E;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E);
             }
             else
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMBER_END;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_END);
             }
             break;
 
@@ -859,12 +893,12 @@ css_token_t css_tokenizer_next()
             if (cp == '.')
             {
                 t_buf_update(cp);
-                state = CSS_TOKENIZER_STATE_NUMBER_FRACTION;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_FRACTION);
             }
             else
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMBER_FRACTION;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_FRACTION);
             }
             break;
 
@@ -876,12 +910,12 @@ css_token_t css_tokenizer_next()
             else if (cp == 'e' || cp == 'E')
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMBER_E;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E);
             }
             else
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMBER_END;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_END);
             }
             break;
 
@@ -889,12 +923,12 @@ css_token_t css_tokenizer_next()
             if (cp == 'e' || cp == 'E')
             {
                 t_buf_update(cp);
-                state = CSS_TOKENIZER_STATE_NUMBER_E_SIGN;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E_SIGN);
             }
             else
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMBER_E_SIGN;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E_SIGN);
             }
             break;
 
@@ -902,12 +936,12 @@ css_token_t css_tokenizer_next()
             if (cp == '+' || cp == '-')
             {
                 t_buf_update(cp);
-                state = CSS_TOKENIZER_STATE_NUMBER_E_SIGN_DIGITS;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E_SIGN_DIGITS);
             }
             else
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMBER_E_SIGN_DIGITS;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E_SIGN_DIGITS);
             }
             break;
 
@@ -919,7 +953,7 @@ css_token_t css_tokenizer_next()
             else
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_NUMBER_PRE_PROCESS;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_PRE_PROCESS);
             }
             break;
 
@@ -930,13 +964,13 @@ css_token_t css_tokenizer_next()
                 rewind_start = t_buf_size - 2;
             }
             consume = false;
-            state = CSS_TOKENIZER_STATE_NUMBER_END;
+            change_state(CSS_TOKENIZER_STATE_NUMBER_END);
             break;
 
         case CSS_TOKENIZER_STATE_NUMBER_END:
             t.real = (float)css_convert_buf_to_num(t_buf, t_buf_size);
             t.integer = (int32_t)t.real;
-            state = r_state;
+            remove_state();
             consume = false;
             t_buf_clear();
             break;
@@ -956,7 +990,7 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '\\')
             {
-                state = CSS_TOKENIZER_STATE_STRING_ESCAPE_START;
+                change_state(CSS_TOKENIZER_STATE_STRING_ESCAPE_START);
             }
             else
             {
@@ -967,14 +1001,13 @@ css_token_t css_tokenizer_next()
         case CSS_TOKENIZER_STATE_STRING_ESCAPE_START:
             if (is_eof || cp == '\n')
             {
-                state = CSS_TOKENIZER_STATE_STRING;
+                change_state(CSS_TOKENIZER_STATE_STRING);
             }
             else
             {
-                state = CSS_TOKENIZER_STATE_STRING_ESCAPE;
+                change_state(CSS_TOKENIZER_STATE_STRING_ESCAPE);
                 escaped_cp          = 0;
                 escaped_cp_digits   = 0;
-                state               = CSS_TOKENIZER_STATE_STRING_ESCAPE;
                 consume             = false;
             }
             break;
@@ -986,12 +1019,12 @@ css_token_t css_tokenizer_next()
             }
             else if (escaped_cp_digits > 0 && is_whitespace(cp))
             {
-                state = CSS_TOKENIZER_STATE_STRING_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_STRING_ESCAPE_END);
             }
             else if (escaped_cp_digits >= 6)
             {
                 consume = false;
-                state = CSS_TOKENIZER_STATE_STRING_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_STRING_ESCAPE_END);
             }
             else if (utf8_is_digit(cp))
             {
@@ -1014,7 +1047,7 @@ css_token_t css_tokenizer_next()
             else
             {
                 escaped_cp = cp;
-                state = CSS_TOKENIZER_STATE_STRING_ESCAPE_END;
+                change_state(CSS_TOKENIZER_STATE_STRING_ESCAPE_END);
             }
             break;
 
@@ -1027,7 +1060,7 @@ css_token_t css_tokenizer_next()
             {
                 update_data(&t, escaped_cp);
             }
-            state = CSS_TOKENIZER_STATE_STRING;
+            change_state(CSS_TOKENIZER_STATE_STRING);
             consume = false;
             break;
 
@@ -1042,8 +1075,8 @@ css_token_t css_tokenizer_next()
             {
                 rewind = true;
                 t.type = CSS_TOKEN_AT_KEYWORD;
-                state = CSS_TOKENIZER_STATE_ID_SEQ;
-                r_state = CSS_TOKENIZER_STATE_AT_COMPLETE;
+                add_state(CSS_TOKENIZER_STATE_AT_COMPLETE);
+                add_state(CSS_TOKENIZER_STATE_ID_SEQ);
             }
             else
             {
@@ -1068,7 +1101,7 @@ css_token_t css_tokenizer_next()
             }
             else if (t_buf[0] == '/' && t_buf[1] == '*')
             {
-                state = CSS_TOKENIZER_STATE_COMMENT;
+                change_state(CSS_TOKENIZER_STATE_COMMENT);
                 memset(t_buf, 0, sizeof(t_buf));
                 t_buf_size = 0;
             }
@@ -1096,8 +1129,8 @@ css_token_t css_tokenizer_next()
 
         case CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START:
             consume = false;
-            state   = CSS_TOKENIZER_STATE_NUMBER;
-            r_state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN;
+            add_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN);
+            add_state(CSS_TOKENIZER_STATE_NUMBER);
             break;
 
         case CSS_TOKENIZER_STATE_NUMERIC_TOKEN:
@@ -1111,8 +1144,8 @@ css_token_t css_tokenizer_next()
             {
                 t.type = CSS_TOKEN_DIMENSION;
                 rewind = true;
-                state = CSS_TOKENIZER_STATE_ID_SEQ;
-                r_state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN_END;
+                add_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN_END);
+                add_state(CSS_TOKENIZER_STATE_ID_SEQ);
             }
             else if (t_buf[0] == '%')
             {
@@ -1144,7 +1177,7 @@ css_token_t css_tokenizer_next()
             else if (is_number_start(t_buf[0], t_buf[1], t_buf[2]))
             {
                 rewind = true;
-                state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START;
+                change_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START);
             }
             else
             {
