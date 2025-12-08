@@ -54,7 +54,8 @@ typedef enum
     CSS_TOKENIZER_STATE_AT,
     CSS_TOKENIZER_STATE_AT_COMPLETE,
     CSS_TOKENIZER_STATE_COMMENT,
-    CSS_TOKENIZER_STATE_COMMENT_START
+    CSS_TOKENIZER_STATE_COMMENT_START,
+    CSS_TOKENIZER_STATE_DOT
 } css_tokenizer_state_e;
 
 static const unsigned char* buf         = NULL;
@@ -132,11 +133,11 @@ static void t_buf_clear()
 }
 
 
-// static void t_buf_update(uint32_t cp)
-// {
-//     t_buf[t_buf_size] = cp;
-//     t_buf_size++;
-// }
+static void t_buf_update(uint32_t cp)
+{
+    t_buf[t_buf_size] = cp;
+    t_buf_size++;
+}
 
 
 static bool t_buf_contains(uint32_t cp)
@@ -870,7 +871,8 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '.')
             {
-            
+                consume = false;
+                state = CSS_TOKENIZER_STATE_DOT;
             }
             else if (cp == ':')
             {
@@ -910,7 +912,8 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '}')
             {
-            
+                t.type = CSS_TOKEN_CLOSED_BRACE;
+                emit = true;
             }
             else if (utf8_is_digit(cp))
             {
@@ -1507,7 +1510,7 @@ css_token_t css_tokenizer_next()
 
         case CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START:
             consume = false;
-            state = CSS_TOKENIZER_STATE_NUMBER;
+            state   = CSS_TOKENIZER_STATE_NUMBER;
             r_state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN;
             break;
 
@@ -1537,13 +1540,35 @@ css_token_t css_tokenizer_next()
             {
                 t.type = CSS_TOKEN_NUMBER;
                 rewind = true;
-                rewind_start = 1;
+                // rewind_start = 1;
                 emit = true;
             }
             break;
 
         case CSS_TOKENIZER_STATE_NUMERIC_TOKEN_END:
+            consume = false;
             emit = true;
+            break;
+
+        case CSS_TOKENIZER_STATE_DOT:
+            t_buf_update(cp);
+            if (!is_eof && t_buf_size < 3)
+            {
+            
+            }
+            else if (is_number_start(t_buf[0], t_buf[1], t_buf[2]))
+            {
+                rewind = true;
+                state = CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START;
+            }
+            else
+            {
+                t.type = CSS_TOKEN_DELIM;
+                update_data(&t, t_buf[0]);
+                rewind = true;
+                rewind_start = 1;
+                emit = true;
+            }
             break;
 
         }
