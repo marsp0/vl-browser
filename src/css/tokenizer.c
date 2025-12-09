@@ -306,7 +306,6 @@ css_token_t css_tokenizer_next()
     while (!emit)
     {
         bool consume            = true;
-        bool consume_peeked     = false;
         bool rewind             = false;
         uint32_t rewind_start   = 0;
         bool is_eof             = false;
@@ -406,6 +405,7 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '\\')
             {
+                t_buf_update(cp);
                 change_state(CSS_TOKENIZER_STATE_DATA_REVERSE_SOLIDUS);
             }
             else if (cp == ']')
@@ -643,6 +643,7 @@ css_token_t css_tokenizer_next()
             break;
 
         case CSS_TOKENIZER_STATE_DATA_REVERSE_SOLIDUS:
+            t_buf_update(cp);
             if (cp == '\n')
             {
                 update_data(&t, '\\');
@@ -652,7 +653,6 @@ css_token_t css_tokenizer_next()
             }
             else
             {
-                // consume = false;
                 rewind = true;
                 change_state(CSS_TOKENIZER_STATE_ID_TOKEN);
                 add_state(CSS_TOKENIZER_STATE_ID_SEQ);
