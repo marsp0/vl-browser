@@ -146,12 +146,12 @@ typedef enum
 // https://html.spec.whatwg.org/multipage/parsing.html#tokenization
 typedef enum
 {
-    HTML_DOCTYPE_TOKEN,
-    HTML_START_TOKEN,
-    HTML_END_TOKEN,
-    HTML_COMMENT_TOKEN,
-    HTML_CHARACTER_TOKEN,
-    HTML_EOF_TOKEN
+    HTML_TOKEN_DOCTYPE,
+    HTML_TOKEN_START,
+    HTML_TOKEN_END,
+    HTML_TOKEN_COMMENT,
+    HTML_TOKEN_CHARACTER,
+    HTML_TOKEN_EOF
 
 } html_token_type_e;
 

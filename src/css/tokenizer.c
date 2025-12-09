@@ -2,6 +2,8 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <assert.h>
+#include <stdlib.h>
 
 #include "util/utf8.h"
 #include "css/util.h"
@@ -15,7 +17,6 @@
 /*      defines     */
 /********************/
 
-#define MAX_REPR_SIZE 32
 
 /********************/
 /* static variables */
@@ -23,61 +24,85 @@
 
 typedef enum
 {
-    CSS_NUMBER_INTEGER,
-    CSS_NUMBER_FLOAT
-} css_number_type_e;
+    CSS_TOKENIZER_STATE_DATA,
+    CSS_TOKENIZER_STATE_WHITESPACE,
+    CSS_TOKENIZER_STATE_ID_TOKEN,
+    CSS_TOKENIZER_STATE_ID_SEQ,
+    CSS_TOKENIZER_STATE_URL_START,
+    CSS_TOKENIZER_STATE_URL,
+    CSS_TOKENIZER_STATE_URL_REVERSE_SOLIDUS,
+    CSS_TOKENIZER_STATE_URL_END,
+    CSS_TOKENIZER_STATE_BAD_URL,
+    CSS_TOKENIZER_STATE_MINUS,
+    CSS_TOKENIZER_STATE_NUMERIC_TOKEN,
+    CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START,
+    CSS_TOKENIZER_STATE_NUMERIC_TOKEN_END,
+    CSS_TOKENIZER_STATE_NUMBER,
+    CSS_TOKENIZER_STATE_NUMBER_SIGN,
+    CSS_TOKENIZER_STATE_NUMBER_INTEGER,
+    CSS_TOKENIZER_STATE_NUMBER_DOT,
+    CSS_TOKENIZER_STATE_NUMBER_FRACTION,
+    CSS_TOKENIZER_STATE_NUMBER_E,
+    CSS_TOKENIZER_STATE_NUMBER_E_SIGN,
+    CSS_TOKENIZER_STATE_NUMBER_E_SIGN_DIGITS,
+    CSS_TOKENIZER_STATE_NUMBER_END,
+    CSS_TOKENIZER_STATE_STRING,
+    CSS_TOKENIZER_STATE_STRING_REVERSE_SOLIDUS,
+    CSS_TOKENIZER_STATE_AT,
+    CSS_TOKENIZER_STATE_AT_COMPLETE,
+    CSS_TOKENIZER_STATE_COMMENT_START,
+    CSS_TOKENIZER_STATE_COMMENT,
+    CSS_TOKENIZER_STATE_COMMENT_END,
+    CSS_TOKENIZER_STATE_DOT,
+    CSS_TOKENIZER_STATE_LESS_THAN,
+    CSS_TOKENIZER_STATE_PLUS,
+    CSS_TOKENIZER_STATE_TEMP_ESCAPE_START,
+    CSS_TOKENIZER_STATE_TEMP_ESCAPE,
+    CSS_TOKENIZER_STATE_TEMP_ESCAPE_END
+} css_tokenizer_state_e;
 
-static css_tokenizer_state_e state      = CSS_TOKENIZER_DATA_STATE;
-static css_tokenizer_state_e prev_state = CSS_TOKENIZER_DATA_STATE;
-static const unsigned char* buf         = NULL;
+static unsigned char* buf               = NULL;
+static uint32_t buf_cap                 = 2048;
 static uint32_t buf_cur                 = 0;
 static uint32_t buf_size                = 0;
 static const uint32_t replacement       = 0xfffd;
+static uint32_t t_buf[20]               = { 0 };
+static uint32_t t_buf_size              = 0;
+static css_tokenizer_state_e stack[10]  = { 0 };
+static uint32_t stack_idx               = 0;
 
 /********************/
 /* static functions */
 /********************/
 
-
-static bool consume(uint32_t* cp, int32_t* cp_len)
+static void add_state(css_tokenizer_state_e state)
 {
-    *cp_len = -1;
-    *cp = 0;
-
-    if (buf_cur >= buf_size) { return true; }
-
-    *cp_len = utf8_decode(buf, buf_size, buf_cur, cp);
-
-    buf_cur += (uint32_t)*cp_len;
-
-    return false;
+    stack_idx++;
+    stack[stack_idx] = state;
 }
 
-static void reconsume(int32_t cp_len)
-{
-    if (cp_len <= 0) { return; }
 
-    buf_cur -= (uint32_t)cp_len;
+static void remove_state()
+{
+    if (stack_idx > 0) { stack_idx--; }
 }
 
-static bool peek(uint32_t offset, uint32_t* cp, int32_t* cp_len)
+static void change_state(css_tokenizer_state_e state)
 {
-    *cp_len = 0;
-    uint32_t buf_cur_offset = 0;
+    stack[stack_idx] = state;
+}
 
-    for (uint32_t i = 0; i < offset; i++)
-    {
-        *cp_len = utf8_decode(buf, buf_size, buf_cur + buf_cur_offset, cp);
-        buf_cur_offset += (uint32_t)(*cp_len);
 
-        if (*cp_len <= 0)
-        {
-            *cp = 0;
-            return true;
-        }
-    }
+static css_tokenizer_state_e get_state()
+{
+    return stack[stack_idx];
+}
 
-    return false;
+
+static void reset_states()
+{
+    memset(stack, 0, sizeof(css_tokenizer_state_e) * 10);
+    stack_idx = 0;
 }
 
 
@@ -95,65 +120,17 @@ static bool is_whitespace(uint32_t cp)
 }
 
 
-static void consume_escaped_cp(uint32_t* cp)
+static void t_buf_clear()
 {
-    uint32_t cp_n = 0;
-    int32_t cp_n_len = -1;
-    bool is_eof = false;
-    uint32_t digits = 0;
-    uint32_t result = 0;
+    memset(t_buf, 0, sizeof(t_buf));
+    t_buf_size = 0;
+}
 
-    while (true)
-    {
-        is_eof = consume(&cp_n, &cp_n_len);
 
-        if (is_eof || cp_n == 0)
-        {
-            *cp = replacement;
-            return;
-        }
-        else if (is_whitespace(cp_n) && digits > 0)
-        {
-            break;
-        }
-        else if (digits >= 6)
-        {
-            reconsume(cp_n_len);
-            break;
-        }
-        else if (utf8_is_digit(cp_n))
-        {
-            result  *= 16;
-            result  += cp_n - 0x30;
-            digits  += 1;
-        }
-        else if (utf8_is_upper_hex(cp_n))
-        {
-            result  *= 16;
-            result  += cp_n - 0x37;
-            digits  += 1;
-        }
-        else if (utf8_is_lower_hex(cp_n))
-        {
-            result  *= 16;
-            result  += cp_n - 0x57;
-            digits  += 1;
-        }
-        else
-        {
-            *cp = cp_n;
-            return;
-        }
-    }
-
-    if (result == 0 || utf8_is_surrogate(result) || result > 0x10ffff)
-    {
-        *cp = replacement;
-    }
-    else
-    {
-        *cp = result;
-    }
+static void t_buf_update(uint32_t cp)
+{
+    t_buf[t_buf_size] = cp;
+    t_buf_size++;
 }
 
 
@@ -292,709 +269,795 @@ static bool compare_seq(css_token_t* t, unsigned char* data, uint32_t data_size)
 }
 
 
-static void consume_string(css_token_t* t, uint32_t end_cp)
+static void resize_buffer(uint32_t min_size)
 {
-    uint32_t cp = 0;
-    int32_t cp_len = -1;
-    bool is_eof = false;
+    uint32_t next_cap = buf_cap;
+    while (next_cap < min_size) { next_cap <<= 1; }
 
-    while (true)
+    if (next_cap < buf_cap) { assert(false); }
+    buf_cap = next_cap;
+
+    if (buf) { free(buf); }
+
+    buf = malloc(buf_cap);
+    memset(buf, 0, buf_cap);
+}
+
+
+static void preprocess(const unsigned char* new_buf, uint32_t new_buf_size)
+{
+    if (new_buf_size == 0) { return; }
+
+    for (uint32_t i = 0; i < new_buf_size - 1; i++)
     {
-        is_eof = consume(&cp, &cp_len);
-
-        if (is_eof || cp == end_cp)
+        if (new_buf[i] == '\r' && new_buf[i + 1] == '\n')
         {
-            return;
+            buf[buf_size] = '\n';
+            buf_size++;
         }
-        else if (cp == '\n')
+        else if (new_buf[i] == '\r')
         {
-            reconsume(cp_len);
-            memset(t->data, 0, CSS_TOKEN_MAX_DATA_SIZE);
-            t->data_size = 0;
-            t->type = CSS_TOKEN_BAD_STRING;
-            return;
+            buf[buf_size] = '\n';
+            buf_size++;
         }
-        else if (cp == '\\')
+        else if (new_buf[i] == '\0')
         {
-            uint32_t cp_n = 0;
-            int32_t cp_n_len = -1;
-
-            is_eof = peek(1, &cp_n, &cp_n_len);
-
-            if (is_eof)
-            {
-                continue;
-            }
-            else if (cp_n == '\n')
-            {
-                consume(&cp_n, &cp_n_len);
-            }
-            else
-            {
-                consume_escaped_cp(&cp_n);
-                update_data(t, cp_n);
-            }
+            buf[buf_size++] = 0xef;
+            buf[buf_size++] = 0xbf;
+            buf[buf_size++] = 0xbd;
         }
         else
         {
-            update_data(t, cp);
+            buf[buf_size] = new_buf[i];
+            buf_size++;
         }
     }
-}
 
-
-static void consume_id_seq(css_token_t* t)
-{
-    uint32_t cp = 0;
-    uint32_t cp_n = 0;
-    int32_t cp_len = -1;
-    int32_t cp_n_len = -1;
-
-    while (true)
+    if (new_buf[new_buf_size - 1] == '\r')
     {
-        consume(&cp, &cp_len);
-
-        peek(1, &cp_n, &cp_n_len);
-
-        if (is_id(cp))
-        {
-            update_data(t, cp);
-        }
-        else if (is_valid_escape(cp, cp_n))
-        {
-            consume_escaped_cp(&cp);
-            update_data(t, cp);
-        }
-        else
-        {
-            reconsume(cp_len);
-            return;
-        }
-    }
-}
-
-
-static void consume_bad_url()
-{
-    uint32_t cp1 = 0;
-    int32_t cp1_len = -1;
-
-    uint32_t cp2 = 0;
-    int32_t cp2_len = -1;
-    
-    bool is_eof = false;
-
-    is_eof = consume(&cp1, &cp1_len);
-
-    peek(1, &cp2, &cp2_len);
-
-    while (true)
-    {
-        if (is_eof || cp2 == ')')
-        {
-            break;
-        }
-        else if (is_valid_escape(cp1, cp2))
-        {
-            consume_escaped_cp(&cp1);
-        }
-
-        is_eof = consume(&cp1, &cp1_len);
-        peek(1, &cp2, &cp2_len);
-    }
-}
-
-
-static void consume_url_token(css_token_t* t)
-{
-    t->type = CSS_TOKEN_URL;
-
-    memset(t->data, 0, CSS_TOKEN_MAX_DATA_SIZE);
-    t->data_size = 0;
-
-    uint32_t cp1 = 0;
-    int32_t cp1_len = -1;
-    uint32_t cp2 = 0;
-    int32_t cp2_len = -1;
-    bool is_eof = false;
-
-    is_eof = consume(&cp1, &cp1_len);
-
-    while (is_whitespace(cp1))
-    {
-        is_eof = consume(&cp1, &cp1_len);
-    }
-
-    peek(1, &cp2, &cp2_len);
-
-    while (true)
-    {
-        if (is_eof || cp1 == ')')
-        {
-            // t->type = CSS_TOKEN_URL;
-            return;
-        }
-        else if (is_whitespace(cp1))
-        {
-            while(true)
-            {
-                if (is_whitespace(cp1))
-                {
-                    // ignore
-                }
-                else if (is_eof || cp1 == ')')
-                {
-                    t->type = CSS_TOKEN_URL;
-                    return;
-                }
-                else
-                {
-                    consume_bad_url();
-                    memset(t->data, 0, CSS_TOKEN_MAX_DATA_SIZE);
-                    t->data_size = 0;
-                    t->type = CSS_TOKEN_BAD_URL;
-                    return;
-                }
-
-                is_eof = consume(&cp1, &cp1_len);
-            }
-        }
-        else if (cp1 == '"'  ||
-                 cp1 == '\'' ||
-                 cp1 == '('  ||
-                 is_nonprintable(cp1))
-        {
-            consume_bad_url();
-            memset(t->data, 0, CSS_TOKEN_MAX_DATA_SIZE);
-            t->data_size = 0;
-            t->type = CSS_TOKEN_BAD_URL;
-        }
-        else if (cp1 == '\\')
-        {
-            if (is_valid_escape(cp1, cp2))
-            {
-                consume_escaped_cp(&cp1);
-                update_data(t, cp1);
-            }
-            else
-            {
-                consume_bad_url();
-                memset(t->data, 0, CSS_TOKEN_MAX_DATA_SIZE);
-                t->data_size = 0;
-                t->type = CSS_TOKEN_BAD_URL;
-            }
-        }
-        else
-        {
-            update_data(t, cp1);
-        }
-
-        is_eof = consume(&cp1, &cp1_len);
-    }
-}
-
-
-static void consume_id_token(css_token_t* t)
-{
-    uint32_t cp1 = 0;
-    int32_t cp1_len = -1;
-
-    uint32_t cp2 = 0;
-    int32_t cp2_len = -1;
-
-    consume_id_seq(t);
-    peek(1, &cp1, &cp1_len);
-
-    if (compare_seq(t, "url", 3) && cp1 == '(')
-    {
-        consume(&cp1, &cp1_len);
-
-        peek(1, &cp1, &cp1_len);
-        peek(2, &cp2, &cp2_len);
-
-        while (is_whitespace(cp1) && is_whitespace(cp2))
-        {
-            consume(&cp1, &cp1_len);
-            peek(1, &cp1, &cp1_len);
-            peek(2, &cp2, &cp2_len);
-        }
-
-        if ((cp1 == '"' || cp1 == '\'') || (is_whitespace(cp1) && (cp2 == '"' || cp2 == '\'')))
-        {
-            t->type = CSS_TOKEN_FUNCTION;
-            return;
-        }
-
-        consume_url_token(t);
-    }
-    else if (cp1 == '(')
-    {
-        consume(&cp1, &cp1_len);
-        t->type = CSS_TOKEN_FUNCTION;
+        buf[buf_size] = '\n';
+        buf_size++;
     }
     else
     {
-        t->type = CSS_TOKEN_IDENT;
+        buf[buf_size] = new_buf[new_buf_size - 1];
+        buf_size++;
     }
+
 }
 
-
-static void consume_number(css_token_t* token)
-{
-    uint32_t repr[MAX_REPR_SIZE] = { 0 };
-    uint32_t repr_idx = 0;
-    // css_number_type_e type = CSS_NUMBER_INTEGER;
-
-    uint32_t cp = 0;
-    uint32_t cp2 = 0;
-    uint32_t cp3 = 0;
-    int32_t cp_len = -1;
-    int32_t cp2_len = -1;
-    int32_t cp3_len = -1;
-
-    peek(1, &cp, &cp_len);
-
-    if (cp == '+' || cp == '-')
-    {
-        consume(&cp, &cp_len);
-        repr[repr_idx] = cp;
-        repr_idx++;
-    }
-
-    peek(1, &cp, &cp_len);
-
-    while (utf8_is_digit(cp))
-    {
-        consume(&cp, &cp_len);
-        repr[repr_idx] = cp;
-        repr_idx++;
-        peek(1, &cp, &cp_len);
-
-        if (repr_idx >= MAX_REPR_SIZE) { break; }
-    }
-
-    peek(1, &cp, &cp_len);
-    peek(2, &cp2, &cp2_len);
-
-    if (cp == '.' && utf8_is_digit(cp2))
-    {
-        consume(&cp, &cp_len);
-        repr[repr_idx] = cp;
-        repr_idx++;
-
-        consume(&cp, &cp_len);
-        repr[repr_idx] = cp;
-        repr_idx++;
-
-        // type = CSS_NUMBER_FLOAT;
-
-        peek(1, &cp, &cp_len);
-
-        while (utf8_is_digit(cp))
-        {
-            consume(&cp, &cp_len);
-            repr[repr_idx] = cp;
-            repr_idx++;
-            peek(1, &cp, &cp_len);
-    
-            if (repr_idx >= MAX_REPR_SIZE) { break; }
-        }
-    }
-    
-    peek(3, &cp3, &cp3_len);
-
-    bool esd = (cp == 'e' || cp == 'E') && (cp2 == '+' || cp2 == '-') && utf8_is_digit(cp3);
-    bool ed = (cp == 'e' || cp == 'E') && utf8_is_digit(cp2);
-
-    if (esd || ed)
-    {
-        // type = CSS_NUMBER_FLOAT;
-
-        consume(&cp, &cp_len);
-        repr[repr_idx] = cp;
-        repr_idx++;
-
-        consume(&cp, &cp_len);
-        repr[repr_idx] = cp;
-        repr_idx++;
-
-        if (esd)
-        {
-            consume(&cp, &cp_len);
-            repr[repr_idx] = cp;
-            repr_idx++;
-        }
-
-        peek(1, &cp, &cp_len);
-
-        while (utf8_is_digit(cp))
-        {
-            consume(&cp, &cp_len);
-            repr[repr_idx] = cp;
-            repr_idx++;
-            peek(1, &cp, &cp_len);
-    
-            if (repr_idx >= MAX_REPR_SIZE) { break; }
-        }
-    }
-
-    double res = css_convert_buf_to_num(repr, MAX_REPR_SIZE);
-    token->real = (float)res;
-    token->integer = (int32_t)res;
-}
-
-
-static void consume_numeric_token(css_token_t* t)
-{
-    uint32_t cp1 = 0;
-    int32_t cp1_len = -1;
-
-    uint32_t cp2 = 0;
-    int32_t cp2_len = -1;
-
-    uint32_t cp3 = 0;
-    int32_t cp3_len = -1;
-
-    consume_number(t);
-
-    peek(1, &cp1, &cp1_len);
-    peek(2, &cp2, &cp2_len);
-    peek(3, &cp3, &cp3_len);
-
-    if (is_id_seq_start(cp1, cp2, cp3))
-    {
-        t->type = CSS_TOKEN_DIMENSION;
-        consume_id_seq(t);
-    }
-    else if (cp1 == '%')
-    {
-        consume(&cp1, &cp2_len);
-        t->type = CSS_TOKEN_PERCENTAGE;
-    }
-    else
-    {
-        t->type = CSS_TOKEN_NUMBER;
-    }
-}
-
-
-static bool consume_comment()
-{
-    uint32_t cp1 = 0;
-    int32_t cp1_len = -1;
-
-    uint32_t cp2 = 0;
-    int32_t cp2_len = -1;
-    bool is_eof = false;
-
-    peek(1, &cp1, &cp1_len);
-    peek(2, &cp2, &cp2_len);
-
-    if (cp1 == '/' && cp2 == '*')
-    {
-        is_eof = consume(&cp1, &cp1_len);
-        is_eof = consume(&cp2, &cp2_len);
-
-        while (true)
-        {
-            peek(1, &cp1, &cp1_len);
-            peek(2, &cp2, &cp2_len);
-
-            if (is_eof || (cp1 == '*' && cp2 == '/'))
-            {
-                is_eof = consume(&cp1, &cp1_len);
-                is_eof = consume(&cp2, &cp2_len);
-                return true;
-            }
-
-            is_eof = consume(&cp1, &cp1_len);
-        }
-    }
-
-    return false;
-}
 
 /********************/
 /* public functions */
 /********************/
 
-
-void css_tokenizer_init(unsigned char* buffer, uint32_t buffer_size)
+void css_tokenizer_global_init()
 {
-    buf                 = buffer;
-    buf_cur             = 0;
-    buf_size            = buffer_size;
-    state               = CSS_TOKENIZER_DATA_STATE;
-    prev_state          = CSS_TOKENIZER_DATA_STATE;
+    buf = malloc(buf_cap);
+    memset(buf, 0, buf_cap);
+}
+
+
+void css_tokenizer_init(unsigned char* new_buffer, uint32_t new_size)
+{
+    assert(new_buffer);
+
+    if (buf_cap < new_size + 1)
+    {
+        resize_buffer(new_size + 1);
+    }
+
+    buf_size = 0;
+    buf_cur  = 0;
+    memcpy(buf, new_buffer, new_size);
+
+    preprocess(new_buffer, new_size);
 }
 
 
 css_token_t css_tokenizer_next()
 {
-    css_token_t t   = { .type = CSS_TOKEN_EOF };
-    uint32_t cp = 0;
-    int32_t cp_len = -1;
-    bool is_eof = false;
+    css_token_t t                   = { .type = CSS_TOKEN_EOF };
+    uint32_t end_cp                 = 0;
+    uint32_t cp1                     = 0;
+    int32_t cp1_len                  = -1;
+    uint32_t cp2                     = 0;
+    int32_t cp2_len                  = -1;
+    uint32_t cp3                     = 0;
+    int32_t cp3_len                  = -1;
+    uint32_t escaped_cp             = 0;
+    uint32_t escaped_cp_digits      = 0;
+    bool emit                       = false;
 
-    bool is_comment = consume_comment();
+    reset_states();
+    change_state(CSS_TOKENIZER_STATE_DATA);
+    t_buf_clear();
 
-    if (is_comment)
+    while (!emit)
     {
-        t.type = CSS_TOKEN_COMMENT;
-        return t;
-    }
+        bool consume            = true;
+        bool consume_peeked     = false;
+        bool is_eof             = false;
 
-    is_eof = consume(&cp, &cp_len);
+        css_tokenizer_state_e state = get_state();
 
-    if (is_eof)
-    {
-        t.type  = CSS_TOKEN_EOF;
-    }
-    else if (is_whitespace(cp))
-    {
-        peek(1, &cp, &cp_len);
-
-        while (is_whitespace(cp))
+        cp1_len = utf8_decode(buf, buf_size, buf_cur, &cp1);
+        if (cp1_len < 0)
         {
-            is_eof = consume(&cp, &cp_len);
-            peek(1, &cp, &cp_len);
-        }
-        t.type  = CSS_TOKEN_WHITESPACE;
-    }
-    else if (cp == '\'' || cp == '"')
-    {
-        t.type  = CSS_TOKEN_STRING;
-        consume_string(&t, cp);        
-    }
-    else if (cp == '#')
-    {
-        uint32_t cp_n = 0;
-        int32_t cp_n_len = -1;
-
-        uint32_t cp_nn = 0;
-        int32_t cp_nn_len = -1;
-
-        peek(1, &cp_n, &cp_n_len);
-        peek(2, &cp_nn, &cp_nn_len);
-
-        if (is_id(cp_n) || is_valid_escape(cp_n, cp_nn))
-        {
-            t.type = CSS_TOKEN_HASH;
-            // todo: check 3 cps
-            consume_id_seq(&t);
+            cp1 = 0;
+            is_eof = true;
         }
         else
         {
-            t.type = CSS_TOKEN_DELIM;
+            cp2_len = utf8_decode(buf, buf_size, buf_cur + (uint32_t)cp1_len, &cp2);
         }
-    }
-    else if (cp == '(')
-    {
-        t.type  = CSS_TOKEN_OPEN_PARENTHESIS;
-    }
-    else if (cp == ')')
-    {
-        t.type  = CSS_TOKEN_CLOSED_PARENTHESIS;
-    }
-    else if (cp == '+')
-    {
-        uint32_t cp2 = 0;
-        int32_t cp2_len = -1;
 
-        uint32_t cp3 = 0;
-        int32_t cp3_len = -1;
-
-        peek(1, &cp2, &cp2_len);
-        peek(2, &cp3, &cp3_len);
-
-        if (is_number_start(cp, cp2, cp3))
+        if (cp2_len > 0)
         {
-            reconsume(cp_len);
-            consume_numeric_token(&t);
+            cp3_len = utf8_decode(buf, buf_size, buf_cur + (uint32_t)cp1_len + (uint32_t)cp2_len, &cp3);
         }
-        else
+
+        switch (state)
         {
-            update_data(&t, cp);
-            t.type = CSS_TOKEN_DELIM;
+        case CSS_TOKENIZER_STATE_DATA:
+            if (is_whitespace(cp1))
+            {
+                change_state(CSS_TOKENIZER_STATE_WHITESPACE);
+                t.type = CSS_TOKEN_WHITESPACE;
+            }
+            else if (cp1 == '/')
+            {
+                change_state(CSS_TOKENIZER_STATE_COMMENT_START);
+            }
+            else if (cp1 == '#')
+            {
+            
+            }
+            else if (cp1 == '\'' || cp1 == '"')
+            {
+                t.type = CSS_TOKEN_STRING;
+                change_state(CSS_TOKENIZER_STATE_STRING);
+                end_cp = cp1;
+            }
+            else if (cp1 == '(')
+            {
+                t.type = CSS_TOKEN_OPEN_PARENTHESIS;
+                emit = true;
+            }
+            else if (cp1 == ')')
+            {
+                t.type = CSS_TOKEN_CLOSED_PARENTHESIS;
+                emit = true;
+            }
+            else if (cp1 == '+')
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_PLUS);
+            }
+            else if (cp1 == ',')
+            {
+                t.type = CSS_TOKEN_COMMA;
+                emit = true;
+            }
+            else if (cp1 == '-')
+            {
+                change_state(CSS_TOKENIZER_STATE_MINUS);
+                consume = false;
+            }
+            else if (cp1 == '.')
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_DOT);
+            }
+            else if (cp1 == ':')
+            {
+                t.type = CSS_TOKEN_COLON;
+                emit = true;
+            }
+            else if (cp1 == ';')
+            {
+                t.type = CSS_TOKEN_SEMICOLON;
+                emit = true;
+            }
+            else if (cp1 == '<')
+            {
+                change_state(CSS_TOKENIZER_STATE_LESS_THAN);
+            }
+            else if (cp1 == '@')
+            {
+                change_state(CSS_TOKENIZER_STATE_AT);
+            }
+            else if (cp1 == '[')
+            {
+                t.type = CSS_TOKEN_OPEN_BRACKET;
+                emit = true;
+            }
+            else if (cp1 == '\\')
+            {
+                if (cp2 == '\n')
+                {
+                    update_data(&t, '\\');
+                    t.type  = CSS_TOKEN_DELIM;
+                    emit    = true;
+                }
+                else
+                {
+                    consume = false;
+                    change_state(CSS_TOKENIZER_STATE_ID_TOKEN);
+                    add_state(CSS_TOKENIZER_STATE_ID_SEQ);
+                    t.type = CSS_TOKEN_IDENT;
+                }
+            }
+            else if (cp1 == ']')
+            {
+                t.type = CSS_TOKEN_CLOSED_BRACKET;
+                emit = true;
+            }
+            else if (cp1 == '{')
+            {
+                t.type = CSS_TOKEN_OPEN_BRACE;
+                emit = true;
+            }
+            else if (cp1 == '}')
+            {
+                t.type = CSS_TOKEN_CLOSED_BRACE;
+                emit = true;
+            }
+            else if (utf8_is_digit(cp1))
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START);
+            }
+            else if (is_id_start(cp1))
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_ID_TOKEN);
+                add_state(CSS_TOKENIZER_STATE_ID_SEQ);
+            }
+            else
+            {
+                t.type = CSS_TOKEN_DELIM;
+                update_data(&t, cp1);
+                emit = true;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_WHITESPACE:
+            if (!is_whitespace(cp1))
+            {
+                change_state(CSS_TOKENIZER_STATE_DATA);
+                consume = false;
+                emit    = true;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_ID_SEQ:
+            if (is_id(cp1))
+            {
+                update_data(&t, cp1);
+            }
+            else if (cp1 == '\\')
+            {
+                add_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE_START);
+            }
+            else
+            {
+                consume = false;
+                remove_state();
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_TEMP_ESCAPE_START:
+            if (cp1 == '\n')
+            {
+                remove_state();
+            }
+            else
+            {
+                escaped_cp          = 0;
+                escaped_cp_digits   = 0;
+                consume             = false;
+                change_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_TEMP_ESCAPE:
+            if (is_eof)
+            {
+                escaped_cp = replacement;
+                change_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE_END);
+            }
+            else if (escaped_cp_digits > 0 && is_whitespace(cp1))
+            {
+                change_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE_END);
+            }
+            else if (escaped_cp_digits >= 6)
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE_END);
+            }
+            else if (utf8_is_digit(cp1))
+            {
+                escaped_cp  *= 16;
+                escaped_cp  += cp1 - 0x30;
+                escaped_cp_digits  += 1;
+            }
+            else if (utf8_is_upper_hex(cp1))
+            {
+                escaped_cp  *= 16;
+                escaped_cp  += cp1 - 0x37;
+                escaped_cp_digits  += 1;
+            }
+            else if (utf8_is_lower_hex(cp1))
+            {
+                escaped_cp  *= 16;
+                escaped_cp  += cp1 - 0x57;
+                escaped_cp_digits  += 1;
+            }
+            else
+            {
+                escaped_cp = cp1;
+                change_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE_END);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_TEMP_ESCAPE_END:
+            if (escaped_cp == 0 || utf8_is_surrogate(escaped_cp) || escaped_cp > 0x10ffff)
+            {
+                update_data(&t, replacement);
+            }
+            else
+            {
+                update_data(&t, escaped_cp);
+            }
+            remove_state();
+            consume = false;
+            break;
+
+        case CSS_TOKENIZER_STATE_ID_TOKEN:
+            if (compare_seq(&t, "url", 3) && cp1 == '(')
+            {
+                change_state(CSS_TOKENIZER_STATE_URL_START);
+            }
+            else if (cp1 == '(')
+            {
+                emit = true;
+                t.type = CSS_TOKEN_FUNCTION;
+            }
+            else
+            {
+                emit = true;
+                consume = false;
+                t.type = CSS_TOKEN_IDENT;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_URL_START:
+            if (cp1 == '\'' || cp1 == '"')
+            {
+                t.type  = CSS_TOKEN_FUNCTION;
+                emit    = true;
+                consume = false;
+            }
+            else if (is_whitespace(cp1) && (cp2 == '\'' || cp2 == '"'))
+            {
+                t.type  = CSS_TOKEN_FUNCTION;
+                emit    = true;
+                consume = false;
+            }
+            else if (is_whitespace(cp1))
+            {
+                // consume cp1
+            }
+            else
+            {
+                change_state(CSS_TOKENIZER_STATE_URL);
+                memset(t.data, 0, CSS_TOKEN_MAX_DATA_SIZE);
+                t.data_size = 0;
+                t.type      = CSS_TOKEN_URL;
+                consume     = false;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_URL:
+            if (is_whitespace(cp1))
+            {
+                change_state(CSS_TOKENIZER_STATE_URL_END);
+            }
+            else if (is_eof || cp1 == ')')
+            {
+                t.type = CSS_TOKEN_URL;
+                emit = true;
+            }
+            else if (cp1 == '"' || cp1 == '\'' || cp1 == '(' || is_nonprintable(cp1))
+            {
+                change_state(CSS_TOKENIZER_STATE_BAD_URL);
+            }
+            else if (cp1 == '\\')
+            {
+                change_state(CSS_TOKENIZER_STATE_URL_REVERSE_SOLIDUS);
+            }
+            else
+            {
+                update_data(&t, cp1);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_URL_REVERSE_SOLIDUS:
+            if (cp1 == '\n')
+            {
+                change_state(CSS_TOKENIZER_STATE_BAD_URL);
+            }
+            else
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_URL);
+                add_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE_START);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_URL_END:
+            if (is_whitespace(cp1))
+            {
+            
+            }
+            else if (is_eof || cp1 == ')')
+            {
+                t.type = CSS_TOKEN_URL;
+                emit = true;
+            }
+            else
+            {
+                change_state(CSS_TOKENIZER_STATE_BAD_URL);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_BAD_URL:
+            if (is_eof || cp1 == ')')
+            {
+                t.type = CSS_TOKEN_BAD_URL;
+                t.data_size = 0;
+                memset(t.data, 0, CSS_TOKEN_MAX_DATA_SIZE);
+                emit = true;
+            }
+            else if (cp1 == '\\')
+            {
+                add_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE_START);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_PLUS:
+            if (is_number_start(cp1, cp2, cp3))
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START);
+            }
+            else
+            {
+                update_data(&t, '+');
+                emit = true;
+                t.type = CSS_TOKEN_DELIM;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_MINUS:
+            if (is_number_start(cp1, cp2, cp3))
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START);
+            }
+            else if (cp1 == '-' && cp2 == '-' && cp3 == '>')
+            {
+                t.type = CSS_TOKEN_CDC;
+                emit = true;
+            }
+            else if (is_id_seq_start(cp1, cp2, cp3))
+            {
+                change_state(CSS_TOKENIZER_STATE_ID_TOKEN);
+                add_state(CSS_TOKENIZER_STATE_ID_SEQ);
+                t.type = CSS_TOKEN_IDENT;
+                consume = false;
+            }
+            else
+            {
+                update_data(&t, '-');
+                emit = true;
+                t.type = CSS_TOKEN_DELIM;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMBER:
+            consume = false;
+            change_state(CSS_TOKENIZER_STATE_NUMBER_SIGN);
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMBER_SIGN:
+            if (cp1 == '+' || cp1 == '-')
+            {
+                t_buf_update(cp1);
+                change_state(CSS_TOKENIZER_STATE_NUMBER_INTEGER);
+            }
+            else
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_INTEGER);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMBER_INTEGER:
+            if (utf8_is_digit(cp1))
+            {
+                t_buf_update(cp1);
+            }
+            else if (cp1 == '.')
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_DOT);
+            }
+            else if (cp1 == 'e' || cp1 == 'E')
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E);
+            }
+            else
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_END);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMBER_DOT:
+            if (cp1 == '.')
+            {
+                t_buf_update(cp1);
+                change_state(CSS_TOKENIZER_STATE_NUMBER_FRACTION);
+            }
+            else
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_FRACTION);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMBER_FRACTION:
+            if (utf8_is_digit(cp1))
+            {
+                t_buf_update(cp1);
+            }
+            else if (cp1 == 'e' || cp1 == 'E')
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E);
+            }
+            else
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_END);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMBER_E:
+            ;
+            bool cp1_is_e = cp1 == 'e' || cp1 == 'E';
+            bool cp2_is_sign = cp2 == '+' || cp2 == '-';
+
+            if (cp1_is_e && cp2_is_sign && !utf8_is_digit(cp3))
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_END);
+            }
+            if (cp1_is_e)
+            {
+                t_buf_update(cp1);
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E_SIGN);
+            }
+            else
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E_SIGN);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMBER_E_SIGN:
+            if (cp1 == '+' || cp1 == '-')
+            {
+                t_buf_update(cp1);
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E_SIGN_DIGITS);
+            }
+            else
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_E_SIGN_DIGITS);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMBER_E_SIGN_DIGITS:
+            if (utf8_is_digit(cp1))
+            {
+                t_buf_update(cp1);
+            }
+            else
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMBER_END);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMBER_END:
+            t.real = (float)css_convert_buf_to_num(t_buf, t_buf_size);
+            t.integer = (int32_t)t.real;
+            remove_state();
+            consume = false;
+            t_buf_clear();
+            break;
+
+        case CSS_TOKENIZER_STATE_STRING:
+            if (is_eof || cp1 == end_cp)
+            {
+                emit = true;
+            }
+            else if (cp1 == '\n')
+            {
+                consume = false;
+                memset(t.data, 0, CSS_TOKEN_MAX_DATA_SIZE);
+                t.data_size = 0;
+                t.type = CSS_TOKEN_BAD_STRING;
+                emit = true;
+            }
+            else if (cp1 == '\\')
+            {
+                change_state(CSS_TOKENIZER_STATE_STRING_REVERSE_SOLIDUS);
+            }
+            else
+            {
+                update_data(&t, cp1);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_STRING_REVERSE_SOLIDUS:
+            if (is_eof || cp1 == '\n')
+            {
+                change_state(CSS_TOKENIZER_STATE_STRING);
+            }
+            else
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_STRING);
+                add_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE_START);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_AT:
+            if (is_id_seq_start(cp1, cp2, cp3))
+            {
+                consume = false;
+                t.type = CSS_TOKEN_AT_KEYWORD;
+                change_state(CSS_TOKENIZER_STATE_AT_COMPLETE);
+                add_state(CSS_TOKENIZER_STATE_ID_SEQ);
+            }
+            else
+            {
+                update_data(&t, '@');
+                emit = true;
+                t.type = CSS_TOKEN_DELIM;
+                consume = false;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_AT_COMPLETE:
+            emit = true;
+            break;
+
+        case CSS_TOKENIZER_STATE_COMMENT_START:
+            if (cp1 == '*')
+            {
+                change_state(CSS_TOKENIZER_STATE_COMMENT);
+            }
+            else
+            {
+                t.type = CSS_TOKEN_DELIM;
+                update_data(&t, '/');
+                emit = true;
+                consume = false;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_COMMENT:
+            if (is_eof || cp1 == '*')
+            {
+                change_state(CSS_TOKENIZER_STATE_COMMENT_END);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_COMMENT_END:
+            if (is_eof || cp1 == '/')
+            {
+                t.type = CSS_TOKEN_COMMENT;
+                emit = true;
+            }
+            else
+            {
+                change_state(CSS_TOKENIZER_STATE_COMMENT);
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START:
+            consume = false;
+            change_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN);
+            add_state(CSS_TOKENIZER_STATE_NUMBER);
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMERIC_TOKEN:
+            if (is_id_seq_start(cp1, cp2, cp3))
+            {
+                t.type = CSS_TOKEN_DIMENSION;
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN_END);
+                add_state(CSS_TOKENIZER_STATE_ID_SEQ);
+            }
+            else if (cp1 == '%')
+            {
+                t.type = CSS_TOKEN_PERCENTAGE;
+                emit = true;
+            }
+            else
+            {
+                consume = false;
+                t.type = CSS_TOKEN_NUMBER;
+                emit = true;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_NUMERIC_TOKEN_END:
+            consume = false;
+            emit = true;
+            break;
+
+        case CSS_TOKENIZER_STATE_DOT:
+            if (is_number_start(cp1, cp2, cp3))
+            {
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START);
+            }
+            else
+            {
+                t.type = CSS_TOKEN_DELIM;
+                update_data(&t, '.');
+                emit = true;
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_LESS_THAN:
+            if (cp1 == '!' && cp2 == '-' && cp3 == '-')
+            {
+                consume_peeked = true;
+                t.type = CSS_TOKEN_CDO;
+                emit = true;
+            }
+            else
+            {
+                t.type = CSS_TOKEN_DELIM;
+                update_data(&t, '<');
+                emit = true;
+                consume = false;
+            }
+            break;
         }
-    }
-    else if (cp == ',')
-    {
-        t.type  = CSS_TOKEN_COMMA;
-    }
-    else if (cp == '-')
-    {
-        uint32_t cp2 = 0;
-        int32_t cp2_len = -1;
 
-        uint32_t cp3 = 0;
-        int32_t cp3_len = -1;
-
-        peek(1, &cp2, &cp2_len);
-        peek(2, &cp3, &cp3_len);
-
-        if (is_number_start(cp, cp2, cp3))
+        if ((consume || consume_peeked) && cp1_len > 0)
         {
-            reconsume(cp_len);
-            consume_numeric_token(&t);
+            buf_cur += (uint32_t)cp1_len;
         }
-        else if (cp2 == '-' && cp3 == '>')
+
+        if (consume_peeked && cp2_len > 0)
         {
-            consume(&cp2, &cp2_len);
-            consume(&cp3, &cp3_len);
-            t.type = CSS_TOKEN_CDC;
+            buf_cur += (uint32_t)cp2_len;
         }
-        else if (is_id_seq_start(cp, cp2, cp3))
+
+        if (consume_peeked && cp3_len > 0)
         {
-            reconsume(cp_len);
-            consume_id_token(&t);
+            buf_cur += (uint32_t)cp3_len;
         }
-        else
-        {
-            update_data(&t, cp);
-            t.type = CSS_TOKEN_DELIM;
-        }
-    }
-    else if (cp == '.')
-    {
-        uint32_t cp2 = 0;
-        int32_t cp2_len = -1;
-
-        uint32_t cp3 = 0;
-        int32_t cp3_len = -1;
-
-        peek(1, &cp2, &cp2_len);
-        peek(2, &cp3, &cp3_len);
-
-        if (is_number_start(cp, cp2, cp3))
-        {
-            reconsume(cp_len);
-            consume_numeric_token(&t);
-        }
-        else
-        {
-            update_data(&t, cp);
-            t.type = CSS_TOKEN_DELIM;
-        }
-    }
-    else if (cp == ':')
-    {
-        t.type  = CSS_TOKEN_COLON;
-    }
-    else if (cp == ';')
-    {
-        t.type  = CSS_TOKEN_SEMICOLON;
-    }
-    else if (cp == '<')
-    {
-        uint32_t cp2 = 0;
-        int32_t cp2_len = -1;
-
-        uint32_t cp3 = 0;
-        int32_t cp3_len = -1;
-
-        uint32_t cp4 = 0;
-        int32_t cp4_len = -1;
-
-        peek(1, &cp2, &cp2_len);
-        peek(2, &cp3, &cp3_len);
-        peek(3, &cp4, &cp4_len);
-
-        if (cp2 == '!' && cp3 == '-' && cp4 == '-')
-        {
-            consume(&cp2, &cp2_len);
-            consume(&cp3, &cp3_len);
-            consume(&cp4, &cp4_len);
-            t.type = CSS_TOKEN_CDO;
-        }
-        else
-        {
-            update_data(&t, cp);
-            t.type = CSS_TOKEN_DELIM;
-        }
-    }
-    else if (cp == '@')
-    {
-        uint32_t cp2 = 0;
-        int32_t cp2_len = -1;
-
-        uint32_t cp3 = 0;
-        int32_t cp3_len = -1;
-
-        uint32_t cp4 = 0;
-        int32_t cp4_len = -1;
-
-        peek(1, &cp2, &cp2_len);
-        peek(2, &cp3, &cp3_len);
-        peek(3, &cp4, &cp4_len);
-
-        if (is_id_seq_start(cp2, cp3, cp4))
-        {
-            consume_id_seq(&t);
-            t.type = CSS_TOKEN_AT_KEYWORD;
-        }
-        else
-        {
-            update_data(&t, cp);
-            t.type = CSS_TOKEN_DELIM;
-        }
-    }
-    else if (cp == '[')
-    {
-        t.type  = CSS_TOKEN_OPEN_BRACKET;
-    }
-    else if (cp == '\\')
-    {
-        uint32_t cp2 = 0;
-        int32_t cp2_len = -1;
-
-        uint32_t cp3 = 0;
-        int32_t cp3_len = -1;
-
-        uint32_t cp4 = 0;
-        int32_t cp4_len = -1;
-
-        peek(1, &cp2, &cp2_len);
-        peek(2, &cp3, &cp3_len);
-        peek(3, &cp4, &cp4_len);
-
-        if (is_valid_escape(cp, cp2))
-        {
-            reconsume(cp_len);
-            consume_id_token(&t);
-        }
-        else
-        {
-            update_data(&t, cp);
-            t.type = CSS_TOKEN_DELIM;
-        }
-    }
-    else if (cp == ']')
-    {
-        t.type  = CSS_TOKEN_CLOSED_BRACKET;
-    }
-    else if (cp == '{')
-    {
-        t.type  = CSS_TOKEN_OPEN_BRACE;
-    }
-    else if (cp == '}')
-    {
-        t.type  = CSS_TOKEN_CLOSED_BRACE;
-    }
-    else if (utf8_is_digit(cp))
-    {
-        reconsume(cp_len);
-        consume_numeric_token(&t);
-    }
-    else if (is_id_start(cp))
-    {
-        reconsume(cp_len);
-        consume_id_token(&t);
-    }
-    else
-    {
-        update_data(&t, cp);
-        t.type  = CSS_TOKEN_DELIM;
     }
 
     return t;
@@ -1004,4 +1067,11 @@ css_token_t css_tokenizer_next()
 void css_tokenizer_free()
 {
 
+}
+
+
+void css_tokenizer_global_free()
+{
+    if (buf) { free(buf); }
+    buf = NULL;
 }

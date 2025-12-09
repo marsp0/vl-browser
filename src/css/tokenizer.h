@@ -17,18 +17,6 @@ typedef enum
 
 typedef enum
 {
-    CSS_TOKENIZER_DATA_STATE,
-    CSS_TOKENIZER_STRING_STATE,
-    CSS_TOKENIZER_STRING_REVERSE_SOLIDUS_STATE,
-    CSS_TOKENIZER_POUND_SIGN_STATE,
-    CSS_TOKENIZER_POUND_SIGN_REVERSE_SOLIDUS_STATE,
-    CSS_TOKENIZER_ID_SEQ_STATE,
-    CSS_TOKENIZER_NUMERIC_STATE,
-} css_tokenizer_state_e;
-
-
-typedef enum
-{
     CSS_TOKEN_EOF,
     CSS_TOKEN_DELIM,
     CSS_TOKEN_IDENT,
@@ -69,6 +57,8 @@ typedef struct
 } css_token_t;
 
 
+void        css_tokenizer_global_init();
 void        css_tokenizer_init(unsigned char* buffer, uint32_t buffer_size);
 css_token_t css_tokenizer_next();
 void        css_tokenizer_free();
+void        css_tokenizer_global_free();

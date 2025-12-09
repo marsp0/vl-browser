@@ -1,6 +1,7 @@
 #include "global_modules.h"
 
 #include "html/tokenizer.h"
+#include "css/tokenizer.h"
 
 #include "dom/hash_str.h"
 #include "html/tag_constants.h"
@@ -17,6 +18,7 @@ void global_modules_init()
     hash_str_pool_new();
     html_named_char_ref_map_init();
     html_tokenizer_global_init();
+    css_tokenizer_global_init();
 
     // constants
     html_tags_init();
@@ -36,4 +38,5 @@ void global_modules_free()
     hash_str_pool_free();
     html_named_char_ref_map_free();
     html_tokenizer_global_free();
+    css_tokenizer_global_free();
 }
