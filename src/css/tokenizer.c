@@ -305,28 +305,20 @@ css_token_t css_tokenizer_next()
 
         css_tokenizer_state_e state = get_state();
 
-        if (buf_cur >= buf_size)
+        cp1_len = utf8_decode(buf, buf_size, buf_cur, &cp1);
+        if (cp1_len < 0)
         {
-            cp1      = 0;
-            is_eof  = true;
+            cp1 = 0;
+            is_eof = true;
         }
         else
         {
-            cp1_len = utf8_decode(buf, buf_size, buf_cur, &cp1);
-            if (cp1_len < 0)
-            {
-                cp1 = 0;
-                is_eof = true;
-            }
-            else
-            {
-                cp2_len = utf8_decode(buf, buf_size, buf_cur + (uint32_t)cp1_len, &cp2);
-            }
+            cp2_len = utf8_decode(buf, buf_size, buf_cur + (uint32_t)cp1_len, &cp2);
+        }
 
-            if (cp2_len > 0)
-            {
-                cp3_len = utf8_decode(buf, buf_size, buf_cur + (uint32_t)cp1_len + (uint32_t)cp2_len, &cp3);
-            }
+        if (cp2_len > 0)
+        {
+            cp3_len = utf8_decode(buf, buf_size, buf_cur + (uint32_t)cp1_len + (uint32_t)cp2_len, &cp3);
         }
 
         switch (state)
@@ -976,7 +968,7 @@ css_token_t css_tokenizer_next()
             break;
         }
 
-        if (consume || consume_peeked)
+        if ((consume || consume_peeked) && cp1_len > 0)
         {
             buf_cur += (uint32_t)cp1_len;
         }
