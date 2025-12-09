@@ -15,7 +15,6 @@
 /*      defines     */
 /********************/
 
-#define MAX_REPR_SIZE 32
 
 /********************/
 /* static variables */
