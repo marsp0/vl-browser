@@ -494,7 +494,7 @@ static void flush_cps_consumed_as_char_ref(html_tokenizer_state_e s)
     }
 }
 
-void resize_buffer(uint32_t min_size)
+static void resize_buffer(uint32_t min_size)
 {
     uint32_t next_cap = buf_cap;
     while (next_cap < min_size) { next_cap <<= 1; }

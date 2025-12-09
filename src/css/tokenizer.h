@@ -57,6 +57,8 @@ typedef struct
 } css_token_t;
 
 
+void        css_tokenizer_global_init();
 void        css_tokenizer_init(unsigned char* buffer, uint32_t buffer_size);
 css_token_t css_tokenizer_next();
 void        css_tokenizer_free();
+void        css_tokenizer_global_free();

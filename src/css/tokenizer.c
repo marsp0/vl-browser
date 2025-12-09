@@ -2,6 +2,8 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <assert.h>
+#include <stdlib.h>
 
 #include "util/utf8.h"
 #include "css/util.h"
@@ -59,7 +61,8 @@ typedef enum
     CSS_TOKENIZER_STATE_TEMP_ESCAPE_END
 } css_tokenizer_state_e;
 
-static const unsigned char* buf         = NULL;
+static unsigned char* buf               = NULL;
+static uint32_t buf_cap                 = 2048;
 static uint32_t buf_cur                 = 0;
 static uint32_t buf_size                = 0;
 static const uint32_t replacement       = 0xfffd;
@@ -266,16 +269,89 @@ static bool compare_seq(css_token_t* t, unsigned char* data, uint32_t data_size)
 }
 
 
+static void resize_buffer(uint32_t min_size)
+{
+    uint32_t next_cap = buf_cap;
+    while (next_cap < min_size) { next_cap <<= 1; }
+
+    if (next_cap < buf_cap) { assert(false); }
+    buf_cap = next_cap;
+
+    if (buf) { free(buf); }
+
+    buf = malloc(buf_cap);
+    memset(buf, 0, buf_cap);
+}
+
+
+static void preprocess(const unsigned char* new_buf, uint32_t new_buf_size)
+{
+    if (new_buf_size == 0) { return; }
+
+    for (uint32_t i = 0; i < new_buf_size - 1; i++)
+    {
+        if (new_buf[i] == '\r' && new_buf[i + 1] == '\n')
+        {
+            buf[buf_size] = '\n';
+            buf_size++;
+        }
+        else if (new_buf[i] == '\r')
+        {
+            buf[buf_size] = '\n';
+            buf_size++;
+        }
+        else if (new_buf[i] == '\0')
+        {
+            buf[buf_size++] = 0xef;
+            buf[buf_size++] = 0xbf;
+            buf[buf_size++] = 0xbd;
+        }
+        else
+        {
+            buf[buf_size] = new_buf[i];
+            buf_size++;
+        }
+    }
+
+    if (new_buf[new_buf_size - 1] == '\r')
+    {
+        buf[buf_size] = '\n';
+        buf_size++;
+    }
+    else
+    {
+        buf[buf_size] = new_buf[new_buf_size - 1];
+        buf_size++;
+    }
+
+}
+
+
 /********************/
 /* public functions */
 /********************/
 
-
-void css_tokenizer_init(unsigned char* buffer, uint32_t buffer_size)
+void css_tokenizer_global_init()
 {
-    buf                 = buffer;
-    buf_cur             = 0;
-    buf_size            = buffer_size;
+    buf = malloc(buf_cap);
+    memset(buf, 0, buf_cap);
+}
+
+
+void css_tokenizer_init(unsigned char* new_buffer, uint32_t new_size)
+{
+    assert(new_buffer);
+
+    if (buf_cap < new_size + 1)
+    {
+        resize_buffer(new_size + 1);
+    }
+
+    buf_size = 0;
+    buf_cur  = 0;
+    memcpy(buf, new_buffer, new_size);
+
+    preprocess(new_buffer, new_size);
 }
 
 
@@ -991,4 +1067,11 @@ css_token_t css_tokenizer_next()
 void css_tokenizer_free()
 {
 
+}
+
+
+void css_tokenizer_global_free()
+{
+    if (buf) { free(buf); }
+    buf = NULL;
 }
