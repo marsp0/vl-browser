@@ -32,7 +32,7 @@ typedef enum
     CSS_TOKENIZER_STATE_URL_REVERSE_SOLIDUS,
     CSS_TOKENIZER_STATE_URL_END,
     CSS_TOKENIZER_STATE_BAD_URL,
-    CSS_TOKENIZER_STATE_ESCAPE_START,
+    CSS_TOKENIZER_STATE_DATA_REVERSE_SOLIDUS,
     CSS_TOKENIZER_STATE_MINUS,
     CSS_TOKENIZER_STATE_NUMERIC_TOKEN,
     CSS_TOKENIZER_STATE_NUMERIC_TOKEN_START,
@@ -305,10 +305,11 @@ css_token_t css_tokenizer_next()
 
     while (!emit)
     {
-        bool consume = true;
-        bool rewind = false;
-        uint32_t rewind_start = 0;
-        bool is_eof = false;
+        bool consume            = true;
+        bool consume_peeked     = false;
+        bool rewind             = false;
+        uint32_t rewind_start   = 0;
+        bool is_eof             = false;
 
         css_tokenizer_state_e state = get_state();
 
@@ -337,7 +338,6 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '/')
             {
-                t_buf_update(cp);
                 change_state(CSS_TOKENIZER_STATE_COMMENT_START);
             }
             else if (cp == '#')
@@ -406,8 +406,7 @@ css_token_t css_tokenizer_next()
             }
             else if (cp == '\\')
             {
-                change_state(CSS_TOKENIZER_STATE_ESCAPE_START);
-                t_buf_update(cp);
+                change_state(CSS_TOKENIZER_STATE_DATA_REVERSE_SOLIDUS);
             }
             else if (cp == ']')
             {
@@ -640,18 +639,16 @@ css_token_t css_tokenizer_next()
             else if (cp == '\\')
             {
                 add_state(CSS_TOKENIZER_STATE_TEMP_ESCAPE_START);
-                // change_state(CSS_TOKENIZER_STATE_BAD_URL_ESCAPE_START);
             }
             break;
 
-        case CSS_TOKENIZER_STATE_ESCAPE_START:
-            t_buf_update(cp);
+        case CSS_TOKENIZER_STATE_DATA_REVERSE_SOLIDUS:
             if (cp == '\n')
             {
-                update_data(&t, t_buf[0]);
+                update_data(&t, '\\');
                 t.type  = CSS_TOKEN_DELIM;
-                emit    = true;
                 consume = false;
+                emit    = true;
             }
             else
             {
@@ -910,25 +907,15 @@ css_token_t css_tokenizer_next()
             break;
 
         case CSS_TOKENIZER_STATE_COMMENT_START:
-            t_buf_update(cp);
-
-            if (t_buf_size < 2)
-            {
-            
-            }
-            else if (t_buf[0] == '/' && t_buf[1] == '*')
+            if (cp == '*')
             {
                 change_state(CSS_TOKENIZER_STATE_COMMENT);
-                memset(t_buf, 0, sizeof(t_buf));
-                t_buf_size = 0;
             }
             else
             {
                 t.type = CSS_TOKEN_DELIM;
                 update_data(&t, '/');
                 emit = true;
-                rewind = true;
-                rewind_start = 1;
             }
             break;
 
