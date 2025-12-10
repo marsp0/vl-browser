@@ -8,6 +8,8 @@ delim-token
 number-token
 #token-value
 -1
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test

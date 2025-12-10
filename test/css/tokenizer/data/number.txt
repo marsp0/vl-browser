@@ -4,6 +4,8 @@
 number-token
 #token-value
 -10
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test
@@ -13,6 +15,8 @@ whitespace-token
 number-token
 #token-value
 10
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test
@@ -22,6 +26,8 @@ whitespace-token
 number-token
 #token-value
 0
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test
@@ -31,6 +37,8 @@ whitespace-token
 number-token
 #token-value
 0.1
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -40,6 +48,8 @@ whitespace-token
 number-token
 #token-value
 -0.1
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -49,6 +59,8 @@ whitespace-token
 number-token
 #token-value
 0
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -58,6 +70,8 @@ whitespace-token
 number-token
 #token-value
 -1.1e-22
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -67,6 +81,8 @@ whitespace-token
 number-token
 #token-value
 1.1
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -76,6 +92,8 @@ whitespace-token
 number-token
 #token-value
 0
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test
@@ -87,6 +105,8 @@ dimension-token
 -1.1e-22
 #token-unit
 e
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -96,6 +116,8 @@ whitespace-token
 number-token
 #token-value
 110
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -105,6 +127,8 @@ whitespace-token
 number-token
 #token-value
 -1.1
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -114,6 +138,8 @@ whitespace-token
 number-token
 #token-value
 -0.011
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -125,6 +151,8 @@ dimension-token
 1
 #token-unit
 e
+#token-hash-type
+integer
 #token-type
 delim-token
 #token-value
@@ -138,6 +166,8 @@ whitespace-token
 number-token
 #token-value
 0.1
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -147,6 +177,8 @@ whitespace-token
 number-token
 #token-value
 10
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test
@@ -156,6 +188,8 @@ whitespace-token
 number-token
 #token-value
 0
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test
@@ -165,6 +199,8 @@ whitespace-token
 number-token
 #token-value
 110
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -174,6 +210,8 @@ whitespace-token
 number-token
 #token-value
 1.1
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -183,10 +221,14 @@ whitespace-token
 number-token
 #token-value
 0.2
+#token-hash-type
+number
 #token-type
 number-token
 #token-value
 0.7
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test

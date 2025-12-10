@@ -35,6 +35,9 @@ class Context:
             if t.get("structured").get("unit"):
                 self.write_line("#token-unit")
                 self.write_line(str(t["structured"]["unit"]))
+            if t.get("structured").get("type"):
+                self.write_line("#token-hash-type")
+                self.write_line(str(t["structured"]["type"]))
 
         self.write_line("#end-test")
         

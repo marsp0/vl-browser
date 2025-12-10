@@ -4,6 +4,8 @@
 hash-token
 #token-value
 --3
+#token-hash-type
+id
 #token-type
 whitespace-token
 #end-test
@@ -13,6 +15,8 @@ whitespace-token
 hash-token
 #token-value
 -2
+#token-hash-type
+unrestricted
 #token-type
 whitespace-token
 #end-test
@@ -22,6 +26,8 @@ whitespace-token
 hash-token
 #token-value
 ---4
+#token-hash-type
+id
 #token-type
 whitespace-token
 #end-test
@@ -31,6 +37,8 @@ whitespace-token
 hash-token
 #token-value
 ---d
+#token-hash-type
+id
 #token-type
 whitespace-token
 #end-test
@@ -40,6 +48,8 @@ whitespace-token
 hash-token
 #token-value
 _1
+#token-hash-type
+id
 #token-type
 whitespace-token
 #end-test
@@ -49,6 +59,8 @@ whitespace-token
 hash-token
 #token-value
 --c
+#token-hash-type
+id
 #token-type
 whitespace-token
 #end-test
@@ -58,6 +70,8 @@ whitespace-token
 hash-token
 #token-value
 -
+#token-hash-type
+unrestricted
 #token-type
 whitespace-token
 #end-test
@@ -67,6 +81,8 @@ whitespace-token
 hash-token
 #token-value
 -b
+#token-hash-type
+id
 #token-type
 whitespace-token
 #end-test
@@ -96,6 +112,8 @@ whitespace-token
 hash-token
 #token-value
 _
+#token-hash-type
+id
 #token-type
 whitespace-token
 #end-test
@@ -105,6 +123,8 @@ whitespace-token
 hash-token
 #token-value
 1
+#token-hash-type
+unrestricted
 #token-type
 whitespace-token
 #end-test
@@ -114,6 +134,8 @@ whitespace-token
 hash-token
 #token-value
 a
+#token-hash-type
+id
 #token-type
 whitespace-token
 #end-test
@@ -123,6 +145,8 @@ whitespace-token
 hash-token
 #token-value
 aa𐀀
+#token-hash-type
+id
 #token-type
 whitespace-token
 #end-test
