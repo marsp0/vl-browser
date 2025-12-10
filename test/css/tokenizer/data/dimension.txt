@@ -6,6 +6,8 @@ dimension-token
 10
 #token-unit
 --custom-px
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test
@@ -17,6 +19,8 @@ dimension-token
 10
 #token-unit
 px
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test
@@ -28,6 +32,8 @@ dimension-token
 1000
 #token-unit
 px
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -39,6 +45,8 @@ dimension-token
 10
 #token-unit
 a𐀀
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test
@@ -50,6 +58,8 @@ dimension-token
 10
 #token-unit
 �
+#token-hash-type
+integer
 #end-test
 #data-0001
 10px\n
@@ -59,6 +69,8 @@ dimension-token
 10
 #token-unit
 px
+#token-hash-type
+integer
 #token-type
 whitespace-token
 #end-test
@@ -70,6 +82,8 @@ dimension-token
 1000
 #token-unit
 PX
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test

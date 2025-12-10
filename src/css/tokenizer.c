@@ -25,6 +25,8 @@
 typedef enum
 {
     CSS_TOKENIZER_STATE_DATA,
+    CSS_TOKENIZER_STATE_HASH_TOKEN,
+    CSS_TOKENIZER_STATE_HASH_TOKEN_END,
     CSS_TOKENIZER_STATE_WHITESPACE,
     CSS_TOKENIZER_STATE_ID_TOKEN,
     CSS_TOKENIZER_STATE_ID_SEQ,
@@ -411,7 +413,7 @@ css_token_t css_tokenizer_next()
             }
             else if (cp1 == '#')
             {
-            
+                change_state(CSS_TOKENIZER_STATE_HASH_TOKEN);
             }
             else if (cp1 == '\'' || cp1 == '"')
             {
@@ -520,6 +522,33 @@ css_token_t css_tokenizer_next()
                 update_data(&t, cp1);
                 emit = true;
             }
+            break;
+
+        case CSS_TOKENIZER_STATE_HASH_TOKEN:
+            if (is_id(cp1) || is_valid_escape(cp1, cp2))
+            {
+                t.type  = CSS_TOKEN_HASH;
+                consume = false;
+                change_state(CSS_TOKENIZER_STATE_HASH_TOKEN_END);
+                add_state(CSS_TOKENIZER_STATE_ID_SEQ);
+
+                if (is_id_seq_start(cp1, cp2, cp3))
+                {
+                    t.hash_type = CSS_TOKEN_HASH_ID;
+                }
+            }
+            else
+            {
+                t.type  = CSS_TOKEN_DELIM;
+                emit    = true;
+                consume = false;
+                update_data(&t, '#');
+            }
+            break;
+
+        case CSS_TOKENIZER_STATE_HASH_TOKEN_END:
+            consume = false;
+            emit = true;
             break;
 
         case CSS_TOKENIZER_STATE_WHITESPACE:

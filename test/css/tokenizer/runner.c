@@ -15,7 +15,8 @@ typedef enum
     STATE_DATA,
     STATE_TYPE,
     STATE_VALUE,
-    STATE_UNIT
+    STATE_UNIT,
+    STATE_HASH_TYPE
 } state_e;
 
 static const unsigned char* test_file = NULL;
@@ -66,7 +67,8 @@ static unsigned char* type_map_keys[] = {
                                             "]-token",
                                             "CDC-token",
                                             "CDO-token",
-                                            "percentage-token"
+                                            "percentage-token",
+                                            "hash-token"
                                         };
 static css_token_type_e type_map_vals[] = { 
                                             CSS_TOKEN_AT_KEYWORD,
@@ -92,7 +94,8 @@ static css_token_type_e type_map_vals[] = {
                                             CSS_TOKEN_CLOSED_BRACKET,
                                             CSS_TOKEN_CDC,
                                             CSS_TOKEN_CDO,
-                                            CSS_TOKEN_PERCENTAGE
+                                            CSS_TOKEN_PERCENTAGE,
+                                            CSS_TOKEN_HASH
                                           };
 
 static int32_t get_char()
@@ -192,6 +195,10 @@ static void run_css_tokenizer_test()
         {
             state = STATE_UNIT;
         }
+        else if (strncmp(line, "#token-hash-type", 16) == 0)
+        {
+            state = STATE_HASH_TYPE;
+        }
         else if (strncmp(line, "#end-test", 9) == 0)
         {
             break;
@@ -254,6 +261,17 @@ static void run_css_tokenizer_test()
             memcpy(tokens[current].data, line, line_size);
             tokens[current].data_size = line_size;
         }
+        else if (state == STATE_HASH_TYPE)
+        {
+            if (strncmp(line, "id", 12) == 0)
+            {
+                tokens[current].hash_type = CSS_TOKEN_HASH_ID;
+            }
+            else
+            {
+                tokens[current].hash_type = CSS_TOKEN_HASH_UNRESTRICTED;
+            }
+        }
         else
         {
             printf("Unhandled case: %s\n", line);
@@ -280,7 +298,7 @@ static void run_css_tokenizer_test()
         }
         ASSERT_EQUAL(a.integer, e.integer);
         ASSERT_EQUAL(a.real, e.real);
-        // ASSERT_EQUAL(a.hash, e.hash);
+        ASSERT_EQUAL(a.hash_type, e.hash_type);
     }
 
     if (!TEST_SUCCEEDED())
@@ -296,7 +314,7 @@ static void run_css_tokenizer_test()
 void css_tokenizer_test()
 {
     const unsigned char* files[] = {
-                                    // "./test/css/tokenizer/data/hash.txt",
+                                    "./test/css/tokenizer/data/hash.txt",
                                     "./test/css/tokenizer/data/at-keyword.txt",
                                     "./test/css/tokenizer/data/bad-string.txt",
                                     "./test/css/tokenizer/data/bad-url.txt",

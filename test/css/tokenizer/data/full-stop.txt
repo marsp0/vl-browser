@@ -4,6 +4,8 @@
 number-token
 #token-value
 0.1
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test

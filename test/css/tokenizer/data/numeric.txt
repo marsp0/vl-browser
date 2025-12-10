@@ -15,6 +15,8 @@ dimension-token
 -1.23753
 #token-unit
 px
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -24,10 +26,14 @@ whitespace-token
 number-token
 #token-value
 1.2
+#token-hash-type
+number
 #token-type
 number-token
 #token-value
 0.3
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
@@ -37,6 +43,8 @@ whitespace-token
 number-token
 #token-value
 -1.23753
+#token-hash-type
+number
 #token-type
 whitespace-token
 #end-test
