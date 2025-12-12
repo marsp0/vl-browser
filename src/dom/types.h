@@ -28,4 +28,4 @@
 #define HTML_NODE_IMAGE                 __BIT(23)
 #define HTML_NODE_INPUT                 __BIT(24)
 #define HTML_NODE_LABEL                 __BIT(25)
-#define HTML_NODE_BUTTON                __BIT(25)
+#define HTML_NODE_BUTTON                __BIT(26)
