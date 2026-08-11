@@ -70,14 +70,31 @@ typedef struct
 
 } css_parser_stylesheet_t;
 
-css_parser_comp_val_t*      css_parser_comp_val_new();
-css_parser_decl_t*          css_parser_decl_new();
-css_parser_rule_t*          css_parser_rule_new();
-css_parser_stylesheet_t*    css_parser_stylesheet_new();
 
-void                        css_parser_rule_add_comp_val(css_parser_rule_t* rule, css_parser_comp_val_t* c_val);
-void                        css_parser_rule_add_decl(css_parser_rule_t* rule, css_parser_decl_t* decl);
-void                        css_parser_rule_add_rule(css_parser_rule_t* rule, css_parser_rule_t* n_rule);
+typedef struct css_parser_node_t
+{
+    unsigned char               data[CSS_TOKEN_MAX_DATA_SIZE];
+    uint32_t                    data_size;
+
+    struct css_parser_node_t*   next;
+
+    struct css_parser_node_t*   decls;
+    uint32_t                    decls_size;
+
+    struct css_parser_node_t*   comp_vals;
+    uint32_t                    comp_vals_size;
+
+    struct css_parser_node_t*   rules;
+    uint32_t                    rules_size;
+} css_parser_node_t;
+
+
+css_parser_node_t*          css_parser_node_new();
+
+void                        css_parser_node_add_node(css_parser_node_t* node, css_parser_node_t* next);
+void                        css_parser_node_add_comp_val(css_parser_node_t* node, css_parser_node_t* comp_val);
+void                        css_parser_node_add_decl(css_parser_node_t* node, css_parser_node_t* decl);
+void                        css_parser_node_add_rule(css_parser_node_t* node, css_parser_node_t* rule);
 
 void                        css_parser_comp_val_add_comp_val(css_parser_comp_val_t* c_val, css_parser_comp_val_t* child);
 
