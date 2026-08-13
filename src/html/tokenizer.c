@@ -276,12 +276,15 @@ static void update_attr_name_from_buf()
     html_token_t* token = &tokens[token_idx];
     html_token_attribute_t* attr = &(token->attributes[token->attributes_size]);
 
+    if (attr->name_size == HTML_TOKEN_MAX_NAME_LEN) { return; }
+    assert(attr->name_size < HTML_TOKEN_MAX_NAME_LEN);
+
     for (uint32_t i = buf_cur; i < buf_cur + (uint32_t)cp_len; i++)
     {
         attr->name[attr->name_size] = buf[i];
         attr->name_size++;
 
-        if (attr->name_size >= HTML_TOKEN_MAX_NAME_LEN) { return; }
+        if (attr->name_size == HTML_TOKEN_MAX_NAME_LEN) { return; }
     }
 }
 
