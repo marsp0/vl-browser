@@ -2,6 +2,6 @@
 
 typedef enum
 {
-    OPERATION_OK,
-    OPERATION_ERROR
+    OP_RESULT_OK,
+    OP_RESULT_ERR
 } op_result_e;
