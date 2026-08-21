@@ -652,6 +652,57 @@ static void test_parser_11()
     ASSERT_CSS_PARSER_NODE(actual, expected);
 }
 
+static void test_parser_12()
+{
+    unsigned char data[] = "foo { --div:hover{}}";
+    uint32_t data_size = sizeof(data) - 1;
+
+    // actual
+    css_parser_init(data, data_size);
+    css_parser_node_t* actual = css_parser_parse_stylesheet();
+    css_parser_free();
+
+    hash_str_t foo_str          = hash_str_new("foo", 3);
+    hash_str_t div_str          = hash_str_new("--div", 5);
+    hash_str_t hover_str        = hash_str_new("hover", 5);
+
+    css_parser_node_t* expected = css_parser_node_new(0, CSS_PARSER_NODE_TYPE_STYLESHEET);
+    css_parser_node_t* q_rule1  = css_parser_node_new(0, CSS_PARSER_NODE_TYPE_Q_RULE);
+    css_parser_node_t* foo_n    = new_ident_node(foo_str);
+    css_parser_node_t* ws_n     = new_token_node(CSS_TOKEN_WHITESPACE);
+    css_parser_node_t* q_rule2  = css_parser_node_new(0, CSS_PARSER_NODE_TYPE_Q_RULE);
+    css_parser_node_t* div_n    = new_ident_node(div_str);
+    css_parser_node_t* colon_n  = new_token_node(CSS_TOKEN_COLON);
+    css_parser_node_t* hover_n  = new_ident_node(hover_str);
+
+    css_parser_node_add_rule(expected, q_rule1);
+    css_parser_node_add_rule(q_rule1, q_rule2);
+    css_parser_node_add_comp_val(q_rule1, foo_n);
+    css_parser_node_add_comp_val(q_rule1, ws_n);
+    css_parser_node_add_comp_val(q_rule2, div_n);
+    css_parser_node_add_comp_val(q_rule2, colon_n);
+    css_parser_node_add_comp_val(q_rule2, hover_n);
+
+    ASSERT_CSS_PARSER_NODE(actual, expected);
+}
+
+
+static void test_parser_13()
+{
+    // triggers close bracket handling inside consume_q_rule
+    unsigned char data[] = "}";
+    uint32_t data_size = sizeof(data) - 1;
+
+    // actual
+    css_parser_init(data, data_size);
+    css_parser_node_t* actual = css_parser_parse_stylesheet();
+    css_parser_free();
+
+    css_parser_node_t* expected = css_parser_node_new(0, CSS_PARSER_NODE_TYPE_STYLESHEET);
+
+    ASSERT_CSS_PARSER_NODE(actual, expected);
+}
+
 
 void css_parser_test()
 {
@@ -666,4 +717,6 @@ void css_parser_test()
     TEST_CASE(test_parser_9);
     TEST_CASE(test_parser_10);
     TEST_CASE(test_parser_11);
+    TEST_CASE(test_parser_12);
+    TEST_CASE(test_parser_13);
 }
