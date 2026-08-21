@@ -72,7 +72,7 @@ static void test_parser_1()
         }
       },
     */
-    unsigned char data[] = "@media{ }";
+    unsigned char data[] = " @media{ }";
     uint32_t data_size = sizeof(data) - 1;
 
     css_parser_init(data, data_size);
