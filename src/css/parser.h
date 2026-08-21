@@ -2,16 +2,11 @@
 
 #include <stdint.h>
 
-#include "core/op_result.h"
 
-struct css_parser_stylesheet_t;
-
-typedef struct
-{
-    op_result_e                     result;
-    struct css_parser_stylesheet_t* sheet;
-} css_parser_result_t;
+typedef struct css_parser_node_t css_parser_node_t;
 
 void                css_parser_init(const unsigned char* buf, uint32_t buf_size);
-css_parser_result_t css_parser_run();
+
+css_parser_node_t*  css_parser_parse_stylesheet();
+
 void                css_parser_free();

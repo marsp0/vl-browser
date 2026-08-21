@@ -356,6 +356,7 @@ void css_tokenizer_init(const unsigned char* new_buffer, uint32_t new_size)
     memcpy(buf, new_buffer, new_size);
 
     preprocess(new_buffer, new_size);
+    css_tokenizer_types_reset();
 }
 
 
@@ -404,7 +405,12 @@ css_token_t css_tokenizer_next()
         switch (state)
         {
         case CSS_TOKENIZER_STATE_DATA:
-            if (is_whitespace(cp1))
+            if (is_eof)
+            {
+                consume = false;
+                emit = true;
+            }
+            else if (is_whitespace(cp1))
             {
                 change_state(CSS_TOKENIZER_STATE_WHITESPACE);
                 t.type = CSS_TOKEN_WHITESPACE;
@@ -976,6 +982,7 @@ css_token_t css_tokenizer_next()
             break;
 
         case CSS_TOKENIZER_STATE_AT_COMPLETE:
+            consume = false;
             emit = true;
             break;
 

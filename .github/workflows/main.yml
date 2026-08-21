@@ -13,9 +13,17 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Build Tests (release)
+      shell: bash
+      run: make clean && make tvl
+
+    - name: Build Browser (release)
+      shell: bash
+      run: make clean && make vl
+
     - name: Build Tests
       shell: bash
-      run: make tvl debug=1
+      run: make clean && make tvl debug=1
 
     - name: Run Tests
       shell: bash

@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 /*
  * Notes
@@ -21,26 +22,21 @@
 /* static variables */
 /********************/
 
-static css_parser_comp_val_t* comp_val_blocks[BLOCKS_SIZE]      = { 0 };
-static uint32_t comp_val_block                                  = 0;
-static uint32_t comp_val_block_idx                              = 0;
+typedef struct css_parser_node_block_t
+{
+    css_parser_node_t nodes[BLOCK_SIZE];
+    struct css_parser_node_block_t* next;
+    struct css_parser_node_block_t* prev;
 
-static css_parser_decl_t* decl_blocks[BLOCKS_SIZE]              = { 0 };
-static uint32_t decl_block                                      = 0;
-static uint32_t decl_block_idx                                  = 0;
+} css_parser_node_block_t;
 
-static css_parser_rule_t* rule_blocks[BLOCKS_SIZE]              = { 0 };
-static uint32_t rule_block                                      = 0;
-static uint32_t rule_block_idx                                  = 0;
-
-static css_parser_stylesheet_t* stylesheet_blocks[BLOCKS_SIZE]  = { 0 };
-static uint32_t stylesheet_block                                = 0;
-static uint32_t stylesheet_block_idx                            = 0;
+static css_parser_node_block_t first    = { 0 };
+static css_parser_node_block_t* current = &first;
+static uint32_t block_idx               = 0;
 
 /********************/
 /* static functions */
 /********************/
-
 
 /********************/
 /* public functions */
@@ -48,223 +44,120 @@ static uint32_t stylesheet_block_idx                            = 0;
 
 void css_parser_types_init()
 {
-    comp_val_blocks[comp_val_block] = malloc(sizeof(css_parser_comp_val_t) * BLOCK_SIZE);
+    
 }
 
 
-css_parser_comp_val_t* css_parser_comp_val_new()
+css_parser_node_t* css_parser_node_new(hash_str_t name, css_parser_node_type_e type)
 {
-    css_parser_comp_val_t* val = &comp_val_blocks[comp_val_block][comp_val_block_idx];
-    comp_val_block_idx++;
-
-    if (comp_val_block_idx < BLOCK_SIZE) { return val; }
-
-    comp_val_block++;
-    comp_val_block_idx = 0;
-
-    assert(comp_val_block < BLOCKS_SIZE);
-
-    if (comp_val_blocks[comp_val_block] != NULL) { return val; }
-
-    comp_val_blocks[comp_val_block] = malloc(sizeof(css_parser_comp_val_t) * BLOCK_SIZE);
-
-    return val;
-}
-
-
-css_parser_decl_t* css_parser_decl_new()
-{
-    css_parser_decl_t* val = &decl_blocks[decl_block][decl_block_idx];
-    decl_block_idx++;
-
-    if (decl_block_idx < BLOCK_SIZE) { return val; }
-
-    decl_block++;
-    decl_block_idx = 0;
-
-    assert(decl_block < BLOCKS_SIZE);
-
-    if (decl_blocks[decl_block] != NULL) { return val; }
-
-    decl_blocks[decl_block] = malloc(sizeof(css_parser_decl_t) * BLOCK_SIZE);
-
-    return val;
-}
-
-
-css_parser_rule_t* css_parser_rule_new()
-{
-    css_parser_rule_t* val = &rule_blocks[rule_block][rule_block_idx];
-    rule_block_idx++;
-
-    if (rule_block_idx < BLOCK_SIZE) { return val; }
-
-    rule_block++;
-    rule_block_idx = 0;
-
-    assert(rule_block < BLOCKS_SIZE);
-
-    if (rule_blocks[rule_block] != NULL) { return val; }
-
-    rule_blocks[rule_block] = malloc(sizeof(css_parser_rule_t) * BLOCK_SIZE);
-
-    return val;
-}
-
-
-css_parser_stylesheet_t* css_parser_stylesheet_new()
-{
-    css_parser_stylesheet_t* val = &stylesheet_blocks[stylesheet_block][stylesheet_block_idx];
-    stylesheet_block_idx++;
-
-    if (stylesheet_block_idx < BLOCK_SIZE) { return val; }
-
-    stylesheet_block++;
-    stylesheet_block_idx = 0;
-
-    assert(stylesheet_block < BLOCKS_SIZE);
-
-    if (stylesheet_blocks[stylesheet_block] != NULL) { return val; }
-
-    stylesheet_blocks[stylesheet_block] = malloc(sizeof(css_parser_stylesheet_t) * BLOCK_SIZE);
-
-    return val;
-}
-
-
-void css_parser_rule_add_comp_val(css_parser_rule_t* rule, css_parser_comp_val_t* c_val)
-{
-    if (!rule->comp_vals)
+    if (block_idx == BLOCK_SIZE)
     {
-        rule->comp_vals = c_val;
-        rule->comp_vals_size++;
+        css_parser_node_block_t* block =  malloc(sizeof(css_parser_node_block_t));
+        memset(block, 0, sizeof(css_parser_node_block_t));
+
+        current->next   = block;
+        block->prev     = current;
+        current         = block;
+        block_idx       = 0;
+    }
+
+    css_parser_node_t* node = &current->nodes[block_idx];
+    node->name              = name;
+    node->type              = type;
+
+    block_idx++;
+
+    return node;
+}
+
+
+void css_parser_node_add_sibling(css_parser_node_t* node, css_parser_node_t* sibling)
+{
+    if (!sibling) { return; }
+
+    css_parser_node_t* tmp = node;
+    while (tmp->next) { tmp = tmp->next; }
+
+    tmp->next = sibling;
+    sibling->prev = tmp;
+    sibling->parent = tmp->parent;
+}
+
+
+void css_parser_node_add_comp_val(css_parser_node_t* node, css_parser_node_t* child)
+{
+    if (!child) { return; }
+
+    child->parent = node;
+
+    if (!node->comp_vals)
+    {
+        node->comp_vals = child;
     }
     else
     {
-        css_parser_comp_val_t* child = rule->comp_vals;
-
-        while (child->next)
-        {
-            child = child->next;
-        }
-
-        child->next = c_val;
-        rule->comp_vals_size++;
+        css_parser_node_add_sibling(node->comp_vals, child);
     }
 }
 
 
-void css_parser_rule_add_decl(css_parser_rule_t* rule, css_parser_decl_t* decl)
+void css_parser_node_add_decl(css_parser_node_t* node, css_parser_node_t* child)
 {
-    if (!rule->decls)
+    if (!child) { return; }
+
+    child->parent = node;
+
+    if (!node->decls)
     {
-        rule->decls = decl;
-        rule->decls_size++;
+        node->decls = child;
     }
     else
     {
-        css_parser_decl_t* child = rule->decls;
-
-        while (child->next)
-        {
-            child = child->next;
-        }
-
-        child->next = decl;
-        rule->decls_size++;
+        css_parser_node_add_sibling(node->decls, child);
     }
 }
 
 
-void css_parser_rule_add_rule(css_parser_rule_t* rule, css_parser_rule_t* n_rule)
+void css_parser_node_add_rule(css_parser_node_t* node, css_parser_node_t* child)
 {
-    if (!rule->rules)
+    if (!child) { return; }
+
+    child->parent = node;
+
+    if (!node->rules)
     {
-        rule->rules = n_rule;
-        rule->rules_size++;
+        node->rules = child;
     }
     else
     {
-        css_parser_rule_t* child = rule->rules;
-
-        while (child->next)
-        {
-            child = child->next;
-        }
-
-        child->next = n_rule;
-        rule->rules_size++;
-    }
-}
-
-
-void css_parser_comp_val_add_comp_val(css_parser_comp_val_t* c_val, css_parser_comp_val_t* child_val)
-{
-    if (!c_val->comp_vals)
-    {
-        c_val->comp_vals = child_val;
-        c_val->comp_vals_size++;
-    }
-    else
-    {
-        css_parser_comp_val_t* child = c_val->comp_vals;
-
-        while (child->next)
-        {
-            child = child->next;
-        }
-
-        child->next = child_val;
-        c_val->comp_vals_size++;
-    }
-}
-
-
-void css_parser_decl_add_comp_val(css_parser_decl_t* decl, css_parser_comp_val_t* c_val)
-{
-    if (!decl->comp_vals)
-    {
-        decl->comp_vals = c_val;
-        decl->comp_vals_size++;
-    }
-    else
-    {
-        css_parser_comp_val_t* child = decl->comp_vals;
-
-        while (child->next)
-        {
-            child = child->next;
-        }
-
-        child->next = c_val;
-        decl->comp_vals_size++;
+        css_parser_node_add_sibling(node->rules, child);
     }
 }
 
 
 void css_parser_types_reset()
 {
-    comp_val_block          = 0;
-    comp_val_block_idx      = 0;
+    css_parser_node_block_t* tmp = current;
+    while (tmp->prev)
+    {
+        tmp = tmp->prev;
+        memset(tmp->next, 0, sizeof(css_parser_node_block_t));
+    }
 
-    decl_block              = 0;
-    decl_block_idx          = 0;
+    memset(tmp, 0, sizeof(css_parser_node_block_t));
 
-    rule_block              = 0;
-    rule_block_idx          = 0;
-
-    stylesheet_block        = 0;
-    stylesheet_block_idx    = 0;
+    current = &first;
+    block_idx = 0;
 }
 
 
 void css_parser_types_free()
 {
-    for (uint32_t i = 0; i < BLOCKS_SIZE; i++)
+    css_parser_node_block_t* prev = current;
+
+    while (&first != prev)
     {
-        free(comp_val_blocks[i]);
-        free(decl_blocks[i]);
-        free(rule_blocks[i]);
-        free(stylesheet_blocks[i]);
+        prev = prev->prev;
+        free(prev->next);
     }
 }

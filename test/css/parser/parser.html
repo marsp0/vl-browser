@@ -1,0 +1,17 @@
+<html>
+    <head>
+    <script src="parser.js"></script>
+    </head>
+    <body>
+    <textarea id="userInput" rows="4" placeholder="Enter text" style="width: 800px;"></textarea>
+    <button onclick="handleClick()">Submit</button>
+    <pre id="output"></pre>
+
+    <script>
+    function handleClick() {
+      const result = parseAStylesheet(document.getElementById('userInput').value); // returns JSON object
+      document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+    }
+    </script>
+	</body>
+</html>

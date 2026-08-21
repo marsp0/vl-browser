@@ -3,7 +3,9 @@
 #include <assert.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 
+#include "util/not_implemented.h"
 #include "css/tokenizer.h"
 #include "css/parser_types.h"
 
@@ -16,68 +18,186 @@
 /*      defines     */
 /********************/
 
-static css_parser_comp_val_t*  consume_comp_val();
-static css_parser_rule_t*      consume_at_rule(bool nested);
+#define MAX_TOKENS 1000
+#define MAX_MARKS 50
 
-// static bool marks[20]       = { false };
-// static uint32_t marks_idx   = 0;
-
-static css_token_t tokens[100] = { 0 };
-static uint32_t tokens_idx = 0;
-static uint32_t tokens_size = 0;
+static css_parser_node_t* css_parser_consume_token();
+static css_parser_node_t* css_parser_consume_comp_val();
+static css_parser_node_t* css_parser_consume_at_rule(bool nested);
+static css_parser_node_t* css_parser_consume_q_rule(bool nested, css_token_type_e stop);
 
 /********************/
 /* static variables */
 /********************/
 
+static css_token_t* buf[MAX_TOKENS] = { 0 };
+static uint32_t buf_cur = 0;
+static uint32_t buf_size = 0;
+static css_token_t eof_token = { 0 };
+
+static uint32_t marks[MAX_MARKS];
+static uint32_t mark_idx = 0;
 
 /********************/
 /* static functions */
 /********************/
 
-static css_token_t* tokens_next()
+static void insert_mark()
 {
-    return &tokens[tokens_idx];
+    mark_idx++;
+    marks[mark_idx] = buf_cur;
 }
 
 
-static void tokens_consume()
+static void discard_mark()
 {
-    tokens_idx++;
-    assert(tokens_idx < 100);
+    marks[mark_idx] = 0;
+    mark_idx--;
 }
 
 
-static void tokens_discard()
+static void restore_mark()
 {
-    tokens_idx++;
-    assert(tokens_idx < 100);
+    buf_cur = marks[mark_idx];
+    marks[mark_idx] = 0;
+    mark_idx--;
 }
 
 
-static css_parser_comp_val_t* consume_function()
+static css_token_t* next_token()
 {
-    tokens_consume();
+    if (buf_cur >= buf_size) { return &eof_token; }
+    return buf[buf_cur];
+}
 
-    css_parser_comp_val_t* func = css_parser_comp_val_new();
+
+static css_token_t* consume_token()
+{
+    if (buf_cur >= buf_size) { return &eof_token; }
+
+    css_token_t* t = buf[buf_cur];
+    buf_cur++;
+    return t;
+}
+
+
+static void discard_token()
+{
+    buf_cur++;
+}
+
+
+static void discard_whitespace()
+{
+    css_token_t* t = next_token();
+    while (t->type == CSS_TOKEN_WHITESPACE)
+    {
+        consume_token();
+        t = next_token();
+    }
+}
+
+
+static bool is_custom_property()
+{
+    return false;
+}
+
+
+static bool is_valid(css_parser_node_t* node)
+{
+    // copied from https://github.com/tabatkins/parse-css
+
+    if (node->type == CSS_PARSER_NODE_TYPE_AT_RULE) { return true; }
+
+    // Exclude qualified rules that ended up with a semicolon
+    // in their prelude.
+    // (Can only happen at the top level of a stylesheet.)
+    if (node->type == CSS_PARSER_NODE_TYPE_Q_RULE)
+    {
+        css_parser_node_t* prelude = node->comp_vals;
+        while (prelude)
+        {
+            if (prelude->type == CSS_PARSER_NODE_TYPE_TOKEN && prelude->token->type == CSS_TOKEN_SEMICOLON) { return false; }
+            prelude = prelude->next;
+        }
+
+        return true;
+    }
+
+    // Exclude properties that ended up with a {}-block
+    // in their value, unless they're custom.
+
+    if (node->type == CSS_PARSER_NODE_TYPE_DECL)
+    {
+        css_parser_node_t* comp_val = node->comp_vals;
+        while (comp_val)
+        {
+            if (comp_val->type == CSS_PARSER_NODE_TYPE_BLOCK) { return false; }
+            comp_val = comp_val->next;
+        }
+        return true;
+    }
+
+    return false;
+}
+
+
+static css_parser_node_t* filter_valid(css_parser_node_t* node)
+{
+    if (!node) { return node; }
+
+    if (is_valid(node)) { return node; }
+
+    return NULL;
+}
+
+
+static void css_parser_tokenize()
+{
+    // TEMP (mspasov): consume all tokens
+    while (true)
+    {
+        buf[buf_size]     = css_token_new();
+        css_token_t new_token   = css_tokenizer_next();
+        memcpy(buf[buf_size], &new_token, sizeof(css_token_t));
+        buf_size++;
+
+        if (new_token.type == CSS_TOKEN_EOF) { break; }
+
+        assert(buf_size < MAX_TOKENS);
+    }
+}
+
+
+static css_parser_node_t* css_parser_consume_function()
+{
+    css_token_t* t = consume_token();
+    css_token_type_e type = t->type;
+    assert(type == CSS_TOKEN_FUNCTION);
+
+    hash_str_t f_name = hash_str_new(t->data, t->data_size);
+    css_parser_node_t* func = css_parser_node_new(f_name, CSS_PARSER_NODE_TYPE_FUNCTION);
 
     bool run = true;
     while (run)
     {
-        css_token_t* t = tokens_next();
+        t = next_token();
+        type = t->type;
 
-        switch(t->type)
+        switch(type)
         {
             case CSS_TOKEN_EOF:
             case CSS_TOKEN_CLOSED_PARENTHESIS:
-                tokens_discard();
+                discard_token();
                 run = false;
                 break;
 
             default:
-                run = false;
-                css_parser_comp_val_t* c_val = consume_comp_val();
-                if (c_val) { css_parser_comp_val_add_comp_val(func, c_val); }
+                ;
+                css_parser_node_t* c_val = css_parser_consume_comp_val();
+                css_parser_node_add_comp_val(func, c_val);
+                break;
         }
     }
 
@@ -85,237 +205,304 @@ static css_parser_comp_val_t* consume_function()
 }
 
 
-static css_parser_comp_val_t* consume_simple_block()
+static css_parser_node_t* css_parser_consume_simple_block(css_token_type_e open)
 {
-    css_parser_comp_val_t* comp_val = css_parser_comp_val_new();
+    css_token_type_e stop = CSS_TOKEN_CLOSED_PARENTHESIS;
+    if (open == CSS_TOKEN_OPEN_BRACE)           { stop = CSS_TOKEN_CLOSED_BRACE; }
+    else if (open == CSS_TOKEN_OPEN_BRACKET)    { stop = CSS_TOKEN_CLOSED_BRACKET; }
 
-    css_token_t* t = tokens_next();
+    css_parser_node_t* block = css_parser_node_new(0, CSS_PARSER_NODE_TYPE_BLOCK);
+    css_token_t* t = consume_token();
+    css_token_type_e type = t->type;
 
-    css_token_type_e mirror = CSS_TOKEN_EOF;
-    if (t->type == CSS_TOKEN_OPEN_BRACE)        { mirror = CSS_TOKEN_CLOSED_BRACE; }
-    if (t->type == CSS_TOKEN_OPEN_BRACKET)      { mirror = CSS_TOKEN_CLOSED_BRACKET; }
-    if (t->type == CSS_TOKEN_OPEN_PARENTHESIS)  { mirror = CSS_TOKEN_CLOSED_PARENTHESIS; }
-
-    tokens_consume();
-
-    t = tokens_next();
-
-    if (t->type == CSS_TOKEN_EOF || t->type == mirror)
-    {
-        tokens_discard();
-    }
-    else
-    {
-        css_parser_comp_val_t* c_val = consume_comp_val();
-        if (c_val) { css_parser_comp_val_add_comp_val(comp_val, c_val); }
-    }
-
-    return comp_val;
-}
-
-
-static css_parser_comp_val_t* consume_comp_val()
-{
     bool run = true;
     while (run)
     {
-        css_token_t* t = tokens_next();
+        t = next_token();
+        type = t->type;
 
-        switch(t->type)
+        if (type == CSS_TOKEN_EOF || type == stop)
         {
-            case CSS_TOKEN_OPEN_BRACE:
-            case CSS_TOKEN_OPEN_BRACKET:
-            case CSS_TOKEN_OPEN_PARENTHESIS:
-                return consume_simple_block();
-
-            case CSS_TOKEN_FUNCTION:
-                return consume_function();
-
-            default:
-                tokens_consume();
-                run = false;
-        }
-    }
-
-    return NULL;
-}
-
-
-static void consume_comp_val_list(css_parser_decl_t* decl, css_token_type_e stop, bool nested)
-{
-    bool run = true;
-
-    while (run)
-    {
-        css_token_t* t = tokens_next();
-
-        if (t->type == CSS_TOKEN_EOF || t->type == stop)
-        {
+            discard_token();
             run = false;
-        }
-        else if (t->type == CSS_TOKEN_CLOSED_BRACE)
-        {
-            run = false;
-            if (!nested) { tokens_consume(); }
         }
         else
         {
-            css_parser_comp_val_t* n_val = consume_comp_val();
-            if (n_val) { css_parser_decl_add_comp_val(decl, n_val); }
+            css_parser_node_t* val = css_parser_consume_comp_val();
+            css_parser_node_add_comp_val(block, val);
         }
     }
+
+    return block;
 }
 
 
-static void consume_bad_decl(bool nested)
+static css_parser_node_t* css_parser_consume_comp_val()
 {
+    css_token_t* t = next_token();
+    css_token_type_e type = t->type;
+
+    if (type == CSS_TOKEN_OPEN_BRACE || type == CSS_TOKEN_OPEN_BRACKET || type == CSS_TOKEN_OPEN_PARENTHESIS)
+    {
+        return css_parser_consume_simple_block(type);
+    }
+    else if (type == CSS_TOKEN_FUNCTION)
+    {
+        return css_parser_consume_function();
+    }
+
+    return css_parser_consume_token();
+}
+
+
+static css_parser_node_t* css_parser_consume_comp_vals(bool nested, css_token_type_e stop)
+{
+    css_parser_node_t* first = NULL;
+
     bool run = true;
     while (run)
     {
-        css_token_t* t = tokens_next();
+        css_token_t* t = next_token();
+        css_token_type_e type = t->type;
 
-        switch(t->type)
+        if (type == CSS_TOKEN_EOF || type == stop)
         {
-            case CSS_TOKEN_EOF:
-            case CSS_TOKEN_SEMICOLON:
-                tokens_discard();
+            run = false;
+        }
+        else if (type == CSS_TOKEN_CLOSED_BRACE)
+        {
+            if (nested)
+            {
                 run = false;
-                break;
-
-            case CSS_TOKEN_CLOSED_BRACE:
-                if (nested)
+            }
+            else
+            {
+                css_parser_node_t* p_token = css_parser_consume_token();
+                if (first)
                 {
-                    run = false;
+                    css_parser_node_add_sibling(first, p_token);
                 }
                 else
                 {
-                    tokens_discard();
+                    first = p_token;
                 }
-                break;
+            }
+        }
+        else
+        {
+            css_parser_node_t* comp_val = css_parser_consume_comp_val();
+            if (first)
+            {
+                css_parser_node_add_sibling(first, comp_val);
+            }
+            else
+            {
+                first = comp_val;
+            }
+        }
+    }
 
-            default:
-                consume_comp_val();
+    return first;
+}
+
+
+static void css_parser_consume_bad_decl(bool nested)
+{
+    bool run = true;
+    while (run)
+    {
+        css_token_t* t = next_token();
+        css_token_type_e type = t->type;
+
+        if (type == CSS_TOKEN_EOF || type == CSS_TOKEN_SEMICOLON)
+        {
+            discard_token();
+            return;
+        }
+        else if (type == CSS_TOKEN_CLOSED_BRACE)
+        {
+            if (nested)
+            {
+                return;
+            }
+            else
+            {
+                discard_token();
+            }
+        }
+        else
+        {
+            css_parser_consume_comp_val();
         }
     }
 }
 
 
-static css_parser_decl_t* consume_decl(bool nested)
+static css_parser_node_t* css_parser_consume_token()
 {
-    css_parser_decl_t* decl = css_parser_decl_new();
+    css_token_t* t = consume_token();
+    css_parser_node_t* node = css_parser_node_new(hash_str_new(t->data, t->data_size), CSS_PARSER_NODE_TYPE_TOKEN);
+    node->token = t;
 
-    css_token_t* t = tokens_next();
-
-    if (t->type == CSS_TOKEN_IDENT)
-    {
-        memcpy(decl->name, t->data, t->data_size);
-        decl->name_size = t->data_size;
-        tokens_consume();
-    }
-    else
-    {
-        consume_bad_decl(nested);
-        return NULL;
-    }
-
-    t = tokens_next();
-    while (t->type == CSS_TOKEN_WHITESPACE)
-    {
-        tokens_discard();
-        t = tokens_next();
-    }
-
-    if (t->type == CSS_TOKEN_COLON)
-    {
-        tokens_discard();
-    }
-    else
-    {
-        consume_bad_decl(nested);
-        return NULL;
-    }
-
-    t = tokens_next();
-    while (t->type == CSS_TOKEN_WHITESPACE)
-    {
-        tokens_discard();
-        t = tokens_next();
-    }
-
-    consume_comp_val_list(decl, CSS_TOKEN_SEMICOLON, nested);
-
-    return decl;
+    return node;
 }
 
 
-static void consume_block(css_parser_rule_t* rule)
+static css_parser_node_t* css_parser_consume_decl(bool nested)
 {
-    css_parser_rule_t* t_rule = css_parser_rule_new();
+    css_parser_node_t* decl = NULL;
+    css_token_t* t = next_token();
+    css_token_type_e type = t->type;
 
-    tokens_consume();
+    if (type == CSS_TOKEN_IDENT)
+    {
+        hash_str_t name = hash_str_new(t->data, t->data_size);
+        decl = css_parser_node_new(name, CSS_PARSER_NODE_TYPE_DECL);
+        consume_token();
+    }
+    else
+    {
+        css_parser_consume_bad_decl(nested);
+        return NULL;
+    }
+
+    discard_whitespace();
+
+    t = next_token();
+    type = t->type;
+
+    if (type == CSS_TOKEN_COLON)
+    {
+        discard_token();
+    }
+    else
+    {
+        css_parser_consume_bad_decl(nested);
+        return NULL;
+    }
+
+    discard_whitespace();
+    decl->comp_vals = css_parser_consume_comp_vals(nested, CSS_TOKEN_SEMICOLON);
+
+    // handle !important flag
+
+    // remove trailing whitespace tokens
+    css_parser_node_t* tmp = decl->comp_vals;
+    while (tmp->next) { tmp = tmp->next; }
+
+    if (tmp->type == CSS_PARSER_NODE_TYPE_TOKEN && tmp->token->type == CSS_TOKEN_WHITESPACE)
+    {
+        tmp = tmp->prev;
+        tmp->next = NULL;
+    }
+    return filter_valid(decl);
+}
+
+
+static void css_parser_consume_block_contents(css_parser_node_t* parent)
+{
+    css_parser_node_t* rules = NULL;
+    css_parser_node_t* decls = NULL;
 
     bool run = true;
     while (run)
     {
-        css_token_t* t = tokens_next();
+        css_token_t* t = next_token();
+        css_token_type_e type = t->type;
 
-        switch(t->type)
+        switch(type)
         {
             case CSS_TOKEN_WHITESPACE:
             case CSS_TOKEN_SEMICOLON:
-                tokens_discard();
+                discard_token();
                 break;
 
-            case CSS_TOKEN_EOF:
             case CSS_TOKEN_CLOSED_BRACE:
+            case CSS_TOKEN_EOF:
                 run = false;
                 break;
 
             case CSS_TOKEN_AT_KEYWORD:
-                if (t_rule->decls_size > 0)
+                ;
+                css_parser_node_t* at_rule = css_parser_consume_at_rule(true);
+                if (rules)
                 {
-                    css_parser_decl_t* d = t_rule->decls;
-                    css_parser_rule_add_decl(rule, d);
-                    t_rule->decls = NULL;
-                    t_rule->decls_size = 0;
+                    css_parser_node_add_sibling(rules, at_rule);
                 }
-
-                css_parser_rule_t* n_rule = consume_at_rule(true);
-                if (n_rule) { css_parser_rule_add_rule(rule, n_rule); }
+                else
+                {
+                    rules = at_rule;
+                }
                 break;
 
             default:
-                ;
-                css_parser_decl_t* decl = consume_decl(true);
-                if (decl) { css_parser_rule_add_decl(rule, decl); }
-
-                // todo: handle the Otherwise clause
+                insert_mark();
+                css_parser_node_t* decl = css_parser_consume_decl(true);
+                if (decl)
+                {
+                    if (decls)
+                    {
+                        css_parser_node_add_sibling(decls, decl);
+                    }
+                    else
+                    {
+                        decls = decl;
+                    }
+                    discard_mark();
+                }
+                else
+                {
+                    restore_mark();
+                    css_parser_node_t* rule = css_parser_consume_q_rule(true, CSS_TOKEN_SEMICOLON);
+                    if (rules)
+                    {
+                        css_parser_node_add_sibling(rules, rule);
+                    }
+                    else
+                    {
+                        rules = rule;
+                    }
+                }
+                break;
         }
     }
 
+    css_parser_node_add_decl(parent, decls);
+    css_parser_node_add_rule(parent, rules);
+}
+
+
+static void css_parser_consume_block(css_parser_node_t* parent)
+{
+    css_token_t* t = consume_token();
+    assert(t->type == CSS_TOKEN_OPEN_BRACE);
+
+    css_parser_consume_block_contents(parent);
+
+    discard_token();
     return;
 }
 
 
-static css_parser_rule_t* consume_at_rule(bool nested)
+static css_parser_node_t* css_parser_consume_at_rule(bool nested)
 {
-    css_token_t* t = tokens_next();
-    css_parser_rule_t* rule = css_parser_rule_new();
-    memcpy(rule->name, t->data, t->data_size);
-    rule->name_size = t->data_size;
+    css_token_t* t = consume_token();
+    assert(t->type == CSS_TOKEN_AT_KEYWORD);
 
-    tokens_consume();
+    hash_str_t name = hash_str_new(t->data, t->data_size);
+    css_parser_node_t* rule = css_parser_node_new(name, CSS_PARSER_NODE_TYPE_AT_RULE);
 
     bool run = true;
     while (run)
     {
-        t = tokens_next();
+        t = next_token();
+        css_token_type_e type = t->type;
 
-        switch (t->type)
+        switch (type)
         {
             case CSS_TOKEN_SEMICOLON:
             case CSS_TOKEN_EOF:
-                tokens_discard();
+                discard_token();
                 run = false;
                 break;
 
@@ -326,31 +513,126 @@ static css_parser_rule_t* consume_at_rule(bool nested)
                 }
                 else
                 {
-                    css_parser_comp_val_t* c_val = css_parser_comp_val_new();
-                    c_val->type = CSS_PARSER_COMP_VAL_TOKEN;
-                    c_val->token = *t;
-                    css_parser_rule_add_comp_val(rule, c_val);
+                    // todo: parse error
+                    css_parser_node_t* p_token = css_parser_consume_token();
+                    css_parser_node_add_comp_val(rule, p_token);
                 }
                 break;
 
             case CSS_TOKEN_OPEN_BRACE:
-                consume_block(rule);
+                css_parser_consume_block(rule);
+                run = false;
                 break;
 
             default:
                 ;
-                css_parser_comp_val_t* c_val = consume_comp_val();
-                if (c_val) { css_parser_rule_add_comp_val(rule, c_val); }
+                css_parser_node_t* comp_val = css_parser_consume_comp_val();
+                css_parser_node_add_comp_val(rule, comp_val);
+                break;
         }
     }
 
-    return rule;
+    return filter_valid(rule);
 }
 
 
-static css_parser_rule_t* consume_qualified_rule()
+static css_parser_node_t* css_parser_consume_q_rule(bool nested, css_token_type_e stop)
 {
-    return NULL;
+    css_parser_node_t* rule = css_parser_node_new(0, CSS_PARSER_NODE_TYPE_Q_RULE);
+
+    bool run = true;
+    while (run)
+    {
+        css_token_t* t = next_token();
+        css_token_type_e type = t->type;
+
+        if (type == CSS_TOKEN_EOF || type == stop)
+        {
+            rule = NULL;
+            run = false;
+        }
+        else if (type == CSS_TOKEN_CLOSED_BRACE)
+        {
+            if (nested)
+            {
+                rule = NULL;
+                run = false;
+            }
+            else
+            {
+                css_parser_node_add_comp_val(rule, css_parser_consume_token());
+            }
+        }
+        else if (type == CSS_TOKEN_OPEN_BRACE)
+        {
+            if (is_custom_property()) // custom property
+            {
+                NOT_IMPLEMENTED
+            }
+            else
+            {
+                css_parser_consume_block(rule);
+
+                run = false;
+            }
+        }
+        else
+        {
+            css_parser_node_add_comp_val(rule, css_parser_consume_comp_val());
+        }
+    }
+
+    return filter_valid(rule);
+}
+
+
+static css_parser_node_t* css_parser_consume_stylesheet_contents()
+{
+    css_parser_node_t* first = NULL;
+    bool run = true;
+
+    while (run)
+    {
+        css_token_t* t = next_token();
+        css_token_type_e type = t->type;
+        css_parser_node_t* rule = NULL;
+
+        switch(type)
+        {
+            case CSS_TOKEN_WHITESPACE:
+                discard_token();
+                break;
+
+            case CSS_TOKEN_EOF:
+                run = false;
+                break;
+
+            case CSS_TOKEN_CDO:
+            case CSS_TOKEN_CDC:
+                discard_token();
+                break;
+
+            case CSS_TOKEN_AT_KEYWORD:
+                rule = css_parser_consume_at_rule(false);
+
+                if (first)  { css_parser_node_add_sibling(first, rule); }
+                else        { first = rule; }
+
+                rule = NULL;
+                break;
+
+            default:
+                rule = css_parser_consume_q_rule(false, CSS_TOKEN_EOF);
+
+                if (first)  { css_parser_node_add_sibling(first, rule); }
+                else        { first = rule; }
+
+                rule = NULL;
+                break;
+        }
+    }
+
+    return first;
 }
 
 
@@ -359,61 +641,24 @@ static css_parser_rule_t* consume_qualified_rule()
 /********************/
 
 
-void css_parser_init(const unsigned char* buf, uint32_t buf_size)
+void css_parser_init(const unsigned char* raw_buf, uint32_t raw_buf_size)
 {
-    tokens_size = 0;
-    memset(tokens, 0, sizeof(tokens));
+    buf_size = 0;
+    buf_cur = 0;
+    memset(buf, 0, sizeof(buf));
     css_parser_types_reset();
-    css_tokenizer_init(buf, buf_size);
+    css_tokenizer_init(raw_buf, raw_buf_size);
 }
 
 
-css_parser_result_t css_parser_run()
+css_parser_node_t* css_parser_parse_stylesheet()
 {
-    css_parser_result_t p_result = { .result = OPERATION_OK };
+    css_parser_tokenize();
+    css_parser_node_t* stylesheet = css_parser_node_new(0, CSS_PARSER_NODE_TYPE_STYLESHEET);
+    css_parser_node_t* rules = css_parser_consume_stylesheet_contents();
+    css_parser_node_add_rule(stylesheet, rules);
 
-    // TEMP (mspasov): consume all tokens
-    while (true)
-    {
-        tokens[tokens_size] = css_tokenizer_next();
-        tokens_size++;
-
-        if (tokens[tokens_size - 1].type == CSS_TOKEN_EOF)
-        {
-            break;
-        }
-
-        assert(tokens_size < 100);
-    }
-
-    bool run = true;
-
-    while (run)
-    {
-        css_token_t* t = tokens_next();
-
-        switch (t->type)
-        {
-            case CSS_TOKEN_WHITESPACE:
-            case CSS_TOKEN_CDO:
-            case CSS_TOKEN_CDC:
-                tokens_discard();
-                break;
-    
-            case CSS_TOKEN_EOF:
-                run = false;
-                break;
-    
-            case CSS_TOKEN_AT_KEYWORD:
-                consume_at_rule(false);
-                break;
-    
-            default:
-                consume_qualified_rule();
-        }
-    }
-
-    return p_result;
+    return stylesheet;
 }
 
 
