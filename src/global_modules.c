@@ -1,17 +1,19 @@
 #include "global_modules.h"
 
-#include "html/tokenizer.h"
-#include "css/tokenizer.h"
-
 #include "dom/hash_str.h"
+
+#include "html/tokenizer.h"
+#include "html/svg_attr_map.h"
+#include "html/ns_constants.h"
 #include "html/tag_constants.h"
+#include "html/attr_constants.h"
+#include "html/named_char_refs.h"
 #include "html/svg_tag_constants.h"
 #include "html/mathml_tag_constants.h"
-#include "html/attr_constants.h"
-#include "html/svg_attr_map.h"
 #include "html/mathml_attr_constants.h"
-#include "html/ns_constants.h"
-#include "html/named_char_refs.h"
+
+#include "css/tokenizer.h"
+#include "css/parser_types.h"
 
 void global_modules_init()
 {
@@ -30,6 +32,7 @@ void global_modules_init()
     svg_attr_map_init();
 
     html_populate_namespaces();
+    css_parser_types_init();
 }
 
 
@@ -39,4 +42,5 @@ void global_modules_free()
     html_named_char_ref_map_free();
     html_tokenizer_global_free();
     css_tokenizer_global_free();
+    css_parser_types_free();
 }
