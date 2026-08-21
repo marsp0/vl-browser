@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "test_utils.h"
+#include "css/tokenizer/test_tokenizer_utils.h"
 
 #include "css/parser_types.h"
 
@@ -166,6 +167,7 @@ void ASSERT_CSS_PARSER_NODE(css_parser_node_t* a, css_parser_node_t* e)
 
     ASSERT_HASH_STRING(a->name, e->name);
     ASSERT_EQUAL(a->type, e->type);
+    ASSERT_CSS_TOKEN(a->token, e->token);
 
     css_parser_node_t* a_sibling = a->next;
     css_parser_node_t* e_sibling = e->next;

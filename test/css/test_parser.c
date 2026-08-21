@@ -53,6 +53,15 @@ static css_parser_node_t* new_token_node(css_token_type_e type)
 }
 
 
+static css_parser_node_t* new_hash_node(hash_str_t data, css_token_hash_type_e hash_type)
+{
+    css_parser_node_t* n = new_data_token_node(data, CSS_TOKEN_HASH);
+    n->token->hash_type = hash_type;
+
+    return n;
+}
+
+
 static void test_parser_1()
 {
     /*
@@ -501,7 +510,7 @@ static void test_parser_7()
     hash_str_t foo_str              = hash_str_new("foo", 3);
     css_parser_node_t* expected     = css_parser_node_new(0, CSS_PARSER_NODE_TYPE_STYLESHEET);
     css_parser_node_t* q_rule       = css_parser_node_new(0, CSS_PARSER_NODE_TYPE_Q_RULE);
-    css_parser_node_t* foo_n        = new_data_token_node(foo_str, CSS_TOKEN_HASH);
+    css_parser_node_t* foo_n        = new_hash_node(foo_str, CSS_TOKEN_HASH_ID);
     css_parser_node_t* ws_n         = new_token_node(CSS_TOKEN_WHITESPACE);
 
     css_parser_node_add_rule(expected, q_rule);
