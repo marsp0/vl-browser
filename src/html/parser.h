@@ -1,8 +1,9 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
-#include "dom/node.h"
+typedef struct dom_node_t dom_node_t;
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-insertion-mode
 typedef enum

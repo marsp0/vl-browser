@@ -40,7 +40,7 @@ typedef enum
     CSS_TOKEN_COMMENT
 } css_token_type_e;
 
-typedef struct
+typedef struct css_token_t
 {
     css_token_type_e        type;
     unsigned char           data[CSS_TOKEN_MAX_DATA_SIZE];

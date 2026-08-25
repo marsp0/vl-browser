@@ -2,7 +2,16 @@
 
 #include <stdlib.h>
 
-void ASSERT_NODE_DOCTYPE(dom_doctype_t* a, dom_doctype_t* e)
+#include "test_utils.h"
+
+#include "dom/document.h"
+#include "dom/doctype.h"
+#include "dom/text.h"
+#include "dom/element.h"
+#include "dom/comment.h"
+#include "dom/attribute.h"
+
+static void ASSERT_NODE_DOCTYPE(dom_doctype_t* a, dom_doctype_t* e)
 {
     if (!a || !e)
     {
@@ -15,7 +24,7 @@ void ASSERT_NODE_DOCTYPE(dom_doctype_t* a, dom_doctype_t* e)
 }
 
 
-void ASSERT_NODE_ELEMENT_ATTRIBUTES(dom_element_t* a, dom_element_t* e)
+static void ASSERT_NODE_ELEMENT_ATTRIBUTES(dom_element_t* a, dom_element_t* e)
 {
     ASSERT_EQUAL(a->attr_size, e->attr_size);
     if (a->attr_size == e->attr_size)
@@ -33,14 +42,14 @@ void ASSERT_NODE_ELEMENT_ATTRIBUTES(dom_element_t* a, dom_element_t* e)
 }
 
 
-void ASSERT_NODE_TEXT(dom_text_t* a, dom_text_t* e)
+static void ASSERT_NODE_TEXT(dom_text_t* a, dom_text_t* e)
 {
     ASSERT_EQUAL(a->data_size, e->data_size);
     ASSERT_STRING((char)a->data, (char)e->data, a->data_size);
 }
 
 
-void ASSERT_NODE_DOCUMENT(dom_document_t* a, dom_document_t* e)
+static void ASSERT_NODE_DOCUMENT(dom_document_t* a, dom_document_t* e)
 {
     ASSERT_EQUAL(a->parser_cannot_change_mode, e->parser_cannot_change_mode);
 
@@ -53,14 +62,14 @@ void ASSERT_NODE_DOCUMENT(dom_document_t* a, dom_document_t* e)
 }
 
 
-void ASSERT_NODE_COMMENT(dom_comment_t* a, dom_comment_t* e)
+static void ASSERT_NODE_COMMENT(dom_comment_t* a, dom_comment_t* e)
 {
     ASSERT_EQUAL(a->data_size, e->data_size);
     ASSERT_STRING((char)a->data, (char)e->data, a->data_size);
 }
 
 
-void ASSERT_NODE_ELEMENT(dom_element_t* a, dom_element_t* e)
+static void ASSERT_NODE_ELEMENT(dom_element_t* a, dom_element_t* e)
 {
     ASSERT_HASH_STRING(a->namespace, e->namespace);
     ASSERT_HASH_STRING(a->prefix, e->prefix);

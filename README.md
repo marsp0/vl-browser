@@ -15,4 +15,5 @@ Overall goals for this project:
 
 - [html5lib-tests](https://github.com/html5lib/html5lib-tests)
 - [css-tokenizer-tests](https://github.com/romainmenke/css-tokenizer-tests)
-- [postcss-parser-tests](https://github.com/postcss/postcss-parser-tests)
+- [parse-css](https://github.com/tabatkins/parse-css)
+

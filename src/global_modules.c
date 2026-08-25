@@ -43,4 +43,5 @@ void global_modules_free()
     html_tokenizer_global_free();
     css_tokenizer_global_free();
     css_parser_types_free();
+    css_tokenizer_types_free();
 }

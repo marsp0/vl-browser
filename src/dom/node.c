@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include <stdio.h>
+#include "dom/exception.h"
 
 /*
  * Notes

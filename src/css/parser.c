@@ -7,6 +7,7 @@
 
 #include "util/not_implemented.h"
 #include "css/tokenizer.h"
+#include "css/tokenizer_types.h"
 #include "css/parser_types.h"
 
 /*

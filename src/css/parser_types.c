@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 /*
  * Notes
@@ -33,6 +34,8 @@ typedef struct css_parser_node_block_t
 static css_parser_node_block_t first    = { 0 };
 static css_parser_node_block_t* current = &first;
 static uint32_t block_idx               = 0;
+static uint32_t count                   = 0;
+static uint32_t max_count               = 0;
 
 /********************/
 /* static functions */
@@ -66,6 +69,7 @@ css_parser_node_t* css_parser_node_new(hash_str_t name, css_parser_node_type_e t
     node->type              = type;
 
     block_idx++;
+    count++;
 
     return node;
 }
@@ -148,11 +152,16 @@ void css_parser_types_reset()
 
     current = &first;
     block_idx = 0;
+
+    if (count > max_count) { max_count = count; }
+    count = 0;
 }
 
 
 void css_parser_types_free()
 {
+    printf("css_parser_node max count: %u\n", max_count);
+
     css_parser_node_block_t* prev = current;
 
     while (&first != prev)

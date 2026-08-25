@@ -1,10 +1,9 @@
 #pragma once
 
-#include "tokenizer_types.h"
-
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "tokenizer_types.h"
 #include "dom/hash_str.h"
 
 void        css_tokenizer_global_init();

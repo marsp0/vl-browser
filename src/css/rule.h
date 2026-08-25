@@ -10,6 +10,7 @@ typedef struct css_rule_t
 {
     uint32_t                    type;
     unsigned char               text[MAX_CSS_RULE_FIELD_SIZE];
+
     struct css_rule_t*          parent_rule;
     struct css_style_sheet_t*   parent_sheet;
 } css_rule_t;
