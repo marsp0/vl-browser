@@ -1,6 +1,16 @@
 #include "test_parser_utils.h"
 
+#include "test_utils.h"
+#include "dom/test_node_utils.h"
+
+#include "dom/node.h"
+#include "dom/element.h"
+#include "dom/attribute.h"
+#include "dom/document.h"
+#include "dom/text.h"
+#include "dom/comment.h"
 #include "html/ns_constants.h"
+#include "html/parser.h"
 
 void print_document_tree(dom_node_t* node, uint32_t level)
 {

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 /*
  * Notes
@@ -32,6 +33,8 @@ static css_token_block_t first      = { 0 };
 static css_token_block_t* current   = &first;
 static uint32_t block_idx           = 0;
 
+static uint32_t count               = 0;
+static uint32_t max_count           = 0;
 
 /********************/
 /* static functions */
@@ -65,6 +68,8 @@ css_token_t* css_token_new()
     css_token_t* token = &(current->block[block_idx]);
     block_idx++;
 
+    count++;
+
     return token;
 }
 
@@ -82,11 +87,16 @@ void css_tokenizer_types_reset()
 
     current = &first;
     block_idx = 0;
+
+    if (count > max_count) { max_count = count; }
+    count = 0;
 }
 
 
 void css_tokenizer_types_free()
 {
+    printf("css_token_t max count: %u\n", max_count);
+
     css_token_block_t* prev = current;
 
     while (&first != prev)

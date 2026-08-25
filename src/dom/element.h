@@ -3,8 +3,8 @@
 #include <stdint.h>
 
 #include "dom/node.h"
-#include "dom/attribute.h"
-#include "html/constants.h"
+
+typedef struct dom_attr_t dom_attr_t;
 
 // https://dom.spec.whatwg.org/#element
 typedef struct

@@ -1,17 +1,11 @@
 #pragma once
 
-#include <stdio.h>
-
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
+void not_implemented();
 
 #define NOT_IMPLEMENTED                                             \
 do                                                                  \
 {                                                                   \
-    printf(ANSI_COLOR_RED);                                         \
-    printf("Section not implemented: %s:%d", __FILE__, __LINE__);   \
-    printf(ANSI_COLOR_RESET "\n");                                  \
-    assert(false);                                                  \
+    not_implemented(__FILE__, __LINE__);                            \
 } while(0);
 
 

@@ -3,8 +3,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "html/constants.h"
-#include "dom/exception.h"
 #include "dom/hash_str.h"
 #include "dom/types.h"
 

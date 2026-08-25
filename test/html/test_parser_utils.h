@@ -2,11 +2,7 @@
 
 #include <stdint.h>
 
-#include "test_utils.h"
-#include "dom/test_node_utils.h"
-
-#include "html/parser.h"
-
+typedef struct dom_node_t dom_node_t;
 
 void print_document_tree(dom_node_t* node, uint32_t level);
 

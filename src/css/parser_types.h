@@ -2,7 +2,9 @@
 
 #include <stdint.h>
 
-#include "css/tokenizer.h"
+#include "dom/hash_str.h"
+
+typedef struct css_token_t css_token_t;
 
 typedef enum
 {

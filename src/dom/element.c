@@ -6,6 +6,7 @@
 #include <assert.h>
 
 #include "html/constants.h"
+#include "dom/attribute.h"
 
 dom_element_t* dom_element_from_node(dom_node_t* node);
 dom_node_t*    dom_node_from_element(dom_element_t* element);

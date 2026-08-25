@@ -1,13 +1,6 @@
 #pragma once
 
-#include "test_utils.h"
-
-#include "dom/document.h"
-#include "dom/doctype.h"
-#include "dom/text.h"
-#include "dom/element.h"
-#include "dom/comment.h"
-
+typedef struct dom_node_t dom_node_t;
 
 void ASSERT_NODE(dom_node_t* a, dom_node_t* e);
 

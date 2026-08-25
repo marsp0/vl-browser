@@ -6,6 +6,7 @@
 
 #include "test_utils.h"
 #include "html/test_parser_utils.h"
+#include "dom/test_node_utils.h"
 
 #include "dom/node.h"
 #include "dom/document.h"
@@ -16,6 +17,7 @@
 #include "util/utf8.h"
 
 #include "html/ns_constants.h"
+#include "html/parser.h"
 
 typedef enum
 {
