@@ -714,7 +714,7 @@ static void test_parser_13()
 }
 
 
-void css_parser_test()
+void test_css_parser()
 {
     TEST_CASE(test_parser_1);
     TEST_CASE(test_parser_2);

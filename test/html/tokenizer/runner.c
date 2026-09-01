@@ -437,7 +437,7 @@ static void run_tokenizer_test()
 }
 
 
-void html_tokenizer_test()
+void test_html_tokenizer()
 {
     const unsigned char* files[] = {
                                     "./test/html/tokenizer/data/debug.data",

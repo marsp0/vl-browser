@@ -151,7 +151,7 @@ static void read_line()
 }
 
 
-static void run_css_tokenizer_test()
+static void run_test_css_tokenizer()
 {
     current = 0;
     bool first = true;
@@ -311,7 +311,7 @@ static void run_css_tokenizer_test()
 }
 
 
-void css_tokenizer_test()
+void test_css_tokenizer()
 {
     const unsigned char* files[] = {
                                     "./test/css/tokenizer/data/hash.txt",
@@ -366,6 +366,6 @@ void css_tokenizer_test()
 
         test_file = files[i];
 
-        while (!is_eof) { TEST_CASE(run_css_tokenizer_test) }
+        while (!is_eof) { TEST_CASE(run_test_css_tokenizer) }
     }
 }

@@ -1,3 +1,3 @@
 #pragma once
 
-void html_parser_test();
+void test_html_parser();

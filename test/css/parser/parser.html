@@ -2,10 +2,14 @@
     <head>
     <script src="parser.js"></script>
     </head>
-    <body>
+    <body style="display: flex; justify-content: center; align-items: center; height: 100%; margin: 0; flex-direction: column">
+    <div style="width: 800px;">
+    <h2> Reference Parser written by <a href="https://github.com/tabatkins/parse-css">Tab Atkins</a></h2>
+    <div style="display: flex; flex-direction: row;">
     <textarea id="userInput" rows="4" placeholder="Enter text" style="width: 800px;"></textarea>
     <button onclick="handleClick()">Submit</button>
-    <pre id="output"></pre>
+    </div>
+    <pre id="output" style="background-color: #e8eaed;"></pre>
 
     <script>
     function handleClick() {
@@ -13,5 +17,6 @@
       document.getElementById('output').textContent = JSON.stringify(result, null, 2);
     }
     </script>
+    </div>
 	</body>
 </html>

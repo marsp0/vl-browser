@@ -1,3 +1,3 @@
 #pragma once
 
-void html_tokenizer_test();
+void test_html_tokenizer();

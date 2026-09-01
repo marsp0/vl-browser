@@ -8,7 +8,8 @@
 #include "html/tokenizer/runner.h"
 
 #include "css/tokenizer/runner.h"
-#include "css/test_parser.h"
+#include "css/parser/test_parser.h"
+#include "css/parser/test_conversions.h"
 
 #include "dom/hash_str.h"
 #include "global_modules.h"
@@ -22,12 +23,15 @@ int32_t main()
     TEST_GROUP(test_utf8);
     TEST_GROUP(test_dom_hash_string);
 
+    // HTML
     TEST_GROUP(test_html_node);
-    TEST_GROUP(html_tokenizer_test);
-    TEST_GROUP(html_parser_test);
+    TEST_GROUP(test_html_tokenizer);
+    TEST_GROUP(test_html_parser);
 
-    TEST_GROUP(css_tokenizer_test);
-    TEST_GROUP(css_parser_test);
+    // CSS
+    TEST_GROUP(test_css_tokenizer);
+    TEST_GROUP(test_css_parser);
+    TEST_GROUP(test_css_conversions);
 
     TESTS_SUMMARY();
 

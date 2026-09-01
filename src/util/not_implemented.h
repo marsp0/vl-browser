@@ -1,6 +1,8 @@
 #pragma once
 
-void not_implemented();
+#include <stdint.h>
+
+void not_implemented(unsigned char* file, uint32_t line);
 
 #define NOT_IMPLEMENTED                                             \
 do                                                                  \

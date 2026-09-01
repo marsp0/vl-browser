@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 typedef struct css_decl_t css_decl_t;
 typedef struct css_rule_t css_rule_t;
 typedef struct dom_node_t dom_node_t;

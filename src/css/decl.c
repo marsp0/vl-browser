@@ -9,6 +9,9 @@
 
 #include "decl.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 /********************/
 /*      defines     */
 /********************/
@@ -28,16 +31,16 @@
 /* public functions */
 /********************/
 
-css_decl_t* css_decl_new(hash_str_t name, hash_str_t val)
+css_decl_t* css_decl_new()
 {
-    css_decl_t decl = malloc(sizeof(css_decl_t));
+    css_decl_t* decl = malloc(sizeof(css_decl_t));
 
     memset(decl, 0, sizeof(css_decl_t));
 
-    decl.name       = name;
-    decl.value      = value;
-    decl.important  = false;
-    decl.case_sens  = false;
+    // decl->prop       = { 0 };
+    // decl->value      = { 0 };
+    // decl->important  = false;
+    // decl->case_sens  = false;
 
     return decl;
 }

@@ -14,6 +14,8 @@
 
 #include "css/tokenizer.h"
 #include "css/parser_types.h"
+#include "css/prop_constants.h"
+#include "css/color_name_map.h"
 
 void global_modules_init()
 {
@@ -33,6 +35,8 @@ void global_modules_init()
 
     html_populate_namespaces();
     css_parser_types_init();
+    css_prop_names_init();
+    css_color_name_map_init();
 }
 
 

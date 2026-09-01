@@ -1,15 +1,31 @@
 #pragma once
 
+#include <stdbool.h>
+
+#include "dom/hash_str.h"
+#include "css/value.h"
+// #include "css/property.h"
+
+typedef enum
+{
+    CSS_PROP_INVALID,
+    CSS_PROP_COLOR
+} css_prop_e;
+
 typedef struct css_decl_t
 {
-    hash_str_t name;
-    hash_str_t value;
+    // css_prop_t  prop;
+    css_value_t         prop;
+    css_value_t         value;
 
-    bool important;
-    bool case_sens;
+    bool                important;
+    bool                case_sens;
+
+    struct css_decl_t*  next;
+    struct css_decl_t*  prev;
 
 } css_decl_t;
 
 
-css_decl_t* css_decl_new(hash_str_t name, hash_str_t val);
+css_decl_t* css_decl_new();
 void        css_decl_free(css_decl_t* decl);
