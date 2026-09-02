@@ -336,595 +336,595 @@ uint32_t css_color_name_map_get(hash_str_t col)
 {
     if (col == aliceblue)
     {
-        return 0xf0f8ff;
+        return 0xf0f8ffff;
     }
     else if (col == antiquewhite)
     {
-        return 0xfaebd7;
+        return 0xfaebd7ff;
     }
     else if (col == aqua)
     {
-        return 0x00ffff;
+        return 0x00ffffff;
     }
     else if (col == aquamarine)
     {
-        return 0x7fffd4;
+        return 0x7fffd4ff;
     }
     else if (col == azure)
     {
-        return 0xf0ffff;
+        return 0xf0ffffff;
     }
     else if (col == beige)
     {
-        return 0xf5f5dc;
+        return 0xf5f5dcff;
     }
     else if (col == bisque)
     {
-        return 0xffe4c4;
+        return 0xffe4c4ff;
     }
     else if (col == black)
     {
-        return 0x000000;
+        return 0x000000ff;
     }
     else if (col == blanchedalmond)
     {
-        return 0xffebcd;
+        return 0xffebcdff;
     }
     else if (col == blue)
     {
-        return 0x0000ff;
+        return 0x0000ffff;
     }
     else if (col == blueviolet)
     {
-        return 0x8a2be2;
+        return 0x8a2be2ff;
     }
     else if (col == brown)
     {
-        return 0xa52a2a;
+        return 0xa52a2aff;
     }
     else if (col == burlywood)
     {
-        return 0xdeb887;
+        return 0xdeb887ff;
     }
     else if (col == cadetblue)
     {
-        return 0x5f9ea0;
+        return 0x5f9ea0ff;
     }
     else if (col == chartreuse)
     {
-        return 0x7fff00;
+        return 0x7fff00ff;
     }
     else if (col == chocolate)
     {
-        return 0xd2691e;
+        return 0xd2691eff;
     }
     else if (col == coral)
     {
-        return 0xff7f50;
+        return 0xff7f50ff;
     }
     else if (col == cornflowerblue)
     {
-        return 0x6495ed;
+        return 0x6495edff;
     }
     else if (col == cornsilk)
     {
-        return 0xfff8dc;
+        return 0xfff8dcff;
     }
     else if (col == crimson)
     {
-        return 0xdc143c;
+        return 0xdc143cff;
     }
     else if (col == cyan)
     {
-        return 0x00ffff;
+        return 0x00ffffff;
     }
     else if (col == darkblue)
     {
-        return 0x00008b;
+        return 0x00008bff;
     }
     else if (col == darkcyan)
     {
-        return 0x008b8b;
+        return 0x008b8bff;
     }
     else if (col == darkgoldenrod)
     {
-        return 0xb8860b;
+        return 0xb8860bff;
     }
     else if (col == darkgray)
     {
-        return 0xa9a9a9;
+        return 0xa9a9a9ff;
     }
     else if (col == darkgreen)
     {
-        return 0x006400;
+        return 0x006400ff;
     }
     else if (col == darkgrey)
     {
-        return 0xa9a9a9;
+        return 0xa9a9a9ff;
     }
     else if (col == darkkhaki)
     {
-        return 0xbdb76b;
+        return 0xbdb76bff;
     }
     else if (col == darkmagenta)
     {
-        return 0x8b008b;
+        return 0x8b008bff;
     }
     else if (col == darkolivegreen)
     {
-        return 0x556b2f;
+        return 0x556b2fff;
     }
     else if (col == darkorange)
     {
-        return 0xff8c00;
+        return 0xff8c00ff;
     }
     else if (col == darkorchid)
     {
-        return 0x9932cc;
+        return 0x9932ccff;
     }
     else if (col == darkred)
     {
-        return 0x8b0000;
+        return 0x8b0000ff;
     }
     else if (col == darksalmon)
     {
-        return 0xe9967a;
+        return 0xe9967aff;
     }
     else if (col == darkseagreen)
     {
-        return 0x8fbc8f;
+        return 0x8fbc8fff;
     }
     else if (col == darkslateblue)
     {
-        return 0x483d8b;
+        return 0x483d8bff;
     }
     else if (col == darkslategray)
     {
-        return 0x2f4f4f;
+        return 0x2f4f4fff;
     }
     else if (col == darkslategrey)
     {
-        return 0x2f4f4f;
+        return 0x2f4f4fff;
     }
     else if (col == darkturquoise)
     {
-        return 0x00ced1;
+        return 0x00ced1ff;
     }
     else if (col == darkviolet)
     {
-        return 0x9400d3;
+        return 0x9400d3ff;
     }
     else if (col == deeppink)
     {
-        return 0xff1493;
+        return 0xff1493ff;
     }
     else if (col == deepskyblue)
     {
-        return 0x00bfff;
+        return 0x00bfffff;
     }
     else if (col == dimgray)
     {
-        return 0x696969;
+        return 0x696969ff;
     }
     else if (col == dimgrey)
     {
-        return 0x696969;
+        return 0x696969ff;
     }
     else if (col == dodgerblue)
     {
-        return 0x1e90ff;
+        return 0x1e90ffff;
     }
     else if (col == firebrick)
     {
-        return 0xb22222;
+        return 0xb22222ff;
     }
     else if (col == floralwhite)
     {
-        return 0xfffaf0;
+        return 0xfffaf0ff;
     }
     else if (col == forestgreen)
     {
-        return 0x228b22;
+        return 0x228b22ff;
     }
     else if (col == fuchsia)
     {
-        return 0xff00ff;
+        return 0xff00ffff;
     }
     else if (col == gainsboro)
     {
-        return 0xdcdcdc;
+        return 0xdcdcdcff;
     }
     else if (col == ghostwhite)
     {
-        return 0xf8f8ff;
+        return 0xf8f8ffff;
     }
     else if (col == gold)
     {
-        return 0xffd700;
+        return 0xffd700ff;
     }
     else if (col == goldenrod)
     {
-        return 0xdaa520;
+        return 0xdaa520ff;
     }
     else if (col == gray)
     {
-        return 0x808080;
+        return 0x808080ff;
     }
     else if (col == green)
     {
-        return 0x008000;
+        return 0x008000ff;
     }
     else if (col == greenyellow)
     {
-        return 0xadff2f;
+        return 0xadff2fff;
     }
     else if (col == grey)
     {
-        return 0x808080;
+        return 0x808080ff;
     }
     else if (col == honeydew)
     {
-        return 0xf0fff0;
+        return 0xf0fff0ff;
     }
     else if (col == hotpink)
     {
-        return 0xff69b4;
+        return 0xff69b4ff;
     }
     else if (col == indianred)
     {
-        return 0xcd5c5c;
+        return 0xcd5c5cff;
     }
     else if (col == indigo)
     {
-        return 0x4b0082;
+        return 0x4b0082ff;
     }
     else if (col == ivory)
     {
-        return 0xfffff0;
+        return 0xfffff0ff;
     }
     else if (col == khaki)
     {
-        return 0xf0e68c;
+        return 0xf0e68cff;
     }
     else if (col == lavender)
     {
-        return 0xe6e6fa;
+        return 0xe6e6faff;
     }
     else if (col == lavenderblush)
     {
-        return 0xfff0f5;
+        return 0xfff0f5ff;
     }
     else if (col == lawngreen)
     {
-        return 0x7cfc00;
+        return 0x7cfc00ff;
     }
     else if (col == lemonchiffon)
     {
-        return 0xfffacd;
+        return 0xfffacdff;
     }
     else if (col == lightblue)
     {
-        return 0xadd8e6;
+        return 0xadd8e6ff;
     }
     else if (col == lightcoral)
     {
-        return 0xf08080;
+        return 0xf08080ff;
     }
     else if (col == lightcyan)
     {
-        return 0xe0ffff;
+        return 0xe0ffffff;
     }
     else if (col == lightgoldenrodyellow)
     {
-        return 0xfafad2;
+        return 0xfafad2ff;
     }
     else if (col == lightgray)
     {
-        return 0xd3d3d3;
+        return 0xd3d3d3ff;
     }
     else if (col == lightgreen)
     {
-        return 0x90ee90;
+        return 0x90ee90ff;
     }
     else if (col == lightgrey)
     {
-        return 0xd3d3d3;
+        return 0xd3d3d3ff;
     }
     else if (col == lightpink)
     {
-        return 0xffb6c1;
+        return 0xffb6c1ff;
     }
     else if (col == lightsalmon)
     {
-        return 0xffa07a;
+        return 0xffa07aff;
     }
     else if (col == lightseagreen)
     {
-        return 0x20b2aa;
+        return 0x20b2aaff;
     }
     else if (col == lightskyblue)
     {
-        return 0x87cefa;
+        return 0x87cefaff;
     }
     else if (col == lightslategray)
     {
-        return 0x778899;
+        return 0x778899ff;
     }
     else if (col == lightslategrey)
     {
-        return 0x778899;
+        return 0x778899ff;
     }
     else if (col == lightsteelblue)
     {
-        return 0xb0c4de;
+        return 0xb0c4deff;
     }
     else if (col == lightyellow)
     {
-        return 0xffffe0;
+        return 0xffffe0ff;
     }
     else if (col == lime)
     {
-        return 0x00ff00;
+        return 0x00ff00ff;
     }
     else if (col == limegreen)
     {
-        return 0x32cd32;
+        return 0x32cd32ff;
     }
     else if (col == linen)
     {
-        return 0xfaf0e6;
+        return 0xfaf0e6ff;
     }
     else if (col == magenta)
     {
-        return 0xff00ff;
+        return 0xff00ffff;
     }
     else if (col == maroon)
     {
-        return 0x800000;
+        return 0x800000ff;
     }
     else if (col == mediumaquamarine)
     {
-        return 0x66cdaa;
+        return 0x66cdaaff;
     }
     else if (col == mediumblue)
     {
-        return 0x0000cd;
+        return 0x0000cdff;
     }
     else if (col == mediumorchid)
     {
-        return 0xba55d3;
+        return 0xba55d3ff;
     }
     else if (col == mediumpurple)
     {
-        return 0x9370db;
+        return 0x9370dbff;
     }
     else if (col == mediumseagreen)
     {
-        return 0x3cb371;
+        return 0x3cb371ff;
     }
     else if (col == mediumslateblue)
     {
-        return 0x7b68ee;
+        return 0x7b68eeff;
     }
     else if (col == mediumspringgreen)
     {
-        return 0x00fa9a;
+        return 0x00fa9aff;
     }
     else if (col == mediumturquoise)
     {
-        return 0x48d1cc;
+        return 0x48d1ccff;
     }
     else if (col == mediumvioletred)
     {
-        return 0xc71585;
+        return 0xc71585ff;
     }
     else if (col == midnightblue)
     {
-        return 0x191970;
+        return 0x191970ff;
     }
     else if (col == mintcream)
     {
-        return 0xf5fffa;
+        return 0xf5fffaff;
     }
     else if (col == mistyrose)
     {
-        return 0xffe4e1;
+        return 0xffe4e1ff;
     }
     else if (col == moccasin)
     {
-        return 0xffe4b5;
+        return 0xffe4b5ff;
     }
     else if (col == navajowhite)
     {
-        return 0xffdead;
+        return 0xffdeadff;
     }
     else if (col == navy)
     {
-        return 0x000080;
+        return 0x000080ff;
     }
     else if (col == oldlace)
     {
-        return 0xfdf5e6;
+        return 0xfdf5e6ff;
     }
     else if (col == olive)
     {
-        return 0x808000;
+        return 0x808000ff;
     }
     else if (col == olivedrab)
     {
-        return 0x6b8e23;
+        return 0x6b8e23ff;
     }
     else if (col == orange)
     {
-        return 0xffa500;
+        return 0xffa500ff;
     }
     else if (col == orangered)
     {
-        return 0xff4500;
+        return 0xff4500ff;
     }
     else if (col == orchid)
     {
-        return 0xda70d6;
+        return 0xda70d6ff;
     }
     else if (col == palegoldenrod)
     {
-        return 0xeee8aa;
+        return 0xeee8aaff;
     }
     else if (col == palegreen)
     {
-        return 0x98fb98;
+        return 0x98fb98ff;
     }
     else if (col == paleturquoise)
     {
-        return 0xafeeee;
+        return 0xafeeeeff;
     }
     else if (col == palevioletred)
     {
-        return 0xdb7093;
+        return 0xdb7093ff;
     }
     else if (col == papayawhip)
     {
-        return 0xffefd5;
+        return 0xffefd5ff;
     }
     else if (col == peachpuff)
     {
-        return 0xffdab9;
+        return 0xffdab9ff;
     }
     else if (col == peru)
     {
-        return 0xcd853f;
+        return 0xcd853fff;
     }
     else if (col == pink)
     {
-        return 0xffc0cb;
+        return 0xffc0cbff;
     }
     else if (col == plum)
     {
-        return 0xdda0dd;
+        return 0xdda0ddff;
     }
     else if (col == powderblue)
     {
-        return 0xb0e0e6;
+        return 0xb0e0e6ff;
     }
     else if (col == purple)
     {
-        return 0x800080;
+        return 0x800080ff;
     }
     else if (col == rebeccapurple)
     {
-        return 0x663399;
+        return 0x663399ff;
     }
     else if (col == red)
     {
-        return 0xff0000;
+        return 0xff0000ff;
     }
     else if (col == rosybrown)
     {
-        return 0xbc8f8f;
+        return 0xbc8f8fff;
     }
     else if (col == royalblue)
     {
-        return 0x4169e1;
+        return 0x4169e1ff;
     }
     else if (col == saddlebrown)
     {
-        return 0x8b4513;
+        return 0x8b4513ff;
     }
     else if (col == salmon)
     {
-        return 0xfa8072;
+        return 0xfa8072ff;
     }
     else if (col == sandybrown)
     {
-        return 0xf4a460;
+        return 0xf4a460ff;
     }
     else if (col == seagreen)
     {
-        return 0x2e8b57;
+        return 0x2e8b57ff;
     }
     else if (col == seashell)
     {
-        return 0xfff5ee;
+        return 0xfff5eeff;
     }
     else if (col == sienna)
     {
-        return 0xa0522d;
+        return 0xa0522dff;
     }
     else if (col == silver)
     {
-        return 0xc0c0c0;
+        return 0xc0c0c0ff;
     }
     else if (col == skyblue)
     {
-        return 0x87ceeb;
+        return 0x87ceebff;
     }
     else if (col == slateblue)
     {
-        return 0x6a5acd;
+        return 0x6a5acdff;
     }
     else if (col == slategray)
     {
-        return 0x708090;
+        return 0x708090ff;
     }
     else if (col == slategrey)
     {
-        return 0x708090;
+        return 0x708090ff;
     }
     else if (col == snow)
     {
-        return 0xfffafa;
+        return 0xfffafaff;
     }
     else if (col == springgreen)
     {
-        return 0x00ff7f;
+        return 0x00ff7fff;
     }
     else if (col == steelblue)
     {
-        return 0x4682b4;
+        return 0x4682b4ff;
     }
     else if (col == tan_col)
     {
-        return 0xd2b48c;
+        return 0xd2b48cff;
     }
     else if (col == teal)
     {
-        return 0x008080;
+        return 0x008080ff;
     }
     else if (col == thistle)
     {
-        return 0xd8bfd8;
+        return 0xd8bfd8ff;
     }
     else if (col == tomato)
     {
-        return 0xff6347;
+        return 0xff6347ff;
     }
     else if (col == turquoise)
     {
-        return 0x40e0d0;
+        return 0x40e0d0ff;
     }
     else if (col == violet)
     {
-        return 0xee82ee;
+        return 0xee82eeff;
     }
     else if (col == wheat)
     {
-        return 0xf5deb3;
+        return 0xf5deb3ff;
     }
     else if (col == white)
     {
-        return 0xffffff;
+        return 0xffffffff;
     }
     else if (col == whitesmoke)
     {
-        return 0xf5f5f5;
+        return 0xf5f5f5ff;
     }
     else if (col == yellow)
     {
-        return 0xffff00;
+        return 0xffff00ff;
     }
     else if (col == yellowgreen)
     {
-        return 0x9acd32;
+        return 0x9acd32ff;
     }
     else
     {

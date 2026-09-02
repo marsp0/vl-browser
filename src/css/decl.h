@@ -15,8 +15,8 @@ typedef enum
 typedef struct css_decl_t
 {
     // css_prop_t  prop;
-    css_value_t         prop;
-    css_value_t         value;
+    css_prop_e          prop;
+    css_value_t*        value;
 
     bool                important;
     bool                case_sens;

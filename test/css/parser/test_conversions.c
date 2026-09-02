@@ -22,6 +22,10 @@ static void test_css_parser_rule_to_om_rule_1()
 
     ASSERT_EQUAL(sheet->type, CSS_PARSER_NODE_TYPE_STYLESHEET);
 
+    css_rule_t* actual = css_parser_rule_to_om_rule(sheet->rules);
+
+    assert(actual);
+
     // css_parser_node_t* node = sheet->rules;
     // css_rule_t* first       = css_parser_rule_to_om_rule(node);
     // node = node->next;
