@@ -148,6 +148,14 @@ do                                                                              
 } while(0);
 
 
+#define ASSERT_MEMORY(a, b, size)                                                           \
+do                                                                                          \
+{                                                                                           \
+    int32_t eval = memcmp(a, b, size);                                                      \
+    ASSERT_EQUAL(eval, 0);                                                                  \
+} while(0);
+
+
 #define TEST_CASE(test)                                                                     \
 do                                                                                          \
 {                                                                                           \

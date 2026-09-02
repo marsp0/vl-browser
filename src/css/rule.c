@@ -1,3 +1,12 @@
+/*
+ * Notes
+ * 
+ */
+
+/********************/
+/*     includes     */
+/********************/
+
 #include "css/rule.h"
 
 #include <stdbool.h>
@@ -5,17 +14,12 @@
 #include <assert.h>
 #include <stdlib.h>
 
-/*
- * Notes
- * 
- */
+#include "css/decl.h"
 
 /********************/
 /*      defines     */
 /********************/
 
-void css_group_rule_free(css_rule_t* rule);
-bool css_rule_is_group(css_rule_t* rule);
 
 /********************/
 /* static variables */
@@ -31,12 +35,12 @@ bool css_rule_is_group(css_rule_t* rule);
 /* public functions */
 /********************/
 
-
-css_rule_t* css_rule_new()
+css_rule_t* css_rule_new(css_rule_type_e type)
 {
     css_rule_t* rule = malloc(sizeof(css_rule_t));
 
     memset(rule, 0, sizeof(css_rule_t));
+    rule->type = type;
 
     return rule;
 }
@@ -45,6 +49,28 @@ css_rule_t* css_rule_new()
 void css_rule_init(css_rule_t* rule, uint32_t type)
 {
     rule->type = type;
+}
+
+
+void css_rule_add_decl(css_rule_t* rule, css_decl_t* decl)
+{
+    if (!decl) { return; }
+
+    if (!rule->decls)
+    {
+        rule->decls = decl;
+    }
+    else
+    {
+        css_decl_t* child = rule->decls;
+        while (child->next)
+        {
+            child = child->next;
+        }
+
+        child->next = decl;
+        decl->prev = child;
+    }
 }
 
 
@@ -70,5 +96,5 @@ void css_rule_add_sibling(css_rule_t* rule, css_rule_t* sibling)
 
 void css_rule_free(css_rule_t* rule)
 {
-    if (css_rule_is_group(rule)) { css_group_rule_free(rule); }
+    free(rule);
 }
