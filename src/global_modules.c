@@ -15,7 +15,7 @@
 #include "css/tokenizer.h"
 #include "css/parser_types.h"
 #include "css/prop_constants.h"
-#include "css/color_name_map.h"
+#include "css/grammar/color_name_map.h"
 
 void global_modules_init()
 {
