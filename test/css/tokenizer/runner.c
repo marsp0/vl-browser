@@ -7,7 +7,7 @@
 #include "test_utils.h"
 
 #include "css/util.h"
-#include "css/tokenizer.h"
+#include "css/tokenizer/tokenizer.h"
 #include "util/utf8.h"
 
 typedef enum

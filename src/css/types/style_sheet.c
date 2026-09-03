@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "css/rule.h"
+#include "css/types/rule.h"
 
 css_style_sheet_t* css_style_sheet_new()
 {

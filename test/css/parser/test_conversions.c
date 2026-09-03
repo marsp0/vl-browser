@@ -5,13 +5,13 @@
 
 #include "test_utils.h"
 
-#include "css/style_sheet.h"
-#include "css/rule.h"
-#include "css/decl.h"
-#include "css/value.h"
-#include "css/parser.h"
-#include "css/parser_types.h"
-#include "css/parser_utils.h"
+#include "css/types/style_sheet.h"
+#include "css/types/rule.h"
+#include "css/types/decl.h"
+#include "css/types/value.h"
+#include "css/parser/parser.h"
+#include "css/parser/types.h"
+#include "css/parser/utils.h"
 
 
 void ASSERT_CSS_SHEET(css_style_sheet_t* a, css_style_sheet_t* e)

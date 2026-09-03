@@ -3,9 +3,9 @@
 #include "test_utils.h"
 #include "css/values/utils.h"
 
-#include "css/value.h"
-#include "css/parser.h"
-#include "css/parser_types.h"
+#include "css/types/value.h"
+#include "css/parser/parser.h"
+#include "css/parser/types.h"
 #include "css/grammar/color.h"
 
 static void test_color_name_valid()

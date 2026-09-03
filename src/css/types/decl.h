@@ -3,8 +3,7 @@
 #include <stdbool.h>
 
 #include "dom/hash_str.h"
-#include "css/value.h"
-// #include "css/property.h"
+#include "css/types/value.h"
 
 typedef enum
 {

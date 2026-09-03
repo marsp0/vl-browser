@@ -7,14 +7,14 @@
 /*     includes     */
 /********************/
 
-#include "css/rule.h"
+#include "css/types/rule.h"
 
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
 
-#include "css/decl.h"
+#include "css/types/decl.h"
 
 /********************/
 /*      defines     */

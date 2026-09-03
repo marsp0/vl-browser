@@ -7,18 +7,18 @@
 /*     includes     */
 /********************/
 
-#include "parser_utils.h"
+#include "css/parser/utils.h"
 
 #include <assert.h>
 #include <stddef.h>
 
-#include "css/rule.h"
-#include "css/decl.h"
-#include "css/style_sheet.h"
-#include "css/parser_types.h"
+#include "css/types/rule.h"
+#include "css/types/decl.h"
+#include "css/types/style_sheet.h"
+#include "css/parser/types.h"
 #include "css/grammar/color.h"
+#include "css/tokenizer/types.h"
 #include "css/prop_constants.h"
-#include "css/tokenizer_types.h"
 #include "util/not_implemented.h"
 
 /********************/

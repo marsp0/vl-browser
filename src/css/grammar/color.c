@@ -11,10 +11,10 @@
 
 #include <stdbool.h>
 
-#include "css/value.h"
-#include "css/parser_types.h"
+#include "css/types/value.h"
+#include "css/parser/types.h"
 #include "css/grammar/color_name_map.h"
-#include "css/tokenizer_types.h"
+#include "css/tokenizer/types.h"
 #include "css/name_constants.h"
 
 /********************/

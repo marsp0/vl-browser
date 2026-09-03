@@ -12,11 +12,11 @@
 #include "html/mathml_tag_constants.h"
 #include "html/mathml_attr_constants.h"
 
-#include "css/tokenizer.h"
-#include "css/parser_types.h"
 #include "css/prop_constants.h"
-#include "css/grammar/color_name_map.h"
 #include "css/name_constants.h"
+#include "css/tokenizer/tokenizer.h"
+#include "css/parser/types.h"
+#include "css/grammar/color_name_map.h"
 
 void global_modules_init()
 {
