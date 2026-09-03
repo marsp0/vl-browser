@@ -34,12 +34,39 @@ static bool is_color_valid(css_parser_node_t* node)
 {
     css_parser_node_type_e n_type   = node->type;
 
-    if (n_type != CSS_PARSER_NODE_TYPE_TOKEN)                   { return false; }
+    if (n_type != CSS_PARSER_NODE_TYPE_TOKEN)
+    {
+        return false;
+    }
 
     css_token_t* t                  = node->token;
     css_token_type_e t_type         = t->type;
 
-    if (t_type != CSS_TOKEN_IDENT && t_type != CSS_TOKEN_HASH)  { return false; }
+    if (t_type != CSS_TOKEN_IDENT && t_type != CSS_TOKEN_HASH)
+    {
+        return false;
+    }
+
+    // unknown name
+    if (t_type == CSS_TOKEN_IDENT && css_color_name_map_get(node->name) == 0)
+    {
+        return false;
+    }
+
+    if (t_type == CSS_TOKEN_HASH)
+    {
+        unsigned char* data = t->data;
+        uint32_t data_size = t->data_size;
+        for (uint32_t i = 0; i < data_size; i++)
+        {
+            unsigned char c = data[i];
+            if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))
+            {
+                continue;
+            }
+            return false;
+        }
+    }
 
     return true;
 }
@@ -80,6 +107,8 @@ css_value_t* css_value_parse_color(css_parser_node_t* node)
 
     css_token_t* t                  = node->token;
     css_token_type_e t_type         = t->type;
+    unsigned char* data             = t->data;
+    uint32_t data_size              = t->data_size;
     css_parser_node_type_e n_type   = node->type;
     uint32_t color                  = 0;
 
@@ -89,21 +118,33 @@ css_value_t* css_value_parse_color(css_parser_node_t* node)
     }
     else if (n_type == CSS_PARSER_NODE_TYPE_TOKEN && t_type == CSS_TOKEN_HASH)
     {
-        if (t->data_size == 8)
+        if (data_size == 8)
         {
-            unsigned char* data = t->data;
             color = color_value_add_comp(color, color_value_convert_ascii(data[6], data[7]), 0);
             color = color_value_add_comp(color, color_value_convert_ascii(data[4], data[5]), 8);
             color = color_value_add_comp(color, color_value_convert_ascii(data[2], data[3]), 16);
             color = color_value_add_comp(color, color_value_convert_ascii(data[0], data[1]), 24);
         }
-        else if (t->data_size == 6)
+        else if (data_size == 6)
         {
-            unsigned char* data = t->data;
             color = 0xff;
             color = color_value_add_comp(color, color_value_convert_ascii(data[4], data[5]), 8);
             color = color_value_add_comp(color, color_value_convert_ascii(data[2], data[3]), 16);
             color = color_value_add_comp(color, color_value_convert_ascii(data[0], data[1]), 24);
+        }
+        else if (data_size == 3)
+        {
+            color = 0xff;
+            color = color_value_add_comp(color, color_value_convert_ascii(data[2], data[2]), 8);
+            color = color_value_add_comp(color, color_value_convert_ascii(data[1], data[1]), 16);
+            color = color_value_add_comp(color, color_value_convert_ascii(data[0], data[0]), 24);
+        }
+        else if (data_size == 4)
+        {
+            color = color_value_add_comp(color, color_value_convert_ascii(data[3], data[3]), 0);
+            color = color_value_add_comp(color, color_value_convert_ascii(data[2], data[2]), 8);
+            color = color_value_add_comp(color, color_value_convert_ascii(data[1], data[1]), 16);
+            color = color_value_add_comp(color, color_value_convert_ascii(data[0], data[0]), 24);
         }
     }
 

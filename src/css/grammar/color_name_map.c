@@ -926,10 +926,6 @@ uint32_t css_color_name_map_get(hash_str_t col)
     {
         return 0x9acd32ff;
     }
-    else
-    {
-        NOT_IMPLEMENTED
-    }
 
     return 0;
 }
