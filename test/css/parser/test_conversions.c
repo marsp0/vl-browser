@@ -83,7 +83,7 @@ void ASSERT_CSS_DECL(css_decl_t* a, css_decl_t* e)
 
 static void test_css_parser_sheet_to_om_sheet_1()
 {
-    unsigned char data[] = "p { color: red; }";
+    unsigned char data[] = "p { color: red; color: #FF0000 }";
     uint32_t data_size = sizeof(data) - 1;
 
     css_parser_init(data, data_size);
@@ -95,14 +95,22 @@ static void test_css_parser_sheet_to_om_sheet_1()
     css_style_sheet_t* actual   = css_parser_sheet_to_om_sheet(sheet);
     css_style_sheet_t* expected = css_style_sheet_new();
     css_rule_t* rule            = css_rule_new(CSS_RULE_TYPE_STYLE);
-    css_decl_t* decl            = css_decl_new();
+
+    css_decl_t* decl1           = css_decl_new();
     css_value_t* value          = css_value_new(CSS_VALUE_TYPE_COLOR, CSS_VALUE_TYPE_UNIT_NONE);
     value->color                = 0xFF0000FF;
-    decl->prop                  = CSS_PROP_COLOR;
-    decl->value                 = value;
+    decl1->prop                 = CSS_PROP_COLOR;
+    decl1->value                = value;
+
+    css_decl_t* decl2           = css_decl_new();
+    css_value_t* value2         = css_value_new(CSS_VALUE_TYPE_COLOR, CSS_VALUE_TYPE_UNIT_NONE);
+    value2->color               = 0xFF0000FF;
+    decl2->prop                 = CSS_PROP_COLOR;
+    decl2->value                = value2;
 
     css_style_sheet_add_rule(expected, rule);
-    css_rule_add_decl(rule, decl);
+    css_rule_add_decl(rule, decl1);
+    css_rule_add_decl(rule, decl2);
 
     ASSERT_CSS_SHEET(actual, expected);
 }

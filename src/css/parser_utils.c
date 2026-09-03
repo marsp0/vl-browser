@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <stddef.h>
 
+#include "css/tokenizer_types.h"
 #include "css/style_sheet.h"
 #include "css/rule.h"
 #include "css/decl.h"
@@ -34,14 +35,90 @@
 /* static functions */
 /********************/
 
-
-uint32_t css_parser_parse_value(css_parser_node_t* comp_vals)
+static uint32_t char_to_decimal(unsigned char c)
 {
-    css_parser_node_t* child = comp_vals;
+    if (c < 'A') { return c - '0'; }
+    if (c < 'a') { return 10 + (c - 'A'); }
 
-    if (child->type == CSS_PARSER_NODE_TYPE_TOKEN)
+    return 10 + (c - 'a');
+}
+
+
+static uint32_t color_value_convert_ascii(unsigned char c1, unsigned char c2)
+{
+    uint32_t d1 = char_to_decimal(c1);
+    uint32_t d2 = char_to_decimal(c2);
+
+    return (d1 << 4) + d2;
+}
+
+
+static uint32_t color_value_set_red(uint32_t color, uint32_t red)
+{
+    return color + ((uint32_t)red << 24);
+}
+
+
+static uint32_t color_value_set_green(uint32_t color, uint32_t green)
+{
+    return color + ((uint32_t)green << 16);
+}
+
+
+static uint32_t color_value_set_blue(uint32_t color, uint32_t blue)
+{
+    return color + ((uint32_t)blue << 8);
+}
+
+
+static uint32_t color_value_set_alpha(uint32_t color, uint32_t alpha)
+{
+    return color + alpha;
+}
+
+
+static bool is_color_valid(css_parser_node_t* node)
+{
+    css_token_t* t = node->token;
+
+    if (node->type != CSS_PARSER_NODE_TYPE_TOKEN)                   { return false; }
+    if (t->type != CSS_TOKEN_IDENT && t->type != CSS_TOKEN_HASH)    { return false; }
+
+    // if (t->
+
+    return true;    
+}
+
+
+static uint32_t parse_color_value(css_parser_node_t* comp_vals)
+{
+    css_parser_node_t* child    = comp_vals;
+    css_token_t* t              = child->token;
+
+    if (child->type == CSS_PARSER_NODE_TYPE_TOKEN && t->type == CSS_TOKEN_IDENT)
     {
         return css_color_name_map_get(child->name);
+    }
+    else if (child->type == CSS_PARSER_NODE_TYPE_TOKEN && t->type == CSS_TOKEN_HASH)
+    {
+        uint32_t color = 0;
+        if (t->data_size == 8)
+        {
+            unsigned char* data = t->data;
+            color = color_value_set_alpha(color, color_value_convert_ascii(data[6], data[7]));
+            color = color_value_set_blue(color, color_value_convert_ascii(data[4], data[5]));
+            color = color_value_set_green(color, color_value_convert_ascii(data[2], data[3]));
+            color = color_value_set_red(color, color_value_convert_ascii(data[0], data[1]));
+        }
+        else if (t->data_size == 6)
+        {
+            unsigned char* data = t->data;
+            color = 0xff;
+            color = color_value_set_blue(color, color_value_convert_ascii(data[4], data[5]));
+            color = color_value_set_green(color, color_value_convert_ascii(data[2], data[3]));
+            color = color_value_set_red(color, color_value_convert_ascii(data[0], data[1]));
+        }
+        return color;
     }
     else if (child->type == CSS_PARSER_NODE_TYPE_FUNCTION)
     {
@@ -67,11 +144,17 @@ css_decl_t* css_parser_decl_to_om_decl(css_parser_node_t* node)
         css_decl_t* decl = css_decl_new();
         decl->prop = CSS_PROP_COLOR;
 
-        css_value_t* val = css_value_new(CSS_VALUE_TYPE_COLOR, CSS_VALUE_TYPE_UNIT_NONE);
-        uint32_t c = css_parser_parse_value(node->comp_vals);
-        val->color = c;
-
-        decl->value = val;
+        if (is_color_valid(node->comp_vals))
+        {
+            css_value_t* val    = css_value_new(CSS_VALUE_TYPE_COLOR, CSS_VALUE_TYPE_UNIT_NONE);
+            val->color          = parse_color_value(node->comp_vals);
+            decl->value         = val;
+        }
+        else
+        {
+            css_value_t* val    = css_value_new(CSS_VALUE_TYPE_INHERIT, CSS_VALUE_TYPE_UNIT_NONE);
+            decl->value         = val;
+        }
 
         return decl;
     }

@@ -4,7 +4,7 @@
 - handle hex color values
 - is parser_utils appropriate place for all these functions ? Should they be moved to separate files with different file name ?
 - is folder structure inside /css ok ?
-
+- grammar check
 
 
 

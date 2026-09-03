@@ -933,3 +933,891 @@ uint32_t css_color_name_map_get(hash_str_t col)
 
     return 0;
 }
+
+
+hash_str_t css_color_name_aliceblue()
+{
+    return aliceblue;
+}
+
+
+hash_str_t css_color_name_antiquewhite()
+{
+    return antiquewhite;
+}
+
+
+hash_str_t css_color_name_aqua()
+{
+    return aqua;
+}
+
+
+hash_str_t css_color_name_aquamarine()
+{
+    return aquamarine;
+}
+
+
+hash_str_t css_color_name_azure()
+{
+    return azure;
+}
+
+
+hash_str_t css_color_name_beige()
+{
+    return beige;
+}
+
+
+hash_str_t css_color_name_bisque()
+{
+    return bisque;
+}
+
+
+hash_str_t css_color_name_black()
+{
+    return black;
+}
+
+
+hash_str_t css_color_name_blanchedalmond()
+{
+    return blanchedalmond;
+}
+
+
+hash_str_t css_color_name_blue()
+{
+    return blue;
+}
+
+
+hash_str_t css_color_name_blueviolet()
+{
+    return blueviolet;
+}
+
+
+hash_str_t css_color_name_brown()
+{
+    return brown;
+}
+
+
+hash_str_t css_color_name_burlywood()
+{
+    return burlywood;
+}
+
+
+hash_str_t css_color_name_cadetblue()
+{
+    return cadetblue;
+}
+
+
+hash_str_t css_color_name_chartreuse()
+{
+    return chartreuse;
+}
+
+
+hash_str_t css_color_name_chocolate()
+{
+    return chocolate;
+}
+
+
+hash_str_t css_color_name_coral()
+{
+    return coral;
+}
+
+
+hash_str_t css_color_name_cornflowerblue()
+{
+    return cornflowerblue;
+}
+
+
+hash_str_t css_color_name_cornsilk()
+{
+    return cornsilk;
+}
+
+
+hash_str_t css_color_name_crimson()
+{
+    return crimson;
+}
+
+
+hash_str_t css_color_name_cyan()
+{
+    return cyan;
+}
+
+
+hash_str_t css_color_name_darkblue()
+{
+    return darkblue;
+}
+
+
+hash_str_t css_color_name_darkcyan()
+{
+    return darkcyan;
+}
+
+
+hash_str_t css_color_name_darkgoldenrod()
+{
+    return darkgoldenrod;
+}
+
+
+hash_str_t css_color_name_darkgray()
+{
+    return darkgray;
+}
+
+
+hash_str_t css_color_name_darkgreen()
+{
+    return darkgreen;
+}
+
+
+hash_str_t css_color_name_darkgrey()
+{
+    return darkgrey;
+}
+
+
+hash_str_t css_color_name_darkkhaki()
+{
+    return darkkhaki;
+}
+
+
+hash_str_t css_color_name_darkmagenta()
+{
+    return darkmagenta;
+}
+
+
+hash_str_t css_color_name_darkolivegreen()
+{
+    return darkolivegreen;
+}
+
+
+hash_str_t css_color_name_darkorange()
+{
+    return darkorange;
+}
+
+
+hash_str_t css_color_name_darkorchid()
+{
+    return darkorchid;
+}
+
+
+hash_str_t css_color_name_darkred()
+{
+    return darkred;
+}
+
+
+hash_str_t css_color_name_darksalmon()
+{
+    return darksalmon;
+}
+
+
+hash_str_t css_color_name_darkseagreen()
+{
+    return darkseagreen;
+}
+
+
+hash_str_t css_color_name_darkslateblue()
+{
+    return darkslateblue;
+}
+
+
+hash_str_t css_color_name_darkslategray()
+{
+    return darkslategray;
+}
+
+
+hash_str_t css_color_name_darkslategrey()
+{
+    return darkslategrey;
+}
+
+
+hash_str_t css_color_name_darkturquoise()
+{
+    return darkturquoise;
+}
+
+
+hash_str_t css_color_name_darkviolet()
+{
+    return darkviolet;
+}
+
+
+hash_str_t css_color_name_deeppink()
+{
+    return deeppink;
+}
+
+
+hash_str_t css_color_name_deepskyblue()
+{
+    return deepskyblue;
+}
+
+
+hash_str_t css_color_name_dimgray()
+{
+    return dimgray;
+}
+
+
+hash_str_t css_color_name_dimgrey()
+{
+    return dimgrey;
+}
+
+
+hash_str_t css_color_name_dodgerblue()
+{
+    return dodgerblue;
+}
+
+
+hash_str_t css_color_name_firebrick()
+{
+    return firebrick;
+}
+
+
+hash_str_t css_color_name_floralwhite()
+{
+    return floralwhite;
+}
+
+
+hash_str_t css_color_name_forestgreen()
+{
+    return forestgreen;
+}
+
+
+hash_str_t css_color_name_fuchsia()
+{
+    return fuchsia;
+}
+
+
+hash_str_t css_color_name_gainsboro()
+{
+    return gainsboro;
+}
+
+
+hash_str_t css_color_name_ghostwhite()
+{
+    return ghostwhite;
+}
+
+
+hash_str_t css_color_name_gold()
+{
+    return gold;
+}
+
+
+hash_str_t css_color_name_goldenrod()
+{
+    return goldenrod;
+}
+
+
+hash_str_t css_color_name_gray()
+{
+    return gray;
+}
+
+
+hash_str_t css_color_name_green()
+{
+    return green;
+}
+
+
+hash_str_t css_color_name_greenyellow()
+{
+    return greenyellow;
+}
+
+
+hash_str_t css_color_name_grey()
+{
+    return grey;
+}
+
+
+hash_str_t css_color_name_honeydew()
+{
+    return honeydew;
+}
+
+
+hash_str_t css_color_name_hotpink()
+{
+    return hotpink;
+}
+
+
+hash_str_t css_color_name_indianred()
+{
+    return indianred;
+}
+
+
+hash_str_t css_color_name_indigo()
+{
+    return indigo;
+}
+
+
+hash_str_t css_color_name_ivory()
+{
+    return ivory;
+}
+
+
+hash_str_t css_color_name_khaki()
+{
+    return khaki;
+}
+
+
+hash_str_t css_color_name_lavender()
+{
+    return lavender;
+}
+
+
+hash_str_t css_color_name_lavenderblush()
+{
+    return lavenderblush;
+}
+
+
+hash_str_t css_color_name_lawngreen()
+{
+    return lawngreen;
+}
+
+
+hash_str_t css_color_name_lemonchiffon()
+{
+    return lemonchiffon;
+}
+
+
+hash_str_t css_color_name_lightblue()
+{
+    return lightblue;
+}
+
+
+hash_str_t css_color_name_lightcoral()
+{
+    return lightcoral;
+}
+
+
+hash_str_t css_color_name_lightcyan()
+{
+    return lightcyan;
+}
+
+
+hash_str_t css_color_name_lightgoldenrodyellow()
+{
+    return lightgoldenrodyellow;
+}
+
+
+hash_str_t css_color_name_lightgray()
+{
+    return lightgray;
+}
+
+
+hash_str_t css_color_name_lightgreen()
+{
+    return lightgreen;
+}
+
+
+hash_str_t css_color_name_lightgrey()
+{
+    return lightgrey;
+}
+
+
+hash_str_t css_color_name_lightpink()
+{
+    return lightpink;
+}
+
+
+hash_str_t css_color_name_lightsalmon()
+{
+    return lightsalmon;
+}
+
+
+hash_str_t css_color_name_lightseagreen()
+{
+    return lightseagreen;
+}
+
+
+hash_str_t css_color_name_lightskyblue()
+{
+    return lightskyblue;
+}
+
+
+hash_str_t css_color_name_lightslategray()
+{
+    return lightslategray;
+}
+
+
+hash_str_t css_color_name_lightslategrey()
+{
+    return lightslategrey;
+}
+
+
+hash_str_t css_color_name_lightsteelblue()
+{
+    return lightsteelblue;
+}
+
+
+hash_str_t css_color_name_lightyellow()
+{
+    return lightyellow;
+}
+
+
+hash_str_t css_color_name_lime()
+{
+    return lime;
+}
+
+
+hash_str_t css_color_name_limegreen()
+{
+    return limegreen;
+}
+
+
+hash_str_t css_color_name_linen()
+{
+    return linen;
+}
+
+
+hash_str_t css_color_name_magenta()
+{
+    return magenta;
+}
+
+
+hash_str_t css_color_name_maroon()
+{
+    return maroon;
+}
+
+
+hash_str_t css_color_name_mediumaquamarine()
+{
+    return mediumaquamarine;
+}
+
+
+hash_str_t css_color_name_mediumblue()
+{
+    return mediumblue;
+}
+
+
+hash_str_t css_color_name_mediumorchid()
+{
+    return mediumorchid;
+}
+
+
+hash_str_t css_color_name_mediumpurple()
+{
+    return mediumpurple;
+}
+
+
+hash_str_t css_color_name_mediumseagreen()
+{
+    return mediumseagreen;
+}
+
+
+hash_str_t css_color_name_mediumslateblue()
+{
+    return mediumslateblue;
+}
+
+
+hash_str_t css_color_name_mediumspringgreen()
+{
+    return mediumspringgreen;
+}
+
+
+hash_str_t css_color_name_mediumturquoise()
+{
+    return mediumturquoise;
+}
+
+
+hash_str_t css_color_name_mediumvioletred()
+{
+    return mediumvioletred;
+}
+
+
+hash_str_t css_color_name_midnightblue()
+{
+    return midnightblue;
+}
+
+
+hash_str_t css_color_name_mintcream()
+{
+    return mintcream;
+}
+
+
+hash_str_t css_color_name_mistyrose()
+{
+    return mistyrose;
+}
+
+
+hash_str_t css_color_name_moccasin()
+{
+    return moccasin;
+}
+
+
+hash_str_t css_color_name_navajowhite()
+{
+    return navajowhite;
+}
+
+
+hash_str_t css_color_name_navy()
+{
+    return navy;
+}
+
+
+hash_str_t css_color_name_oldlace()
+{
+    return oldlace;
+}
+
+
+hash_str_t css_color_name_olive()
+{
+    return olive;
+}
+
+
+hash_str_t css_color_name_olivedrab()
+{
+    return olivedrab;
+}
+
+
+hash_str_t css_color_name_orange()
+{
+    return orange;
+}
+
+
+hash_str_t css_color_name_orangered()
+{
+    return orangered;
+}
+
+
+hash_str_t css_color_name_orchid()
+{
+    return orchid;
+}
+
+
+hash_str_t css_color_name_palegoldenrod()
+{
+    return palegoldenrod;
+}
+
+
+hash_str_t css_color_name_palegreen()
+{
+    return palegreen;
+}
+
+
+hash_str_t css_color_name_paleturquoise()
+{
+    return paleturquoise;
+}
+
+
+hash_str_t css_color_name_palevioletred()
+{
+    return palevioletred;
+}
+
+
+hash_str_t css_color_name_papayawhip()
+{
+    return papayawhip;
+}
+
+
+hash_str_t css_color_name_peachpuff()
+{
+    return peachpuff;
+}
+
+
+hash_str_t css_color_name_peru()
+{
+    return peru;
+}
+
+
+hash_str_t css_color_name_pink()
+{
+    return pink;
+}
+
+
+hash_str_t css_color_name_plum()
+{
+    return plum;
+}
+
+
+hash_str_t css_color_name_powderblue()
+{
+    return powderblue;
+}
+
+
+hash_str_t css_color_name_purple()
+{
+    return purple;
+}
+
+
+hash_str_t css_color_name_rebeccapurple()
+{
+    return rebeccapurple;
+}
+
+
+hash_str_t css_color_name_red()
+{
+    return red;
+}
+
+
+hash_str_t css_color_name_rosybrown()
+{
+    return rosybrown;
+}
+
+
+hash_str_t css_color_name_royalblue()
+{
+    return royalblue;
+}
+
+
+hash_str_t css_color_name_saddlebrown()
+{
+    return saddlebrown;
+}
+
+
+hash_str_t css_color_name_salmon()
+{
+    return salmon;
+}
+
+
+hash_str_t css_color_name_sandybrown()
+{
+    return sandybrown;
+}
+
+
+hash_str_t css_color_name_seagreen()
+{
+    return seagreen;
+}
+
+
+hash_str_t css_color_name_seashell()
+{
+    return seashell;
+}
+
+
+hash_str_t css_color_name_sienna()
+{
+    return sienna;
+}
+
+
+hash_str_t css_color_name_silver()
+{
+    return silver;
+}
+
+
+hash_str_t css_color_name_skyblue()
+{
+    return skyblue;
+}
+
+
+hash_str_t css_color_name_slateblue()
+{
+    return slateblue;
+}
+
+
+hash_str_t css_color_name_slategray()
+{
+    return slategray;
+}
+
+
+hash_str_t css_color_name_slategrey()
+{
+    return slategrey;
+}
+
+
+hash_str_t css_color_name_snow()
+{
+    return snow;
+}
+
+
+hash_str_t css_color_name_springgreen()
+{
+    return springgreen;
+}
+
+
+hash_str_t css_color_name_steelblue()
+{
+    return steelblue;
+}
+
+
+hash_str_t css_color_name_tan_col()
+{
+    return tan_col;
+}
+
+
+hash_str_t css_color_name_teal()
+{
+    return teal;
+}
+
+
+hash_str_t css_color_name_thistle()
+{
+    return thistle;
+}
+
+
+hash_str_t css_color_name_tomato()
+{
+    return tomato;
+}
+
+
+hash_str_t css_color_name_turquoise()
+{
+    return turquoise;
+}
+
+
+hash_str_t css_color_name_violet()
+{
+    return violet;
+}
+
+
+hash_str_t css_color_name_wheat()
+{
+    return wheat;
+}
+
+
+hash_str_t css_color_name_white()
+{
+    return white;
+}
+
+
+hash_str_t css_color_name_whitesmoke()
+{
+    return whitesmoke;
+}
+
+
+hash_str_t css_color_name_yellow()
+{
+    return yellow;
+}
+
+
+hash_str_t css_color_name_yellowgreen()
+{
+    return yellowgreen;
+}
