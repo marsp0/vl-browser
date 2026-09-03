@@ -139,7 +139,7 @@ static void test_color_name_invalid()
     css_parser_node_t* decl = sheet->rules->decls;
     css_value_t* actual     = css_value_parse_color(decl->comp_vals);
 
-    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_INHERIT, CSS_VALUE_TYPE_UNIT_NONE);
+    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_INITIAL, CSS_VALUE_TYPE_UNIT_NONE);
     expected->color         = 0;
 
     ASSERT_CSS_VALUE(actual, expected);
@@ -162,7 +162,7 @@ static void test_color_hex8_invalid()
     css_parser_node_t* decl = sheet->rules->decls;
     css_value_t* actual     = css_value_parse_color(decl->comp_vals);
 
-    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_INHERIT, CSS_VALUE_TYPE_UNIT_NONE);
+    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_INITIAL, CSS_VALUE_TYPE_UNIT_NONE);
     expected->color         = 0;
 
     ASSERT_CSS_VALUE(actual, expected);
@@ -185,7 +185,7 @@ static void test_color_hex6_invalid()
     css_parser_node_t* decl = sheet->rules->decls;
     css_value_t* actual     = css_value_parse_color(decl->comp_vals);
 
-    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_INHERIT, CSS_VALUE_TYPE_UNIT_NONE);
+    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_INITIAL, CSS_VALUE_TYPE_UNIT_NONE);
     expected->color         = 0;
 
     ASSERT_CSS_VALUE(actual, expected);
@@ -208,7 +208,7 @@ static void test_color_hex3_invalid()
     css_parser_node_t* decl = sheet->rules->decls;
     css_value_t* actual     = css_value_parse_color(decl->comp_vals);
 
-    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_INHERIT, CSS_VALUE_TYPE_UNIT_NONE);
+    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_INITIAL, CSS_VALUE_TYPE_UNIT_NONE);
     expected->color         = 0;
 
     ASSERT_CSS_VALUE(actual, expected);

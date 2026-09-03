@@ -106,7 +106,7 @@ static uint32_t color_value_add_comp(uint32_t color, uint32_t comp, uint32_t bit
 
 css_value_t* css_value_parse_color(css_parser_node_t* node)
 {
-    css_value_t* value = css_value_new(CSS_VALUE_TYPE_INHERIT, CSS_VALUE_TYPE_UNIT_NONE);
+    css_value_t* value = css_value_new(CSS_VALUE_TYPE_INITIAL, CSS_VALUE_TYPE_UNIT_NONE);
 
     if (!is_color_valid(node)) { return value; }
 
