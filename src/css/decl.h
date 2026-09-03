@@ -9,7 +9,8 @@
 typedef enum
 {
     CSS_PROP_INVALID,
-    CSS_PROP_COLOR
+    CSS_PROP_COLOR,
+    CSS_PROP_BACKGROUND_COLOR
 } css_prop_e;
 
 typedef struct css_decl_t

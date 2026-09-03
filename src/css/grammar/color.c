@@ -15,6 +15,7 @@
 #include "css/parser_types.h"
 #include "css/grammar/color_name_map.h"
 #include "css/tokenizer_types.h"
+#include "css/name_constants.h"
 
 /********************/
 /*      defines     */
@@ -41,6 +42,7 @@ static bool is_color_valid(css_parser_node_t* node)
 
     css_token_t* t                  = node->token;
     css_token_type_e t_type         = t->type;
+    hash_str_t name                 = node->name;
 
     if (t_type != CSS_TOKEN_IDENT && t_type != CSS_TOKEN_HASH)
     {
@@ -48,9 +50,12 @@ static bool is_color_valid(css_parser_node_t* node)
     }
 
     // unknown name
-    if (t_type == CSS_TOKEN_IDENT && css_color_name_map_get(node->name) == 0)
+    if (t_type == CSS_TOKEN_IDENT)
     {
-        return false;
+        if (name != css_name_initial() && name != css_name_inherit() && name != css_name_unset() && css_color_name_map_get(name) == 0)
+        {
+            return false;
+        }
     }
 
     if (t_type == CSS_TOKEN_HASH)
@@ -107,6 +112,7 @@ css_value_t* css_value_parse_color(css_parser_node_t* node)
 
     css_token_t* t                  = node->token;
     css_token_type_e t_type         = t->type;
+    hash_str_t name                 = node->name;
     unsigned char* data             = t->data;
     uint32_t data_size              = t->data_size;
     css_parser_node_type_e n_type   = node->type;
@@ -114,7 +120,23 @@ css_value_t* css_value_parse_color(css_parser_node_t* node)
 
     if (n_type == CSS_PARSER_NODE_TYPE_TOKEN && t_type == CSS_TOKEN_IDENT)
     {
-        color = css_color_name_map_get(node->name);
+        if (name == css_name_initial())
+        {
+            value->type = CSS_VALUE_TYPE_INITIAL;
+        }
+        else if (name == css_name_inherit())
+        {
+            value->type = CSS_VALUE_TYPE_INHERIT;
+        }
+        else if (name == css_name_unset())
+        {
+            value->type = CSS_VALUE_TYPE_UNSET;
+        }
+        else
+        {
+            value->type = CSS_VALUE_TYPE_COLOR;
+            value->color = css_color_name_map_get(name);;
+        }
     }
     else if (n_type == CSS_PARSER_NODE_TYPE_TOKEN && t_type == CSS_TOKEN_HASH)
     {
@@ -146,9 +168,10 @@ css_value_t* css_value_parse_color(css_parser_node_t* node)
             color = color_value_add_comp(color, color_value_convert_ascii(data[1], data[1]), 16);
             color = color_value_add_comp(color, color_value_convert_ascii(data[0], data[0]), 24);
         }
+
+        value->type = CSS_VALUE_TYPE_COLOR;
+        value->color = color;
     }
 
-    value->type = CSS_VALUE_TYPE_COLOR;
-    value->color = color;
     return value;
 }

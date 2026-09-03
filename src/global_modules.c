@@ -16,6 +16,7 @@
 #include "css/parser_types.h"
 #include "css/prop_constants.h"
 #include "css/grammar/color_name_map.h"
+#include "css/name_constants.h"
 
 void global_modules_init()
 {
@@ -37,6 +38,7 @@ void global_modules_init()
     css_parser_types_init();
     css_prop_names_init();
     css_color_name_map_init();
+    css_name_constants_init();
 }
 
 

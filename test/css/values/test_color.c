@@ -215,6 +215,75 @@ static void test_color_hex3_invalid()
 }
 
 
+static void test_color_inherit()
+{
+    unsigned char data[] = "p { color: inherit; }";
+    uint32_t data_size = sizeof(data) - 1;
+
+    css_parser_init(data, data_size);
+    css_parser_node_t* sheet = css_parser_parse_stylesheet();
+    css_parser_free();
+
+    ASSERT_EQUAL(sheet->type, CSS_PARSER_NODE_TYPE_STYLESHEET);
+    ASSERT_POINTER_EXISTS(sheet->rules);
+    ASSERT_POINTER_EXISTS(sheet->rules->decls);
+
+    css_parser_node_t* decl = sheet->rules->decls;
+    css_value_t* actual     = css_value_parse_color(decl->comp_vals);
+
+    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_INHERIT, CSS_VALUE_TYPE_UNIT_NONE);
+    expected->color         = 0;
+
+    ASSERT_CSS_VALUE(actual, expected);
+}
+
+
+static void test_color_initial()
+{
+    unsigned char data[] = "p { color: initial; }";
+    uint32_t data_size = sizeof(data) - 1;
+
+    css_parser_init(data, data_size);
+    css_parser_node_t* sheet = css_parser_parse_stylesheet();
+    css_parser_free();
+
+    ASSERT_EQUAL(sheet->type, CSS_PARSER_NODE_TYPE_STYLESHEET);
+    ASSERT_POINTER_EXISTS(sheet->rules);
+    ASSERT_POINTER_EXISTS(sheet->rules->decls);
+
+    css_parser_node_t* decl = sheet->rules->decls;
+    css_value_t* actual     = css_value_parse_color(decl->comp_vals);
+
+    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_INITIAL, CSS_VALUE_TYPE_UNIT_NONE);
+    expected->color         = 0;
+
+    ASSERT_CSS_VALUE(actual, expected);
+}
+
+
+static void test_color_unset()
+{
+    unsigned char data[] = "p { color: unset; }";
+    uint32_t data_size = sizeof(data) - 1;
+
+    css_parser_init(data, data_size);
+    css_parser_node_t* sheet = css_parser_parse_stylesheet();
+    css_parser_free();
+
+    ASSERT_EQUAL(sheet->type, CSS_PARSER_NODE_TYPE_STYLESHEET);
+    ASSERT_POINTER_EXISTS(sheet->rules);
+    ASSERT_POINTER_EXISTS(sheet->rules->decls);
+
+    css_parser_node_t* decl = sheet->rules->decls;
+    css_value_t* actual     = css_value_parse_color(decl->comp_vals);
+
+    css_value_t* expected   = css_value_new(CSS_VALUE_TYPE_UNSET, CSS_VALUE_TYPE_UNIT_NONE);
+    expected->color         = 0;
+
+    ASSERT_CSS_VALUE(actual, expected);
+}
+
+
 void test_css_value_color()
 {
     TEST_CASE(test_color_name_valid);
@@ -226,4 +295,7 @@ void test_css_value_color()
     TEST_CASE(test_color_hex8_invalid);
     TEST_CASE(test_color_hex6_invalid);
     TEST_CASE(test_color_hex3_invalid);
+    TEST_CASE(test_color_inherit);
+    TEST_CASE(test_color_initial);
+    TEST_CASE(test_color_unset);
 }
