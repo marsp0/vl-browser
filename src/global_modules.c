@@ -12,8 +12,8 @@
 #include "html/mathml_tag_constants.h"
 #include "html/mathml_attr_constants.h"
 
-#include "css/prop_constants.h"
-#include "css/name_constants.h"
+#include "css/properties.h"
+#include "css/values.h"
 #include "css/tokenizer/tokenizer.h"
 #include "css/parser/types.h"
 #include "css/grammar/color_name_map.h"
@@ -36,9 +36,9 @@ void global_modules_init()
 
     html_populate_namespaces();
     css_parser_types_init();
-    css_prop_names_init();
+    css_properties_init();
     css_color_name_map_init();
-    css_name_constants_init();
+    css_values_init();
 }
 
 

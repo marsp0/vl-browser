@@ -7,7 +7,7 @@
 /*     includes     */
 /********************/
 
-#include "css/name_constants.h"
+#include "css/values.h"
 
 /********************/
 /*      defines     */
@@ -32,7 +32,7 @@ hash_str_t unset = 0;
 /* public functions */
 /********************/
 
-void css_name_constants_init()
+void css_values_init()
 {
     inherit = hash_str_new("inherit", 7);
     initial = hash_str_new("initial", 7);
@@ -40,19 +40,19 @@ void css_name_constants_init()
 }
 
 
-hash_str_t css_name_inherit()
+hash_str_t css_value_inherit()
 {
     return inherit;
 }
 
 
-hash_str_t css_name_initial()
+hash_str_t css_value_initial()
 {
     return initial;
 }
 
 
-hash_str_t css_name_unset()
+hash_str_t css_value_unset()
 {
     return unset;
 }

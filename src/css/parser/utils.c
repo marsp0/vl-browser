@@ -18,7 +18,7 @@
 #include "css/parser/types.h"
 #include "css/grammar/color.h"
 #include "css/tokenizer/types.h"
-#include "css/prop_constants.h"
+#include "css/properties.h"
 #include "util/not_implemented.h"
 
 /********************/

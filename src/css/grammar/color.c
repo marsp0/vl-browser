@@ -15,7 +15,7 @@
 #include "css/parser/types.h"
 #include "css/grammar/color_name_map.h"
 #include "css/tokenizer/types.h"
-#include "css/name_constants.h"
+#include "css/values.h"
 
 /********************/
 /*      defines     */
@@ -52,7 +52,7 @@ static bool is_color_valid(css_parser_node_t* node)
     // unknown name
     if (t_type == CSS_TOKEN_IDENT)
     {
-        if (name != css_name_initial() && name != css_name_inherit() && name != css_name_unset() && css_color_name_map_get(name) == 0)
+        if (name != css_value_initial() && name != css_value_inherit() && name != css_value_unset() && css_color_name_map_get(name) == 0)
         {
             return false;
         }
@@ -120,15 +120,15 @@ css_value_t* css_value_parse_color(css_parser_node_t* node)
 
     if (n_type == CSS_PARSER_NODE_TYPE_TOKEN && t_type == CSS_TOKEN_IDENT)
     {
-        if (name == css_name_initial())
+        if (name == css_value_initial())
         {
             value->type = CSS_VALUE_TYPE_INITIAL;
         }
-        else if (name == css_name_inherit())
+        else if (name == css_value_inherit())
         {
             value->type = CSS_VALUE_TYPE_INHERIT;
         }
-        else if (name == css_name_unset())
+        else if (name == css_value_unset())
         {
             value->type = CSS_VALUE_TYPE_UNSET;
         }

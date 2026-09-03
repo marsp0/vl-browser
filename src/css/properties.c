@@ -7,7 +7,7 @@
 /*     includes     */
 /********************/
 
-#include "prop_constants.h"
+#include "properties.h"
 
 /********************/
 /*      defines     */
@@ -36,7 +36,7 @@ hash_str_t css_prop_color()
 }
 
 
-void css_prop_names_init()
+void css_properties_init()
 {
     color = hash_str_new("color", 5);
 }

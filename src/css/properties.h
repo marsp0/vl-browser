@@ -403,4 +403,4 @@ hash_str_t css_prop_wrap_through();
 hash_str_t css_prop_writing_mode();
 hash_str_t css_prop_z_index();
 
-void css_prop_names_init();
+void css_properties_init();
