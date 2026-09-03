@@ -1,0 +1,11 @@
+#pragma once
+
+typedef enum
+{
+    CSS_PROP_INVALID,
+    CSS_PROP_COLOR,
+    CSS_PROP_PADDING_TOP,
+    CSS_PROP_PADDING_BOTTOM,
+    CSS_PROP_PADDING_LEFT,
+    CSS_PROP_PADDING_RIGHT
+} css_prop_e;
