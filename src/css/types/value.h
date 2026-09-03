@@ -65,6 +65,7 @@ typedef struct css_value_t
     union
     {
         uint32_t color;
+        float real;
     };
 
 } css_value_t;
