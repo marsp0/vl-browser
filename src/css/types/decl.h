@@ -3,13 +3,8 @@
 #include <stdbool.h>
 
 #include "dom/hash_str.h"
+#include "css/types/property.h"
 #include "css/types/value.h"
-
-typedef enum
-{
-    CSS_PROP_INVALID,
-    CSS_PROP_COLOR
-} css_prop_e;
 
 typedef struct css_decl_t
 {
