@@ -16,7 +16,7 @@
 #include "css/types/decl.h"
 #include "css/types/style_sheet.h"
 #include "css/parser/types.h"
-#include "css/grammar/color.h"
+#include "css/grammar/grammar.h"
 #include "css/tokenizer/types.h"
 #include "css/properties.h"
 #include "util/not_implemented.h"

@@ -6,7 +6,7 @@
 #include "css/types/value.h"
 #include "css/parser/parser.h"
 #include "css/parser/types.h"
-#include "css/grammar/color.h"
+#include "css/grammar/grammar.h"
 
 static void test_color_name_valid()
 {

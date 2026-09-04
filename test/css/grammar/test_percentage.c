@@ -7,7 +7,7 @@
 #include "css/types/value.h"
 #include "css/parser/types.h"
 #include "css/parser/parser.h"
-#include "css/grammar/percentage.h"
+#include "css/grammar/grammar.h"
 
 
 static void test_percentage_valid_1()
