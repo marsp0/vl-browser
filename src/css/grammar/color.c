@@ -31,7 +31,7 @@
 /* static functions */
 /********************/
 
-static bool is_color_valid(css_parser_node_t* node)
+static bool is_valid(css_parser_node_t* node)
 {
     css_parser_node_type_e n_type   = node->type;
 
@@ -108,7 +108,7 @@ css_value_t* css_value_parse_color(css_parser_node_t* node)
 {
     css_value_t* value = css_value_new(CSS_VALUE_TYPE_INITIAL, CSS_VALUE_TYPE_UNIT_NONE);
 
-    if (!is_color_valid(node)) { return value; }
+    if (!is_valid(node)) { return value; }
 
     css_token_t* t                  = node->token;
     css_token_type_e t_type         = t->type;
