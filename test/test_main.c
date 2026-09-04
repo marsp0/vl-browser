@@ -10,8 +10,9 @@
 #include "css/tokenizer/runner.h"
 #include "css/parser/test_parser.h"
 #include "css/parser/test_conversions.h"
-#include "css/values/test_color.h"
-#include "css/values/test_percentage.h"
+#include "css/grammar/test_color.h"
+#include "css/grammar/test_percentage.h"
+#include "css/grammar/test_length.h"
 
 #include "dom/hash_str.h"
 #include "global_modules.h"
@@ -36,6 +37,7 @@ int32_t main()
     TEST_GROUP(test_css_conversions);
     TEST_GROUP(test_css_value_color);
     TEST_GROUP(test_css_value_percentage);
+    TEST_GROUP(test_css_value_length);
 
     TESTS_SUMMARY();
 

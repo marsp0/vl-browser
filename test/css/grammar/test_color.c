@@ -1,7 +1,7 @@
 #include "test_color.h"
 
 #include "test_utils.h"
-#include "css/values/utils.h"
+#include "css/grammar/utils.h"
 
 #include "css/types/value.h"
 #include "css/parser/parser.h"

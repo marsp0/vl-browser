@@ -7,10 +7,9 @@
 /*     includes     */
 /********************/
 
-#include "percentage.h"
+#include "length.h"
 
 #include <stdbool.h>
-#include <assert.h>
 
 #include "css/values.h"
 #include "css/types/value.h"
@@ -52,7 +51,7 @@ static bool is_valid(css_parser_node_t* node)
         return true;
     }
 
-    if (t_type != CSS_TOKEN_PERCENTAGE)
+    if (t_type != CSS_TOKEN_DIMENSION)
     {
         return false;
     }
@@ -65,7 +64,7 @@ static bool is_valid(css_parser_node_t* node)
 /* public functions */
 /********************/
 
-css_value_t* css_value_parse_percentage(css_parser_node_t* node)
+css_value_t* css_value_parse_length(css_parser_node_t* node)
 {
     css_value_t* value = css_value_new(CSS_VALUE_TYPE_INITIAL, CSS_VALUE_TYPE_UNIT_NONE);
 
@@ -77,22 +76,16 @@ css_value_t* css_value_parse_percentage(css_parser_node_t* node)
 
     if (t_type == CSS_TOKEN_IDENT)
     {
-        if (n_name == css_value_initial())
-        {
-            value->type = CSS_VALUE_TYPE_INITIAL;
-        }
-        else if (n_name == css_value_inherit())
-        {
-            value->type = CSS_VALUE_TYPE_INHERIT;
-        }
-        else if (n_name == css_value_unset())
-        {
-            value->type = CSS_VALUE_TYPE_UNSET;
-        }
+        if (n_name == css_value_initial())          { value->type = CSS_VALUE_TYPE_INITIAL; }
+        else if (n_name == css_value_inherit())     { value->type = CSS_VALUE_TYPE_INHERIT; }
+        else if (n_name == css_value_unset())       { value->type = CSS_VALUE_TYPE_UNSET; }
     }
-    else if (t_type == CSS_TOKEN_PERCENTAGE)
+
+    if (t_type == CSS_TOKEN_DIMENSION)
     {
-        value->type = CSS_VALUE_TYPE_PERCENTAGE;
+        // treat everything as px
+        value->type = CSS_VALUE_TYPE_LENGTH;
+        value->unit = CSS_VALUE_TYPE_UNIT_PX;
         value->real = t->real;
     }
 

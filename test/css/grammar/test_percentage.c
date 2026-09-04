@@ -1,8 +1,8 @@
-#include "css/values/test_percentage.h"
+#include "css/grammar/test_percentage.h"
 
 #include "test_utils.h"
 
-#include "css/values/utils.h"
+#include "css/grammar/utils.h"
 
 #include "css/types/value.h"
 #include "css/parser/types.h"
