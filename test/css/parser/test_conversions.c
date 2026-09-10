@@ -81,7 +81,7 @@ void ASSERT_CSS_DECL(css_decl_t* a, css_decl_t* e)
 }
 
 
-static void test_css_parser_sheet_to_om_sheet_1()
+static void test_css_parser_node_to_style_sheet()
 {
     unsigned char data[] = "p { color: red; color: #FF0000 }";
     uint32_t data_size = sizeof(data) - 1;
@@ -92,7 +92,7 @@ static void test_css_parser_sheet_to_om_sheet_1()
 
     ASSERT_EQUAL(sheet->type, CSS_PARSER_NODE_TYPE_STYLESHEET);
 
-    css_style_sheet_t* actual   = css_parser_sheet_to_om_sheet(sheet);
+    css_style_sheet_t* actual   = css_parser_node_to_style_sheet(sheet);
     css_style_sheet_t* expected = css_style_sheet_new();
     css_rule_t* rule            = css_rule_new(CSS_RULE_TYPE_STYLE);
 
@@ -117,5 +117,5 @@ static void test_css_parser_sheet_to_om_sheet_1()
 
 void test_css_conversions()
 {
-    TEST_CASE(test_css_parser_sheet_to_om_sheet_1);
+    TEST_CASE(test_css_parser_node_to_style_sheet);
 }
