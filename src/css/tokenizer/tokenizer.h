@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "tokenizer_types.h"
+#include "css/tokenizer/types.h"
 #include "dom/hash_str.h"
 
 void        css_tokenizer_global_init();

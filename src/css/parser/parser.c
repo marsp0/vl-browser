@@ -6,9 +6,9 @@
 #include <stdlib.h>
 
 #include "util/not_implemented.h"
-#include "css/tokenizer.h"
-#include "css/tokenizer_types.h"
-#include "css/parser_types.h"
+#include "css/tokenizer/tokenizer.h"
+#include "css/tokenizer/types.h"
+#include "css/parser/types.h"
 
 /*
  * Notes

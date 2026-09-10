@@ -4,9 +4,9 @@
 
 #include <assert.h>
 
-#include "css/parser.h"
-#include "css/parser_types.h"
-#include "css/tokenizer_types.h"
+#include "css/parser/parser.h"
+#include "css/parser/types.h"
+#include "css/tokenizer/types.h"
 
 
 static css_parser_node_t* new_data_token_node(hash_str_t data, css_token_type_e type)
@@ -714,7 +714,7 @@ static void test_parser_13()
 }
 
 
-void css_parser_test()
+void test_css_parser()
 {
     TEST_CASE(test_parser_1);
     TEST_CASE(test_parser_2);

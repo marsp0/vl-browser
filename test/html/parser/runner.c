@@ -388,7 +388,7 @@ static void run_parser_test()
 }
 
 
-void html_parser_test()
+void test_html_parser()
 {
     const unsigned char* files[] = {
                                     "./test/html/parser/data/debug.data",

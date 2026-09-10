@@ -5,8 +5,8 @@
 #include "test_utils.h"
 #include "css/tokenizer/test_tokenizer_utils.h"
 
-#include "css/parser_types.h"
-#include "css/tokenizer_types.h"
+#include "css/parser/types.h"
+#include "css/tokenizer/types.h"
 
 static void print_token(css_token_t* t)
 {

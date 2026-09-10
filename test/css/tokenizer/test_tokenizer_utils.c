@@ -1,7 +1,7 @@
 #include "test_tokenizer_utils.h"
 
 #include "test_utils.h"
-#include "css/tokenizer_types.h"
+#include "css/tokenizer/types.h"
 
 void ASSERT_CSS_TOKEN(css_token_t* a, css_token_t* e)
 {
