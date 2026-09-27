@@ -1,15 +1,4 @@
--- before merge
-- [done] handle multiple rules
-- [done] handle multiple declarations
-- [done] handle hex color values
-- [done] is folder structure inside /css ok ?
-- [in progress] grammar check
-- move value check for (initial/inherit/unset) into a single place ? Currently duplicated everywhere
-- is parser_utils appropriate place for all these functions ? Should they be moved to separate files with different file name ?
+## platform
 
-
-
--- after merge
-- at rule handling
-- nested declarations, rules etc
-- selectors
+- 27.09.2026
+    - 
