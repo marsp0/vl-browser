@@ -110,13 +110,13 @@ static void xcb_init()
     }
 
     // change window name
-    xcb_change_property(conn
-                        XCB_PROP_MODE_REPLACE
+    xcb_change_property(conn,
+                        XCB_PROP_MODE_REPLACE,
                         window,
-                        XCB_ATOM_WM_NAME
-                        XCB_ATOM_STRING
+                        XCB_ATOM_WM_NAME,
+                        XCB_ATOM_STRING,
                         8,
-                        13
+                        13,
                         "VL Browser");
 
     xcb_intern_atom_cookie_t protocols_cookie   = xcb_intern_atom(conn, 1, 12, "WM_PROTOCOLS");
