@@ -15,26 +15,26 @@ int main()
     global_modules_init();
     platform_init();
 
-    struct timespec update_time = { 0 };
-    struct timespec dur         = { 0, 5555555L };
-    struct timespec rem         = { 0 };
-    clock_gettime(CLOCK_MONOTONIC, &update_time);
-    bool run = true;
+    struct timespec start   = { 0 };
+    struct timespec end     = { 0 };
+    struct timespec diff    = { 0 };
+    struct timespec dur     = { 0 };
+    struct timespec rem     = { 0 };
+    bool run                = true;
 
     while (run)
     {
-        struct timespec now = { 0 };
-        clock_gettime(CLOCK_MONOTONIC, &now);
-
-        struct timespec diff = time_diff(update_time, now);
-        if (diff.tv_sec == 0 && diff.tv_nsec < 16666666L)
-        {
-            nanosleep(&dur, &rem);
-            continue;
-        }
-        update_time = now;
+        clock_gettime(CLOCK_MONOTONIC, &start);
 
         platform_process_events(&run);
+
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        diff = time_diff(start, end);
+        if (diff.tv_sec == 0 && diff.tv_nsec < 16000000L)
+        {
+            dur.tv_nsec = 16000000L - diff.tv_nsec;
+            nanosleep(&dur, &rem);
+        }
 
         if (!run) { break; }
     }
