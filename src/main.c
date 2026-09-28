@@ -20,13 +20,12 @@ int main()
     struct timespec diff    = { 0 };
     struct timespec dur     = { 0 };
     struct timespec rem     = { 0 };
-    bool run                = true;
 
-    while (run)
+    while (platform_should_run())
     {
         clock_gettime(CLOCK_MONOTONIC, &start);
 
-        platform_process_events(&run);
+        platform_process_events();
 
         clock_gettime(CLOCK_MONOTONIC, &end);
         diff = time_diff(start, end);
@@ -35,8 +34,6 @@ int main()
             dur.tv_nsec = 16000000L - diff.tv_nsec;
             nanosleep(&dur, &rem);
         }
-
-        if (!run) { break; }
     }
 
     global_modules_free();

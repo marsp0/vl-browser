@@ -33,6 +33,8 @@
 /* static variables */
 /********************/
 
+static bool run                 = true;
+
 static xcb_connection_t* conn   = NULL;
 static xcb_generic_error_t* err = NULL;
 static xcb_screen_t* screen     = NULL;
@@ -195,10 +197,11 @@ void platform_init()
 {
     xcb_init();
     egl_init();
+    run = true;
 }
 
 
-void platform_process_events(bool* run)
+void platform_process_events()
 {
     xcb_generic_event_t* event              = xcb_poll_for_event(conn);
     // xcb_expose_event_t* expose              = NULL;
@@ -218,12 +221,11 @@ void platform_process_events(bool* run)
 
             case XCB_CLIENT_MESSAGE:
 
-                client_msg = (xcb_client_message_event_t*)event;
-                xcb_client_message_data_t data = client_msg->data;
-
+                client_msg                      = (xcb_client_message_event_t*)event;
+                xcb_client_message_data_t data  = client_msg->data;
                 if (data.data32[0] == wm_close)
                 {
-                    *run = false;
+                    run = false;
                 }
                 break;
 
@@ -237,6 +239,12 @@ void platform_process_events(bool* run)
         if (event) { free(event); }
         event = xcb_poll_for_event(conn);
     }
+}
+
+
+bool platform_should_run()
+{
+    return run;
 }
 
 
