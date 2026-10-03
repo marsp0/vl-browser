@@ -13,13 +13,17 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Build Tests (release)
+    - name: Install dependecies
       shell: bash
-      run: make clean && make tvl
+      run: sudo apt install -y libegl1-mesa libgles2-mesa-dev mesa-utils-extra
 
     - name: Build Browser (release)
       shell: bash
       run: make clean && make vl
+
+    - name: Build Tests (release)
+      shell: bash
+      run: make clean && make tvl
 
     - name: Build Tests
       shell: bash
