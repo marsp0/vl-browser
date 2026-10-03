@@ -12,7 +12,7 @@ TEST_OBJ_FILES   := $(addprefix out/, $(TEST_SRC_FILES:.c=.o))
 GCC_INCLUDE := -I./src/
 GCC_FLAGS   := -std=gnu11 -Wall -Wextra -Werror -Wshadow -Wpedantic 
 GCC_FLAGS   += -Wnull-dereference -Wunused -Wconversion -Wno-pointer-sign
-LD_FLAGS    := -lpthread -lm -lrt -ldl
+LD_FLAGS    := -lpthread -lm -lrt -ldl -lxcb -lEGL -lGL
 
 ifeq ($(debug), 1)
 	GCC_FLAGS  += -g -O0 -fprofile-arcs -ftest-coverage

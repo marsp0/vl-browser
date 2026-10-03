@@ -1,5 +1,7 @@
 #include "global_modules.h"
 
+#include "platform/opengl.h"
+
 #include "dom/hash_str.h"
 
 #include "html/tokenizer.h"
@@ -20,6 +22,8 @@
 
 void global_modules_init()
 {
+    platform_opengl_init();
+
     hash_str_pool_new();
     html_named_char_ref_map_init();
     html_tokenizer_global_init();

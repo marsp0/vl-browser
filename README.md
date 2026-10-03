@@ -17,3 +17,8 @@ Overall goals for this project:
 - [css-tokenizer-tests](https://github.com/romainmenke/css-tokenizer-tests)
 - [parse-css](https://github.com/tabatkins/parse-css)
 
+
+## Useful links
+
+- [How browsers Work](https://taligarsiel.com/projects/howbrowserswork1.html) by Tali Garsiel
+- [ ]
