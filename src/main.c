@@ -36,5 +36,6 @@ int main()
         }
     }
 
+    platform_free();
     global_modules_free();
 }

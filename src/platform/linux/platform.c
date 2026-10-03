@@ -256,5 +256,11 @@ void platform_paint()
 
 void platform_free()
 {
+    eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    eglDestroySurface(display, surface);
+    eglDestroyContext(display, context);
+    eglTerminate(display);
 
+    xcb_destroy_window(conn, window);
+    xcb_disconnect(conn);
 }
